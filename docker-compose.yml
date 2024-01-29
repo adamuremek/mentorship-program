@@ -1,0 +1,28 @@
+version: '3.8'
+
+volumes:
+  postgres_data:
+  
+services:
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=development
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  web:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./mentorship_program_project:/mentorship_program_project
+    ports:
+      - 8000:8000
+    env_file:
+      - ./docker/.env
+    depends_on:
+      - db
+
