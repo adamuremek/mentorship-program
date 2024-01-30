@@ -11,9 +11,9 @@ RUN pip install -r requirements.txt
 
 RUN apt-get update && apt-get install -y netcat-openbsd
 
-COPY ./docker/entrypoint.sh .
-RUN chmod +x ./entrypoint.sh
+COPY ./docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 COPY ../ .
 
-#ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
