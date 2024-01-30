@@ -36,7 +36,7 @@ For those unfamiliar with Docker, you can find more information in the [Docker D
 	
 	By default, the database can be accessed at:
 	- Host: `localhost`
-	- Port: `5432`
+	- Port: `7654`
 	- Database: `development`
 	- User: `user`
 	- Password: `password`
