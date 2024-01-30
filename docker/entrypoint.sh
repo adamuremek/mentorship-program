@@ -1,9 +1,11 @@
 #!/bin/bash
 
+# Check if postgres is being used
 if [ "$DB" = "postgres" ]
 then
     echo "Wating for postgres"
 
+    # Wait for postgres to become available
     while ! nc -z -w 1 $DB_HOST $DB_PORT; do
         sleep 1
     done
@@ -11,7 +13,9 @@ then
     echo "Postgres started"
 fi
 
+# Flush the db and apply migrations
 python manage.py flush --no-input
 python manage.py migrate
 
+# Execute the default docker cmd or one passed to the entrypoint script
 exec "$@"
