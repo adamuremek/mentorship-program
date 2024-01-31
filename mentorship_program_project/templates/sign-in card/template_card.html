@@ -1,0 +1,67 @@
+<html lang="en">
+	
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'sign-in card/template_card.css' %}">
+</head>
+<body>
+    <main>
+        <div class="test_component">
+            {% block card_content %}{% endblock %}
+        </div>
+    </main>
+</body>
+
+
+
+
+
+<!-- 
+	TODO:
+	Create variations for that following displays:
+
+	(Use common header but still insert text [CreateAccount/JoinToday])
+
+	Combinations of body:
+	{
+		h2
+		btn
+		btn
+	},
+	{
+		input:text
+		input:text
+		input:text
+		btn
+	},
+	{
+		input:text
+		input:text, input: spinner
+		input:text
+		btn
+	},
+	{
+
+	}
+
+
+
+	Standard Template:
+	{
+		h1
+		---
+		[
+		
+			<Insert HTML body req>
+
+				
+		]
+		btn:next
+
+	}
+
+ -->
