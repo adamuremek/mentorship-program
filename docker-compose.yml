@@ -20,7 +20,7 @@ services:
     #  to allow db connections outside of the container
     ports:
         # External_port:internal_port
-      - 5432:5432
+      - 7654:5432
   # Container for the django project
   web:
     build: 
