@@ -138,3 +138,6 @@ Desktop.ini
 .settings/
 *.sublime-project
 *.sublime-workspace
+
+# Postgres data
+postgres_data/
