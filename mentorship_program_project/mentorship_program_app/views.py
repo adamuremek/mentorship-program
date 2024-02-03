@@ -8,3 +8,18 @@ def test_view1(request):
 
     }
     return HttpResponse(template.render(context, request))
+
+def default(req):
+    template = loader.get_template('index.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
+def landing(req):
+    template = loader.get_template('landing_page.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
+def role_test(req):
+    template = loader.get_template('sign-in-card/experiment.html')
+    context = {}
+    return HttpResponse(template.render(context, req))

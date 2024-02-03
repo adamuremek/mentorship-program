@@ -19,6 +19,8 @@ from django.urls import include, path
 from mentorship_program_app import views
 
 urlpatterns = [
-    path('test1', views.test_view1, name='test_view1'),
+    path('', views.default, name='default'),
+    path('landing/', views.landing, name='landing'),
+    path('test1/', views.test_view1, name='test_view1'),
     path('admin/', admin.site.urls),
 ]
