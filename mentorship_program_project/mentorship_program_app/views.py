@@ -4,9 +4,12 @@ from django.template import loader
 
 def test_view1(request):
     template = loader.get_template('sign-in card/role_selection.html')
-    context = {
+    context = {}
+    return HttpResponse(template.render(context, request))
 
-    }
+def test_view2(request):
+    template = loader.get_template('sign-in card/account_activation_mentee.html')
+    context = {}
     return HttpResponse(template.render(context, request))
 
 def default(req):

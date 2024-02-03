@@ -106,6 +106,10 @@ footer {
 /* ALL STYLES BELOW WERE ORIGINALLY ONLY FOR SIGN-UP CARDS */
 /* ------------------------------------------------------- */
 
+.sign-in-card-element {
+    width: 80%;
+}
+
 .sign-in-card h1 {
     font-weight: 900;
     font-size: 2.5em;
@@ -132,19 +136,18 @@ footer {
     font-weight: 200;
 
     text-align: left;
-    width: 80%;
-}
-
-.sign-in-card form {
-    width: 90%;
 }
 
 .sign-in-card input {
     font-weight: 400;
     font-size: 1.5em;
 
-    padding: 3.5%;
+    padding-top: 3.5%;
+    padding-bottom: 3.5%;
+
     border-radius: .5em;
+
+    width: 100%;
 }
 
 .sign-in-card input[type=text] {
@@ -153,13 +156,11 @@ footer {
 }
 
 .sign-in-card input[type=button] {
-    width: 70%;
-
     background-color: #3E4C6C;
     border-color: #3E4C6C;
 }
 
-.sign-in-card input:hover {
+.sign-in-card input[type=button]:hover {
     background-color: #1f315d;
     border-color: #1f315d;
 }

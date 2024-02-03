@@ -1,7 +1,7 @@
 {% extends "sign-in card/big_card.html" %}
 
 {% block title %}
-    Role Selection Sign-In Card
+    Account Activation Mentee Sign-In Card
 {% endblock %}
 
 {% block card_corner %}
@@ -15,16 +15,17 @@
 {% block card_content %}
     <div class="sign-in-card-content">
         <div class="sign-in-card-element">
-            <h2>Select Role</h2>
+            <p>You must currently be enrolled in either CS or CIS degree at SVSU to be eligible for account creation at this time.</p>
         </div>
         <div class="sign-in-card-element">
+            <p>Email:</p>
             <form method="POST" action="">
-                <input type="button" value="Student">
+                <input type="text" placeholder="e.g. john.doe@svsu.edu">
             </form>
         </div>
         <div class="sign-in-card-element">
             <form method="POST" action="">
-                <input type="button" value="Mentor">
+                <input type="button" value="Send Activation Email">
             </form>
         </div>
     </div>
