@@ -1,13 +1,11 @@
 {% extends 'index.html' %}
 
-{% block title %}
-    Test
-{% endblock %}
-
 {% block main_content %}
 
     <div class="sign-in-card">
-        {% block card_content %}{% endblock %}
+        {% block card_corner %}{% endblock %}
+		{% block card_head %}{% endblock %}
+	    {% block card_content %}{% endblock %}	
     </div>
 
 {% endblock %}

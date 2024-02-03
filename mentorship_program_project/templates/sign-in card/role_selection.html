@@ -1,16 +1,27 @@
 {% extends "sign-in card/big_card.html" %}
 
 {% block title %}
-    Roles
+    Role Selection Sign-In Card
+{% endblock %}
+
+{% block card_corner %}
+    <div class="sign_in_top_left_element">X</div>
+{% endblock %}
+
+{% block card_head %}
+    <h1>Create your account</h1>
 {% endblock %}
     
+
+
 {% block card_content %}
-    <h1>Create your account</h1>
-    <h2>Select Role</h2>
-    <form method="POST" action="">
-        <input type="button" value="Student">
-    </form>
-    <form method="POST" action="">
-        <input type="button" value="Mentor">
-    </form>
+    <div class="sign-in-card-content">
+        <h2>Select Role</h2>
+        <form method="POST" action="">
+            <input type="button" value="Student">
+        </form>
+        <form method="POST" action="">
+            <input type="button" value="Mentor">
+        </form>
+    </div>
 {% endblock %}
