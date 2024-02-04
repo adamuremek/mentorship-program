@@ -107,7 +107,7 @@ footer {
 /* ------------------------------------------------------- */
 
 .sign-in-card-element {
-    width: 80%;
+    width: 70%;
 }
 
 .sign-in-card h1 {
@@ -169,7 +169,7 @@ footer {
 .sign_in_top_left_element {
     position: relative;
     margin-top: 2%;
-    margin-left: 2%;
+    margin-left: 3%;
 
     font-size: large;
 

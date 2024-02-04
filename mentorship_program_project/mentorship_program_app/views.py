@@ -2,16 +2,6 @@ from django.http import HttpResponse
 from django.template import loader
 
 
-def test_view1(request):
-    template = loader.get_template('sign-in card/role_selection.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
-
-def test_view2(request):
-    template = loader.get_template('sign-in card/account_activation_mentee.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
-
 def default(req):
     template = loader.get_template('index.html')
     context = {}
@@ -26,3 +16,19 @@ def role_test(req):
     template = loader.get_template('sign-in-card/experiment.html')
     context = {}
     return HttpResponse(template.render(context, req))
+
+# TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
+def role_selection(request):
+    template = loader.get_template('sign-in card/role_selection.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
+
+def account_activation_mentee(request):
+    template = loader.get_template('sign-in card/account_activation_mentee.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
+
+def account_activation_invalid_mentee(request):
+    template = loader.get_template('sign-in card/account_activation_invalid_mentee.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
