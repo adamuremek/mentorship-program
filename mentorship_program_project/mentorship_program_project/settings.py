@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mentorship_program_app'
+    'django_extensions',
+    'mentorship_program_app',
 ]
 
 MIDDLEWARE = [

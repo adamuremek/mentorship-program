@@ -20,6 +20,10 @@ RUN apt-get update && apt-get install -y netcat-openbsd
 
 # Copy entrypoint script into the container 
 COPY ./docker/entrypoint.sh /entrypoint.sh
+
+# Replace Windows newlines with Unix
+RUN sed -i 's/\r$//g' /entrypoint.sh
+
 # Make entrypoint script executable
 RUN chmod +x /entrypoint.sh
 
