@@ -21,7 +21,11 @@ from mentorship_program_app import views
 urlpatterns = [
     path('', views.default, name='default'),
     path('landing/', views.landing, name='landing'),
-    path('test1/', views.test_view1, name='test_view1'),
-    path('test2/', views.test_view2, name='test-view2'),
+
+    # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
+    path('role_selection/', views.role_selection, name='role_selection'),
+    path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
+    path('account_activation_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid'),
+
     path('admin/', admin.site.urls),
 ]
