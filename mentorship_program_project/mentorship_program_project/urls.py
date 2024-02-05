@@ -25,7 +25,9 @@ urlpatterns = [
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
     path('role_selection/', views.role_selection, name='role_selection'),
     path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
-    path('account_activation_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid'),
+    path('account_activation_mentee_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid_mentee'),
+    path('account_activation_mentee_valid/', views.account_activation_valid_mentee, name='account_activation_valid_mentee'),
+    path('account_creation_1_mentee/', views.account_creation_1_mentee, name='account_creation_1_mentee'),
 
     path('admin/', admin.site.urls),
 ]

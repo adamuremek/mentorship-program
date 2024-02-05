@@ -32,3 +32,15 @@ def account_activation_invalid_mentee(request):
     template = loader.get_template('sign-in card/account_activation_invalid_mentee.html')
     context = {}
     return HttpResponse(template.render(context, request))
+
+def account_activation_valid_mentee(request):
+    template = loader.get_template('sign-in card/account_activation_valid_mentee.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
+
+def account_creation_1_mentee(request):
+    template = loader.get_template('sign-in card/account_creation_1_mentee.html')
+    context = {
+        'pronounlist': ['he', 'she', 'they'],
+    }
+    return HttpResponse(template.render(context, request))
