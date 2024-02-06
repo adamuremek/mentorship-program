@@ -35,7 +35,9 @@ def account_activation_invalid_mentee(request):
 
 def account_activation_valid_mentee(request):
     template = loader.get_template('sign-in card/account_activation_valid_mentee.html')
-    context = {}
+    context = {
+        'email':'demoemail@something.com'
+    }
     return HttpResponse(template.render(context, request))
 
 def account_creation_1_mentee(request):
@@ -43,4 +45,9 @@ def account_creation_1_mentee(request):
     context = {
         'pronounlist': ['he', 'she', 'they'],
     }
+    return HttpResponse(template.render(context, request))
+
+def account_creation_2_mentee(request):
+    template = loader.get_template('sign-in card/account_creation_2_mentee.html')
+    context = {}
     return HttpResponse(template.render(context, request))
