@@ -23,6 +23,7 @@ def role_selection(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
+
 def account_activation_mentee(request):
     template = loader.get_template('sign-in card/account_activation_mentee.html')
     context = {}
@@ -49,5 +50,10 @@ def account_creation_1_mentee(request):
 
 def account_creation_2_mentee(request):
     template = loader.get_template('sign-in card/account_creation_2_mentee.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
+
+def account_activation_mentor(request):
+    template = loader.get_template('sign-in card/account_activation_mentor.html')
     context = {}
     return HttpResponse(template.render(context, request))
