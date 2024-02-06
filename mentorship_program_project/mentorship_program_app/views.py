@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.template import loader
+from django.shortcuts import render, redirect
 
 
 def default(req):
@@ -10,6 +11,26 @@ def default(req):
 def landing(req):
     template = loader.get_template('landing_page.html')
     context = {}
+    return HttpResponse(template.render(context, req))
+
+# Pho Post handler for landing-page login card
+def landingPost(req):
+    if req.method == 'POST':
+        return redirect('dashboard')
+    else:
+        return redirect('landing')
+
+def dashboard(req):
+    template = loader.get_template('dashboard/dashboard.html')
+    items = range(4)
+    context = {'items':items}
+    return HttpResponse(template.render(context, req))
+
+def profileCard(req):
+    template = loader.get_template('dashboard/profile-card/mentor_card.html')
+    
+    items = range(4)
+    context = {'items':items}
     return HttpResponse(template.render(context, req))
 
 def role_test(req):

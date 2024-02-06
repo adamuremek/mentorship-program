@@ -30,7 +30,8 @@ body {
 
 main {
     min-height: 90vh;
-    min-width: 100vw;
+    /* max-height: 100vh; */
+    max-width: 100vw;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -40,6 +41,18 @@ main {
 /* Blue  :  #1E2E42 */
 /* Blend :  #3D4458 */
 
+/* ------------------------------------------------------- */
+/* -----------------    GENERAL STYLES    ---------------- */
+/* ------------------------------------------------------- */
+
+h1 {
+    font-size: larger;
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------- */
+/* -----------------    NAV BAR STYLES    ---------------- */
+/* ------------------------------------------------------- */
 
 nav {
     height: 5vh;
@@ -62,6 +75,10 @@ nav .logo {
 nav .logo img {
     height: 5vh;
 }
+
+/* ------------------------------------------------------- */
+/* -------------------    CARD STYLES    ----------------- */
+/* ------------------------------------------------------- */
 
 
 .sign-in-card {
@@ -92,6 +109,9 @@ nav .logo img {
 
 
 footer {
+    padding: .5em;
+    margin: .5em;
+
     height: 1vh;
     display: flex;
     justify-content: center;
