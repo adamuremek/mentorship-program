@@ -106,7 +106,19 @@ footer {
 /* ALL STYLES BELOW WERE ORIGINALLY ONLY FOR SIGN-UP CARDS */
 /* ------------------------------------------------------- */
 
+.sign-in-card hr {
+    width: 100%;
+}
+
 .sign-in-card-element {
+    width: 70%;
+}
+
+.sign-in-card-element-horizontal {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
     width: 70%;
 }
 

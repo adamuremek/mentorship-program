@@ -31,7 +31,9 @@ def account_activation_mentee(request):
 
 def account_activation_invalid_mentee(request):
     template = loader.get_template('sign-in card/account_activation_invalid_mentee.html')
-    context = {}
+    context = {
+        'email':'demoemail@something.com'
+    }
     return HttpResponse(template.render(context, request))
 
 def account_activation_valid_mentee(request):

@@ -7,7 +7,6 @@ need to be started:
 account_creation_3_mentee
 account_creation_4_mentee
 
-account_activation_mentor
 account_creation_0_mentor
 account_creation_1_mentor
 account_creation_2_mentor
@@ -23,6 +22,7 @@ account_recovery_3
 working:
 role_selection
 	+Student, Mentor, and X buttons routing
+    
 account_activation_mentee
 	+Send Activation Email and X buttons routing
 	+Set up pulling value from email field
@@ -42,5 +42,8 @@ account_creation_2_mentee
 	+Set up pulling email and password
 	+Set up visable/invisable toggel on password field
 
+account_activation_mentor
+	+X button routing 
+	+Figure out if left justified text works or need center justified
 
 done:
