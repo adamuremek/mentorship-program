@@ -22,8 +22,8 @@ class Users(Model):
     strRole = CharField(max_length=10, choices=Role.choices, default='')
     clsDateJoined = DateField(default=date.today)
     clsActiveChangedDate = DateField(default=date.today)
-    booActive = BooleanField(default=True)
-    booAccountDisabled =  BooleanField(default=False)
+    blnActive = BooleanField(default=True)
+    blnAccountDisabled =  BooleanField(default=False)
 
     #PLACEHOLDER: Move to User_Profiles
     strFirstName: CharField =  CharField(max_length=747,null=True)
@@ -75,7 +75,8 @@ class User_Interests(Model):
 
     """   
     intUserID = ForeignKey(
-        "Interests"
+        "Interests",
+        on_delete = models.CASCADE
     )
     intInterestID = ForeignKey(
         "Users",
