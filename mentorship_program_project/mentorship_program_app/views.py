@@ -36,6 +36,7 @@ def role_selection(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
+
 def account_activation_mentee(request):
     template = loader.get_template('sign-in card/account_activation_mentee.html')
     context = {}
@@ -43,5 +44,29 @@ def account_activation_mentee(request):
 
 def account_activation_invalid_mentee(request):
     template = loader.get_template('sign-in card/account_activation_invalid_mentee.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
+
+def account_activation_valid_mentee(request):
+    template = loader.get_template('sign-in card/account_activation_valid_mentee.html')
+    context = {
+        'email':'demoemail@something.com'
+    }
+    return HttpResponse(template.render(context, request))
+
+def account_creation_1_mentee(request):
+    template = loader.get_template('sign-in card/account_creation_1_mentee.html')
+    context = {
+        'pronounlist': ['he', 'she', 'they'],
+    }
+    return HttpResponse(template.render(context, request))
+
+def account_creation_2_mentee(request):
+    template = loader.get_template('sign-in card/account_creation_2_mentee.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
+
+def account_activation_mentor(request):
+    template = loader.get_template('sign-in card/account_activation_mentor.html')
     context = {}
     return HttpResponse(template.render(context, request))

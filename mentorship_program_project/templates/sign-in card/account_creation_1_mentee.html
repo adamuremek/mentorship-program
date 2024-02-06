@@ -1,0 +1,39 @@
+{% extends "sign-in card/big_card.html" %}
+
+{% block title %}
+    Account Creation 1 Mentee Sign-In Card
+{% endblock %}
+
+{% block card_corner %}
+<form action="">
+    <button type="submit" class="sign_in_top_left_element">X Step 1 of 4</button>
+</form>
+{% endblock %}
+
+{% block card_head %}
+    <h1>Create your account</h1>
+{% endblock %}
+
+{% block card_content %}
+    <div class="sign-in-card-content">
+        <div class="sign-in-card-element">
+            <p>Name:</p>
+            <form method="POST" action="">
+                <input type="text" placeholder="e.g. John Doe">
+            </form>
+        </div>
+        <div class="sign-in-card-element">
+            <p>Preferred Pronoun(s):</p>
+            <select>
+                {% for pronoun in pronounlist %}
+                    <option>{{pronoun}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="sign-in-card-element">
+            <form method="POST" action="">
+                <input type="button" value="Next">
+            </form>
+        </div>
+    </div>
+{% endblock %}

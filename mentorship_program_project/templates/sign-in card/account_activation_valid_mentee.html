@@ -1,7 +1,7 @@
 {% extends "sign-in card/big_card.html" %}
 
 {% block title %}
-    Account Activation Invalid Mentee Sign-In Card
+    Account Activation Valid Mentee Sign-In Card
 {% endblock %}
 
 {% block card_corner %}
@@ -17,13 +17,13 @@
 {% block card_content %}
     <div class="sign-in-card-content">
         <div class="sign-in-card-element">
-            <p>The email provided, someone@svsu.edu is not eligible for student account creation at this time.</p>
+            <p>An account activation email has been sent to {{email}}.</p>
         </div>
         <div class="sign-in-card-element">
-            <p>Currently, the program only accepts students currently enrolled in either CS or CIS degrees at SVSU.</p>
+            <p>Follow the steps laid out in the account activation email comlete activation of your account.</p>
         </div>
         <div class="sign-in-card-element">
-            <p>If you believe you meet this criteria, please contact mentorsupport@svsu.edu.</p>
+            <p>If you do not see the email, please contact mentorsupport@svsu.edu</p>
         </div>
         <div class="sign-in-card-element">
             <form method="POST" action="">

@@ -158,13 +158,27 @@ footer {
     text-align: left;
 }
 
+.sign-in-card select {
+    font-weight: 400;
+    font-size: 1.5em;
+
+    padding-top: 3.5%;
+    padding-bottom: 3.5%;
+
+    border-radius: .5em;
+
+    width: 100%;
+
+    background-color: #333842;
+    border-color: #333842;
+}
+
 .sign-in-card input {
     font-weight: 400;
     font-size: 1.5em;
 
     padding-top: 3.5%;
     padding-bottom: 3.5%;
-    padding-left: 3.5%;
 
     border-radius: .5em;
 
@@ -172,6 +186,11 @@ footer {
 }
 
 .sign-in-card input[type=text] {
+    background-color: #333842;
+    border-color: #333842;
+}
+
+.sign-in-card input[type=password] {
     background-color: #333842;
     border-color: #333842;
 }
