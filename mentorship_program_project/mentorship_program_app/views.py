@@ -13,13 +13,13 @@ def home(request):
 
 ##LOGIN PAGE
 def login(request):
-  template = loader.get_template('login.html')
+  template = loader.get_template('login.html')     ## some urls dont currently have html to go with them
   return HttpResponse(template.render())
 
 
 
 
-###NOT WORKING CRSF ERROR
+
 def success(request):
     if request.method == 'POST':
             return render(request, 'index.html')

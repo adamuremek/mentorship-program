@@ -7,7 +7,7 @@ from . import views
 urlpatterns = [
     path('home/', views.home, name='home'),
     path('login/', views.login, name='login'),
-    path('login/success', views.success, name='success'),
+    path('login/success', views.success, name='success'),  ## some urls dont currently have html to go with them
 
     path('', views.default, name='default'),
     path('landing/', views.landing, name='landing'),
