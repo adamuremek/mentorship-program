@@ -21,6 +21,7 @@ from mentorship_program_app import views
 urlpatterns = [
     path('', views.default, name='default'),
     path('landing/', views.landing, name='landing'),
+    path('landing-post/', views.landingPost, name='landing-post'),
     
     path('dashboard/', views.dashboard, name='dashboard'),
     path('profile-card/', views.profileCard, name='profile-card'),
