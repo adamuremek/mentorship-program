@@ -1,0 +1,65 @@
+
+
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+    SVSU Mentoring
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/landing_page.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<section class="hero">
+    <div class="hero-container">
+        <div class="column-left">
+            <h1>Empower the Next Generation of Tech Innovators</h1>
+            <p>Join a thriving community of professionals dedicated to shaping the future of computer science. 
+            Your experience can inspire, guide, and empower the next generation of innovators.</p>   
+        </div>
+        <div class="column-right">
+            <div class="portal">
+                <form action="{% url 'success' %}" method="POST">
+                    <div class="federated-li-container">
+                        <button class="login-buttons" id="si-google-btn">
+                            <img src="{% static 'images/googlelogo.png' %}" id="google-logo"> Sign in with Google
+                        </button>
+                        <button class="login-buttons" id="si-apple-btn">
+                            <img src="{% static 'images/image.png' %}" id="apple-logo">Sign in with Apple
+                        </button>
+                        <button class="login-buttons" id="si-linkedin-btn">
+                            <img src="{% static 'images/linkedinlogo.png' %}" id="linkedin-logo">Sign in with LinkedIn
+                        </button>
+                    </div>
+                    
+                
+                    <div class="or-container">
+                        <div class="line"></div>
+                        <span class="or-text">or</span>
+                        <div class="line"></div>
+                    </div>
+
+                    <div class="email-password-fields">
+                       
+                            {% csrf_token %}
+                            <input type="text" id="email" name="email" placeholder="Email">
+                            <input type="password" id="password" name="password" placeholder="Password">
+                            <!-- <div id="forgot-password-container"> -->
+                            <!-- <p><span class="text-btn">Forgot Password?</span></p> -->
+                            <button class="login-buttons" type="submit" value="Login">
+                            <!-- <button class="login-buttons" id="li-btn">Login</button> -->
+                       
+                        
+                        <!-- </div> -->
+                    </div>
+                    
+                    <p><span id="su-span">Don't have an account?</span> <span class="text-btn">Sign Up</span></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
