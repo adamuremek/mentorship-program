@@ -12,6 +12,19 @@ def landing(req):
     context = {}
     return HttpResponse(template.render(context, req))
 
+def dashboard(req):
+    template = loader.get_template('dashboard/dashboard.html')
+    items = range(4)
+    context = {'items':items}
+    return HttpResponse(template.render(context, req))
+
+def profileCard(req):
+    template = loader.get_template('dashboard/profile-card/mentor_card.html')
+    
+    items = range(4)
+    context = {'items':items}
+    return HttpResponse(template.render(context, req))
+
 def role_test(req):
     template = loader.get_template('sign-in-card/experiment.html')
     context = {}

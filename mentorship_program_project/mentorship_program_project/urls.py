@@ -21,6 +21,9 @@ from mentorship_program_app import views
 urlpatterns = [
     path('', views.default, name='default'),
     path('landing/', views.landing, name='landing'),
+    
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('profile-card/', views.profileCard, name='profile-card'),
 
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
     path('role_selection/', views.role_selection, name='role_selection'),

@@ -1,0 +1,60 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<section class="hero">
+    <div class="hero-container">
+        <div class="section-recommended">
+            <h1>Recommended Mentees</h1>
+            <div class="recommended-cards">
+                <!-- 5 Cards should be inserted -->
+                {% for i in items %}
+                    {% include 'dashboard/profile-card/mentor_card.html' %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="section-available">
+            <h1>Available Mentees</h1>
+            <div class="available-filters">
+                <div class="available-interests-filter" onclick="toggleInterestsPopup()">
+                    <p>Filter:</p>
+                    <div id='interests-popup' class="available-interests-filter-box popup">
+                        <p>Interests</p>
+                        <img class="down-arrow" src="{% static 'images/white-dropdown-arrow.png' %}">
+                        <span id='popuptext' class="popuptext">Hello world</span>
+                    </div>
+                </div>
+                <div class="available-search-name">
+                    <div class="search-icon"></div>
+                    <input type="text" placeholder="Search by Name">
+                </div>
+            </div>
+            <div class="available-cards">
+                {% for i in items %}
+                    {% include 'dashboard/profile-card/mentor_card.html' %}
+                {% endfor %} 
+                
+            </div>
+           
+        </div>
+    </div>
+</section>
+
+<script>
+    function toggleInterestsPopup() {
+        var popup = document.getElementById('popuptext')
+        popup.classList.toggle('show')
+    }
+</script>
+
+{% endblock %}
