@@ -26,6 +26,9 @@ body {
         hsl(355deg 43% 27%) 76%,
         hsl(354deg 33% 23%) 100%
       );
+      
+    /* stretches instead of repeats gradient on long pages */
+    background-attachment: fixed;
 }
 
 main {
