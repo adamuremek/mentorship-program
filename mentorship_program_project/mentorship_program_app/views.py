@@ -3,40 +3,6 @@ from django.template import loader
 from django.shortcuts import render, redirect
 
 
-# Create your views here.
-
-##LANDING
-def home(request):
-  template = loader.get_template('home.html')
-  return HttpResponse(template.render())
-
-
-##LOGIN PAGE
-def login(request):
-  template = loader.get_template('login.html')     ## some urls dont currently have html to go with them
-  return HttpResponse(template.render())
-
-
-
-
-
-def success(request):
-    if request.method == 'POST':
-            return render(request, 'index.html')
-   
-        
- ######
-    ## USE BCRYPT
-    ### 
-       
-   
-
-
-
-
-
-##FROM LOGAN
-
 def default(req):
     template = loader.get_template('index.html')
     context = {}
@@ -45,6 +11,26 @@ def default(req):
 def landing(req):
     template = loader.get_template('landing_page.html')
     context = {}
+    return HttpResponse(template.render(context, req))
+
+# Pho Post handler for landing-page login card
+def landingPost(req):
+    if req.method == 'POST':
+        return redirect('dashboard')
+    else:
+        return redirect('landing')
+
+def dashboard(req):
+    template = loader.get_template('dashboard/dashboard.html')
+    items = range(4)
+    context = {'items':items}
+    return HttpResponse(template.render(context, req))
+
+def profileCard(req):
+    template = loader.get_template('dashboard/profile-card/mentor_card.html')
+    
+    items = range(4)
+    context = {'items':items}
     return HttpResponse(template.render(context, req))
 
 def role_test(req):
@@ -58,6 +44,7 @@ def role_selection(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
+
 def account_activation_mentee(request):
     template = loader.get_template('sign-in card/account_activation_mentee.html')
     context = {}
@@ -65,5 +52,31 @@ def account_activation_mentee(request):
 
 def account_activation_invalid_mentee(request):
     template = loader.get_template('sign-in card/account_activation_invalid_mentee.html')
+    context = {
+        'email':'demoemail@something.com'
+    }
+    return HttpResponse(template.render(context, request))
+
+def account_activation_valid_mentee(request):
+    template = loader.get_template('sign-in card/account_activation_valid_mentee.html')
+    context = {
+        'email':'demoemail@something.com'
+    }
+    return HttpResponse(template.render(context, request))
+
+def account_creation_1_mentee(request):
+    template = loader.get_template('sign-in card/account_creation_1_mentee.html')
+    context = {
+        'pronounlist': ['he', 'she', 'they'],
+    }
+    return HttpResponse(template.render(context, request))
+
+def account_creation_2_mentee(request):
+    template = loader.get_template('sign-in card/account_creation_2_mentee.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
+
+def account_activation_mentor(request):
+    template = loader.get_template('sign-in card/account_activation_mentor.html')
     context = {}
     return HttpResponse(template.render(context, request))

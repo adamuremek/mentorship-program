@@ -1,0 +1,39 @@
+{% load static %}
+
+{% block style %}
+    <!-- <link rel="stylesheet" type="text/css" href="{% static 'css/landing_page.css' %}"> -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mentor_card.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+    <div class = "card-body">
+
+        <div class="profile-picture-container">
+                <img class="profile-picture" src="{% static 'images/my-channel.jpeg' %}">
+        </div>
+
+        <div class="mentor-description">
+            <p class="mentor-name">Alexia Benett</p>
+            <p class="mentor-company">Dow Chemical</p>
+            <p class="mentor-job-title">Software Engineer</p>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="specializations-header">Specializations / Areas of Expertise:</div>
+
+        <div class="specializations-container">
+            <p class="specialization">Artificial Intelligence</p>
+            <p class="specialization">Distributed Systems</p>
+            <p class="specialization">Data Engineering</p>
+            <p class="specialization">Data Science</p>
+        </div>
+
+        <div class="request-button-container">
+            <input class="request-button" type="submit" value="Request Mentor">
+        </div>
+
+    </div>
+
+{% endblock %}
