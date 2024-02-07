@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models import *
 from datetime import date
 
+from .utils import security
+
 # Create your models here.
 
 class Users(Model):
@@ -19,6 +21,7 @@ class Users(Model):
 
     clsEmailAddress =  EmailField(null=True)  
     strPasswordHash =  CharField(max_length=100, null=True, blank=False)
+    strPasswordSalt =  CharField(max_length=100, null=True, blank=False)
     strRole = CharField(max_length=10, choices=Role.choices, default='')
     clsDateJoined = DateField(default=date.today)
     clsActiveChangedDate = DateField(default=date.today)
@@ -41,6 +44,13 @@ class Users(Model):
     
     def __str__(self):
         return self.firstname + ' ' + self.lastname
+    
+    #returns true if the incoming plain text hashes out to our stored
+    #password hash
+    def check_valid_password(self,password_plain_text : str)->bool:
+        return security.hash_password(password,self.salt) == self.strPasswordSalt
+
+
 
 
 class Biographies(Model):
