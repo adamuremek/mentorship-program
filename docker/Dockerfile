@@ -18,6 +18,9 @@ RUN pip install -r requirements.txt
 # Install netcat to check if databse is running
 RUN apt-get update && apt-get install -y netcat-openbsd
 
+# Create static directory
+RUN mkdir /static
+
 # Copy entrypoint script into the container 
 COPY ./docker/entrypoint.sh /entrypoint.sh
 
