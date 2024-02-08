@@ -53,6 +53,18 @@ class Users(Model):
                 self.strPasswordHash
 
     """
+    
+    Takes in a user id and an array of interest id's and adds the given interest to the 
+    user
+
+    """
+    @staticmethod 
+    def add_interests_to_user(intUserId : int, intInterestIdArray : [int])->bool:
+        for interestId in intInterestIdArray:
+            user_interest_link = User_Interests.objects.create(intUserId,interestId)
+            user_interest_link.save()
+
+    """
     returns a NON SAVED user object that has the password properly hashed
     and salt correctly generated it's your responsibility to save this object 
     if you want it to persist in the db YOU HAVE BEEN WARNED >_>
@@ -95,6 +107,42 @@ class Interests(Model):
 
     """
     strInterest = CharField(max_length=100, null=False)
+
+
+    """
+    returns true if the given interest is is a default interest
+    """
+    def isDefaultInterest()->bool:
+        return strInterest in Interests.getDefaultInterestList()
+
+    """
+        one stop shop to get a list of default interests as strings
+        that are in the project BEFORE users add interests in
+
+        if we need to change where these are coming from, the idea 
+        with this function is to be the centeral authority for where 
+        these come from, so when we need to change them later we can.
+    """
+    @staticmethod 
+    def getDefaultInterestList()->[str]:
+        return Interests.strListDefaultInterests
+
+    #array of interests that are pre-built into the application
+    #these should probably be moved into an environment somewhere
+    strListDefaultInterests = [
+            "c++",
+            "python",
+            "machine learning",
+            "image recognition",
+            "html",
+            "css",
+            "web development",
+            "c#",
+            ".net",
+            "javascript",
+            "nodejs"
+            ]
+
 
 
     def __str__(self):

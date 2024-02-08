@@ -99,16 +99,14 @@ def invalid_request_401(request):
 # still if they are forgotten they should automatically redirect
 # when not in DEBUG mode
 @security.Decorators.require_debug(invalid_request_401)
-def generate_random_user_data(req):
+def generate_random_user_data(request):
     development.print_debug('running the function')
-    #there is no reason to import this in the global file, 
-    #as it will only be used when we use the program in dev mode
-    #if you feel strongly against this feel free to move it up
-    #to the top and include unecessary dependencies in views.py >_>
-    
-    #
     development.populate_database_with_random_users()
+    return HttpResponse('finished generating user data, enjoy controlling the populus :D')
 
-    return HttpResponse('im alive, front en')
-
-
+@security.Decorators.require_debug(invalid_request_401)
+def populate_default_interest_values(request):
+    development.print_debug("[*] generating interests in the database...")
+    development.populate_database_with_interests()
+    development.print_debug("[*] finished genereating interests! Enjoy the data :)")
+    return HttpResponse("finished populating interests in the database!")

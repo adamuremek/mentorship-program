@@ -34,5 +34,8 @@ urlpatterns = [
 
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
 
-     path('dev/generate_random_user_data/',views.generate_random_user_data,name='generate_random_user_data'),
+
+    #development routes
+    path('dev/generate_random_user_data/',views.generate_random_user_data,name='generate_random_user_data'),
+    path('dev/populate_default_interests/',views.populate_default_interest_values,name='populate_default_interest_values')
 ]
