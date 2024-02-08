@@ -2,7 +2,8 @@ from django.db import models
 from django.db.models import *
 from datetime import date
 
-from .utils import security
+
+from utils import security
 
 # Create your models here.
 
@@ -19,7 +20,7 @@ class Users(Model):
         MENTOR = 'Mentor'
         MENTEE = 'Mentee'
 
-    clsEmailAddress =  EmailField(null=True)  
+    clsEmailAddress =  EmailField(null=True,unique=True)  
     strPasswordHash =  CharField(max_length=100, null=True, blank=False)
     strPasswordSalt =  CharField(max_length=100, null=True, blank=False)
     strRole = CharField(max_length=10, choices=Role.choices, default='')
@@ -48,7 +49,27 @@ class Users(Model):
     #returns true if the incoming plain text hashes out to our stored
     #password hash
     def check_valid_password(self,password_plain_text : str)->bool:
-        return security.hash_password(password,self.salt) == self.strPasswordSalt
+        return security.hash_password(password,self.strPasswordSalt) ==\
+                self.strPasswordHash
+
+    """
+    returns a NON SAVED user object that has the password properly hashed
+    and salt correctly generated it's your responsibility to save this object 
+    if you want it to persist in the db YOU HAVE BEEN WARNED >_>
+    """
+    @staticmethod
+    def create_from_plain_text_and_email(password_plain_text : str,
+                                         email : str)->'Users':
+        generated_user_salt = security.generate_salt()
+        #TODO: emails need to be validated, send a sacrifical lamb
+        #to the regex gods
+        return Users.objects.create(
+                    strPasswordHash = security.hash_password(
+                                            password_plain_text,
+                                            generated_user_salt),
+                    strPasswordSalt = generated_user_salt,
+                    clsEmailAddress = email
+                )
 
 
 

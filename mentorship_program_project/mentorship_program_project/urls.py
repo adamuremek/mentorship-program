@@ -38,4 +38,9 @@ urlpatterns = [
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
 
     path('admin/', admin.site.urls),
+    path('dev/generate_random_user_data/',views.generate_random_user_data,name='generate_random_user_data')
 ]
+
+development_urls = [
+
+        ]

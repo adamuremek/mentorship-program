@@ -27,9 +27,6 @@ def createUser(strEmailAddress: str, strPasswordHash:str, objRole:Users.Role, cl
     except Exception as e:
         traceback.print_exc()
         return False
-        
-
-    
 
 def updateUser(strFirstName:str, strLastName:str, str):
     user = Users()
