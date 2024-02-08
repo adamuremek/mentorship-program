@@ -4,6 +4,8 @@ easier :D, any code that the end user should NEVER have to see should go here
 
 additionally, functions in this
 """
+import random
+import string
 from mentorship_program_app.models import Users
 from .security import Decorators
 from .security import is_in_debug_mode
@@ -28,14 +30,17 @@ def populate_database_with_random_users(amount  : int = 100)->None:
 
     #TODO: these random usas ain't very random boas, 
     #betta get that looked inta
+
     for i in range(amount):
+        user = f'user{i}@'+''.join(random.choice(string.ascii_letters)for _ in range(100))+'.com'
         new_user = Users.create_from_plain_text_and_email(
-                                                f'password{i}',
-                                                f'user{i}@sharklazers.com'
+                                                f'password{i}', ###CHANGE THIS FROM RANDOM LETTERS
+                                                user
                                                 )
         new_user.save()
+        print_debug('[*] finished random user generation!\n\tenjoy the data :) '+user)
 
-    print_debug('[*] finished random user generation!\n\tenjoy the data :)')
+    
 
 
 

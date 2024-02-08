@@ -18,7 +18,7 @@ For those unfamiliar with Docker, you can find more information in the [Docker D
     The first build may take a while as it downloads project dependencies.
 
     ```
-    docker compose up --build
+    https://github.com/adamuremek/mentorship-program --build
     ```
 
     To run in the background, use:
