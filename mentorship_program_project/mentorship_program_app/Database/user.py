@@ -37,23 +37,22 @@
 /*  ---   ----     ------------------------------------------------- */
 /*********************************************************************/
 """
-
-from models import *
+from  mentorship_program_app.models import Users, Biographies
 from datetime import date
 import traceback
 
-def createUser(strEmailAddress: str, strPasswordHash:str, objRole:Users.Role, clsDateJoined:date, clsActiveChangedDate:date, 
-               blnActive:bool, blnAccountDisabled:bool, strFirstname:str, strLastName:str, strPhoneNumber:str, 
-               clsDateOfBirth:date, strGender:str, strPreferredPronouns:str, strSessionID:str, strSessionKeyHash:str):
+def createUser(strEmailAddress: str, strPasswordHash:str, objRole:Users.Role, 
+               strFirstname:str, strLastName:str, strPhoneNumber:str, 
+               clsDateOfBirth:date, strGender:str, strPreferredPronouns:str, strSessionID:str, strSessionKeyHash:str, strBio):
     try:
         Users.objects.create(
         clsEmailAddress = strEmailAddress,
         strPasswordHash = strPasswordHash,
         strRole = objRole,
-        clsDateJoined = clsDateJoined,
-        clsActiveChangedDate = clsActiveChangedDate,
-        blnActive = blnActive,
-        blnAccountDisabled = blnAccountDisabled,
+        clsDateJoined = date.today(),
+        clsActiveChangedDate = date.today(),
+        blnActive = True,
+        blnAccountDisabled = False,
         strFirstName = strFirstname,
         strLastName = strLastName,
         strPhoneNumber = strPhoneNumber,
@@ -63,19 +62,43 @@ def createUser(strEmailAddress: str, strPasswordHash:str, objRole:Users.Role, cl
         strSessionID = strSessionID,
         strSessionKeyHash = strSessionKeyHash
         )
+        user = Users.objects.get(clsEmailAddress = strEmailAddress)
+        Biographies.objects.create(intUserID = user, strBio = strBio)
         return True
     except Exception as e:
         traceback.print_exc()
         return False
         
-def getUserLogin(strEmail: str):
+def getUserLogin(clsEmailAddress: str):
     """
     Returns a users password hash. Returns None if a User is not found or has no password hash. 
     """
-    return Users.objects.filter(clsEmailAddress = strEmail).values('strPasswordHash')
+    return Users.objects.filter(clsEmailAddress = clsEmailAddress).values('strPasswordHash')
     
 
-def updateUser(strFirstName:str, strLastName:str, str):
-    user = Users()
+def getUserID(strEmailAddress:str):
+    """
+    Returns a users ID. Returns None if a User is not found or account doesn't exist. 
+    """
+    return Users.objects.filter(clsEmailAddress = strEmailAddress).values('id')
+    
+
+def updatePassword(strEmailAddress: str, strNewHash: str):
+    """
+    Returns True if users password is successfully updated. 
+    """
+    try:
+        user = Users.objects.get(clsEmailAddress=strEmailAddress)
+        user.strPasswordHash = strNewHash
+        user.save()
+        return True
+    except Exception as e:
+        return False
+    
+
+def getUserInformation(intID:int):
+    return Users.objects.get(id=intID) & Users.biography_set
      
+     
+
     

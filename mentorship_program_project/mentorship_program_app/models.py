@@ -40,7 +40,7 @@ class Users(Model):
 
     
     def __str__(self):
-        return self.firstname + ' ' + self.lastname
+        return self.strFirstName + ' ' + self.strLastName
 
 
 class Biographies(Model):
