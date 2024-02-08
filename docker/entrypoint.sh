@@ -13,8 +13,8 @@ then
     echo "Postgres started"
 fi
 
-# Flush the db and apply migrations
-python manage.py flush --no-input
+# Reset the db and apply migrations
+python manage.py reset_db --router=default --noinput --close-sessions
 python manage.py migrate
 
 # Execute the default docker cmd or one passed to the entrypoint script
