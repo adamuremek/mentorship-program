@@ -35,6 +35,10 @@ def profileCard(req):
     context = {'items':items}
     return HttpResponse(template.render(context, req))
 
+#please make pretty front end we love you :D
+def home(req):
+    return HttpResponse('theres no place me')
+
 def role_test(req):
     template = loader.get_template('sign-in-card/experiment.html')
     context = {}
