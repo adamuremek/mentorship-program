@@ -7,7 +7,6 @@ need to be started:
 account_creation_3_mentee
 account_creation_4_mentee
 
-account_creation_0_mentor
 account_creation_1_mentor
 account_creation_2_mentor
 account_creation_3_mentor
@@ -45,5 +44,8 @@ account_creation_2_mentee
 account_activation_mentor
 	+X button routing 
 	+Figure out if left justified text works or need center justified
+	+Redo hr element to include * symbol
+account_creation_0_mentor
+	+X, google, apple, and linkin button routing
 
 done:
