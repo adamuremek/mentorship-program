@@ -1,3 +1,43 @@
+"""
+/*********************************************************************/
+/*                   FILE NAME:  user.py                             */
+/*********************************************************************/
+/*                 PART OF PROJECT: Database				         */
+/*********************************************************************/
+/*                   WRITTEN BY:                                     */
+/*		         DATE CREATED: February 08, 2024                     */
+/*********************************************************************/
+/*  PROJECT PURPOSE:								                 */
+/*											                         */
+/*                                                                   */
+/*********************************************************************/
+/*  FILE PURPOSE:                                                    */
+/*											                         */
+/*                                                                   */
+/*********************************************************************/
+/*  COMMAND LINE PARAMETER LIST (In Parameter Order):                */
+/*  (NONE)                                                           */
+/*********************************************************************/
+/*  ENVIRONMENTAL RETURNS:							                 */
+/*  (NOTHING)                                                        */
+/*********************************************************************/
+/* SAMPLE INVOCATION:                                                */
+/*  from mentorship_program_app.Database import user				 */
+/*  clsExUser = user										         */
+/*********************************************************************/
+/*  GLOBAL VARIABLE LIST (Alphabetically):                           */
+/*	(NONE)					  	                                     */
+/*********************************************************************/
+/* COMPILATION NOTES:								                 */
+/* 											                         */	
+/*********************************************************************/
+/* MODIFICATION HISTORY:                                             */
+/*											                         */
+/*  WHO   WHEN     WHAT                                              */
+/*  ---   ----     ------------------------------------------------- */
+/*********************************************************************/
+"""
+
 from models import *
 from datetime import date
 import traceback
@@ -28,7 +68,11 @@ def createUser(strEmailAddress: str, strPasswordHash:str, objRole:Users.Role, cl
         traceback.print_exc()
         return False
         
-
+def getUserLogin(strEmail: str):
+    """
+    Returns a users password hash. Returns None if a User is not found or has no password hash. 
+    """
+    return Users.objects.filter(clsEmailAddress = strEmail).values('strPasswordHash')
     
 
 def updateUser(strFirstName:str, strLastName:str, str):
