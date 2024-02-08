@@ -7,7 +7,6 @@ need to be started:
 account_creation_3_mentee
 account_creation_4_mentee
 
-account_creation_2_mentor
 account_creation_3_mentor
 account_creation_4_mentor
 account_creation_5_mentor
@@ -49,5 +48,9 @@ account_creation_1_mentor
 	+Next and X Step 1 of 6 buttons routing
 	+Figure out where to get pronouns from
 	+Set up pulling value from name and pronoun fields
+account_creation_2_mentor
+	+Next and <- Step 2 of 4 buttons routing
+	+Set up pulling email, phone, and password
+	+Set up visable/invisable toggel on password field
 
 done:

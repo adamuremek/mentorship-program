@@ -1,12 +1,12 @@
 {% extends "sign-in card/big_card.html" %}
 
 {% block title %}
-    Account Creation 1 Mentor Sign-In Card
+    Account Creation 2 Mentor Sign-In Card
 {% endblock %}
 
 {% block card_corner %}
     <form action="">
-        <button class="sign_in_top_left_element">X Step 1 of 6</button>
+        <button class="sign_in_top_left_element">←  Step 2 of 6</button>
     </form>
 {% endblock %}
 
@@ -17,21 +17,26 @@
 {% block card_content %}
     <div class="sign-in-card-content">
         <div class="sign-in-card-element">
-            <p>Name:</p>
+            <p>Email:</p>
             <form action="">
-                <input type="text" placeholder="e.g. John Doe">
+                <input type="email" placeholder="e.g. john.doe@domain.com">
             </form>
         </div>
 
         <div class="sign-in-card-element">
-            <p>Preferred Pronoun(s):</p>
-            <select>
-                {% for pronoun in pronounlist %}
-                    <option>{{pronoun}}</option>
-                {% endfor %}
-            </select>
+            <p>Phone:</p>
+            <form action="">
+                <input type="tel" placeholder="e.g. (555)555-5555">
+            </form>
         </div>
-        
+
+        <div class="sign-in-card-element">
+            <p>Password:</p>
+            <form action="">
+                <input type="password" placeholder="e.g. John Doe">
+            </form>
+        </div>
+
         <div class="sign-in-card-element">
             <form action="">
                 <button class="sign-in-card-button-option">Next</button>

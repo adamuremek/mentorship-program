@@ -244,6 +244,11 @@ footer {
     border-color: #333842;
 }
 
+.sign-in-card input[type=tel] {
+    background-color: #333842;
+    border-color: #333842;
+}
+
 .sign-in-card input[type=button] {
     background-color: #3E4C6C;
     border-color: #3E4C6C;
