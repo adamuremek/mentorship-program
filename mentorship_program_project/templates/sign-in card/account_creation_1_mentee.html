@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block card_corner %}
-<form action="">
-    <button type="submit" class="sign_in_top_left_element">X Step 1 of 4</button>
-</form>
+    <form action="">
+        <button class="sign_in_top_left_element">X Step 1 of 4</button>
+    </form>
 {% endblock %}
 
 {% block card_head %}
@@ -22,6 +22,7 @@
                 <input type="text" placeholder="e.g. John Doe">
             </form>
         </div>
+
         <div class="sign-in-card-element">
             <p>Preferred Pronoun(s):</p>
             <select>
@@ -30,9 +31,10 @@
                 {% endfor %}
             </select>
         </div>
+        
         <div class="sign-in-card-element">
-            <form method="POST" action="">
-                <input type="button" value="Next">
+            <form action="">
+                <button class="sign-in-card-button-option">Create account</button>
             </form>
         </div>
     </div>

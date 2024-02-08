@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block card_corner %}
-<form action="">
-    <button type="submit" class="sign_in_top_left_element">X</button>
-</form>
+    <form action="">
+        <button class="sign_in_top_left_element">X</button>
+    </form>
 {% endblock %}
 
 {% block card_head %}
@@ -19,15 +19,17 @@
         <div class="sign-in-card-element">
             <p>You must currently be enrolled in either CS or CIS degree at SVSU to be eligible for account creation at this time.</p>
         </div>
+
         <div class="sign-in-card-element">
             <p>Email:</p>
             <form method="POST" action="">
-                <input type="text" placeholder="e.g. john.doe@svsu.edu">
+                <input type="email" placeholder="e.g. john.doe@svsu.edu">
             </form>
         </div>
+
         <div class="sign-in-card-element">
-            <form method="POST" action="">
-                <input type="button" value="Send Activation Email">
+            <form action="">
+                <button class="sign-in-card-button-option">Send Activation Email</button>
             </form>
         </div>
     </div>

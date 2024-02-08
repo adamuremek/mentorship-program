@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block card_corner %}
-<form action="">
-    <button type="submit" class="sign_in_top_left_element">X</button>
-</form>
+    <form action="">
+        <button type="submit" class="sign_in_top_left_element">X</button>
+    </form>
 {% endblock %}
 
 {% block card_head %}
@@ -18,23 +18,25 @@
 
 {% block card_content %}
     <div class="sign-in-card-content">
-            <div class="sign-in-card-element-vertical">
-                <form class="sign-in-card-form" action="">
-                    <button class="sign-in-card-button-option" id="sign-in-card-google-btn">
-                        <img src="{% static 'images/googlelogo.png' %}" id="google-logo"> Sign up with Google
-                    </button>
-                </form>
-                <form class="sign-in-card-form" action="">
-                    <button class="sign-in-card-button-option" id="sign-in-card-apple-btn">
-                        <img src="{% static 'images/image.png' %}" id="apple-logo">Sign up with Apple
-                    </button>
-                </form>
-                <form class="sign-in-card-form" action="">
-                    <button class="sign-in-card-button-option" id="sign-in-card-linkedin-btn">
-                        <img src="{% static 'images/linkedinlogo.png' %}" id="linkedin-logo">Sign up with LinkedIn
-                    </button>
-                </form>
-            </div>
+        <div class="sign-in-card-element-vertical">
+            <form class="sign-in-card-form" action="">
+                <button class="sign-in-card-button-option" id="sign-in-card-google-btn">
+                    <img src="{% static 'images/googlelogo.png' %}" id="google-logo"> Sign up with Google
+                </button>
+            </form>
+
+            <form class="sign-in-card-form" action="">
+                <button class="sign-in-card-button-option" id="sign-in-card-apple-btn">
+                    <img src="{% static 'images/image.png' %}" id="apple-logo">Sign up with Apple
+                </button>
+            </form>
+
+            <form class="sign-in-card-form" action="">
+                <button class="sign-in-card-button-option" id="sign-in-card-linkedin-btn">
+                    <img src="{% static 'images/linkedinlogo.png' %}" id="linkedin-logo">Sign up with LinkedIn
+                </button>
+            </form>
+        </div>
 
         <div class="sign-in-card-element-line-container">
             <div class="sign-in-card-element-line"></div>
