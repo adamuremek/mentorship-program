@@ -86,3 +86,10 @@ def account_creation_0_mentor(request):
     template = loader.get_template('sign-in card/account_creation_0_mentor.html')
     context = {}
     return HttpResponse(template.render(context, request))
+
+def account_creation_1_mentor(request):
+    template = loader.get_template('sign-in card/account_creation_1_mentor.html')
+    context = {
+        'pronounlist': ['he', 'she', 'they'],
+    }
+    return HttpResponse(template.render(context, request))

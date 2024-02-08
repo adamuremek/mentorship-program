@@ -37,6 +37,7 @@ urlpatterns = [
 
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
     path('account_creation_0_mentor/', views.account_creation_0_mentor, name='account_creation_0_mentor'),
+    path('account_creation_1_mentor/', views.account_creation_1_mentor, name='account_creation_1_mentor'),
 
     path('admin/', admin.site.urls),
 ]
