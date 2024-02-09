@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models import *
 from datetime import date
+<<<<<<< HEAD
+
 
 from utils import security
 
@@ -53,10 +55,20 @@ class Interests(Model):
         return self.strInterest
 
 
+=======
+
+# Create your models here.
+
+>>>>>>> origin-ssh/database
 class Users(Model):
     """
 
     """
+<<<<<<< HEAD
+    
+    
+=======
+>>>>>>> origin-ssh/database
     #PLACEHOLDER: Change to User_Accounts
     #   User_Accounts have a User_Profile
     class Role(TextChoices):
@@ -64,9 +76,14 @@ class Users(Model):
         MENTOR = 'Mentor'
         MENTEE = 'Mentee'
 
+<<<<<<< HEAD
     clsEmailAddress =  EmailField(null=True,unique=True)  
     strPasswordHash =  CharField(max_length=100, null=True, blank=False)
     strPasswordSalt =  CharField(max_length=100, null=True, blank=False)
+=======
+    clsEmailAddress =  EmailField(null=True)  
+    strPasswordHash =  CharField(max_length=100, null=True, blank=False)
+>>>>>>> origin-ssh/database
     strRole = CharField(max_length=10, choices=Role.choices, default='')
     clsDateJoined = DateField(default=date.today)
     clsActiveChangedDate = DateField(default=date.today)
@@ -87,6 +104,9 @@ class Users(Model):
     strSessionKeyHash = CharField(max_length=100,default='')
 
     
+<<<<<<< HEAD
+    #def __str__(self):
+    #    return self.firstname + ' ' + self.lastname
 
     """
     returns a list of interests that are associated with a given user
@@ -116,10 +136,9 @@ class Users(Model):
 
     """
     def add_interests(intUserID : int, intInterestIdArray : [int])->bool:
-        pass
-        #for interestId in intInterestIdArray:
-            #user_interest_link = User_Interests.objects.create(intUserID=,intInterestID=Interests.objets.get(intInterestIdArray))
-            #user_interest_link.save()
+        for interestId in intInterestIdArray:
+            user_interest_link = User_Interests.objects.create(intUserID=,intInterestID=Interests.objets.get(intInterestIdArray))
+            user_interest_link.save()
 
     """
     returns a NON SAVED user object that has the password properly hashed
@@ -140,6 +159,7 @@ class Users(Model):
                     clsEmailAddress = email
                 )
 
+=======
     def getUserInfo(self):
         user_info = {
             "EmailAddress": self.clsEmailAddress,
@@ -160,6 +180,7 @@ class Users(Model):
             user_info["Biography"] = self.biographies.strBio
 
         return user_info
+>>>>>>> origin-ssh/database
 
 
 
@@ -176,6 +197,11 @@ class Biographies(Model):
     strBio = CharField(max_length=5000, null=True)
 
     def __str__(self):
+<<<<<<< HEAD
+        return self.bio
+
+
+=======
         return {"bio:": self.strBio}
 
 
@@ -189,16 +215,25 @@ class Interests(Model):
     def __str__(self):
         return str(self.id) + ' ' + self.strInterest
 
+>>>>>>> origin-ssh/database
 class User_Interests(Model):
     """
 
     """   
     intUserID = ForeignKey(
+<<<<<<< HEAD
+        "Interests",
+        on_delete = models.CASCADE
+    )
+    intInterestID = ForeignKey(
+        "Users",
+=======
         "Users",
         on_delete = models.CASCADE
     )
     intInterestID = ForeignKey(
         "Interests",
+>>>>>>> origin-ssh/database
         on_delete = models.CASCADE
     )
 
@@ -206,6 +241,10 @@ class User_Interests(Model):
         return "Default" #PLACEHOLDER
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin-ssh/database
 class Mentors(Model):
     """
 
