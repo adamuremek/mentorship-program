@@ -6,17 +6,18 @@ from utils import security
 
 # Create your models here.
 
-class Interests(Model):
+
+class Interest(Model):
     """
 
     """
-    strInterest = CharField(max_length=100, null=False)
+    strInterest = CharField(max_length=100, null=False,unique=True)
 
 
     """
     returns true if the given interest is is a default interest
     """
-    def isDefaultInterest()->bool:
+    def isDefaultInterest(self)->bool:
         return strInterest in Interests.getDefaultInterestList()
 
     """
@@ -47,13 +48,7 @@ class Interests(Model):
             "nodejs"
             ]
 
-
-
-    def __str__(self):
-        return self.strInterest
-
-
-class Users(Model):
+class User(Model):
     """
 
     """
@@ -81,45 +76,15 @@ class Users(Model):
     strGender = CharField(max_length=35, default='')
     strPreferredPronouns = CharField(max_length=50, null=True)
  
-    #PLACEHOLDER: Session_Information
-    #   Separate session into its own table or keep with User_Accounts?
-    strSessionID = CharField(max_length=255,default='')
-    strSessionKeyHash = CharField(max_length=100,default='')
 
-    
+    #foregn key fields
+    interests = models.ManyToManyField(Interest)
 
-    """
-    returns a list of interests that are associated with a given user
-    """
-    def get_interests(self)->[Interests]:
-        #there is probably a more django-eee way to make this work
-        #that doens't involve hitting the database in a for loop, 
-        #backend people please help I have no idea and I must code 0_0
-       
-        #everyone is interested in EVERYTHING huzzah!
-        return Users.objects.all()
-        return [
-                    Interests.objects.get(intInterestID=user_interest_map.intInterestID)
-                for user_interest_map in 
-                    User_Interests.objects.filter(intUserID=self.id)
-                ]
-    
     #returns true if the incoming plain text hashes out to our stored
     #password hash
     def check_valid_password(self,password_plain_text : str)->bool:
         return security.hash_password(password,self.strPasswordSalt) ==\
                 self.strPasswordHash
-
-    """
-    
-    adds the given interests to the user
-
-    """
-    def add_interests(intUserID : int, intInterestIdArray : [int])->bool:
-        pass
-        #for interestId in intInterestIdArray:
-            #user_interest_link = User_Interests.objects.create(intUserID=,intInterestID=Interests.objets.get(intInterestIdArray))
-            #user_interest_link.save()
 
     """
     returns a NON SAVED user object that has the password properly hashed
@@ -128,17 +93,19 @@ class Users(Model):
     """
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
-                                         email : str)->'Users':
+                                         email : str)->'User':
         generated_user_salt = security.generate_salt()
         #TODO: emails need to be validated, send a sacrifical lamb
         #to the regex gods
-        return Users.objects.create(
+        return User.objects.create(
                     strPasswordHash = security.hash_password(
                                             password_plain_text,
                                             generated_user_salt),
                     strPasswordSalt = generated_user_salt,
                     clsEmailAddress = email
                 )
+
+    
 
     def getUserInfo(self):
         user_info = {
@@ -167,204 +134,117 @@ class Biographies(Model):
     """
 
     """
-    intUserID = OneToOneField(
-        "Users",
+    user = OneToOneField(
+        User,
         on_delete = models.CASCADE,
         primary_key=True
     )
 
     strBio = CharField(max_length=5000, null=True)
 
-    def __str__(self):
-        return {"bio:": self.strBio}
 
 
-class Interests(Model):
-    """
-
-    """
-    strInterest = CharField(max_length=100, null=False)
-
-
-    def __str__(self):
-        return str(self.id) + ' ' + self.strInterest
-
-class User_Interests(Model):
-    """
-
-    """   
-    intUserID = ForeignKey(
-        "Users",
-        on_delete = models.CASCADE
-    )
-    intInterestID = ForeignKey(
-        "Interests",
-        on_delete = models.CASCADE
-    )
-
-    def __str__(self):
-        return "Default" #PLACEHOLDER
-
-
-class Mentors(Model):
-    """
-
-    """
-    intUserID = OneToOneField(
-        "Users",
-        on_delete = models.CASCADE
-    )
-    intOrganizationID = ForeignKey(
-        "Organizations",
-        on_delete = models.CASCADE
-    )
-    intMaxMentees = IntegerField(default=4)#PLACEHOLDER: default=4
-    intRecommendations = IntegerField(default=0)
-    strJobTitle = CharField(max_length=100)
-
-    def __str__(self):
-        return "Default" #PLACEHOLDER
-
-
-class Mentees(Model):
-    """
-
-    """
-    intUserID = OneToOneField(
-        "Users",
-        on_delete = models.CASCADE
-    )
-
-    def __str__(self):
-        return "Default" #PLACEHOLDER
-
-
-class Mentorships(Model):
-    """
-
-    """
-    intMentorID = ForeignKey(
-        "Mentors",
-        on_delete = models.CASCADE
-    )
-    intMenteeID = ForeignKey(
-        "Mentees",
-        on_delete = models.CASCADE
-    )
-
-    clsStartDate = DateField(default=date.today, null=False)
-    clsEndDate = DateField(null=True)
-
-    def __str__(self):
-        return "Default" #PLACEHOLDER
-
-
-class Mentorship_Requests(Model):
-    """
-
-    """
-    intMentorID = ForeignKey(
-        "Mentors",
-        on_delete = models.CASCADE
-    )
-    intMenteeID = ForeignKey(
-        "Mentees",
-        on_delete = models.CASCADE
-    )
-
-    def __str__(self):
-        return "Default" #PLACEHOLDER
-
-
-class Mentorship_Referrals(Model):
-    """
-
-    """
-    intReferrerUserID = ForeignKey(
-        "Users",
-        on_delete = models.CASCADE
-    )
-
-    intMentorID = ForeignKey(
-        "Mentors",
-        on_delete = models.CASCADE
-    )
-
-    intMenteeID = ForeignKey(
-        "Mentees",
-        on_delete = models.CASCADE
-    )
-
-    def __str__(self):
-        return "Default" #PLACEHOLDER
-
-
-class Mentor_reports(Model):
-    """
-    
-    """
-    #PLACEHOLDER: ReportTypes needs more choices.
-    class ReportType(TextChoices):
-        BEHAVIOR : 'Behavior'
-
-    intMentorID = ForeignKey(
-        "Mentors",
-        on_delete = models.CASCADE
-    )
-    strReportType = CharField(max_length=10, choices=ReportType.choices, default='')
-    strReportBody = CharField(max_length = 3500)
-
-class Notes(Model):
-    """
-
-    """
-    intUserID = ForeignKey(
-        "Users",
-        on_delete = models.CASCADE
-    )
-    strTitle = CharField(max_length=100)
-    strBody = CharField(max_length=7000)
-    clsCreatedOn = DateField(default=date.today)
-
-    def __str__(self):
-        return "Default" #PLACEHOLDER
-
-
-class Organizations(Model):
+class Organization(Model):
     """
     
     """
     strName = CharField(max_length=100)
     strIndustryType = CharField(max_length=100)
 
-    def __str__(self):
-        return "Default" #PLACEHOLDER
+    admins = models.ManyToManyField('Mentor')
 
 
-class Organization_Admins(Model):
-    """
-    
-    """
+class Mentor(Model):
+    intMaxMentees = IntegerField(default=4)
+    intRecommendations = IntegerField(default=0)
+    strJobTitle = CharField(max_length=100)
 
-    intUserID = ForeignKey(
-        "Users",
+
+
+    account = OneToOneField(
+        User,
         on_delete = models.CASCADE
     )
-    intOrganizationID = ForeignKey(
-        "Organizations",
+    orginization = ForeignKey(
+        Organization,
         on_delete = models.CASCADE
     )
 
-    def __str__(self):
-        return "Default" #PLACEHOLDER
 
-class System_Logs(Model):
-    """
-    
+
+class Mentee(Model):
     """
 
-    strActivity = CharField(max_length = 500)
+    """
+    account = OneToOneField(
+        "User",
+        on_delete = models.CASCADE
+    )
+
+
+class MentorshipRequest(Model):
+    """
+
+    """
+    mentor = ForeignKey(
+        Mentor,
+        on_delete = models.CASCADE
+    )
+    mentee = ForeignKey(
+        Mentee,
+        on_delete = models.CASCADE
+    )
+
+
+class MentorshipReferral(Model):
+    """
+
+    """
+
+    mentor_from = ForeignKey(
+        Mentor,
+        on_delete = models.CASCADE,
+        related_name='created_referrals_set'
+    )
+    mentor_to = ForeignKey(
+        Mentor,
+        on_delete = models.CASCADE,
+        related_name='referral_set'
+    )
+    mentee = ForeignKey(
+        Mentee,
+        on_delete = models.CASCADE
+    )
+
+
+class MentorReports(Model):
+    class ReportType(TextChoices):
+        BEHAVIOR : 'Behavior'
+
+    mentor = ForeignKey(
+        Mentor,
+        on_delete = models.CASCADE
+    )
+    strReportType = CharField(max_length=10, choices=ReportType.choices, default='')
+    strReportBody = CharField(max_length = 3500)
+
+class Notes(Model):
+    strTitle = CharField(max_length=100)
+    strBody = CharField(max_length=7000)
     clsCreatedOn = DateField(default=date.today)
 
-    def __str__(self):
-        return "Default" #PLACEHOLDER 
+
+    user = ForeignKey(
+        User,
+        on_delete = models.CASCADE
+    )
+
+
+
+class SystemLogs(Model):
+    """
+    
+    """
+    
+    strActivity = CharField(max_length = 500)
+    clsCreatedOn = DateField(default=date.today)

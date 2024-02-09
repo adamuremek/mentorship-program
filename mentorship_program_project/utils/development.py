@@ -9,8 +9,8 @@ import string
 
 from utils.security import is_in_debug_mode
 
-from mentorship_program_app.models import Users
-from mentorship_program_app.models import Interests
+from mentorship_program_app.models import User
+from mentorship_program_app.models import Interest
 
 
 
@@ -25,9 +25,9 @@ def print_debug(*args):
 """
 returns an array of randomly selected interests of a given size
 """
-def get_random_interests(size : int)->[Interests]:
+def get_random_interests(size : int)->[Interest]:
     random_interest_list = []
-    interest_objects = Interests.objects.all()
+    interest_objects = Interest.objects.all()
 
     #if we have to randomly pick the entire set,
     #then we return, well the set
@@ -59,14 +59,14 @@ def populate_database_with_random_users(amount  : int = 100)->None:
         user = f'user{i}@'+''.join(random.choice(string.ascii_letters)for _ in range(100))+'.com'
 
 
-        new_user = Users.create_from_plain_text_and_email(
+        new_user = User.create_from_plain_text_and_email(
                                                 f'password{i}',
                                                 user
                                                 )
         new_user.save()
 
         user_interests = get_random_interests(5)
-        Users.add_interests_to_user(new_user.id,user_interests)
+        User.add_interests_to_user(new_user.id,user_interests)
 
         print_debug('[random user generator] ' + str(new_user.get_interests()))
 
@@ -82,13 +82,13 @@ but I figure sense this is only used in development mode this
 is an ok place for it for now
 """
 def populate_database_with_interests()->None:
-    for interest in Interests.getDefaultInterestList():
+    for interest in Interest.getDefaultInterestList():
         
         try:
-            Interests.objects.get(strInterest = interest)
+            Interest.objects.get(strInterest = interest)
             print_debug(f"[interest populator] {interest} is already in the database")
         except:
-            interest_object = Interests.objects.create(strInterest = interest)
+            interest_object = Interest.objects.create(strInterest = interest)
             interest_object.save()
             
             print_debug(f'[interest populator] finished with {interest}')

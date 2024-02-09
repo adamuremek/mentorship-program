@@ -5,6 +5,9 @@ from django.shortcuts import render, redirect
 from utils import development
 from utils import security
 
+from .models import User
+from .models import Interest
+
 def default(req):
     template = loader.get_template('index.html')
     context = {}
@@ -95,9 +98,127 @@ def invalid_request_401(request):
     response.status_code = 401
     return response
 
+
+
 # development only views, these should be removed before production
 # still if they are forgotten they should automatically redirect
 # when not in DEBUG mode
+
+@security.Decorators.require_debug(invalid_request_401)
+def test_database_setup(request):
+    
+    development.print_debug("[database test] generating new interests...")
+    
+    fake_interests = [
+            'mario party',
+            'minecraft',
+            'ghost game',
+            'hollow knight',
+            'rain world'
+            ]
+    #make a set of default interests
+    for interest in fake_interests:
+        development.print_debug(f"[database test] =>\t creating interest {interest}")
+        try:
+            interest_obj = Interest.objects.create(strInterest=interest)
+            interest_obj.save()
+        except:
+            development.print_debug("[database test] =>\t key already exists")
+
+    development.print_debug(f"[database test] finished generating interests!")
+    development.print_debug(f"[database test] reading interests back from the db...")
+
+    mario_party_interest = Interest.objects.get(strInterest='mario party')
+    ghost_game_interest  = Interest.objects.get(strInterest='ghost game')
+    rainworld_interest   = Interest.objects.get(strInterest='rain world')
+
+    development.print_debug("[database test] sucessfully read interest from the db!")
+
+
+    development.print_debug("[database test] creating fake users...")
+    
+    fakeuser1 = None
+    try: 
+        fakeuser1 = User.create_from_plain_text_and_email('fakeuser1',
+                                                          'fakeuser1@fake.com')
+    except:
+        development.print_debug("fakeuser1 already exists")
+        fakeuser1 = User.objects.get(clsEmailAddress='fakeuser1@fake.com')
+    
+    fakeuser2 = None
+    try: 
+        fakeuser2 = User.create_from_plain_text_and_email('fakeuser2',
+                                                          'fakeuser2@fake.com')
+    except:
+        fakeuser2 = User.objects.get(clsEmailAddress='fakeuser2@fake.com')
+        development.print_debug("fakeuser2 already exists")
+    
+    fakeuser3 = None
+    try: 
+        fakeuser3 = User.create_from_plain_text_and_email('fakeuser3',
+                                                          'fakeuser3@fake.com')
+    except:
+        fakeuser3 = User.objects.get(clsEmailAddress='fakeuser3@fake.com')
+        development.print_debug("fakeuser3 already exists")
+
+    
+    development.print_debug("[database test]=>\t adding interests to the users...")
+    #add interests to the users
+    fakeuser1.interests.add(mario_party_interest)
+    fakeuser1.interests.add(rainworld_interest)
+    fakeuser1.interests.add(ghost_game_interest)
+
+    fakeuser2.interests.add(rainworld_interest)
+    fakeuser3.interests.add(ghost_game_interest)
+
+    development.print_debug("[database test]=>\t saving new users")
+    fakeuser1.save()
+    fakeuser2.save()
+    fakeuser3.save()
+
+
+    development.print_debug("[database test] finished user generation!")
+
+    #now lets try and read the data back
+
+    development.print_debug("[database test] printing newly created users")
+    
+    all_users = User.objects.all()
+    development.print_debug(all_users)
+
+    development.print_debug("[database test] displaying user interests!")
+    development.print_debug("="*5)
+    
+    for user in all_users:
+        development.print_debug(user.clsEmailAddress)
+        user_interests = user.interests.all()
+        development.print_debug(user_interests)
+        
+        for user_int in user_interests:
+            development.print_debug("\t "+user_int.strInterest)
+        
+        development.print_debug("-")
+
+
+    development.print_debug("[database test] deleting the data....")
+    
+    fakeuser1.delete()
+    fakeuser2.delete()
+    fakeuser3.delete()
+
+    #purge all of the fake interests
+    Interest.objects.filter(strInterest__in=fake_interests).delete()
+
+
+    development.print_debug("[database test] finished running, enjoy the data :)")
+
+
+    return HttpResponse('finished test sucesfully')
+
+
+
+
+
 @security.Decorators.require_debug(invalid_request_401)
 def generate_random_user_data(request):
     development.print_debug('running the function')
