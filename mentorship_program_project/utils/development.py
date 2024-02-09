@@ -66,9 +66,7 @@ def populate_database_with_random_users(amount  : int = 100)->None:
         new_user.save()
 
         user_interests = get_random_interests(5)
-        User.add_interests_to_user(new_user.id,user_interests)
-
-        print_debug('[random user generator] ' + str(new_user.get_interests()))
+        new_user.interests.add(*user_interests)
 
         print_debug('[random user generator] finished random user generation!\n\tenjoy the data :) '+user)
 
@@ -80,9 +78,15 @@ if already populated, skip doing that population
 this might be better moved into some sort of database file,
 but I figure sense this is only used in development mode this 
 is an ok place for it for now
+
+we might also want to generate this from sql files, this is very much
+a "get to the data" quickly solution, altough I suppose having it here 
+means we can point admins to this function in a url to re populate the default 
+interests
 """
 def populate_database_with_interests()->None:
-    for interest in Interest.getDefaultInterestList():
+    default_interests = Interest.get_initial_default_interest_strings()
+    for interest in default_interests:
         
         try:
             Interest.objects.get(strInterest = interest)

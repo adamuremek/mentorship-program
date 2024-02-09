@@ -12,41 +12,35 @@ class Interest(Model):
 
     """
     strInterest = CharField(max_length=100, null=False,unique=True)
+    isDefaultInterest = BooleanField(default=False)
 
 
-    """
-    returns true if the given interest is is a default interest
-    """
-    def isDefaultInterest(self)->bool:
-        return strInterest in Interests.getDefaultInterestList()
+
+    #convinence methods
 
     """
-        one stop shop to get a list of default interests as strings
-        that are in the project BEFORE users add interests in
-
-        if we need to change where these are coming from, the idea 
-        with this function is to be the centeral authority for where 
-        these come from, so when we need to change them later we can.
+        convinence function to return an array of default interest objects 
+        idk the return type of djangos queries so its not typed atm
     """
+    @staticmethod
+    def get_default_interests():
+        return Interest.objects.filter(isDefaultInterest=True)
+
+    #simply returns an array representing the inital default interests that we want
+    #to be populated to the database
     @staticmethod 
-    def getDefaultInterestList()->[str]:
-        return Interests.strListDefaultInterests
+    def get_initial_default_interest_strings()->[str]:
+        return [
+                "c++",
+                "python",
+                "html",
+                "javascript",
+                "webdev",
+                "godot",
+                "calculus",
+                "AI"
+                ]
 
-    #array of interests that are pre-built into the application
-    #these should probably be moved into an environment somewhere
-    strListDefaultInterests = [
-            "c++",
-            "python",
-            "machine learning",
-            "image recognition",
-            "html",
-            "css",
-            "web development",
-            "c#",
-            ".net",
-            "javascript",
-            "nodejs"
-            ]
 
 class User(Model):
     """
