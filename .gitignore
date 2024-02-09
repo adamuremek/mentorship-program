@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 #vim tab completion configuration file
-*.ycm_extra_config.py
+**/.ycm_extra_config.py
 
 # Distribution / packaging
 .Python
