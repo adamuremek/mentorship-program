@@ -17,8 +17,11 @@ def run():
     # createUser('SophiaRodriguez@svsu.edu', '', Users.Role.MENTEE, 'Sophia', 'Rodriguez', '555-789-0123', datetime(2004, 5, 10), 'Female', 'She/Her', '', '','bio')
     # createUser('MiaLee@svsu.edu', '', Users.Role.MENTEE, 'Mia', 'Lee', '555-345-6789', datetime(2003, 11, 4), 'Female', 'She/Her', '', '','bio')
     
-    
-   print( getUserInformation(30))
+    # addInterests("A.I")
+    # addInterests("Engineering")
+    #addUserInterests(29,2)
+    #print(getAllInterests())
+    print(getUserInformation(29))
 
 
     

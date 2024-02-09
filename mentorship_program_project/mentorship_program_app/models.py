@@ -8,8 +8,6 @@ class Users(Model):
     """
 
     """
-    
-    
     #PLACEHOLDER: Change to User_Accounts
     #   User_Accounts have a User_Profile
     class Role(TextChoices):
@@ -39,8 +37,27 @@ class Users(Model):
     strSessionKeyHash = CharField(max_length=100,default='')
 
     
-    def __str__(self):
-        return self.strFirstName + ' ' + self.strLastName
+    def getUserInfo(self):
+        user_info = {
+            "EmailAddress": self.clsEmailAddress,
+            "Role": self.strRole,
+            "DateJoined": self.clsDateJoined,
+            "ActiveChangedDate": self.clsActiveChangedDate,
+            "Active": self.blnActive,
+            "AccountDisabled": self.blnAccountDisabled,
+            "FirstName": self.strFirstName,
+            "LastName": self.strLastName,
+            "PhoneNumber": self.strPhoneNumber,
+            "DateOfBirth": self.clsDateofBirth,
+            "Gender": self.strGender,
+            "PreferredPronouns": self.strPreferredPronouns
+        }
+
+        if hasattr(self, 'biographies') and self.biographies:
+            user_info["Biography"] = self.biographies.strBio
+
+        return user_info
+
 
 
 class Biographies(Model):
@@ -56,7 +73,7 @@ class Biographies(Model):
     strBio = CharField(max_length=5000, null=True)
 
     def __str__(self):
-        return self.bio
+        return {"bio:": self.strBio}
 
 
 class Interests(Model):
@@ -67,24 +84,24 @@ class Interests(Model):
 
 
     def __str__(self):
-        return self.strInterest
-
+        return str(self.id) + ' ' + self.strInterest
 
 class User_Interests(Model):
     """
 
     """   
     intUserID = ForeignKey(
-        "Interests",
+        "Users",
         on_delete = models.CASCADE
     )
     intInterestID = ForeignKey(
-        "Users",
+        "Interests",
         on_delete = models.CASCADE
     )
 
     def __str__(self):
         return "Default" #PLACEHOLDER
+
 
 
 class Mentors(Model):
