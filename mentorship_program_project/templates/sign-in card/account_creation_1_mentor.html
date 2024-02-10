@@ -1,21 +1,7 @@
-{% extends "sign-in card/big_card.html" %}
+{% load static %}
 
-{% block title %}
-    Account Creation 1 Mentor Sign-In Card
-{% endblock %}
-
-{% block card_corner %}
-    <form action="">
-        <button class="sign_in_top_left_element">X Step 1 of 6</button>
-    </form>
-{% endblock %}
-
-{% block card_head %}
-    <h1>Create your account</h1>
-{% endblock %}
-
-{% block card_content %}
-    <div class="sign-in-card-content">
+    
+    <div id="card-1" class="sign-in-card-content">
         <div class="sign-in-card-element">
             <p>Name:</p>
             <form action="">
@@ -33,9 +19,8 @@
         </div>
         
         <div class="sign-in-card-element">
-            <form action="">
+            <!-- <form action=""> -->
                 <button class="sign-in-card-button-option">Next</button>
-            </form>
+            <!-- </form> -->
         </div>
     </div>
-{% endblock %}

@@ -23,6 +23,8 @@ urlpatterns = [
     path('landing/', views.landing, name='landing'),
     path('landing-post/', views.landingPost, name='landing-post'),
     
+    path('thebigmove/', views.THEBIGMOVE, name='thebigmove'),
+    
     path('dashboard/', views.dashboard, name='dashboard'),
     path('profile-card/', views.profileCard, name='profile-card'),
 

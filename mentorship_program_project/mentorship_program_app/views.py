@@ -3,6 +3,12 @@ from django.template import loader
 from django.shortcuts import render, redirect
 
 
+def THEBIGMOVE(req):
+    template = loader.get_template('sign-in card/single_card_test.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
+
 def default(req):
     template = loader.get_template('index.html')
     context = {}
