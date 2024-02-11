@@ -23,7 +23,11 @@ urlpatterns = [
     path('landing/', views.landing, name='landing'),
     path('landing-post/', views.landingPost, name='landing-post'),
     
+    path('bigmove/', views.BIGMOVE, name='bigmove'),
     path('thebigmove/', views.THEBIGMOVE, name='thebigmove'),
+    path('thesecondmove/', views.THESECONDMOVE, name='thesecondmove'),
+    
+    path('fuck/', views.fuck, name='fuck'),
     
     path('dashboard/', views.dashboard, name='dashboard'),
     path('profile-card/', views.profileCard, name='profile-card'),

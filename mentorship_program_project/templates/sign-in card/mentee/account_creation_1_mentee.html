@@ -1,0 +1,25 @@
+{% load static %}
+
+<div class="sign-in-card-content">
+    <div class="sign-in-card-element">
+        <p>Name:</p>
+        <!-- <form action=""> -->
+            <input type="text" name="name" placeholder="e.g. John Doe">
+        <!-- </form> -->
+    </div>
+
+    <div class="sign-in-card-element">
+        <p>Preferred Pronoun(s):</p>
+        <select name="pronoun">
+            {% for pronoun in pronounlist %}
+                <option>{{pronoun}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="sign-in-card-element">
+        <!-- <form action=""> -->
+            <button type="button" class="sign-in-card-button-option">Next</button>
+        <!-- </form> -->
+    </div>
+</div>

@@ -3,10 +3,29 @@ from django.template import loader
 from django.shortcuts import render, redirect
 
 
-def THEBIGMOVE(req):
-    template = loader.get_template('sign-in card/single_card_test.html')
+def BIGMOVE(req):
+    template = loader.get_template('sign-in card/mentor/account_creation_0_mentor.html')
     context = {}
     return HttpResponse(template.render(context, req))
+
+def THEBIGMOVE(req):
+    template = loader.get_template('sign-in card/single_card_mentor.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
+def THESECONDMOVE(req):
+    template = loader.get_template('sign-in card/single_card_mentee.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
+def fuck(req):
+    if req.method == 'POST':
+        for i in range(5):
+            print("!!!!")
+        print(req.POST)
+        for i in range(5):
+            print("!!!!")
+        return redirect('landing')
 
 
 def default(req):

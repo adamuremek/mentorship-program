@@ -1,0 +1,27 @@
+{% extends "sign-in card/big_card.html" %}
+
+{% load static %}
+
+{% block title %}
+    TESTING
+{% endblock %}
+
+{% block card_corner %}
+    <form action="">
+        <button type="submit" class="sign_in_top_left_element">X</button>
+    </form>
+{% endblock %}
+
+{% block card_head %}
+    <h1>Create your account</h1>
+{% endblock %}
+
+{% block card_content %}
+    <form action="/fuck/" method="POST">
+        {% csrf_token %}
+        {% include 'sign-in card/mentee/account_creation_1_mentee.html' %}
+        {% include 'sign-in card/mentee/account_creation_2_mentee.html' %}
+    </form>
+   
+    <script src="{% static 'js/dynamic-card.js' %}"></script>
+{% endblock %}
