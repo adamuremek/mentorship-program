@@ -20,11 +20,11 @@ def THESECONDMOVE(req):
 
 def fuck(req):
     if req.method == 'POST':
-        for i in range(5):
-            print("!!!!")
+        for i in range(2):
+            print("-----------")
         print(req.POST)
-        for i in range(5):
-            print("!!!!")
+        for i in range(2):
+            print("----------")
         return redirect('landing')
 
 
