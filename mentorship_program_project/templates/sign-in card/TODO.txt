@@ -4,7 +4,6 @@ Who is checking the wording of menus?
 Who/what is generating pronouns?
 
 need to be started:
-account_creation_3_mentee
 account_creation_4_mentee
 
 account_creation_3_mentor
@@ -19,7 +18,7 @@ account_recovery_3
 working:
 role_selection
 	+Student, Mentor, and X buttons routing
-    
+
 account_activation_mentee
 	+Send Activation Email and X buttons routing
 	+Set up pulling value from email field
@@ -38,6 +37,9 @@ account_creation_2_mentee
 	+Next and <- Step 2 of 4 buttons routing
 	+Set up pulling email and password
 	+Set up visable/invisable toggel on password field
+account_creation_3_mentee
+	+Next and <- Step 3 of 4 buttons routing
+	+Figure out populating interest list
 
 account_activation_mentor
 	+X button routing 
@@ -46,7 +48,7 @@ account_creation_0_mentor
 	+X, google, apple, and linkin button routing
 account_creation_1_mentor
 	+Next and X Step 1 of 6 buttons routing
-	+Figure out where to get pronouns from
+	+Figure out populating pronouns list
 	+Set up pulling value from name and pronoun fields
 account_creation_2_mentor
 	+Next and <- Step 2 of 4 buttons routing

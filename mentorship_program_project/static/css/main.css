@@ -129,12 +129,14 @@ footer {
 /* ALL STYLES BELOW WERE ORIGINALLY ONLY FOR SIGN-UP CARDS */
 /* ------------------------------------------------------- */
 
+
+
 .sign-in-card-form {
     width: 100%;
     height: 100%;
 }
 
-/* REMOVE */
+/* REMOVE AFTER CHECKING FOR INSTANCES */
 .sign-in-card hr {
     width: 100%;
 }
@@ -145,6 +147,15 @@ footer {
     justify-content: center;
 
     width: 70%;
+}
+
+.sign-in-card-interest-container {
+    display: flex;
+    align-content: center;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
 }
 
 .sign-in-card-element-line {
@@ -257,6 +268,51 @@ footer {
 .sign-in-card input[type=button]:hover {
     background-color: #1f315d;
     border-color: #1f315d;
+}
+
+.sign-in-card-interest {
+    height: min-content;
+    width: min-content;
+    padding: 2%;
+}
+
+.sign-in-card-interest input[type=checkbox] {
+    display: none;
+}
+
+.sign-in-card-interest-label {
+    font-size: large;
+    background-color: #464B4E;
+    border-radius: .5em;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    font-weight: 300;
+    height: fit-content;
+    width: max-content;
+    padding: 2%;
+}
+
+.sign-in-card-interest:hover input[type=checkbox] ~ .sign-in-card-interest-label {
+    background-color: lightgrey;
+}
+
+.sign-in-card-interest input[type=checkbox]:checked ~ .sign-in-card-interest-label {
+    background-color: gray;
+}
+
+.sign-in-card-interest-button {
+    font-size: large;
+    background-color: #464B4E;
+    border-color: transparent;
+    border-radius: .5em;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    font-weight: 300;
+    height: fit-content;
+    width: max-content;
+    padding: 2%;
+}
+
+.sign-in-card-interest-button:hover {
+    background-color: lightgrey;
 }
 
 .sign-in-card-button-option {

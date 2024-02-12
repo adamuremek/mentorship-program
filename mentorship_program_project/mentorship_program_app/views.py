@@ -76,6 +76,24 @@ def account_creation_2_mentee(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
+def account_creation_3_mentee(request):
+    template = loader.get_template('sign-in card/account_creation_3_mentee.html')
+    context = {
+        'interestlist': [
+            'Artificial Intelligence', 
+            'Computer Graphics', 
+            'Data Structures & Algorithms',
+            'Networking',
+            'Operating Systems',
+            'Embedded Systems',
+            'Cloud Computing',
+            'Software Engineering',
+            'Distrubuted Systems',
+            'Game Development',
+            'Cybersecruity',
+            'System Analysis'],
+    }
+    return HttpResponse(template.render(context, request))
 
 def account_activation_mentor(request):
     template = loader.get_template('sign-in card/account_activation_mentor.html')
