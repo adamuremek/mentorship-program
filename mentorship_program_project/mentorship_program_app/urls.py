@@ -1,4 +1,7 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+
 from . import views
 
 
@@ -36,7 +39,14 @@ urlpatterns = [
 
 
     #development routes
+    path('dev/profile_pictures',views.profile_picture_test,name='profile_picture_tests'),
     path('dev/generate_random_user_data/',views.generate_random_user_data,name='generate_random_user_data'),
     path('dev/populate_default_interests/',views.populate_default_interest_values,name='populate_default_interest_values'),
-    path('dev/database_test',views.test_database_setup,name='database_test')
+    path('dev/database_test',views.test_database_setup,name='database_test'),
+    path('dev/delete_users',views.delete_users,name='delete users')
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
+

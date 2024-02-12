@@ -40,6 +40,7 @@ def profileCard(req):
 
 #please make pretty front end we love you :D
 def home(req):
+
     return HttpResponse('theres no place me')
 
 def role_test(req):
@@ -105,6 +106,20 @@ def invalid_request_401(request):
 # when not in DEBUG mode
 
 @security.Decorators.require_debug(invalid_request_401)
+def profile_picture_test(request):
+    context = {
+                "users":[
+                    u.sanatize_black_properties() for u in User.objects.all()
+                ]
+            }
+    
+    template = loader.get_template('user_images.html')
+    
+    return HttpResponse(template.render(context,request))
+
+
+
+@security.Decorators.require_debug(invalid_request_401)
 def test_database_setup(request):
     development.test_database()
     return HttpResponse('finished test sucesfully')
@@ -123,3 +138,12 @@ def populate_default_interest_values(request):
     development.populate_database_with_interests()
     development.print_debug("[*] finished genereating interests! Enjoy the data :)")
     return HttpResponse("finished populating interests in the database!")
+
+@security.Decorators.require_debug(invalid_request_401)
+def delete_users(request):
+    development.print_debug("[*] are you sure you want to replace all users?")
+    if input("(y/n)> ").lower() == 'y':
+        User.objects.all().delete()
+        return HttpResponse("deleted all user sucessfully >:]")
+    return HttpResponse("canceled action!")
+

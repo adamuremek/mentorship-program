@@ -2,6 +2,17 @@ import bcrypt
 from django.conf import settings
 from typing import Callable
 
+"""
+nulls all objects that are inside of the black list to purge
+data for front end, this modifies in place, do not use it if 
+you inteand to use the data that gets cleared out. Once used,
+you aint' coming back!
+"""
+def black_list(data : object, black_listed_keys : [str])->None:
+    for key in data.__dict__:
+        if key in black_listed_keys:
+            data.__dict__[key] = None
+
 #returns true if the project is in debug mode
 def is_in_debug_mode()->bool:
     return settings.DEBUG

@@ -1,13 +1,46 @@
+from django.conf import settings
 from django.db import models
 from django.db.models import *
 from datetime import date
 
 from utils import security
+import os
 
 # Create your models here.
 
+"""
+class containing functions we want in every one of our 
+models, but not necessarily model classes
+"""
+class SVSUModelData():
+    #ensure that this model is not stored in the database
+    #it is ONLY a logical model
+    abstract = True
 
-class Interest(Model):
+    """
+        returns a list of string properties
+        that we do not want front end technologies
+        to see
+    """
+    @staticmethod
+    def get_backend_only_properties()->[str]:
+        return ["save","delete"]
+    
+    """
+        sets all properties that are read only in the black list to None
+
+        returns a reference to ourselfs for convinient usage
+    """
+    def sanatize_black_properties(self,black_list : [str] = []):
+        security.black_list(self,self.get_backend_only_properties() + black_list)
+        return self
+
+
+
+
+
+
+class Interest(SVSUModelData,Model):
     """
 
     """
@@ -42,10 +75,19 @@ class Interest(Model):
                 ]
 
 
-class User(Model):
+class User(SVSUModelData,Model):
     """
+        generate a list of backend only properties appended to the 
+        general blackouted properties
 
+        see SVSUModelData as to what this is overloading
     """
+    def get_backend_only_properties(self)->[str]:
+        return super().get_backend_only_properties() + [
+                "strPasswordHash",
+                "strPasswordSalt"
+                ]
+
     #PLACEHOLDER: Change to User_Accounts
     #   User_Accounts have a User_Profile
     class Role(TextChoices):
@@ -69,6 +111,14 @@ class User(Model):
     clsDateofBirth = DateField(default=date.today)
     strGender = CharField(max_length=35, default='')
     strPreferredPronouns = CharField(max_length=50, null=True)
+
+
+    #image field with url location
+    imgUserProfile = ImageField(
+                                upload_to="images/",
+                                default=
+                                    "images/default_profile_picture.png"
+                                )
  
 
     #foregn key fields
@@ -124,7 +174,7 @@ class User(Model):
 
 
 
-class Biographies(Model):
+class Biographies(SVSUModelData,Model):
     """
 
     """
@@ -138,7 +188,7 @@ class Biographies(Model):
 
 
 
-class Organization(Model):
+class Organization(SVSUModelData,Model):
     """
     
     """
@@ -148,7 +198,8 @@ class Organization(Model):
     admins = models.ManyToManyField('Mentor')
 
 
-class Mentor(Model):
+class Mentor(SVSUModelData,Model):
+
     intMaxMentees = IntegerField(default=4)
     intRecommendations = IntegerField(default=0)
     strJobTitle = CharField(max_length=100)
@@ -166,7 +217,7 @@ class Mentor(Model):
 
 
 
-class Mentee(Model):
+class Mentee(SVSUModelData,Model):
     """
 
     """
@@ -176,7 +227,7 @@ class Mentee(Model):
     )
 
 
-class MentorshipRequest(Model):
+class MentorshipRequest(SVSUModelData,Model):
     """
 
     """
@@ -190,11 +241,10 @@ class MentorshipRequest(Model):
     )
 
 
-class MentorshipReferral(Model):
+class MentorshipReferral(SVSUModelData,Model):
     """
 
     """
-
     mentor_from = ForeignKey(
         Mentor,
         on_delete = models.CASCADE,
@@ -211,7 +261,7 @@ class MentorshipReferral(Model):
     )
 
 
-class MentorReports(Model):
+class MentorReports(SVSUModelData,Model):
     class ReportType(TextChoices):
         BEHAVIOR : 'Behavior'
 
@@ -222,7 +272,7 @@ class MentorReports(Model):
     strReportType = CharField(max_length=10, choices=ReportType.choices, default='')
     strReportBody = CharField(max_length = 3500)
 
-class Notes(Model):
+class Notes(SVSUModelData,Model):
     strTitle = CharField(max_length=100)
     strBody = CharField(max_length=7000)
     clsCreatedOn = DateField(default=date.today)
@@ -235,7 +285,7 @@ class Notes(Model):
 
 
 
-class SystemLogs(Model):
+class SystemLogs(SVSUModelData,Model):
     """
     
     """
