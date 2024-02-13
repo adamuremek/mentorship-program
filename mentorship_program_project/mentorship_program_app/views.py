@@ -26,6 +26,11 @@ def dashboard(req):
     context = {'items':items}
     return HttpResponse(template.render(context, req))
 
+def admin_dashboard(req):
+    template = loader.get_template('admin_dashboard.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
 def profileCard(req):
     template = loader.get_template('dashboard/profile-card/mentor_card.html')
     
