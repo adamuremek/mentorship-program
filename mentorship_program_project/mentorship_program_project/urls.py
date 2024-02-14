@@ -24,6 +24,7 @@ urlpatterns = [
     path('landing-post/', views.landingPost, name='landing-post'),
     
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('profile-card/', views.profileCard, name='profile-card'),
 
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
