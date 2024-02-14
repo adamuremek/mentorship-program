@@ -37,13 +37,16 @@ urlpatterns = [
 
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
 
+    path('login/',views.login_uname_text,name='login'),
 
     #development routes
     path('dev/profile_pictures',views.profile_picture_test,name='profile_picture_tests'),
     path('dev/generate_random_user_data/',views.generate_random_user_data,name='generate_random_user_data'),
     path('dev/populate_default_interests/',views.populate_default_interest_values,name='populate_default_interest_values'),
     path('dev/database_test',views.test_database_setup,name='database_test'),
-    path('dev/delete_users',views.delete_users,name='delete users')
+    path('dev/delete_users',views.delete_users,name='delete users'),
+    path('dev/test_login',views.test_login_page,name='test login'),
+    path('dev/is_logged_in',views.is_logged_in_test,name='logged in test')
 ]
 
 if settings.DEBUG:

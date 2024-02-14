@@ -4,6 +4,7 @@ from django.db.models import *
 from datetime import date
 
 from utils import security
+
 import os
 
 # Create your models here.
@@ -85,7 +86,8 @@ class User(SVSUModelData,Model):
     def get_backend_only_properties(self)->[str]:
         return super().get_backend_only_properties() + [
                 "strPasswordHash",
-                "strPasswordSalt"
+                "strPasswordSalt",
+                "check_valid_password"
                 ]
 
     #PLACEHOLDER: Change to User_Accounts
@@ -96,8 +98,8 @@ class User(SVSUModelData,Model):
         MENTEE = 'Mentee'
 
     clsEmailAddress =  EmailField(null=True,unique=True)  
-    strPasswordHash =  CharField(max_length=100, null=True, blank=False)
-    strPasswordSalt =  CharField(max_length=100, null=True, blank=False)
+    strPasswordHash =  CharField(max_length=1000, null=True, blank=False)
+    strPasswordSalt =  CharField(max_length=1000, null=True, blank=False)
     strRole = CharField(max_length=10, choices=Role.choices, default='')
     clsDateJoined = DateField(default=date.today)
     clsActiveChangedDate = DateField(default=date.today)
@@ -127,7 +129,9 @@ class User(SVSUModelData,Model):
     #returns true if the incoming plain text hashes out to our stored
     #password hash
     def check_valid_password(self,password_plain_text : str)->bool:
-        return security.hash_password(password,self.strPasswordSalt) ==\
+        print("check valid password")
+        print(self.strPasswordHash)
+        return security.hash_password(password_plain_text,self.strPasswordHash) ==\
                 self.strPasswordHash
 
     """
@@ -149,7 +153,16 @@ class User(SVSUModelData,Model):
                     clsEmailAddress = email
                 )
 
-    
+    """
+    returns true if the given email password combination is
+    a valid account, otherwise false
+    """
+    @staticmethod
+    def check_valid_login(email_str : str,password_plain_text : str):
+        print("checking valid login!")
+        print(email_str)
+        u = User.objects.get(clsEmailAddress=email_str)
+        return u.check_valid_password(password_plain_text)
 
     def getUserInfo(self):
         user_info = {
