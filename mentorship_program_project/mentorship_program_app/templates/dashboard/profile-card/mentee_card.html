@@ -1,0 +1,35 @@
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/mentee_card.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<div class="card">
+
+    <div class="card-line-divider-1"></div>
+
+    <div class="card-gray-part">
+
+        <div class="card-profile-image"></div>
+        <p class="card-name">Jeff Barnes</p>
+
+        <div class="card-line-divider-2"></div>
+
+        <p class="card-interests-header">Interests</p>
+
+        <div class="card-interests">
+            <p>Artificial Intelligence</p>
+            <p>Machine Learning</p>
+            <p>Data Science</p>
+            <p>Algorithms</p>
+            <p>Data Structures</p>
+        </div>
+
+        <div class="card-button">Request Mentee</div>
+    </div>
+    
+</div>
+
+{% endblock %}

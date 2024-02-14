@@ -1,0 +1,33 @@
+{% extends "sign-in card/big_card.html" %}
+
+{% block title %}
+    Account Activation Valid Mentee Sign-In Card
+{% endblock %}
+
+{% block card_corner %}
+    <button class="sign_in_top_left_element">X</button>
+{% endblock %}
+
+{% block card_head %}
+    <h1>Create your account</h1>
+{% endblock %}
+
+{% block card_content %}
+    <div class="sign-in-card-content">
+        <div class="sign-in-card-element">
+            <p class="sign-in-card-text-normal">An account activation email has been sent to {{email}}.</p>
+        </div>
+        
+        <div class="sign-in-card-element">
+            <p class="sign-in-card-text-normal">Follow the steps laid out in the account activation email to complete activation of your account.</p>
+        </div>
+
+        <div class="sign-in-card-element">
+            <p class="sign-in-card-text-normal">If you do not see the email, please contact mentorsupport@svsu.edu</p>
+        </div>
+
+        <div class="sign-in-card-element">
+            <button class="sign-in-card-option-button">Contact</button>
+        </div>
+    </div>
+{% endblock %}

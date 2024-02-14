@@ -1,0 +1,112 @@
+body {
+    height: 100%;
+}
+
+.hero-container {
+    height: 90%;
+    padding: 0 calc((100vw - 1300px) / 2);
+}
+
+h1 {
+    margin-top: 1em;
+}
+
+input {
+    font-weight: 200;
+    font-size: 1em;
+
+    padding-top: .5%;
+    padding-bottom: .5%;
+    padding-left: .5%;
+
+    border-radius: .5em;
+
+}
+
+input[type=text] {
+    background-color: #333842;
+    border-color: #333842;
+}
+
+.recommended-cards {
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.available-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px
+}
+
+.available-filters {
+    background-color: #2C2C2C;
+    display: flex;
+    padding: 1em;
+    border-radius: 10px;
+    margin-bottom: 1em;
+}
+
+.available-interests-filter * {
+    font-size: 20px;
+    display: inline-block;
+}
+
+.available-interests-filter-box {
+    background-color: #464B4E;
+    width: 33vw;
+    padding: 5px;
+    border-radius: 15px;
+}
+
+.available-interests-filter-box {
+    padding-left: 10px;
+    margin-left: 10px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    z-index: 2;
+}
+
+.down-arrow {
+    transform: rotate(90deg);
+    position: relative;
+    object-fit: contain;
+    height: 28px;
+    float: right;
+}
+
+.available-interests-filter :hover {
+    cursor: pointer;
+}
+
+.available-search-name {
+    margin-left: auto;
+}
+
+.popup {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    user-select: none;
+}
+
+.popup .popuptext {
+    visibility: hidden;
+    background-color: #464B4E;
+    text-align: center;
+    padding: 8px;
+    position: absolute;
+    z-index: 9;
+    bottom: 100%;
+    left: 0px;
+    width: 100%;
+    bottom: -20px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.popup .show {
+    visibility: visible;
+}

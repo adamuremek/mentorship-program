@@ -1,0 +1,105 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+SVSU Mentoring
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin_dashboard.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<section class="hero">
+    <div class="hero-container">
+
+        <h1>Administrator Dashboard</h1>
+
+        <div class="dashboard-top-section">
+            <div class="card undergraduate-status">
+                <img src="{% static 'images/exclamation.jpg' %}">
+                <h3>Verify Mentee Undergraduate Status</h3>
+            </div>
+            <div class="card review-mentor-applications">
+                <img src="{% static 'images/mail.jpg' %}">
+                <h3>Review Mentor Applications: 2 Remaining</h3>
+            </div>
+            <div class="card stats program-statistics">
+                <h2>Program Statistics</h2>
+                <div>
+                    <p>Active Mentees: 135</p>
+                    <p>Active Mentors: 59</p>
+                    <p>Mentee per Mentor: 2.29</p>
+                    <p>Mentorships Created: 269</p>
+                    <p>Unassigned Mentees: 15</p>
+                    <p>Unassigned Mentors: 5</p>
+                    <p>Mentor Retention Rate: 85%</p>
+                    <p>Successful Match Rate: 80%</p>
+                    <p>Inactive Mentees: 23</p>
+                    <p>Inactive Mentors: 3</p>
+                    <p>Mentor Turnover Rate: 12%</p>
+                    <p>Mentee Satisfaction: 4.35/5</p>
+                </div>
+            </div>
+            <div class="card stats daily-statistics">
+                <h2>Daily Statistics</h2>
+                <ul>
+                    <li>21 Site Visitors</li>
+                    <li>9 Mentee Signups</li>
+                    <li>3 Mentor Applications</li>
+                    <li>6 Assigned Mentees</li>
+                    <li>3 Unassigned Mentees</li>
+                    <li>0 Deactivated Mentor Accounts</li>
+                </ul>
+            </div>
+            <div class="card stats weekly-statistics">
+                <h2>Weekly Statistics</h2>
+                <ul>
+                    <li>24 Average Daily Visitors</li>
+                    <li>18 Mentee Signups</li>
+                    <li>9 Mentor Applications</li>
+                    <li>23 Assigned Mentees</li>
+                    <li>2 Deactivated Mentor Accounts</li>
+                    <li>1.2% Mentor Turnover Rate</li>
+                </ul>
+            </div>
+            <div class="card stats monthly-statistics">
+                <h2>Monthly Statistics</h2>
+                <ul>
+                    <li>27 Average Daily Visitors</li>
+                    <li>27 Mentee Signups</li>
+                    <li>15 Mentor Applications</li>
+                    <li>33 Assigned Mentees</li>
+                    <li>4 Deactivated Mentor Accounts</li>
+                    <li>0.6% Mentor Turnover Rate</li>
+                </ul>
+            </div>
+            <div class="card stats lifetime-statistics">
+                <h2>Lifetime Statistics</h2>
+                <ul>
+                    <li>21 Average Daily Visitors</li>
+                    <li>237 Mentee Signups</li>
+                    <li>189 Mentors Approved</li>
+                    <li>269 Assigned Mentees</li>
+                    <li>6 Deactivated Mentor Accounts</li>
+                    <li>0.2% Mentor Turnover Rate</li>
+                </ul>
+            </div>
+            <div class="card generate-mentee-reports">
+                <h3>Generate Mentee Reports</h3>
+            </div>
+            <div class="card generate-mentor-reports">
+                <h3>Generate Mentor Reports</h3>
+            </div>
+            <div class="card user-management">
+                <img src="{% static 'images/person.jpg' %}">
+                <h3>User Management</h3>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
