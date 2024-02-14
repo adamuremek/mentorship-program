@@ -52,3 +52,23 @@ async function attempt_login_uname_password(username,password) {
 	let response = await fetch(req);
 	return response;
 }
+
+/*
+ * requests that the serer log out the current user
+ *
+ * status code 200 means sucesful logout
+ * status code 500 means that you were already logged in
+ *
+ * */
+async function attempt_logout_request() {
+	const req = new Request("/logout/",{
+							method:"POST",
+							headers: {
+									"Content-type": "application/json; charset=UTF-8",
+									'X-CSRFToken': csrftoken
+								},
+							mode: 'same-origin'
+	});
+	let response = await fetch(req);
+	return response;
+}

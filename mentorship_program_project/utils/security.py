@@ -4,6 +4,18 @@ from typing import Callable
 
 from base64 import b64encode,b64decode
 
+"""
+logs the current session out 
+
+returns true if we managed to log out 
+the user, false if the user is already logged out 
+and the operation had no effect
+"""
+def logout(session : dict)->bool:
+    if is_logged_in(session):
+        session["login"] = False
+        return True
+    return False
 """properly sets the session variable to login"""
 def set_logged_in(session : dict,user_id : int)->bool:
     session["login"] = True

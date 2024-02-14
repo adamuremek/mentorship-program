@@ -94,12 +94,27 @@ def account_activation_mentor(request):
     return HttpResponse(template.render(context, request))
 
 
+
 #please make it pretty front end :)
 def invalid_request_401(request):
     response = HttpResponse('Unauthorized') #better 401 page here
     
     response.status_code = 401
     return response
+
+@security.Decorators.require_login(invalid_request_401)
+def logout(request):
+    if security.logout(request.session):
+        return HttpResponse("logged out!")
+    
+    #TODO: redirect this to a correct form
+    response = HttpResponse("an internal error occured, unable to log you out, STAY FOREVER")
+    response.status_code = 500
+    return response
+
+
+
+#login stuff
 
 def login_uname_text(request):
     login_data = json.loads(request.body.decode("utf-8"))
