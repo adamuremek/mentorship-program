@@ -26,6 +26,14 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('profile-card/', views.profileCard, name='profile-card'),
+    
+    # -------------------- <<< BIG MOVE TEMPORARY >>> -------------------- #
+    path('bigmove/', views.BIGMOVE, name='bigmove'),
+    path('thebigmove/', views.THEBIGMOVE, name='thebigmove'),
+    path('thesecondmove/', views.THESECONDMOVE, name='thesecondmove'),
+    
+    path('register/mentee/', views.register_mentee, name='register_mentee'),
+    path('register/mentor/', views.register_mentor, name='register_mentor'),
 
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
     path('role_selection/', views.role_selection, name='role_selection'),
@@ -33,10 +41,10 @@ urlpatterns = [
     path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
     path('account_activation_mentee_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid_mentee'),
     path('account_activation_mentee_valid/', views.account_activation_valid_mentee, name='account_activation_valid_mentee'),
-    path('account_creation_1_mentee/', views.account_creation_1_mentee, name='account_creation_1_mentee'),
-    path('account_creation_2_mentee/', views.account_creation_2_mentee, name='account_creation_2_mentee'),
-    path('account_creation_3_mentee/', views.account_creation_3_mentee, name='account_creation_3_mentee'),
-    path('account_creation_4_mentee/', views.account_creation_4_mentee, name='account_creation_4_mentee'),
+    # path('account_creation_1_mentee/', views.account_creation_1_mentee, name='account_creation_1_mentee'),
+    # path('account_creation_2_mentee/', views.account_creation_2_mentee, name='account_creation_2_mentee'),
+    # path('account_creation_3_mentee/', views.account_creation_3_mentee, name='account_creation_3_mentee'),
+    # path('account_creation_4_mentee/', views.account_creation_4_mentee, name='account_creation_4_mentee'),
 
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
     path('account_creation_0_mentor/', views.account_creation_0_mentor, name='account_creation_0_mentor'),

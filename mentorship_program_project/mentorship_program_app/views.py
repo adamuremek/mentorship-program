@@ -3,6 +3,58 @@ from django.template import loader
 from django.shortcuts import render, redirect
 
 
+# -------------------- <<< Big Move stuff >>> -------------------- #
+# - Will delete later
+
+def BIGMOVE(req):
+    template = loader.get_template('sign-in card/mentor/account_creation_0_mentor.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
+def THEBIGMOVE(req):
+    template = loader.get_template('sign-in card/single_page_mentor.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
+def THESECONDMOVE(req):
+    template = loader.get_template('sign-in card/single_page_mentee.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
+def register_mentee(req):
+    template = loader.get_template('sign-in card/single_page_mentee.html')
+    context = {
+        'interestlist': [
+            'Artificial Intelligence', 
+            'Computer Graphics', 
+            'Data Structures & Algorithms',
+            'Networking',
+            'Operating Systems',
+            'Embedded Systems',
+            'Cloud Computing',
+            'Software Engineering',
+            'Distrubuted Systems',
+            'Game Development',
+            'Cybersecruity',
+            'System Analysis'],
+        
+        'pronounlist': ['he', 'she', 'they'],
+        
+        'useragreement': 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+
+    }
+    return HttpResponse(template.render(context, req))
+
+def register_mentor(req):
+    template = loader.get_template('sign-in card/mentor/account_creation_0_mentor.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
+# --- #
+# --- #
+# --- #
+
 def default(req):
     template = loader.get_template('index.html')
     context = {}
