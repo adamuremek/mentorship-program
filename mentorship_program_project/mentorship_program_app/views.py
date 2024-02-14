@@ -2,6 +2,11 @@ from django.http import HttpResponse
 from django.template import loader
 from django.shortcuts import render, redirect
 
+from utils import development
+from utils import security
+
+from .models import User
+from .models import Interest
 
 # -------------------- <<< Big Move stuff >>> -------------------- #
 # - Will delete later
@@ -89,6 +94,11 @@ def profileCard(req):
     items = range(4)
     context = {'items':items}
     return HttpResponse(template.render(context, req))
+
+#please make pretty front end we love you :D
+def home(req):
+
+    return HttpResponse('theres no place me')
 
 def role_test(req):
     template = loader.get_template('sign-in-card/experiment.html')
@@ -181,3 +191,59 @@ def account_creation_2_mentor(request):
     template = loader.get_template('sign-in card/account_creation_2_mentor.html')
     context = {}
     return HttpResponse(template.render(context, request))
+
+
+#please make it pretty front end :)
+def invalid_request_401(request):
+    response = HttpResponse('Unauthorized') #better 401 page here
+    
+    response.status_code = 401
+    return response
+
+
+
+# development only views, these should be removed before production
+# still if they are forgotten they should automatically redirect
+# when not in DEBUG mode
+
+@security.Decorators.require_debug(invalid_request_401)
+def profile_picture_test(request):
+    context = {
+                "users":[
+                    u.sanatize_black_properties() for u in User.objects.all()
+                ]
+            }
+    
+    template = loader.get_template('user_images.html')
+    
+    return HttpResponse(template.render(context,request))
+
+
+
+@security.Decorators.require_debug(invalid_request_401)
+def test_database_setup(request):
+    development.test_database()
+    return HttpResponse('finished test sucesfully')
+
+
+
+@security.Decorators.require_debug(invalid_request_401)
+def generate_random_user_data(request):
+    development.print_debug('running the function')
+    development.populate_database_with_random_users()
+    return HttpResponse('finished generating user data, enjoy controlling the populus :D')
+
+@security.Decorators.require_debug(invalid_request_401)
+def populate_default_interest_values(request):
+    development.print_debug("[*] generating interests in the database...")
+    development.populate_database_with_interests()
+    development.print_debug("[*] finished genereating interests! Enjoy the data :)")
+    return HttpResponse("finished populating interests in the database!")
+
+@security.Decorators.require_debug(invalid_request_401)
+def delete_users(request):
+    development.print_debug("[*] are you sure you want to replace all users?")
+    if input("(y/n)> ").lower() == 'y':
+        User.objects.all().delete()
+        return HttpResponse("deleted all user sucessfully >:]")
+    return HttpResponse("canceled action!")

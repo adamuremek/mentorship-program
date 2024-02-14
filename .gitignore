@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+#vim tab completion configuration file
+**/.ycm_extra_config.py
+
 # Distribution / packaging
 .Python
 env/
@@ -82,8 +85,8 @@ celerybeat-schedule
 *.sage.py
 
 # dotenv
-.env
-.env.*
+#.env
+#.env.*
 
 # virtualenv
 venv/
@@ -138,3 +141,6 @@ Desktop.ini
 .settings/
 *.sublime-project
 *.sublime-workspace
+
+# Postgres data
+postgres_data/
