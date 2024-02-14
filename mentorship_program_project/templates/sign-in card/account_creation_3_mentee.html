@@ -19,19 +19,18 @@
         <div class="sign-in-card-element">
             <div class="sign-in-card-form">
                 <div class="sign-in-card-interest-container">
-                    {% for interest in interestlist %}
 
+                    {% for interest in interestlist %}
                         <label class="sign-in-card-interest">
                             <input type="checkbox" id="{{interest}}" value="{{interest}}">
                             <div class="sign-in-card-interest-label">{{interest}}</div>
                         </label>
-                    
                     {% endfor %}
 
                     <label class="sign-in-card-interest">
                         <button class="sign-in-card-interest-button">+</button>
                     </label>
-
+                    
                 </div>
             </div>
         </div>

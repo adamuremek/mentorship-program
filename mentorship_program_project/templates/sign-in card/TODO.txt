@@ -4,8 +4,6 @@ Who is checking the wording of menus?
 Who/what is generating pronouns?
 
 need to be started:
-account_creation_4_mentee
-
 account_creation_3_mentor
 account_creation_4_mentor
 account_creation_5_mentor
@@ -40,6 +38,10 @@ account_creation_2_mentee
 account_creation_3_mentee
 	+Next and <- Step 3 of 4 buttons routing
 	+Figure out populating interest list
+account_creation_4_mentee
+	+Next and <- Step 4 of 4 buttons routing
+	+Figure out where to get user agreement
+	+Set up pulling checkbox
 
 account_activation_mentor
 	+X button routing 

@@ -172,17 +172,21 @@ footer {
 .sign-in-card-element-horizontal {
     display: flex;
     flex-direction: row;
-
     justify-content: center;
+
     width: 70%;
 }
 
 .sign-in-card-element-vertical {
     display: flex;
     flex-direction: column;
-
     justify-content: space-evenly;
+    
     width: 70%;
+}
+
+.sign-in-card-checkbox {
+    flex-basis: content;
 }
 
 .sign-in-card h1 {
@@ -207,10 +211,40 @@ footer {
 }
 
 .sign-in-card p {
-    font-size: large;
     font-weight: 200;
+}
+
+.sign-in-card-text-normal {
+    font-size: large;
+    text-align: left;
+}
+
+.sign-in-card-agreement-text {
+    font-size: small;
+    text-align: center;
+}
+
+.sign-in-card-agreement-checkbox {
+    flex-basis: 10%;
+}
+
+.sign-in-card-text-scroll {
+    font-size: large;
 
     text-align: left;
+
+    border-radius: .5em;
+    
+    overflow-y: scroll;
+    overflow-x: auto;
+
+    height: 80%;
+
+    padding: 2%;
+
+    background-color: dimgrey;
+
+    scrollbar-width: thin;
 }
 
 .sign-in-card select {

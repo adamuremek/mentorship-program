@@ -17,14 +17,14 @@
 {% block card_content %}
     <div class="sign-in-card-content">
         <div class="sign-in-card-element">
-            <p>Name:</p>
+            <p class="sign-in-card-text-normal">Name:</p>
             <form action="">
                 <input type="text" placeholder="e.g. John Doe">
             </form>
         </div>
 
         <div class="sign-in-card-element">
-            <p>Preferred Pronoun(s):</p>
+            <p class="sign-in-card-text-normal">Preferred Pronoun(s):</p>
             <select>
                 {% for pronoun in pronounlist %}
                     <option>{{pronoun}}</option>

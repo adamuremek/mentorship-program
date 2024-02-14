@@ -1,0 +1,36 @@
+{% extends "sign-in card/big_card.html" %}
+
+{% block title %}
+    Account Creation 4 Mentee Sign-In Card
+{% endblock %}
+
+{% block card_corner %}
+    <form action="">
+        <button class="sign_in_top_left_element">←  Step 4 of 4</button>
+    </form>
+{% endblock %}
+
+{% block card_head %}
+    <h1>User Agreement</h1>
+{% endblock %}
+
+{% block card_content %}
+    <div class="sign-in-card-content">
+        <div class="sign-in-card-element-vertical">
+            <p class="sign-in-card-text-scroll">
+                {{ useragreement }}
+            </p>
+        </div>
+
+        <div class="sign-in-card-element-horizontal">
+            <p class="sign-in-card-agreement-text">I have read and accept the terms of the User Agreement.</p>
+            <input class="sign-in-card-agreement-checkbox" type="checkbox" id="useragreement">
+        </div>
+
+        <div class="sign-in-card-element">
+            <form action="">
+                <button class="sign-in-card-button-option">Next</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

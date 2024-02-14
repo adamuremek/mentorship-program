@@ -35,6 +35,7 @@ urlpatterns = [
     path('account_creation_1_mentee/', views.account_creation_1_mentee, name='account_creation_1_mentee'),
     path('account_creation_2_mentee/', views.account_creation_2_mentee, name='account_creation_2_mentee'),
     path('account_creation_3_mentee/', views.account_creation_3_mentee, name='account_creation_3_mentee'),
+    path('account_creation_4_mentee/', views.account_creation_4_mentee, name='account_creation_4_mentee'),
 
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
     path('account_creation_0_mentor/', views.account_creation_0_mentor, name='account_creation_0_mentor'),
