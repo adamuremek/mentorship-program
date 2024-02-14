@@ -1,8 +1,10 @@
+import json
 from django.http import HttpResponse
 from django.template import loader
 from django.shortcuts import render, redirect
 
 from utils import development
+from utils.development import print_debug
 from utils import security
 
 from .models import User
@@ -193,12 +195,48 @@ def account_creation_2_mentor(request):
     return HttpResponse(template.render(context, request))
 
 
+
 #please make it pretty front end :)
 def invalid_request_401(request):
     response = HttpResponse('Unauthorized') #better 401 page here
     
     response.status_code = 401
     return response
+
+@security.Decorators.require_login(invalid_request_401)
+def logout(request):
+    if security.logout(request.session):
+        return HttpResponse("logged out!")
+    
+    #TODO: redirect this to a correct form
+    response = HttpResponse("an internal error occured, unable to log you out, STAY FOREVER")
+    response.status_code = 500
+    return response
+
+
+
+#login stuff
+
+def login_uname_text(request):
+    login_data = json.loads(request.body.decode("utf-8"))
+
+    uname    = login_data["username"] if "username" in login_data else None
+    password = login_data["password"] if "password" in login_data else None
+    
+    print_debug("uname " + uname)
+    print_debug("password " + password)
+
+    if not User.check_valid_login(uname,password):
+        response = HttpResponse(json.dumps({"warning":"invalid creds"}))
+        response.status_code = 401
+        return response
+    
+    #valid login
+    security.set_logged_in(request.session,User.objects.get(clsEmailAddress=uname).id)
+    response = HttpResponse("logged in!")
+    return response
+
+
 
 
 
@@ -217,6 +255,11 @@ def profile_picture_test(request):
     template = loader.get_template('user_images.html')
     
     return HttpResponse(template.render(context,request))
+
+@security.Decorators.require_login(invalid_request_401)
+@security.Decorators.require_debug(invalid_request_401)
+def is_logged_in_test(request):
+    return HttpResponse("you are currently logged in!")
 
 
 
@@ -247,3 +290,9 @@ def delete_users(request):
         User.objects.all().delete()
         return HttpResponse("deleted all user sucessfully >:]")
     return HttpResponse("canceled action!")
+
+@security.Decorators.require_debug(invalid_request_401)
+def test_login_page(request):
+    template = loader.get_template("dev/test_login.html")
+    return HttpResponse(template.render({},request))
+

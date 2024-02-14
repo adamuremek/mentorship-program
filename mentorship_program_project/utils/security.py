@@ -2,6 +2,29 @@ import bcrypt
 from django.conf import settings
 from typing import Callable
 
+from base64 import b64encode,b64decode
+
+"""
+logs the current session out 
+
+returns true if we managed to log out 
+the user, false if the user is already logged out 
+and the operation had no effect
+"""
+def logout(session : dict)->bool:
+    if is_logged_in(session):
+        session["login"] = False
+        return True
+    return False
+"""properly sets the session variable to login"""
+def set_logged_in(session : dict,user_id : int)->bool:
+    session["login"] = True
+    session["user_id"] = user_id
+
+"""returns true if we are currently logged in, else false"""
+def is_logged_in(session : dict)->bool:
+    return session["login"] if "login" in session else False
+
 """
 nulls all objects that are inside of the black list to purge
 data for front end, this modifies in place, do not use it if 
@@ -41,6 +64,7 @@ strPepper : str = """peter pipper
             to replace 
             this text 
             and make it more secure :D"""
+
 """
 returns a randomly generated salt
 
@@ -48,7 +72,9 @@ the idea is if in the future we need to move from bcrypt we can do so
 since its wrapped
 """
 def generate_salt()->str:
-    return bcrypt.gensalt()
+    s = b64encode(bcrypt.gensalt())
+    return s.decode("UTF-8")
+
 
 """
     hashes an incoming plain text password using the applications built in pepper and 
@@ -56,8 +82,17 @@ def generate_salt()->str:
     In order for the peppering to work this should be the one stop shop for hashing
 """
 def hash_password(password_plain_text : str,salt : str)->str:
+    salt_data = b64decode(salt)
     pepperd_password = password_plain_text + strPepper
-    return bcrypt.hashpw(pepperd_password.encode('UTF-8'),salt)
+
+    #anything touching the random number generators needs to be b64 encoded
+    #to properly be stored in the database
+    ret_val = b64encode(
+            bcrypt.hashpw(pepperd_password.encode('UTF-8'),salt_data)
+            ).decode('UTF-8')
+    
+    print(ret_val)
+    return ret_val
 
 """
 pythonic "namespace" for the decorators contained in the security file
@@ -140,7 +175,7 @@ class Decorators:
 
     """
     def require_login(alternate_view):
-        return Decorators.require_check(lambda req : req.session.get('login',False),
+        return Decorators.require_check(lambda req : is_logged_in(req.session),
                              alternate_view)
 
     """

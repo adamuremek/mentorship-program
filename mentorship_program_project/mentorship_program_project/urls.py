@@ -52,6 +52,6 @@ from mentorship_program_app import views
 #     path('account_creation_2_mentor/', views.account_creation_2_mentor, name='account_creation_2_mentor'),
 # ]
 urlpatterns = [
-    path('ms/', include('mentorship_program_app.urls'))
+    path('', include('mentorship_program_app.urls'))
 ]
 development_urls = []
