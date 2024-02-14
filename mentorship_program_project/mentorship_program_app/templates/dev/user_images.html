@@ -18,9 +18,11 @@
         </nav>
     </header>
 
-	<main>
-        {% block main_content %}{% endblock %}
-    </main>
+		<main>
+				{% for u in users %}
+					<img src="{{ u.imgUserProfile.url }}"/>
+				{% endfor %}
+		</main>
 
     <footer>
         <p>&copy;<span id="current-year"></span> Saginaw Valley State University</p>
@@ -35,4 +37,3 @@
     });
 </script>
 </html>
-

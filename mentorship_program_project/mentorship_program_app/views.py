@@ -20,7 +20,9 @@ def BIGMOVE(req):
 
 def THEBIGMOVE(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
-    context = {}
+    context = {
+        'pronounlist': ['he', 'she', 'they']
+    }
     return HttpResponse(template.render(context, req))
 
 def THESECONDMOVE(req):
@@ -252,7 +254,7 @@ def profile_picture_test(request):
                 ]
             }
     
-    template = loader.get_template('user_images.html')
+    template = loader.get_template('dev/user_images.html')
     
     return HttpResponse(template.render(context,request))
 

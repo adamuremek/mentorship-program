@@ -24,6 +24,10 @@ urlpatterns = [
     
     path('dashboard/', views.dashboard, name='dashboard'),
     path('profile-card/', views.profileCard, name='profile-card'),
+    
+    path('register/mentee/', views.register_mentee, name='register_mentee'),
+    path('register/mentor/', views.register_mentor, name='register_mentor'),
+    path('thebigmove/', views.THEBIGMOVE, name='thebigmove'),
 
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
     path('role_selection/', views.role_selection, name='role_selection'),

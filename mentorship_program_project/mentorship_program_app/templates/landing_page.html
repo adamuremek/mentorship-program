@@ -1,5 +1,3 @@
-
-
 {% extends 'index.html' %}
 
 {% load static %}
@@ -22,7 +20,8 @@
         </div>
         <div class="column-right">
             <div class="portal">
-                <form action="{% url 'landing-post' %}" method="POST">
+                <form action="/landing-post/" method="POST">
+                    {% csrf_token %}
                     <div class="federated-li-container">
                         <button class="login-buttons" id="si-google-btn">
                             <img src="{% static 'images/googlelogo.png' %}" id="google-logo"> Sign in with Google
@@ -35,7 +34,6 @@
                         </button>
                     </div>
                     
-                
                     <div class="or-container">
                         <div class="line"></div>
                         <span class="or-text">or</span>
@@ -43,20 +41,14 @@
                     </div>
 
                     <div class="email-password-fields">
-                       
-                            {% csrf_token %}
-                            <input type="text" id="email" name="email" placeholder="Email">
-                            <input type="password" id="password" name="password" placeholder="Password">
-                            <!-- <div id="forgot-password-container"> -->
-                            <!-- <p><span class="text-btn">Forgot Password?</span></p> -->
-                            <button class="login-buttons" type="submit" value="Login">
-                            <!-- <button class="login-buttons" id="li-btn">Login</button> -->
-                       
-                        
-                        <!-- </div> -->
+                        <input type="email" id="email" name="email" placeholder="Email">
+                        <input type="password" id="password" name="password" placeholder="Password">
+                        <div id="forgot-password-container">
+                            <p><span class="text-btn">Forgot Password?</span></p>
+                        </div>
                     </div>
-                    
-                    <p><span id="su-span">Don't have an account?</span> <span class="text-btn">Sign Up</span></p>
+                    <button class="login-buttons" id="li-btn">Login</button>
+                    <p><span id="su-span">Don't have an account?</span> <span class="text-btn"><a class="text-btn" href="/role_selection">Sign Up</a></span></p>
                 </form>
             </div>
         </div>

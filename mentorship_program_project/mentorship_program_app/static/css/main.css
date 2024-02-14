@@ -26,11 +26,15 @@ body {
         hsl(355deg 43% 27%) 76%,
         hsl(354deg 33% 23%) 100%
       );
+      
+    /* stretches instead of repeats gradient on long pages */
+    background-attachment: fixed;
 }
 
 main {
     min-height: 90vh;
-    min-width: 100vw;
+    /* max-height: 100vh; */
+    max-width: 100vw;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -40,6 +44,18 @@ main {
 /* Blue  :  #1E2E42 */
 /* Blend :  #3D4458 */
 
+/* ------------------------------------------------------- */
+/* -----------------    GENERAL STYLES    ---------------- */
+/* ------------------------------------------------------- */
+
+h1 {
+    font-size: larger;
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------- */
+/* -----------------    NAV BAR STYLES    ---------------- */
+/* ------------------------------------------------------- */
 
 nav {
     height: 5vh;
@@ -62,6 +78,10 @@ nav .logo {
 nav .logo img {
     height: 5vh;
 }
+
+/* ------------------------------------------------------- */
+/* -------------------    CARD STYLES    ----------------- */
+/* ------------------------------------------------------- */
 
 
 .sign-in-card {
@@ -92,6 +112,9 @@ nav .logo img {
 
 
 footer {
+    padding: .5em;
+    margin: .5em;
+
     height: 1vh;
     display: flex;
     justify-content: center;
@@ -106,15 +129,70 @@ footer {
 /* ALL STYLES BELOW WERE ORIGINALLY ONLY FOR SIGN-UP CARDS */
 /* ------------------------------------------------------- */
 
+
+
+.sign-in-card-form {
+    width: 100%;
+    height: 100%;
+}
+
+/* REMOVE AFTER CHECKING FOR INSTANCES */
+.sign-in-card hr {
+    width: 100%;
+}
+
+.sign-in-card-element-line-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 70%;
+}
+
+.sign-in-card-interest-container {
+    display: flex;
+    align-content: center;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+}
+
+.sign-in-card-element-line {
+    height: 5%;
+    background-color: whitesmoke;
+    flex-grow: 1;
+    margin: 0 2%;
+}
+
 .sign-in-card-element {
     width: 70%;
+}
+
+.sign-in-card-element-horizontal {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    width: 70%;
+}
+
+.sign-in-card-element-vertical {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    
+    width: 70%;
+}
+
+.sign-in-card-checkbox {
+    flex-basis: content;
 }
 
 .sign-in-card h1 {
     font-weight: 900;
     font-size: 2.5em;
 
-    /* padding-top: 1em; */
     padding-bottom: 0.5em;
 
     margin: 0 auto;
@@ -125,17 +203,56 @@ footer {
     width: fit-content;
 }
 
-.sign-in-card h2 {
-    font-weight: 300;
-    font-size: 2em;
-    letter-spacing: 3px;
+.sign-in-card p {
+    font-weight: 200;
 }
 
-.sign-in-card p {
+.sign-in-card-text-normal {
     font-size: large;
-    font-weight: 200;
+    text-align: left;
+}
+
+.sign-in-card-agreement-text {
+    font-size: small;
+    text-align: center;
+}
+
+.sign-in-card-agreement-checkbox {
+    flex-basis: 10%;
+}
+
+.sign-in-card-text-scroll {
+    font-size: large;
 
     text-align: left;
+
+    border-radius: .5em;
+    
+    overflow-y: scroll;
+    overflow-x: auto;
+
+    height: 80%;
+
+    padding: 2%;
+
+    background-color: dimgrey;
+
+    scrollbar-width: thin;
+}
+
+.sign-in-card select {
+    font-weight: 400;
+    font-size: 1.5em;
+
+    padding-top: 3.5%;
+    padding-bottom: 3.5%;
+
+    border-radius: .5em;
+
+    width: 100%;
+
+    background-color: #333842;
+    border-color: #333842;
 }
 
 .sign-in-card input {
@@ -144,7 +261,6 @@ footer {
 
     padding-top: 3.5%;
     padding-bottom: 3.5%;
-    padding-left: 3.5%;
 
     border-radius: .5em;
 
@@ -156,12 +272,101 @@ footer {
     border-color: #333842;
 }
 
+.sign-in-card input[type=password] {
+    background-color: #333842;
+    border-color: #333842;
+}
+
+.sign-in-card input[type=email] {
+    background-color: #333842;
+    border-color: #333842;
+}
+
+.sign-in-card input[type=tel] {
+    background-color: #333842;
+    border-color: #333842;
+}
+
 .sign-in-card input[type=button] {
     background-color: #3E4C6C;
     border-color: #3E4C6C;
 }
 
 .sign-in-card input[type=button]:hover {
+    background-color: #1f315d;
+    border-color: #1f315d;
+}
+
+.sign-in-card-interest {
+    height: min-content;
+    width: min-content;
+    padding: 2%;
+}
+
+.sign-in-card-interest input[type=checkbox] {
+    display: none;
+}
+
+.sign-in-card-interest-label {
+    font-size: large;
+    background-color: #464B4E;
+    border-radius: .5em;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    font-weight: 300;
+    height: fit-content;
+    width: max-content;
+    padding: 2%;
+}
+
+.sign-in-card-interest:hover input[type=checkbox] ~ .sign-in-card-interest-label {
+    background-color: lightgrey;
+}
+
+.sign-in-card-interest input[type=checkbox]:checked ~ .sign-in-card-interest-label {
+    background-color: gray;
+}
+
+.sign-in-card-interest-button {
+    font-size: large;
+    background-color: #464B4E;
+    border-color: transparent;
+    border-radius: .5em;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    font-weight: 300;
+    height: fit-content;
+    width: max-content;
+    padding: 2%;
+}
+
+.sign-in-card-interest-button:hover {
+    background-color: lightgrey;
+}
+
+.sign-in-card-option-button {
+    font-weight: 400;
+    font-size: 1.5em;
+
+    padding-top: 2%;
+    padding-bottom: 2%;
+
+    margin-top: 1%;
+    margin-bottom: 1%;
+
+    border-radius: 2vw;
+
+    width: 100%;
+    height: 80%;
+
+    background-color: #3E4C6C;
+    border-color: #3E4C6C;
+
+    justify-content: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sign-in-card-button-option:hover {
     background-color: #1f315d;
     border-color: #1f315d;
 }
@@ -179,4 +384,53 @@ footer {
     border-color: #ffffff00;
 
     width: fit-content;
+}
+
+#sign-in-card-google-btn {
+    background-color: #131314;
+    border-color: #131314;
+    color:#E3E3E3;
+}
+
+#sign-in-card-apple-btn {
+    background-color: #E6E6E6;
+    border-color: #E6E6E6;
+    color:#363A3E;
+    font-weight: 600;
+}
+
+#sign-in-card-linkedin-btn {
+    background-color: #0065B3;
+    border-color: #0065B3;
+    color:#E3E3E3;
+}
+
+#sign-in-card-google-btn:hover {
+    background-color: #1c1c1e;
+}
+
+#sign-in-card-apple-btn:hover {
+    background-color: #d0d0d0;
+}
+
+#sign-in-card-linkedin-btn:hover {
+    background-color: #005a9e;
+}
+
+#google-logo {
+    align-items: center;
+    height: 2.1em;
+    vertical-align: middle;
+}
+
+#apple-logo {
+    align-items: center;
+    height: 2.1em;
+    vertical-align: middle;
+}
+
+#linkedin-logo {
+    align-items: center;
+    height: 2.1em;
+    vertical-align: middle;
 }

@@ -1,24 +1,60 @@
-need to be done:
-accountActivation_mentor_dark
-accountCreation0_mentor_dark
-accountCreation1_mentor_dark
-accountCreation2_mentor_dark
-accountCreation3_mentee_dark
-accountCreation3_mentor_dark
-accountCreation4_mentee_dark
-accountCreation4_mentor_dark
-accountCreation5_mentor_dark
-accountCreation6_mentor_dark
-accountRecovery1_dark
-accountRecovery2_dark
-accountRecovery3_dark
+Need to ask about:
+Who is checking the wording of menus?
+	EMAILS?
+Who/what is generating pronouns?
 
-working on:
+need to be started:
+account_creation_3_mentor
+account_creation_4_mentor
+account_creation_5_mentor
+account_creation_6_mentor
+
+account_recovery_1
+account_recovery_2
+account_recovery_3
+
+working:
+role_selection
+	+Student, Mentor, and X buttons routing
+
+account_activation_mentee
+	+Send Activation Email and X buttons routing
+	+Set up pulling value from email field
+account_activation_invalid_mentee
+	+Contact and X buttons routing
+	+Check if mentorsupport@svsu.edu is valid
+account_activation_valid_mentee
+	+Contact and X buttons routing
+	+Check if mentorsupport@svsu.edu is valid
+	+Figure out where to pull email from 
 account_creation_1_mentee
+	+Next and X Step 1 of 4 buttons routing
+	+Figure out where to get pronouns from
+	+Set up pulling value from name and pronoun fields
 account_creation_2_mentee
+	+Next and <- Step 2 of 4 buttons routing
+	+Set up pulling email and password
+	+Set up visable/invisable toggel on password field
+account_creation_3_mentee
+	+Next and <- Step 3 of 4 buttons routing
+	+Figure out populating interest list
+account_creation_4_mentee
+	+Next and <- Step 4 of 4 buttons routing
+	+Figure out where to get user agreement
+	+Set up pulling checkbox
+
+account_activation_mentor
+	+X button routing 
+	+Figure out if left justified text works or need center justified
+account_creation_0_mentor
+	+X, google, apple, and linkin button routing
+account_creation_1_mentor
+	+Next and X Step 1 of 6 buttons routing
+	+Figure out populating pronouns list
+	+Set up pulling value from name and pronoun fields
+account_creation_2_mentor
+	+Next and <- Step 2 of 4 buttons routing
+	+Set up pulling email, phone, and password
+	+Set up visable/invisable toggel on password field
 
 done:
-role_selection
-account_activation_mentee
-account_activation_invalid_mentee
-account_activation_valid_mentee 
