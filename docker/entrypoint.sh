@@ -17,5 +17,14 @@ fi
 # python manage.py reset_db --router=default --noinput --close-sessions
 # python manage.py migrate
 
+if [ "$DEBUG" != 1 ]
+then
+    echo "Collecting static files"
+
+    python manage.py collectstatic --no-input --clear
+    
+    echo "Done collecting static"
+fi
+
 # Execute the default docker cmd or one passed to the entrypoint script
 exec "$@"
