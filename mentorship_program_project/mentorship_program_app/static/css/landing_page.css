@@ -1,0 +1,327 @@
+:root {
+    --ff-roboto: 'Roboto', sans-serif;
+    --ff-roboto-slab: 'Roboto Slab', serif;
+    --ff-montserrat: 'Montserrat', sans-serif;
+}
+
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Remove default margin */
+* {
+    margin: 0;
+    padding: 0;
+    font: inherit;
+}
+
+/*  Remove list styles on ul, ol elements with a list role, which suggests
+    default styling will be removed */
+ul[role='list'],
+ol[role='list'] {
+    list-style: none;
+}
+
+/* Set core root defaults */
+html:focus-within {
+    scroll-behavior: smooth;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+/* Set core body defaults */
+body {
+    text-rendering: optimizeSpeed;
+    line-height: 1.5;
+}
+
+/* A elements that don't have a class get default styles */
+a:not([class]) {
+    text-decoration-skip-ink: auto;
+}
+
+/* Remove all animations, transitions and smooth scroll for people that prefer
+   not to see them */
+/* @media (prefers-reduced-motion: reduce) {
+    html:focus-within {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+} */
+
+@media screen and (max-width: 768px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.hero-container {
+    display: grid;
+    gap: 1em;
+    grid-template-columns: 1fr 1fr;
+    height: 90%;
+    padding: 0 calc((100vw - 1300px) / 2);
+}
+
+.column-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    color: #FFFFFF;
+}
+
+.column-left h1 {
+    margin-bottom: 1rem;
+    font-size: 52px;
+    font-family: 'Montserrat', sans-serif;
+    line-height: 57.2px;
+}
+
+.column-left p {
+    margin-top: .7rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    font-family: var(--ff-roboto-slab);
+    line-height: 33.6px;
+}
+
+.column-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0rem 2rem;
+}
+
+form {
+    height: 550px;
+    width: 500px;
+    background-color: rgba(99, 99, 99, 0.055);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    border: none;
+    box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+    padding: 25px 35px;
+}
+
+form * {
+    font-family: 'Poppins', sans-serif;
+    color: lightgray;
+    letter-spacing: 0.5px;
+    outline: none;
+    border: none;
+}
+
+.federated-li-container {
+    margin-top: 0%;
+    margin-bottom: 15px;
+}
+
+.login-buttons {
+    display: block;
+    height: 55px;
+    width: 100%;
+    padding: 0 10px;
+    margin-top: 10px;
+    border-radius: 25px;
+    outline: none;
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: var(--ff-roboto);
+    filter: drop-shadow(.6em .6em .55em rgba(58, 58, 58, 0.276));
+    cursor: pointer;
+    /* Change cursor icon to hand when hovering */
+    transition: all 0.3s ease;
+    /* Smooth transition for the hover effect */
+}
+
+#si-google-btn {
+    background-color: #131314;
+    color: #E3E3E3;
+}
+
+#si-apple-btn {
+    background-color: #E6E6E6;
+    color: #363A3E;
+    font-weight: 600;
+}
+
+#si-linkedin-btn {
+    background-color: #0065B3;
+    color: #E3E3E3;
+}
+
+#si-google-btn:hover,
+#si-google-btn:focus-visible {
+    background-color: #1c1c1e;
+}
+
+#si-apple-btn:hover,
+#si-apple-btn:focus-visible {
+    /* darker hover color */
+    /* background-color: #d0d0d0; */
+    background-color: #FFFFFF;
+}
+
+#si-linkedin-btn:hover,
+#si-linkedin-btn:focus-visible {
+    /*darker hover color */
+    /* background-color: #005a9e; */
+    background-color: #016fc4;
+}
+
+#google-logo {
+    align-items: center;
+    height: 44px;
+    vertical-align: middle;
+    padding-right: 10px;
+    margin-left: auto;
+}
+
+#apple-logo {
+    align-items: center;
+    height: 50px;
+    vertical-align: middle;
+    padding-right: 10px;
+    margin-left: -15px;
+}
+
+#linkedin-logo {
+    align-items: center;
+    height: 46px;
+    vertical-align: middle;
+    padding-right: 10px;
+    margin-left: 7.5px;
+}
+
+.or-container {
+    margin-top: 7.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.line {
+    height: 1px;
+    background-color: #E6E6E6;
+    flex-grow: 1;
+    margin: 0 10px;
+}
+
+.or-text {
+    white-space: nowrap;
+}
+
+.or {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+    color: #FFFFFF;
+    font-size: 15px;
+}
+
+.email-password-fields {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+input,
+#email,
+#password {
+    display: block;
+    height: 50px;
+    width: 95%;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.07);
+    border-radius: 3px;
+    padding: 0 10px;
+    margin-top: 8px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1rem;
+    font-weight: 300;
+    font-family: var(--ff-roboto);
+    color: #FFFFFF;
+    box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
+}
+
+/* Targeting WebKit-based browser like Chrome and Safari */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-text-fill-color: #FFFFFF !important;
+    -webkit-box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* For Firefox */
+input:-moz-autofill,
+input:-moz-autofill:hover,
+input:-moz-autofill:focus,
+input:-moz-autofill:active {
+    background-color: rgba(255, 255, 255, 0.07) !important;
+    font-family: var(--ff-roboto) !important;
+    color: #FFFFFF !important;
+}
+
+::placeholder {
+    color: #C2C2C2;
+    font-size: 1rem;
+    font-weight: 300;
+    font-family: var(--ff-roboto);
+}
+
+#forgot-password-container {
+    display: block;
+    padding-left: 10px;
+}
+
+#li-btn {
+    background-color: #3E4C6C;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+#li-btn:hover,
+#li-btn:focus-visible {
+    background-color: #4a5a7d;
+}
+
+.text-btn {
+    margin-top: 7.5px;
+    color: #2CA0EF;
+    font-weight: 500;
+    font-size: .85rem;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+}
+
+.text-btn:hover,
+.text-btn:focus-visible {
+    color: #2db6f1;
+}
+
+
+#su-span {
+    color: #E3E3E3;
+    font-weight: 400;
+    font-size: .85rem;
+    letter-spacing: 1.5px;
+    margin-left: 10px;
+}

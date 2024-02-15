@@ -1,0 +1,30 @@
+{% extends "sign-in card/big_card.html" %}
+
+{% block title %}
+    Account Activation Mentee Sign-In Card
+{% endblock %}
+
+{% block card_corner %}
+    <button class="sign_in_top_left_element">X</button>
+{% endblock %}
+
+{% block card_head %}
+    <h1>Create your account</h1>
+{% endblock %}
+
+{% block card_content %}
+    <div class="sign-in-card-content">
+        <div class="sign-in-card-element">
+            <p class="sign-in-card-text-normal">You must currently be enrolled in either CS or CIS degree at SVSU to be eligible for account creation at this time.</p>
+        </div>
+
+        <div class="sign-in-card-element">
+            <p class="sign-in-card-text-normal">Email:</p>
+            <input type="email" placeholder="e.g. john.doe@svsu.edu">
+        </div>
+
+        <div class="sign-in-card-element">
+            <button class="sign-in-card-option-button">Send Activation Email</button>
+        </div>
+    </div>
+{% endblock %}

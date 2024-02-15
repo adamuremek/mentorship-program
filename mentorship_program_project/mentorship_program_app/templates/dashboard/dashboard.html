@@ -1,0 +1,112 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<section class="hero">
+    <div class="hero-container">
+
+        <div class="section-recommended">
+            <h1>Recommended Mentees</h1>
+            <div class="recommended-cards">
+                <!-- 5 Cards should be inserted -->
+                {% for user in recommended_users %}
+                {% include 'dashboard/profile-card/mentee_card.html' %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-available">
+
+            <h1>Available Mentees</h1>
+
+            <div class="available-filters">
+                <div class="available-interests-filter">
+                    <p>Filter:</p>
+                    <div id="popup-root" class="available-interests-filter-box popup">
+                        <p>Interests</p>
+                        <img class="down-arrow" src="{% static 'images/white-dropdown-arrow.png' %}"></img>
+
+                        <div id='popup' class="popup-inner">
+                            <div class="popup-inner-title">
+                                <p>Interests</p>
+                                <img class="down-arrow" src="{% static 'images/white-dropdown-arrow.png' %}"></img>
+                            </div>
+
+                            <div id="inner-popup-content">
+                                <div class="popup-search-box">
+                                    <input type="text" placeholder="Search Interests">
+                                    <img class="search-icon" src="{% static 'images/search-icon.png' %}"></img>
+                                </div>
+
+                                <div class="popup-checkboxes">
+
+                                    <div class="popup-checkbox-item">
+                                        <input type="checkbox" id="cb1" checked>
+                                        <label for="cb1">Artificial Intelligence (32)</label>
+                                    </div>
+
+                                    <div class="popup-checkbox-item">
+                                        <input type="checkbox" id="cb2" checked>
+                                        <label for="cb2">Machine Learning (24)</label>
+                                    </div>
+
+                                    <div class="popup-checkbox-item">
+                                        <input type="checkbox" id="cb3" checked>
+                                        <label for="cb3">Data Science (15)</label>
+                                    </div>
+
+                                    <div class="popup-checkbox-item">
+                                        <input type="checkbox" id="cb4" checked>
+                                        <label for="cb4">Cloud Computing (12)</label>
+                                    </div>
+
+                                    <div class="popup-checkbox-item">
+                                        <input type="checkbox" id="cb5" checked>
+                                        <label for="cb5">Networking (4)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="available-search-name">
+                    <img class="search-icon" src="{% static 'images/search-icon.png' %}"></img>
+                    <input type="text" placeholder="Search by Name" id="searchByNameField">
+                </div>
+            </div>
+
+            <div class="available-cards">
+                {% for user in all_users %}
+                {% include 'dashboard/profile-card/mentee_card.html' %}
+                {% endfor %}
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<script>
+    /* These event listeners show/hide the Interests popup when it is clicked on */
+    var popupRoot = document.getElementById('popup-root')
+    var popup = document.getElementById('popup')
+    var popupContent = document.getElementById('inner-popup-content')
+    popupRoot.addEventListener("mouseup", event => {
+        if (event.target != popupContent && (event.target == popupRoot || event.target.parentNode == popup)) {
+            popup.classList.toggle('show')
+        }
+    })
+</script>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/mentee_card.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<div class="card">
+
+	<div class="card-line-divider-1"></div>
+
+    <div class="card-gray-part">
+
+		  <img class="card-profile-image" src="{{ user.imgUserProfile.url }}"/>
+
+		  <p class="card-name">{{ user.strFirstName }}</p>
+
+        <div class="card-line-divider-2"></div>
+
+        <p class="card-interests-header">Interests</p>
+
+        <div class="card-interests">
+			  {% for interest in user.interests.all %}
+			  <p>{{ interest.strInterest }}</p>
+			  {% endfor %}
+		  </div>
+
+        <div class="card-button">Request Mentee</div>
+    </div>
+    
+</div>
+
+{% endblock %}
