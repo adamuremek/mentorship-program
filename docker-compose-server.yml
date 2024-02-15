@@ -1,28 +1,10 @@
 version: '3.8'
 
 volumes:
-  # Create a volume for postgres to persist data
-  postgres_data:
   # Create a volume for static files
   static_volume:
   
 services:
-  # Container for the database
-  db:
-    image: postgres:16
-    # Set environment variables for the database
-    environment:
-      - POSTGRES_DB=development
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-    # Mount the postgres data volume
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    # Map postgres port inside the container to the external port
-    #  to allow db connections outside of the container
-    ports:
-        # External_port:internal_port
-      - 7654:5432
   # Container for the django project
   web:
     build: 
@@ -38,10 +20,7 @@ services:
       - 8000
     # Set environment variables inside the container from .env file
     env_file:
-      - ./docker/.env
-    # Make sure db container is running before starting this one
-    depends_on:
-      - db
+      - ./docker/.env.server
   nginx:
     build: ./nginx
     volumes:
