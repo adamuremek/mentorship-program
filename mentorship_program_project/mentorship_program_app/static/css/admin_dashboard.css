@@ -1,0 +1,132 @@
+.dashboard-top-section {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    text-align: center;
+    gap: 1em;
+    grid-template-areas:
+        "bl1 bl1 bl2 bl2"
+        "bl3 bl3 bl3 bl3"
+        "bl4 bl5 bl6 bl7"
+        "bl8 bl8 bl9 bl9"
+        "bl0 bl0 bl0 bl0";
+}
+
+h1 {
+    margin-bottom: 0.5em;
+    font-size: 2.5em;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+h3 {
+    display: inline-block;
+}
+
+.card {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 1em
+}
+
+.card:hover {
+    background: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+.stats:hover {
+    background: rgba(0, 0, 0, 0.2);
+    cursor: default;
+}
+
+.undergraduate-status {
+    grid-area: bl1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.undergraduate-status img {
+    height: 2em;
+    margin-right: 0.5em;
+}
+
+.review-mentor-applications {
+    grid-area: bl2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.review-mentor-applications img {
+    height: 2em;
+    margin-right: 0.5em;
+}
+
+.program-statistics {
+    grid-area: bl3;
+}
+
+.program-statistics p {
+    padding: 0.125em;
+}
+
+.program-statistics h2 {
+    font-size: 2em;
+}
+
+.program-statistics div {
+    display: grid;
+    text-align: left;
+    font-size: 1.25em;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.daily-statistics {
+    grid-area: bl4;
+    text-align: left;
+}
+
+.weekly-statistics {
+    grid-area: bl5;
+    text-align: left;
+}
+
+.monthly-statistics {
+    grid-area: bl6;
+    text-align: left;
+}
+
+.lifetime-statistics {
+    grid-area: bl7;
+    text-align: left;
+}
+
+.generate-mentee-reports {
+    grid-area: bl8;
+}
+
+.generate-mentor-reports {
+    grid-area: bl9;
+}
+
+.user-management {
+    grid-area: bl0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-management img {
+    height: 2em;
+    margin-right: 0.5em;
+}
+
+li {
+    padding: 0.5em;
+    list-style-position: inside;
+}

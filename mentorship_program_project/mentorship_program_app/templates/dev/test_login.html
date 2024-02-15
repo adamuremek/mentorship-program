@@ -12,15 +12,25 @@
   {% block style %}{% endblock %}
 </head>
 <body>
+	<script src="{% static 'js/backend_requests.js' %}"></script>
     <header>
         <nav>
             <div class="logo"><img src="{% static 'images/svsu_header.png' %}" alt="SVSU Logo"></div>
         </nav>
     </header>
 
-	<main>
-        {% block main_content %}{% endblock %}
-    </main>
+		<main>
+			<div class="login-form">
+				{% csrf_token %}
+				<input id="txtUname" type="text"/>
+				<input id="txtPassword" type="password"/>
+				<button id="btnLogin">Login</button>
+				<div class="warning" id="login-form-warning">
+				</div>
+
+				<script src="{% static 'js/login_form.js' %}"></script>
+			</div>
+		</main>
 
     <footer>
         <p>&copy;<span id="current-year"></span> Saginaw Valley State University</p>
@@ -35,4 +45,3 @@
     });
 </script>
 </html>
-

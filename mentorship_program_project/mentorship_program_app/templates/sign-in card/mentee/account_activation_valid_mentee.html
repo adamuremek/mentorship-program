@@ -5,9 +5,7 @@
 {% endblock %}
 
 {% block card_corner %}
-<form action="">
-    <button type="submit" class="sign_in_top_left_element">X</button>
-</form>
+    <button class="sign_in_top_left_element">X</button>
 {% endblock %}
 
 {% block card_head %}
@@ -17,18 +15,19 @@
 {% block card_content %}
     <div class="sign-in-card-content">
         <div class="sign-in-card-element">
-            <p>An account activation email has been sent to {{email}}.</p>
+            <p class="sign-in-card-text-normal">An account activation email has been sent to {{email}}.</p>
         </div>
+        
         <div class="sign-in-card-element">
-            <p>Follow the steps laid out in the account activation email comlete activation of your account.</p>
+            <p class="sign-in-card-text-normal">Follow the steps laid out in the account activation email to complete activation of your account.</p>
         </div>
+
         <div class="sign-in-card-element">
-            <p>If you do not see the email, please contact mentorsupport@svsu.edu</p>
+            <p class="sign-in-card-text-normal">If you do not see the email, please contact mentorsupport@svsu.edu</p>
         </div>
+
         <div class="sign-in-card-element">
-            <form method="POST" action="">
-                <input type="button" value="Contact">
-            </form>
+            <button class="sign-in-card-option-button">Contact</button>
         </div>
     </div>
 {% endblock %}
