@@ -49,25 +49,34 @@ def get_random_interests(size : int)->[Interest]:
 fills the database with randomly generated users ONLY if in 
 debug mode
 """
-def populate_database_with_random_users(amount  : int = 100)->None:
+def populate_database_with_random_users(amount  : int = 10)->None:
     print_debug("[random user generator] ensuring existence of interests...")
     populate_database_with_interests()
 
     print_debug("[random user generator] generating users...")
 
     for i in range(amount):
-        user = f'user{i}@'+''.join(random.choice(string.ascii_letters)for _ in range(100))+'.com'
+        user = f'user{i}@fakeemail{i}.com'
 
 
-        new_user = User.create_from_plain_text_and_email(
+        try:
+            new_user = User.create_from_plain_text_and_email(
                                                 f'password{i}',
                                                 user
                                                 )
-        new_user.save()
+        except:
+            print_debug("that user already exists ya silly goose")
+
+
 
         user_interests = get_random_interests(5)
         new_user.interests.add(*user_interests)
 
+
+        for i in new_user.interests.all():
+            print_debug(i.strInterest)
+
+        new_user.save()
         print_debug('[random user generator] finished random user generation!\n\tenjoy the data :) '+user)
 
 """

@@ -13,6 +13,13 @@ from .models import Interest
 # -------------------- <<< Big Move stuff >>> -------------------- #
 # - Will delete later
 
+#please make it pretty front end :)
+def invalid_request_401(request):
+    response = HttpResponse('Unauthorized') #better 401 page here
+    
+    response.status_code = 401
+    return response
+
 def BIGMOVE(req):
     template = loader.get_template('sign-in card/mentor/account_creation_0_mentor.html')
     context = {}
@@ -81,14 +88,20 @@ def landingPost(req):
     else:
         return redirect('landing')
 
+@security.Decorators.require_login(invalid_request_401)
 def dashboard(req):
     template = loader.get_template('dashboard/dashboard.html')
-    items = range(4)
-    context = {'items':items}
+
+    data = User.objects.all()
+
+    context = {
+            'recommended_users': [u.sanatize_black_properties() for u in data[0:4]],
+            'all_users'        : [u.sanatize_black_properties() for u in data]
+               }
+
     return HttpResponse(template.render(context, req))
 
 def admin_dashboard(req):
-    template = loader.get_template('admin_dashboard.html')
     context = {}
     return HttpResponse(template.render(context, req))
 
@@ -198,12 +211,6 @@ def account_creation_2_mentor(request):
 
 
 
-#please make it pretty front end :)
-def invalid_request_401(request):
-    response = HttpResponse('Unauthorized') #better 401 page here
-    
-    response.status_code = 401
-    return response
 
 @security.Decorators.require_login(invalid_request_401)
 def logout(request):
@@ -235,7 +242,7 @@ def login_uname_text(request):
     
     #valid login
     security.set_logged_in(request.session,User.objects.get(clsEmailAddress=uname).id)
-    response = HttpResponse("logged in!")
+    response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
 
 
