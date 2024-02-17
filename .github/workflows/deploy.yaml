@@ -10,7 +10,7 @@ jobs:
       - name: Checkout dev branch 
         uses: actions/checkout@v4
         with:
-          rev: dev-main
+          ref: dev-main
 
       - name: Start docker containers
         run: sudo docker compose -f ./docker-compose-server.yml up -d --build
