@@ -13,4 +13,7 @@ jobs:
           rev: dev-main
 
       - name: Start docker containers
-        run: sudo docker compose -f ./docker-compose-server.yml up --build
+        run: sudo docker compose -f ./docker-compose-server.yml up -d --build
+
+      - name: Clean up unused images
+        run: sudo docker image prune -f
