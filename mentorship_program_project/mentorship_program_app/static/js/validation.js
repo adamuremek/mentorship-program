@@ -45,38 +45,49 @@
 /* MODIFICATION HISTORY:                                             */
 /*********************************************************************/
 
-
+console.log('why are you not working :(')
 const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Validates <{string}@{string}.{string}>
 const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
 
-const input_email = document.getElementById('email')
-const input_phone = document.getElementById("phone");
+const input_email = document.getElementById('email');
+const input_phone = document.getElementById('phone');
+const input_name  = document.getElementById('name');
 
-input_email.addEventListener('input', e => {
+const RED = 'firebrick'
+const GREEN = 'forestgreen'
+
+input_email.addEventListener("input", e => {
+    console.log('wtf')
     const regex_result = regex_email.test(e.target.value)
 
     // Visually indicate Regex Success
     if(regex_result)
-        input_email.style.backgroundColor = 'green'
+        input_email.style.backgroundColor = GREEN
     else
-        input_email.style.backgroundColor = 'red'
+        input_email.style.backgroundColor = RED
 }) 
+
+input_name.addEventListener("input", e => {
+    let inputValue = e.target.value.replace(/\d/g, ""); // Remove numeric characters
+    // Set input to new value
+    e.target.value = inputValue;
+})
 
 
 // -------------------- <<< COMPLETED REGEX PATTERNS >>> -------------------- \\
 
 
-let previousValue = input_phone.value.replace(/\D/g, "")
+// let previousValue = input_phone.value.replace(/\D/g, "")
+let previousValue
 
 input_phone.addEventListener("input", e => {
     let inputValue = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
     console.log(`inputValue: ${inputValue}`)
     console.log(`previous: ${previousValue}`)
     // Account for backspaces on non-numeric characters
-    if(inputValue === previousValue){
-        console.log('fuck you')
+    if(inputValue === previousValue)
         inputValue = inputValue.slice(0, -1)
-    }
+
 
     // User backspaces with one number. Remove '('
     if (inputValue.length == 0) {
@@ -100,9 +111,9 @@ input_phone.addEventListener("input", e => {
     const regex_result = regex_phone.test(e.target.value)
     // Visually indicate Regex Success
     if(regex_result)
-        input_phone.style.backgroundColor = 'green'
+        input_phone.style.backgroundColor = GREEN
     else
-        input_phone.style.backgroundColor = 'red'
+        input_phone.style.backgroundColor = RED
 });
 
 // Ensure keyboard inputs are only numbers or backspace

@@ -1,4 +1,4 @@
-
+{% load static %}
 <div class="sign-in-card-content">
     <div class="sign-in-card-element">
         <p class="sign-in-card-text-normal">Email:</p>
@@ -12,10 +12,37 @@
 
     <div class="sign-in-card-element">
         <p class="sign-in-card-text-normal">Password:</p>
-        <input type="password" placeholder="e.g. John Doe">
+        <div class="password-holder">
+            <input type="password" id="password" placeholder="e.g. John Doe">
+            <i id="toggle-password"><img id="testertest" src="{% static 'images/icons/eye-open - Copy.png' %}"></i>
+        </div>
     </div>
 
     <div class="sign-in-card-element">
-        <button type="submit" class="sign-in-card-option-button">Next</button>
+        <button type="button" class="sign-in-card-option-button">Next</button>
     </div>
 </div>
+
+
+<!-- FOR THE LOVE OF GOD MOVE THIS EVENTUALLY -->
+<!-- I KNOW THIS IS BAD I JUST NEED TO TEST :( -->
+
+<!-- Not enough time in the day bro... -->
+
+<!-- Also, this code makes it so you can show/hide your password while writing it -->
+<script>
+    const passImg = document.getElementById('toggle-password')
+    const actualyImage = document.getElementById('testertest')
+    const input_password = document.getElementById('password')
+
+    passImg.addEventListener('click', e => {
+        console.log('clicked')
+        if (input_password.type === "password") {
+            input_password.type = "text";
+            actualyImage.src = actualyImage.src.replace('open', 'closed')
+          } else {
+            input_password.type = "password";
+            actualyImage.src = actualyImage.src.replace('closed', 'open')
+          }
+    })
+</script>

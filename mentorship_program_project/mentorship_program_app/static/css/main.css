@@ -129,8 +129,6 @@ footer {
 /* ALL STYLES BELOW WERE ORIGINALLY ONLY FOR SIGN-UP CARDS */
 /* ------------------------------------------------------- */
 
-
-
 .sign-in-card-form {
     width: 100%;
     height: 100%;
@@ -275,6 +273,24 @@ footer {
 .sign-in-card input[type=password] {
     background-color: #333842;
     border-color: #333842;
+}
+
+.password-holder {
+    position: relative;
+}
+
+#toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+   
+    cursor: pointer;
+}
+
+#toggle-password img {
+    height:auto;
+    width: 2em;
 }
 
 .sign-in-card input[type=email] {
