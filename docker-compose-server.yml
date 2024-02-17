@@ -20,7 +20,7 @@ services:
       - 8000
     # Set environment variables inside the container from .env file
     env_file:
-      - ./docker/.env.server
+      - /mentorship-program/.env.server
   nginx:
     build: ./nginx
     volumes:
