@@ -4,8 +4,8 @@ Who is checking the wording of menus?
 Who/what is generating pronouns?
 
 need to be started:
+
 account_creation_5_mentor
-account_creation_6_mentor
 
 account_recovery_1
 account_recovery_2
@@ -57,6 +57,6 @@ account_creation_2_mentor
 account_creation_3_mentor
 	+Figure out populating company type and exprience lists
 account_creation_4_mentor
-	+Figure out populating state and country list
+	+Figure out populating interest list
 
 done:
