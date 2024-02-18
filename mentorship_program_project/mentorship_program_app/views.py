@@ -28,7 +28,17 @@ def BIGMOVE(req):
 def THEBIGMOVE(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
     context = {
-        'pronounlist': ['he', 'she', 'they']
+        'pronounlist': ['he', 'she', 'they'],
+
+        'companytypelist': [
+            'Manufacturing',
+            'Comptuer Science', 
+            'Math?'],
+            
+        'experiencelist': [
+            '0 years',
+            '0-2 years', 
+            '2-5 years'],
     }
     return HttpResponse(template.render(context, req))
 
