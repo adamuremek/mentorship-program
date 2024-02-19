@@ -1,13 +1,18 @@
 
 <div class="sign-in-card-content">
     <div class="sign-in-card-element">
-        <p class="sign-in-card-text-normal">Name:</p>
-        <input type="text" placeholder="e.g. John Doe">
+        <p class="sign-in-card-text-normal">First Name:</p>
+        <input type="text" placeholder="e.g. John" name="fname" maxlength="50">
+    </div>
+
+    <div class="sign-in-card-element">
+        <p class="sign-in-card-text-normal">Last Name:</p>
+        <input type="text" placeholder="e.g. Doe" name="lname" maxlength="50">
     </div>
 
     <div class="sign-in-card-element">
         <p class="sign-in-card-text-normal">Preferred Pronoun(s):</p>
-        <select>
+        <select name="pronouns">
             {% for pronoun in pronounlist %}
                 <option>{{pronoun}}</option>
             {% endfor %}
