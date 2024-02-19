@@ -1,0 +1,29 @@
+.hero-container {
+    height: 90%;
+}
+
+.hero {
+    width: 60%;
+}
+
+.info {
+    padding-top: 5em;
+    padding-bottom: 5em;
+}
+
+.info h1 {
+    font-size: 4em;
+    text-align: center;
+}
+
+.section {
+    margin: auto;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 1em;
+    margin-top: 1em;
+}
+
+.section h1 {
+    padding-bottom: 0.5em;
+}
