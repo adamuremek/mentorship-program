@@ -19,7 +19,7 @@ Dashboard
             <h1>Recommended Mentees</h1>
             <div class="recommended-cards">
                 <!-- 5 Cards should be inserted -->
-                {% for i in items %}
+                {% for user in recommended_users %}
                 {% include 'dashboard/profile-card/mentee_card.html' %}
                 {% endfor %}
             </div>
@@ -87,7 +87,7 @@ Dashboard
             </div>
 
             <div class="available-cards">
-                {% for i in items %}
+                {% for user in all_users %}
                 {% include 'dashboard/profile-card/mentee_card.html' %}
                 {% endfor %}
             </div>

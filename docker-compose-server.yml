@@ -1,0 +1,32 @@
+version: '3.8'
+
+volumes:
+  # Create a volume for static files
+  static_volume:
+  
+services:
+  # Container for the django project
+  web:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile
+    # Run the django server when contriner starts
+    command: gunicorn -w 4 mentorship_program_project.wsgi:application --bind 0.0.0.0:8000
+    # Mount the local project directory to the container
+    volumes:
+      - ./mentorship_program_project:/mentorship_program_project
+      - static_volume:/static
+    expose:
+      - 8000
+    # Set environment variables inside the container from .env file
+    env_file:
+      - /mentorship-program/.env.server
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/static
+    ports:
+      - 1337:80
+    depends_on:
+      - web
+  

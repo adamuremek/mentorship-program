@@ -1,0 +1,42 @@
+version: '3.8'
+
+volumes:
+  # Create a volume for postgres to persist data
+  postgres_data:
+  
+services:
+  # Container for the database
+  db:
+    image: postgres:16
+    # Set environment variables for the database
+    environment:
+      - POSTGRES_DB=development
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    # Mount the postgres data volume
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Map postgres port inside the container to the external port
+    #  to allow db connections outside of the container
+    ports:
+        # External_port:internal_port
+      - 7654:5432
+  # Container for the django project
+  web:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile
+    # Run the django server when contriner starts
+    command: python manage.py runserver 0.0.0.0:8000
+    # Mount the local project directory to the container
+    volumes:
+      - ./mentorship_program_project:/mentorship_program_project
+    # Map the default django port
+    ports:
+      - 8000:8000
+    # Set environment variables inside the container from .env file
+    env_file:
+      - ./docker/.env
+    # Make sure db container is running before starting this one
+    depends_on:
+      - db

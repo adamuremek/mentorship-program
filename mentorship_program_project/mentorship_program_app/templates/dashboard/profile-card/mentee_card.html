@@ -8,24 +8,23 @@
 
 <div class="card">
 
-    <div class="card-line-divider-1"></div>
+	<div class="card-line-divider-1"></div>
 
     <div class="card-gray-part">
 
-        <div class="card-profile-image"></div>
-        <p class="card-name">Jeff Barnes</p>
+		  <img class="card-profile-image" src="{{ user.imgUserProfile.url }}"/>
+
+		  <p class="card-name">{{ user.strFirstName }}</p>
 
         <div class="card-line-divider-2"></div>
 
         <p class="card-interests-header">Interests</p>
 
         <div class="card-interests">
-            <p>Artificial Intelligence</p>
-            <p>Machine Learning</p>
-            <p>Data Science</p>
-            <p>Algorithms</p>
-            <p>Data Structures</p>
-        </div>
+			  {% for interest in user.interests.all %}
+			  <p>{{ interest.strInterest }}</p>
+			  {% endfor %}
+		  </div>
 
         <div class="card-button">Request Mentee</div>
     </div>

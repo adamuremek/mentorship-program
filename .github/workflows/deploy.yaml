@@ -1,0 +1,19 @@
+name: Deploy
+on:
+  push:
+    branches: [dev-main]
+jobs:
+  deploy:
+    if: github.repository == 'adamuremek/mentorship-program'
+    runs-on: self-hosted
+    steps:
+      - name: Checkout dev branch 
+        uses: actions/checkout@v4
+        with:
+          rev: dev-main
+
+      - name: Start docker containers
+        run: sudo docker compose -f ./docker-compose-server.yml up -d --build
+
+      - name: Clean up unused images
+        run: sudo docker image prune -f
