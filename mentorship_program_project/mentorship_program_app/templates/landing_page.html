@@ -45,18 +45,22 @@
                         <input type="password" id="password" name="password" placeholder="Password">
 								<p id="frm-warning-message" class="error-message"></p>
                         <div id="forgot-password-container">
-                            <p><span class="text-btn">Forgot Password?</span></p>
+                            <p><span class="text-btn" id="forgot-pass-btn" tabindex="0">Forgot Password?</span></p>
                         </div>
                     </div>
                     <button type="button" class="login-buttons" id="li-btn">Login</button>
-                    <p><span id="su-span">Don't have an account?</span> <span class="text-btn"><a class="text-btn" href="/role_selection">Sign Up</a></span></p>
+                    <p><span id="su-span">Don't have an account?</span> <span class="text-btn" tabindex="0"><a class="text-btn" href="/role_selection">Sign Up</a></span></p>
                 </form>
             </div>
         </div>
     </div>
 </section>
 
+{% include 'password-modals/forgot-pass-modal-1.html' %}
+{% include 'password-modals/forgot-pass-modal-2.html' %}
+
 <script src = '{% static "js/backend_requests.js" %}'></script>
 <script src = '{% static "js/landing_page/login_form.js" %}'></script>
+<script src = '{% static "js/landing_page/forgot_pass_modals.js" %}'></script>
 
 {% endblock %}
