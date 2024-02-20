@@ -6,7 +6,18 @@ from django.http import HttpResponse, HttpRequest
 from django.template import loader, Template
 from django.shortcuts import render, redirect
 from mentorship_program_app.models import User
+
 from .status_codes import bad_request_400
+from utils import security
+
+"""
+TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
+through the mentor sign up route and update their role user entry in the DB to mentor when approved
+
+TODO: Have mentors fill out more information when signing up so the admin get a better 
+
+"""
+
 
 
 def is_ascii(s: str) -> str:
@@ -130,31 +141,52 @@ def validate_request_body(*args: str):
 def register_mentor(req: HttpRequest):
     if req.method == "POST":
         
-        #incoming_email: str = req.POST["email"]
+        incoming_email: str = req.POST["email"]
         
         
-        # User.objects.create(
-        #     clsEmailAddress = incoming_email,
-        #     strPasswordHash = "8==D~~",
-        #     strRole = User.Role.MENTOR,
-        #     clsDateJoined = date.today(),
-        #     clsActiveChangedDate = date.today(),
-        #     blnActive = False,
-        #     blnAccountDisabled = True,
-        #     strFirstName = strFirstname,
-        #     strLastName = strLastName,
-        #     strPhoneNumber = strPhoneNumber,
-        #     clsDateofBirth = clsDateOfBirth,
-        #     strGender = strGender,
-        #     strPreferredPronouns = strPreferredPronouns,
-        #     strSessionID = strSessionID,
-        #     strSessionKeyHash = strSessionKeyHash
-        # )
         
-        if User.objects.filter(clsEmailAddress=req.POST["email"]).count() == 0:
-            return HttpResponse("Registration request successful! We'll get back to ya!")
-        else:
+        if User.objects.filter(clsEmailAddress=req.POST["email"]).count() != 0:    
             return HttpResponse(f"Email {incoming_email} already exsists!")
+        
+        generated_user_salt = security.generate_salt()
+        
+        User.objects.create(
+            clsEmailAddress = incoming_email,
+            strPasswordHash = security.hash_password(req.POST["password"], generated_user_salt),
+            strPasswordSalt = generated_user_salt,
+            strRole = User.Role.MENTOR_PENDING,
+            clsDateJoined = date.today(),
+            clsActiveChangedDate = date.today(),
+            blnActive = False,
+            blnAccountDisabled = False,
+            strFirstName = req.POST["fname"],
+            strLastName = req.POST["lname"],
+            strPhoneNumber = req.POST["phone-number"],
+            #clsDateofBirth = clsDateOfBirth,
+            #strGender = strGender,
+            strPreferredPronouns = req.POST["pronouns"]
+        )
+        
+        return HttpResponse("Registration request successful! We'll get back to ya!")
         
     else:
         return HttpResponse("Bad :(")
+    
+
+def view_pending_mentors(req: HttpRequest):
+    #TODO Verify youre an admin
+
+    pending_mentors = User.objects.filter(strRole="MentorPending")
+    
+    out_str = ""
+    
+    for user in pending_mentors:
+        user_info = user.getUserInfo()
+        cum = user_info["FirstName"]
+        fart = user_info["EmailAddress"]
+        out_str += f"Name: {cum}  Email: {fart} id: {user.id} ||"
+    
+    print(out_str)
+    return HttpResponse(str(out_str))
+
+

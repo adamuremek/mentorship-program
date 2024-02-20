@@ -96,11 +96,12 @@ class User(SVSUModelData,Model):
         ADMIN = 'Admin'
         MENTOR = 'Mentor'
         MENTEE = 'Mentee'
+        MENTOR_PENDING = 'MentorPending'
 
     clsEmailAddress =  EmailField(null=True,unique=True)  
     strPasswordHash =  CharField(max_length=1000, null=True, blank=False)
     strPasswordSalt =  CharField(max_length=1000, null=True, blank=False)
-    strRole = CharField(max_length=10, choices=Role.choices, default='')
+    strRole = CharField(max_length=15, choices=Role.choices, default='')
     clsDateJoined = DateField(default=date.today)
     clsActiveChangedDate = DateField(default=date.today)
     blnActive = BooleanField(default=True)
