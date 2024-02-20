@@ -97,6 +97,8 @@ class User(SVSUModelData,Model):
         MENTOR = 'Mentor'
         MENTEE = 'Mentee'
         MENTOR_PENDING = 'MentorPending'
+        GRADUATED = 'Graduated'
+        DECLINED = 'Declined'
 
     clsEmailAddress =  EmailField(null=True,unique=True)  
     strPasswordHash =  CharField(max_length=1000, null=True, blank=False)

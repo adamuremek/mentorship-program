@@ -16,6 +16,8 @@ through the mentor sign up route and update their role user entry in the DB to m
 
 TODO: Have mentors fill out more information when signing up so the admin get a better 
 
+TODO: Send email when mentor is approved/declined
+
 """
 
 
@@ -189,4 +191,42 @@ def view_pending_mentors(req: HttpRequest):
     print(out_str)
     return HttpResponse(str(out_str))
 
+
+def change_mentor_status(req:HttpRequest):
+    #TODO Verify youre an admin
+    post_data = json.loads(req.body.decode("utf-8"))
+
+    id = post_data["id"] if "id" in post_data else None
+    status = post_data["status"] if "status" in post_data else None
+    
+    user = User.objects.get(id=id)
+    if status == 'Approved':
+        user.blnActive = True
+        user.strRole = User.Role.MENTOR
+    else:
+        user.strRole = User.Role.DECLINED
+        
+    user.save()
+        
+    return HttpResponse(f"user {id}'s status has been changed to: {status}")
+    
+    
+   
+ 
+def ban_user(req:HttpRequest):
+    post_data = json.loads(req.body.decode("utf-8"))
+    
+    id = post_data["id"] if "id" in post_data else None
+    #True or False
+    account_disabled = post_data["account_disabled"] if "account_disabled" in post_data else None
+    
+    user = User.objects.get(id=id)
+    
+    if(account_disabled):
+        user.blnAccountDisabled = True
+    else:
+        user.blnAccountDisabled = False
+    user.save()
+    
+    return HttpResponse(f"user {id}'s status has been changed to {account_disabled}")
 
