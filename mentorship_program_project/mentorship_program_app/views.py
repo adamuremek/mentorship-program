@@ -113,11 +113,6 @@ def landing(req):
     context = {}
     return HttpResponse(template.render(context, req))
 
-def faq(req):
-    template = loader.get_template('faq.html')
-    context = {}
-    return HttpResponse(template.render(context, req))
-
 # Pho Post handler for landing-page login card
 def landingPost(req):
     if req.method == 'POST':

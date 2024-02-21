@@ -23,7 +23,6 @@ urlpatterns = [
     path('landing-post/', views.landingPost, name='landing-post'),
     
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('faq/', views.faq, name='faq'),
     path('profile-card/', views.profileCard, name='profile-card'),
     
     path('register/mentee/', views.register_mentee, name='register_mentee'),
