@@ -28,7 +28,37 @@ def BIGMOVE(req):
 def THEBIGMOVE(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
     context = {
-        'pronounlist': ['he', 'she', 'they']
+        'interestlist': [
+            'Artificial Intelligence', 
+            'Computer Graphics', 
+            'Data Structures & Algorithms',
+            'Networking',
+            'Operating Systems',
+            'Embedded Systems',
+            'Cloud Computing',
+            'Software Engineering',
+            'Distrubuted Systems',
+            'Game Development',
+            'Cybersecruity',
+            'System Analysis'],
+
+        'pronounlist': ['he', 'she', 'they'],
+
+        'companytypelist': [
+            'Manufacturing',
+            'Comptuer Science', 
+            'Math?'],
+            
+        'experiencelist': [
+            '0 years',
+            '0-2 years', 
+            '2-5 years'],
+
+        'useragreement': 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+
     }
     return HttpResponse(template.render(context, req))
 
@@ -57,6 +87,8 @@ def register_mentee(req):
         'pronounlist': ['he', 'she', 'they'],
         
         'useragreement': 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 
     }
@@ -78,6 +110,11 @@ def default(req):
 
 def landing(req):
     template = loader.get_template('landing_page.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
+def faq(req):
+    template = loader.get_template('faq.html')
     context = {}
     return HttpResponse(template.render(context, req))
 

@@ -129,8 +129,6 @@ footer {
 /* ALL STYLES BELOW WERE ORIGINALLY ONLY FOR SIGN-UP CARDS */
 /* ------------------------------------------------------- */
 
-
-
 .sign-in-card-form {
     width: 100%;
     height: 100%;
@@ -167,14 +165,20 @@ footer {
 
 .sign-in-card-element {
     width: 70%;
+
+    margin-top: 1%;
+    margin-bottom: 1%;
 }
 
 .sign-in-card-element-horizontal {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-between;
 
     width: 70%;
+
+    margin-top: 1%;
+    margin-bottom: 1%;
 }
 
 .sign-in-card-element-vertical {
@@ -183,6 +187,14 @@ footer {
     justify-content: space-evenly;
     
     width: 70%;
+
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
+
+.sign-in-card-user-agreement-containter {
+    margin-top: 1%;
+    margin-bottom: 1%;
 }
 
 .sign-in-card-checkbox {
@@ -223,15 +235,15 @@ footer {
 
 .sign-in-card-text-scroll {
     font-size: large;
-
     text-align: left;
 
     border-radius: .5em;
     
     overflow-y: scroll;
     overflow-x: auto;
-
+    
     height: 80%;
+    max-height: 17vw;
 
     padding: 2%;
 
@@ -250,6 +262,7 @@ footer {
     border-radius: .5em;
 
     width: 100%;
+    height: 80%;
 
     background-color: #333842;
     border-color: #333842;
@@ -275,6 +288,24 @@ footer {
 .sign-in-card input[type=password] {
     background-color: #333842;
     border-color: #333842;
+}
+
+.password-holder {
+    position: relative;
+}
+
+#toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+   
+    cursor: pointer;
+}
+
+#toggle-password img {
+    height:auto;
+    width: 2em;
 }
 
 .sign-in-card input[type=email] {
