@@ -192,8 +192,9 @@ footer {
     margin-bottom: 1%;
 }
 
-.sign-in-card-select-containter {
-    /* height: 100%; */
+.sign-in-card-user-agreement-containter {
+    margin-top: 1%;
+    margin-bottom: 1%;
 }
 
 .sign-in-card-checkbox {
@@ -234,15 +235,15 @@ footer {
 
 .sign-in-card-text-scroll {
     font-size: large;
-
     text-align: left;
 
     border-radius: .5em;
     
     overflow-y: scroll;
     overflow-x: auto;
-
+    
     height: 80%;
+    max-height: 17vw;
 
     padding: 2%;
 
