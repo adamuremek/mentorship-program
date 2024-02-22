@@ -47,7 +47,11 @@
 
 console.log('why are you not working :(')
 const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Validates <{string}@{string}.{string}>
+const regex_svsu = /^[^\s@]+@svsu[.]edu$/ // Validates <{string}@{svsu}.{edu}>
 const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
+
+// const is_student = document.getElementById('register-form-mentee')
+
 
 const input_email = document.getElementById('email');
 const input_phone = document.getElementById('phone');
@@ -56,9 +60,16 @@ const input_name  = document.getElementById('name');
 const RED = 'firebrick'
 const GREEN = 'forestgreen'
 
+console.log(`Student: ${is_student}`)
+
 input_email.addEventListener("input", e => {
-    console.log('wtf')
-    const regex_result = regex_email.test(e.target.value)
+    let regex_custom
+    if(is_student)
+        regex_custom = regex_svsu
+    else
+        regex_custom = regex_email
+
+    const regex_result = regex_custom.test(e.target.value)
 
     // Visually indicate Regex Success
     if(regex_result)
@@ -124,3 +135,5 @@ input_phone.addEventListener("keypress", e => {
         e.preventDefault();
     }
 });
+
+// });
