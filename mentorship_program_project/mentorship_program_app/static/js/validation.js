@@ -44,6 +44,8 @@
 /*********************************************************************/
 /* MODIFICATION HISTORY:                                             */
 /*********************************************************************/
+document.addEventListener('DOMContentLoaded', winloaded => {
+
 
 console.log('why are you not working :(')
 const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Validates <{string}@{string}.{string}>
@@ -55,7 +57,8 @@ const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
 
 const input_email = document.getElementById('email');
 const input_phone = document.getElementById('phone');
-const input_name  = document.getElementById('name');
+const input_first_name  = document.getElementById('fname');
+const input_last_name  = document.getElementById('lname');
 
 var regex_custom = /^/
 
@@ -79,7 +82,13 @@ input_email.addEventListener("input", e => {
         input_email.style.backgroundColor = RED
 }) 
 
-input_name.addEventListener("input", e => {
+input_first_name.addEventListener("input", e => {
+    let inputValue = e.target.value.replace(/\d/g, ""); // Remove numeric characters
+    // Set input to new value
+    e.target.value = inputValue;
+})
+
+input_last_name.addEventListener("input", e => {
     let inputValue = e.target.value.replace(/\d/g, ""); // Remove numeric characters
     // Set input to new value
     e.target.value = inputValue;
@@ -137,19 +146,6 @@ input_phone.addEventListener("keypress", e => {
     }
 });
 
-// });
-
-function form_submit() {
-    const good_form = regex_custom.test(input_email.value) && regex_phone.test(input_phone.value)
-
-    if(good_form)
-        console.log('this form is good!')
-    else
-        console.log('this form sux you fucking idiot')
-}
-
-document.addEventListener('DOMContentLoaded', winloaded => {
-        
     // Get all snippets being rendered
     const snippets = document.getElementsByClassName('sign-in-card-content')
         
@@ -210,6 +206,19 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             }
         })
     }
+
+
+
+// -------------------- <<< FORM SUBMIT >>> -------------------- \\
+
+// function form_submit() {
+//     const good_form = regex_custom.test(input_email.value) && regex_phone.test(input_phone.value)
+
+//     if(good_form)
+//         console.log('this form is good!')
+//     else
+//         console.log('this form sux you fucking idiot')
+// }
 
 
 }) // DOM listener

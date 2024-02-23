@@ -39,7 +39,7 @@ urlpatterns = [
 
     
     
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/', navigation.dashboard, name='dashboard'),
     path('faq/', views.faq, name='faq'),
     path('profile-card/', views.profileCard, name='profile-card'),
     
