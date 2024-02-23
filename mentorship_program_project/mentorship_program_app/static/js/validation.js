@@ -57,13 +57,14 @@ const input_email = document.getElementById('email');
 const input_phone = document.getElementById('phone');
 const input_name  = document.getElementById('name');
 
+var regex_custom = /^/
+
 const RED = 'firebrick'
 const GREEN = 'forestgreen'
 
 console.log(`Student: ${is_student}`)
 
 input_email.addEventListener("input", e => {
-    let regex_custom
     if(is_student)
         regex_custom = regex_svsu
     else
@@ -137,3 +138,78 @@ input_phone.addEventListener("keypress", e => {
 });
 
 // });
+
+function form_submit() {
+    const good_form = regex_custom.test(input_email.value) && regex_phone.test(input_phone.value)
+
+    if(good_form)
+        console.log('this form is good!')
+    else
+        console.log('this form sux you fucking idiot')
+}
+
+document.addEventListener('DOMContentLoaded', winloaded => {
+        
+    // Get all snippets being rendered
+    const snippets = document.getElementsByClassName('sign-in-card-content')
+        
+    // Hide all code snippets by default
+    for (i of snippets)
+        i.style = 'display: none;'
+
+    // Display first snippet
+    let curID = 0
+    snippets[0].style = 'display: flex'
+
+    // Get progression buttons
+    const buttons = document.getElementsByClassName('sign-in-card-option-button')
+
+    const page_count = buttons.length
+
+    // Get Header Corner Element list
+    const corner_guy = document.getElementsByClassName('sign_in_top_left_element')[0]
+    console.log('corner guy')
+    console.log(corner_guy)
+
+    corner_guy.innerText = `<- Step ${(curID+1)} of ${page_count}`
+
+    corner_guy.addEventListener('click', e => {
+        snippets[curID].style = 'display: none;'
+        
+        curID -= 1
+
+        if(curID == -1)
+            window.location.href = "http://localhost:8000/landing";
+        else {
+            snippets[curID].style = 'display: flex;'
+
+            corner_guy.innerText = `<- Step ${(curID+1)} of ${page_count}`
+        }
+        
+    })
+
+    // Assign event listener to each button
+    for(button of buttons) 
+    {
+        button.addEventListener('click', e => {
+            snippets[curID].style = 'display: none;'
+
+            // When button is clicked, progress displayed card
+            curID += 1
+
+            // Submit at the end
+            if(curID >= snippets.length) {
+                form_submit()
+            }
+            else {
+                 snippets[curID].style = 'display: flex;'
+
+                corner_guy.innerText = `<- Step ${(curID+1)} of ${page_count}`
+
+                console.log(`Current ID: ${curID}`)
+            }
+        })
+    }
+
+
+}) // DOM listener
