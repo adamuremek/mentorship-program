@@ -5,7 +5,7 @@ from datetime import date
 from django.http import HttpResponse, HttpRequest
 from django.template import loader, Template
 from django.shortcuts import render, redirect
-from mentorship_program_app.models import User
+from mentorship_program_app.models import *
 
 from .status_codes import bad_request_400
 from utils import security
@@ -141,17 +141,55 @@ def validate_request_body(*args: str):
 
 @validate_request_body("fname", "lname", "pronouns", "email", "phone-number", "password")
 def register_mentor(req: HttpRequest):
+    
+    #TODO return organization and job title as well
+    '''
+    Description
+    -----------
+    Function that will allow people to request to be a mentor.
+    
+    Parameters
+    ----------
+    - req : HttpRequest
+    req should contain email (str), password (str), firstname (str), lastname (str), phone_number (str), pronouns (str), jobTitle (str), organization (str)
+    
+    Returns
+    -------
+    - str: Email {email} already exsists!
+    - str: Registration request successful! We'll get back to ya!
+    - str: Bad :(
+    
+    Example Usage
+    -------------
+    
+    >>> reqister_mentor(req)
+    "Email {email} already exsists!"
+    
+    >>> reqister_mentor(req)
+    Registration request successful! We'll get back to ya!
+    
+    Authors
+    -------
+    Adam U. 8==D~
+    Andrew P.
+    '''
     if req.method == "POST":
         
         incoming_email: str = req.POST["email"]
-        
-        
-        
+        # check if the account is already registered
         if User.objects.filter(clsEmailAddress=req.POST["email"]).count() != 0:    
             return HttpResponse(f"Email {incoming_email} already exsists!")
         
+        # salt to store to unhash the password
         generated_user_salt = security.generate_salt()
-        
+
+        organization = None
+        if(not Organizations.objects.filter(strName=req.POST["organization"]).exists()):
+            organization = Organizations.objects.create(strName=req.POST["organization"])
+        else:
+            organization = Organizations.objects.get(strName=req.POST["organization"])
+            
+        # create a new user in the database with the role "Pending"
         User.objects.create(
             clsEmailAddress = incoming_email,
             strPasswordHash = security.hash_password(req.POST["password"], generated_user_salt),
@@ -168,6 +206,16 @@ def register_mentor(req: HttpRequest):
             #strGender = strGender,
             strPreferredPronouns = req.POST["pronouns"]
         )
+        mentor = User.objects.get(clsEmailAddress = incoming_email)
+        Mentor.objects.create(
+            account_id = mentor.id,
+            intMaxMentees = 5,
+            intRecommendations = 0,
+            strJobTitle =  req.POST["jobTitle"],
+            organization_id = organization.id
+            
+            
+        )
         
         return HttpResponse("Registration request successful! We'll get back to ya!")
         
@@ -176,57 +224,199 @@ def register_mentor(req: HttpRequest):
     
 
 def view_pending_mentors(req: HttpRequest):
+    '''
+    Description
+    -----------
+    Function that returns all of the pending mentors
+    
+    Parameters
+    ----------
+    - req : HttpRequest
+    
+    Returns
+    -------
+     HttpResponse: HTTP response containing the pending mentors
+    
+    Example Usage
+    -------------
+    
+    >>> view_pending_mentors(req)
+    Name: {first_name} {last_name} Email: {email} id: {user.id} || Name: {first_name} {last_name} Email: {email} id: {user.id} || ...
+    
+
+    Authors
+    -------
+    Adam U. 8==D~
+    Andrew P.
+    '''
+    
     #TODO Verify youre an admin
 
+    # get all mentors who are still pending
     pending_mentors = User.objects.filter(strRole="MentorPending")
     
     out_str = ""
     
     for user in pending_mentors:
         user_info = user.getUserInfo()
-        cum = user_info["FirstName"]
-        fart = user_info["EmailAddress"]
-        out_str += f"Name: {cum}  Email: {fart} id: {user.id} ||"
-    
-    print(out_str)
+        first_name = user_info["FirstName"]
+        last_name = user_info["LastName"]
+        email = user_info["EmailAddress"]
+        out_str += f"Name: {first_name} {last_name} Email: {email} id: {user.id} ||"
+
     return HttpResponse(str(out_str))
 
 
 def change_mentor_status(req:HttpRequest):
-    #TODO Verify youre an admin
-    post_data = json.loads(req.body.decode("utf-8"))
+    '''
+    Description
+    -----------
+    Function to change the status of a mentor from pending to approved or declined.
+    
+    Parameters
+    ----------
+    - req : HttpRequest: HTTP request object containing mentor status change data.
+    
+    Returns
+    -------
+    HttpResponse: HTTP response confirming the status change.
+    
+    Example Usage
+    -------------
+    This function is typically called via an HTTP POST request with JSON data containing the mentor's ID and the desired status change.
+    
+    >>> change_mentor_status(req)
+    "user {id}'s status has been changed to: {status}"
+    
+    Authors
+    -------
+    Adam U. 8==D~
+    Andrew P.
+    '''
+    #TODO Verify you're an admin
 
+    # Extract mentor ID and status from request data
+    post_data = json.loads(req.body.decode("utf-8"))
     id = post_data["id"] if "id" in post_data else None
     status = post_data["status"] if "status" in post_data else None
     
+    # Retrieve user object based on ID
     user = User.objects.get(id=id)
+    
+    # Update user role and activation status based on provided status
     if status == 'Approved':
         user.blnActive = True
         user.strRole = User.Role.MENTOR
     else:
         user.strRole = User.Role.DECLINED
         
+    # Save changes to user object
     user.save()
         
     return HttpResponse(f"user {id}'s status has been changed to: {status}")
+
+
+def disable_user(req:HttpRequest):
+    '''
+    Description
+    -----------
+    Function to disable a user by disabling their account.
     
+    Parameters
+    ----------
+    - req : HttpRequest: HTTP request object containing a user who was disabled.
     
-   
- 
-def ban_user(req:HttpRequest):
+    Returns
+    -------
+    HttpResponse: HTTP response confirming the disable action.
+    
+    Example Usage
+    -------------
+    This function is typically called via an HTTP POST request with JSON data containing the user's ID and the confirmation of disable.
+    
+    >>> disable_user(req)
+    "user {id} has been disabled"
+    
+    Authors
+    -------
+    Adam U. 8==D~
+    Andrew P.
+    Jordan A.
+    '''
     post_data = json.loads(req.body.decode("utf-8"))
-    
+        
     id = post_data["id"] if "id" in post_data else None
-    #True or False
-    account_disabled = post_data["account_disabled"] if "account_disabled" in post_data else None
+
+    # Validate user id 
+    if(id == None):
+        return HttpResponse("User doesn't exist")
     
+    # Get the user and set their disabled field to True
     user = User.objects.get(id=id)
+    user.blnAccountDisabled = True
     
-    if(account_disabled):
-        user.blnAccountDisabled = True
-    else:
-        user.blnAccountDisabled = False
+    # Save changes to user object
     user.save()
     
-    return HttpResponse(f"user {id}'s status has been changed to {account_disabled}")
+    return HttpResponse(f"user {id}'s status has been changed to disabled")
+
+
+def enable_user(req:HttpRequest):
+    '''
+    Description
+    -----------
+    Function to enable a user by enabling their account.
+    
+    Parameters
+    ----------
+    - req : HttpRequest: HTTP request object containing a user who was enabled.
+    
+    Returns
+    -------
+    HttpResponse: HTTP response confirming the enable action.
+    
+    Example Usage
+    -------------
+    This function is typically called via an HTTP POST request with JSON data containing the user's ID and the confirmation of enable.
+    
+    >>> enable_user(req)
+    "user {id} has been enabled"
+    
+    Authors
+    -------
+    Adam U. 8==D~
+    Andrew P.
+    Jordan A.
+    '''
+    post_data = json.loads(req.body.decode("utf-8"))
+        
+    id = post_data["id"] if "id" in post_data else None
+
+    # Validate user id 
+    if(id == None):
+        return HttpResponse("User doesn't exist")
+    
+    # Get the user and set their disabled field to False
+    user = User.objects.get(id=id)
+    user.blnAccountDisabled = False
+    
+    # Save changes to user object
+    user.save()
+    
+    return HttpResponse(f"user {id}'s status has been changed to enabled")
+
+
+def request_mentor(req:HttpRequest):
+    post_data = json.loads(req.body.decode("utf-8"))
+    mentor_id = post_data["mentor_id"] if "mentor_id" in post_data else None
+    mentee_id = post_data["mentee_id"] if "mentee_id" in post_data else None
+    mentorObject = User.objects.get(id = mentor_id)
+    menteeObject = User.objects.get(id = mentee_id)
+
+    MentorshipRequest.objects.create(
+        mentor = mentorObject,
+        mentee = menteeObject
+    )
+    
+    return HttpResponse("GOOD")
 

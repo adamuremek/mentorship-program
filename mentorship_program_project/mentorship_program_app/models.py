@@ -248,12 +248,15 @@ class MentorshipRequest(SVSUModelData,Model):
 
     """
     mentor = ForeignKey(
-        Mentor,
-        on_delete = models.CASCADE
+        User,
+        on_delete = models.CASCADE,
+        related_name = "mentor_to_mentee_set"
+        
     )
     mentee = ForeignKey(
-        Mentee,
-        on_delete = models.CASCADE
+        User,
+        on_delete = models.CASCADE,
+        related_name = "mentee_to_mentor_set"
     )
 
 
