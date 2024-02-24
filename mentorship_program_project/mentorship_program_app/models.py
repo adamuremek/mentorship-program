@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import *
+from django.core.exceptions import ObjectDoesNotExist
+
 from datetime import date
 
 from utils import security
@@ -126,11 +128,30 @@ class User(SVSUModelData,Model):
     #foregn key fields
     interests = models.ManyToManyField(Interest)
 
-    #returns true if the incoming plain text hashes out to our stored
-    #password hash
+    """
+    returns true if we have a mentor account in the database
+    """
+    def is_mentor(self)->bool:
+        try:
+            self.mentor
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    """
+    returns true if we have a mentee acount in the database
+    """
+    def is_mentee(self)->bool:
+        try:
+            self.mentee
+            return True
+        except ObjectDoesNotExist:
+            return False
+    """
+    returns true if the incoming pasword matches the stored password for the 
+    current user
+    """
     def check_valid_password(self,password_plain_text : str)->bool:
-        print("check valid password")
-        print(self.strPasswordHash)
         return security.hash_password(password_plain_text,self.strPasswordHash) ==\
                 self.strPasswordHash
 
@@ -159,9 +180,10 @@ class User(SVSUModelData,Model):
     """
     @staticmethod
     def check_valid_login(email_str : str,password_plain_text : str):
-        print("checking valid login!")
-        print(email_str)
-        u = User.objects.get(clsEmailAddress=email_str)
+        try:
+            u = User.objects.get(clsEmailAddress=email_str)
+        except ObjectDoesNotExist:
+            return False
         return u.check_valid_password(password_plain_text)
 
     def getUserInfo(self):
@@ -225,10 +247,25 @@ class Mentor(SVSUModelData,Model):
     )
     orginization = ForeignKey(
         Organization,
-        on_delete = models.CASCADE
+        on_delete = models.CASCADE,
+        null=True
     )
 
+    """
+    creates and saves a mentor and user account to the database that uses the given
+    username and password 
 
+    returns a reference to this object
+    """
+    @staticmethod
+    def create_from_plain_text_and_email(password_plain_text : str,
+                                         email : str)->'Mentee':
+        user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        user_model.save()
+
+        mentor = Mentor.objects.create(account=user_model)
+        mentor.save()
+        return mentor
 
 class Mentee(SVSUModelData,Model):
     """
@@ -238,6 +275,23 @@ class Mentee(SVSUModelData,Model):
         "User",
         on_delete = models.CASCADE
     )
+    
+    """
+    creates and saves a mentee and user account to the database that uses the given
+    username and password 
+
+    returns a reference to this object
+    """
+    @staticmethod
+    def create_from_plain_text_and_email(password_plain_text : str,
+                                         email : str)->'Mentee':
+        user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        user_model.save()
+
+        mentee = Mentee.objects.create(account=user_model)
+        mentee.save()
+        return mentee
+
 
 
 class MentorshipRequest(SVSUModelData,Model):

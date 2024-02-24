@@ -90,8 +90,6 @@ def hash_password(password_plain_text : str,salt : str)->str:
     ret_val = b64encode(
             bcrypt.hashpw(pepperd_password.encode('UTF-8'),salt_data)
             ).decode('UTF-8')
-    
-    print(ret_val)
     return ret_val
 
 """
