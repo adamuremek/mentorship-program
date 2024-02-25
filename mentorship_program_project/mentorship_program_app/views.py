@@ -9,6 +9,9 @@ from utils import security
 
 from .models import User
 from .models import Interest
+from .models import Mentor
+from .models import MentorshipRequest
+
 
 # -------------------- <<< Big Move stuff >>> -------------------- #
 # - Will delete later
@@ -100,6 +103,27 @@ def dashboard(req):
                }
 
     return HttpResponse(template.render(context, req))
+
+#make sure that we are a logged in mentee
+#@User.require_loggedin_mentee(invalid_request_401)
+#def request_mentor(req):
+#    mentor_id = req.get("mentor_id")
+#   
+#    #ensure that the id exists and that it belongs to a mentor
+#    mentor = None
+#    try:
+#        mentor = User.objects.get(id=mentor_id)
+#    except ObjectDoesNotExist:
+#        return invalid_request_401(req)
+#
+#    if not mentor.is_mentor():
+#        return invalid_request_401(req)
+#
+#    security.get_user_id_from_session(req.session)
+
+
+
+
 
 def admin_dashboard(req):
     context = {}

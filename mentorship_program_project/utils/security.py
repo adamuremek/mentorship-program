@@ -5,6 +5,14 @@ from typing import Callable
 from base64 import b64encode,b64decode
 
 """
+this file is the one stop shop for security functins and things that 
+we are afraid we could mess up the math with ;)
+
+make sure any basic securty related functions goes in here so we only have
+to change things in one place to fix stuff up
+"""
+
+"""
 logs the current session out 
 
 returns true if we managed to log out 
@@ -26,6 +34,12 @@ def is_logged_in(session : dict)->bool:
     return session["login"] if "login" in session else False
 
 """
+convinence function to return the id of the current user from a given session id
+"""
+def get_user_id_from_session(session : dict)->int:
+    return session["user_id"]
+
+"""
 nulls all objects that are inside of the black list to purge
 data for front end, this modifies in place, do not use it if 
 you inteand to use the data that gets cleared out. Once used,
@@ -40,13 +54,6 @@ def black_list(data : object, black_listed_keys : [str])->None:
 def is_in_debug_mode()->bool:
     return settings.DEBUG
 
-"""
-this file is the one stop shop for security functins and things that 
-we are afraid we could mess up the math with ;)
-
-make sure any basic securty related functions goes in here so we only have
-to change things in one place to fix stuff up
-"""
 
 
 """
@@ -195,5 +202,3 @@ class Decorators:
     """
     def require_debug(alternate_view):
         return Decorators.require_check(lambda _ : is_in_debug_mode(),alternate_view)
-
-

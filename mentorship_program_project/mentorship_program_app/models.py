@@ -41,8 +41,6 @@ class SVSUModelData():
 
 
 
-
-
 class Interest(SVSUModelData,Model):
     """
 
@@ -175,6 +173,17 @@ class User(SVSUModelData,Model):
                 )
 
     """
+    returns a new user object from given session data if the user is logged in
+    note that the user must be logged in for this to work, if they are not logged in 
+    returns None
+    """
+    @staticmethod 
+    def from_session(session)->'User':
+        if not security.is_logged_in(session): return None
+
+        return User.objects.get(id=session.get("user_id"))
+
+    """
     returns true if the given email password combination is
     a valid account, otherwise false
     """
@@ -206,6 +215,30 @@ class User(SVSUModelData,Model):
             user_info["Biography"] = self.biographies.strBio
 
         return user_info
+    
+    
+    """
+    namespace for decorators that apply to views SPECIFICALLY to limit the kind of user 
+    that can interact with the view. 
+
+    We would prefer these in the security file, but since that will cause a circular dependency,
+    and these have to do entierly with users it makes sense to place them here
+    """
+    def Decorators:
+        @staticmethod
+        def require_loggedin_mentor(alternate_view):
+            return security.Decorators.require_check(lambda req :
+                                                         security.is_logged_in(req.session)
+                                                         and
+                                                         User.from_session(req.session).is_mentor()
+                                                     )
+        @staticmethod
+        def require_loggedin_mentee(alternate_view):
+            return security.Decorators.require_check(lambda req :
+                                                         security.is_logged_in(req.session)
+                                                         and
+                                                         User.from_session(req.session).is_mentee()
+                                                     )
 
 
 
@@ -250,6 +283,7 @@ class Mentor(SVSUModelData,Model):
         on_delete = models.CASCADE,
         null=True
     )
+
 
     """
     creates and saves a mentor and user account to the database that uses the given
