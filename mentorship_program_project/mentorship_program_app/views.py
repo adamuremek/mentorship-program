@@ -9,6 +9,36 @@ from utils import security
 
 from .models import User
 from .models import Interest
+from .models import MentorshipRequest
+
+def request_mentor(request):
+
+    strRequest = "request"
+    strMentor = "mentor_id"
+    strMentee = "mentee_id"
+    boolResponse = False
+
+    if request.method == 'POST':
+        """
+        I currently have no idea the format frontend will use to pass the data here.
+        So, make the changes as needed.
+        """
+
+        #Get the data from the POST request.
+        data = request.POST
+        #Get the action that should be performed.
+        action = data.get(strRequest)
+
+        if action == strRequest:
+            #User is making a request.
+            boolResponse = MentorshipRequest.createRequest(data.get(strMentor), data.get(strMentee))
+        else:
+            #Else the user is recending the request.
+            boolResponse = MentorshipRequest.removeRequest(data.get(strMentor), data.get(strMentee))
+    else:
+        #PLACEHOLDER
+        return HttpRequest("Something happened!")
+
 
 # -------------------- <<< Big Move stuff >>> -------------------- #
 # - Will delete later
