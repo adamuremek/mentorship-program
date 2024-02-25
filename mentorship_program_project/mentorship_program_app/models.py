@@ -230,14 +230,18 @@ class User(SVSUModelData,Model):
             return security.Decorators.require_check(lambda req :
                                                          security.is_logged_in(req.session)
                                                          and
-                                                         User.from_session(req.session).is_mentor()
+                                                         User.from_session(req.session).is_mentor(),
+                                                     
+                                                     alternate_view
                                                      )
         @staticmethod
         def require_loggedin_mentee(alternate_view):
             return security.Decorators.require_check(lambda req :
                                                          security.is_logged_in(req.session)
                                                          and
-                                                         User.from_session(req.session).is_mentee()
+                                                         User.from_session(req.session).is_mentee(),
+
+                                                        alternate_view
                                                      )
 
 
@@ -342,7 +346,7 @@ class MentorshipRequest(SVSUModelData,Model):
     )
     
     @staticmethod
-    def createRequest(intMentorID: int, intMenteeID: int):
+    def create_request(intMentorID: int, intMenteeID: int)->bool:
         """
         2/25/2024
         Creates a relationship given a mentorID and menteeID.
@@ -379,21 +383,16 @@ class MentorshipRequest(SVSUModelData,Model):
 
         return dictRequest
     
-    def removeRequest(intMentorID: int, intMenteeID: int):
+    def remove_request(intMentorID: int, intMenteeID: int):
         """
         2/25/2024 Removes a request from the database. 
-        NOTE: Currently the delete command is commented out. So it will only return MentorshipRequest ID.
         """
 
-        return  MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).first().id
-            
-        """
         try:
             MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).delete()
             return True
         except Exception as e:
             return False
-        """
 
 
 

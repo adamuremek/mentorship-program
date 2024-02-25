@@ -1,4 +1,6 @@
 import json
+from typing import Union
+
 from django.http import HttpResponse
 from django.template import loader
 from django.shortcuts import render, redirect
@@ -13,43 +15,52 @@ from .models import Mentor
 from .models import MentorshipRequest
 
 
+#please make it pretty front end :)
+def invalid_request_401(request,response_data : Union[dict,str] = 'Unauthorized'):
+    response = None
+    
+    if type(response_data) == str:
+        response = HttpResponse(response_data)
+    elif type(response_data) == dict:
+        response = HttpResponse(json.dumps(response_data))
+    
+    response.status_code = 401
+    return response
+
+"""
+creates or deletes a request for the given mentor from the current mentee that is logged in
+"""
+@User.Decorators.require_loggedin_mentee(invalid_request_401)
 def request_mentor(request):
-    strRequest = "request"
-    strMentor = "mentor_id"
-    strMentee = "mentee_id"
-    boolResponse = False
-
     if request.method == 'POST':
-        """
-        I currently have no idea the format frontend will use to pass the data here.
-        So, make the changes as needed.
-        """
+        
+        #attempt to parse out data from the post response
+        mentee_id = security.get_user_id_from_session(request.session)
+        action = request.POST.get("create",False)
+        mentor_id = request.POST.get("mentor_id",None)
 
-        #Get the data from the POST request.
-        data = request.POST
-        #Get the action that should be performed.
-        action = data.get(strRequest)
+        if mentor_id == None:
+            return invalid_request_401(request,{"error":"invalid mentor id"})
 
-        if action == strRequest:
-            #User is making a request.
-            boolResponse = MentorshipRequest.createRequest(data.get(strMentor), data.get(strMentee))
+
+        bool_response = False
+        if action:
+            bool_response = MentorshipRequest.create_request(mentor_id, mentee_id)
         else:
-            #Else the user is recending the request.
-            boolResponse = MentorshipRequest.removeRequest(data.get(strMentor), data.get(strMentee))
-    else:
-        #PLACEHOLDER
-        return HttpRequest("Something happened!")
+            bool_response = MentorshipRequest.remove_request(mentor_id, mentee_id)
+        
+        #we failed to make a response
+        if not bool_response:
+            return invalid_request_401(request,{"error":"failed to create mapping"})
+    
+    #if we get here the method on the request was not post
+    #which means we get invalid data
+    return invalid_request_401(request,{"error","must use post method"})
 
 
 # -------------------- <<< Big Move stuff >>> -------------------- #
 # - Will delete later
 
-#please make it pretty front end :)
-def invalid_request_401(request):
-    response = HttpResponse('Unauthorized') #better 401 page here
-    
-    response.status_code = 401
-    return response
 
 def BIGMOVE(req):
     template = loader.get_template('sign-in card/mentor/account_creation_0_mentor.html')

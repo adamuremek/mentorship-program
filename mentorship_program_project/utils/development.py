@@ -82,6 +82,9 @@ def populate_database_with_random_users(amount  : int = 10)->None:
         #we specifically want the account from the mentor/mentee class for the following code
         new_user = new_user.account
 
+        new_user.strFirstName = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+        new_user.strLastName = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+
         #except:
         #    print_debug("that user already exists ya silly goose")
         #    continue #if the user already exists, move onto the next user
