@@ -1,5 +1,5 @@
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.template import loader
 from django.shortcuts import render, redirect
 
@@ -9,6 +9,7 @@ from utils import security
 
 from .models import User
 from .models import Interest
+
 
 # -------------------- <<< Big Move stuff >>> -------------------- #
 # - Will delete later
@@ -103,15 +104,7 @@ def register_mentor(req):
 # --- #
 # --- #
 
-def default(req):
-    template = loader.get_template('index.html')
-    context = {}
-    return HttpResponse(template.render(context, req))
 
-def landing(req):
-    template = loader.get_template('landing_page.html')
-    context = {}
-    return HttpResponse(template.render(context, req))
 
 def faq(req):
     template = loader.get_template('faq.html')
@@ -125,22 +118,7 @@ def landingPost(req):
     else:
         return redirect('landing')
 
-@security.Decorators.require_login(invalid_request_401)
-def dashboard(req):
-    template = loader.get_template('dashboard/dashboard.html')
 
-    data = User.objects.all()
-
-    context = {
-            'recommended_users': [u.sanatize_black_properties() for u in data[0:4]],
-            'all_users'        : [u.sanatize_black_properties() for u in data]
-               }
-
-    return HttpResponse(template.render(context, req))
-
-def admin_dashboard(req):
-    context = {}
-    return HttpResponse(template.render(context, req))
 
 def profileCard(req):
     template = loader.get_template('dashboard/profile-card/mentor_card.html')
