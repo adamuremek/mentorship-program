@@ -259,6 +259,60 @@ class MentorshipRequest(SVSUModelData,Model):
         related_name = "mentee_to_mentor_set"
     )
 
+    def createRequest(intMentorID: int, intMenteeID: int):
+        """
+        2/25/2024
+        Creates a relationship given a mentorID and menteeID.
+        """
+        try:
+            MentorshipRequest.objects.create(
+                mentor_id = intMentorID,
+                mentee_id = intMenteeID
+            )
+            return True
+        except Exception as e:
+            return False
+
+    def getRequest(intId: int):
+        """
+        2/25/2024
+        returns a MentorshipRequest object. 
+        """
+        return MentorshipRequest.objects.get(id = intId)
+
+
+    def getRequestInfo(intId: int):
+        """
+        2/25/2024
+        returns a dictionary containing the User id of the mentorID and menteeID for a MentorshipRequest object
+        """
+
+        clsRequest =  MentorshipRequest.getRequest(intId)
+
+        dictRequest = {
+            "mentorID" : clsRequest.mentor_id,
+            "menteeID" : clsRequest.mentee_id
+        }
+
+        return dictRequest
+    
+    def removeRequest(intMentorID: int, intMenteeID: int):
+        """
+        2/25/2024 Removes a request from the database. 
+        NOTE: Currently the delete command is commented out. So it will only return MentorshipRequest ID.
+        """
+
+        return  MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).first().id
+            
+        """
+        try:
+            MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).delete()
+            return True
+        except Exception as e:
+            return False
+        """
+
+
 
 class MentorshipReferral(SVSUModelData,Model):
     """

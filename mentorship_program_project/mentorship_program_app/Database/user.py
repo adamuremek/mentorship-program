@@ -42,11 +42,11 @@ from datetime import date
 import traceback
 import json
 
-def createUser(strEmailAddress: str, strPasswordHash:str, objRole:Users.Role, 
+def createUser(strEmailAddress: str, strPasswordHash:str, objRole:User.Role, 
                strFirstname:str, strLastName:str, strPhoneNumber:str, 
                clsDateOfBirth:date, strGender:str, strPreferredPronouns:str, strSessionID:str, strSessionKeyHash:str, strBio):
     try:
-        Users.objects.create(
+        User.objects.create(
         clsEmailAddress = strEmailAddress,
         strPasswordHash = strPasswordHash,
         strRole = objRole,
@@ -63,7 +63,7 @@ def createUser(strEmailAddress: str, strPasswordHash:str, objRole:Users.Role,
         strSessionID = strSessionID,
         strSessionKeyHash = strSessionKeyHash
         )
-        user = Users.objects.get(clsEmailAddress = strEmailAddress)
+        user = User.objects.get(clsEmailAddress = strEmailAddress)
         Biographies.objects.create(intUserID = user, strBio = strBio)
         return True
     except Exception as e:
@@ -74,14 +74,14 @@ def getUserLogin(clsEmailAddress: str):
     """
     Returns a users password hash. Returns None if a User is not found or has no password hash. 
     """
-    return Users.objects.filter(clsEmailAddress = clsEmailAddress).values('strPasswordHash')
+    return User.objects.filter(clsEmailAddress = clsEmailAddress).values('strPasswordHash')
     
 
 def getUserID(strEmailAddress:str):
     """
     Returns a users ID. Returns None if a User is not found or account doesn't exist. 
     """
-    return Users.objects.filter(clsEmailAddress = strEmailAddress).values('id')
+    return User.objects.filter(clsEmailAddress = strEmailAddress).values('id')
     
 
 def updatePassword(strEmailAddress: str, strNewHash: str):
@@ -89,7 +89,7 @@ def updatePassword(strEmailAddress: str, strNewHash: str):
     Returns True if users password is successfully updated. 
     """
     try:
-        user = Users.objects.get(clsEmailAddress=strEmailAddress)
+        user = User.objects.get(clsEmailAddress=strEmailAddress)
         user.strPasswordHash = strNewHash
         user.save()
         return True
@@ -97,38 +97,38 @@ def updatePassword(strEmailAddress: str, strNewHash: str):
         return False
     
 def getUserObject(intID:int):
-    return Users.objects.get(id=intID)
+    return User.objects.get(id=intID)
     
 def addInterests(strNewInterest: str):
-    Interests.objects.create(strInterest=strNewInterest)
+    Interest.objects.create(strInterest=strNewInterest)
     
 def getInterest(intInterest:int):
-    return Interests.objects.get(id=intInterest)
+    return Interest.objects.get(id=intInterest)
 
 def getAllInterests():
-        interests = Interests.objects.all()
+        interests = Interest.objects.all()
         interests_json = [
         {"id": interest.id, "Interest": interest.strInterest}
         for interest in interests
     ]
         return json.dumps(interests_json)
     
-def addUserInterests(intUserID: int, intInterestID: int):
-    # Create a new User_Interests object with the provided user and interest IDs
-    new_user_interest = User_Interests(intUserID_id=intUserID, intInterestID_id=intInterestID)
-    # Save the new User_Interests object to the database
-    new_user_interest.save()
+#def addUserInterests(intUserID: int, intInterestID: int):
+    #Create a new User_Interests object with the provided user and interest IDs
+    #new_user_interest = user_interests(intUserID_id=intUserID, intInterestID_id=intInterestID)
+    #Save the new User_Interests object to the database
+    #new_user_interest.save()
 
     
 
 def getUserInformation(intUserID: int):
     try:
         # Fetch the user with the specified ID and related biographies
-        user = Users.objects.select_related('biographies').get(pk=intUserID)
+        user = User.objects.select_related('biographies').get(pk=intUserID)
         
         # Fetch interests associated with the user
-        user_interests = User_Interests.objects.filter(intInterestID_id=intUserID)
-        interests = [interest.intUserID.strInterest for interest in user_interests]
+        #user_interests = User_Interests.objects.filter(intInterestID_id=intUserID)
+        #interests = [interest.intUserID.strInterest for interest in user_interests]
 
         # Construct a dictionary containing user information and interests
         user_info = {
@@ -144,11 +144,11 @@ def getUserInformation(intUserID: int):
             "DateOfBirth": user.clsDateofBirth,
             "Gender": user.strGender,
             "PreferredPronouns": user.strPreferredPronouns,
-            "Interests": interests
+            #"Interests": interests
         }
 
         return user_info
-    except Users.DoesNotExist:
+    except User.DoesNotExist:
         return None  # Or handle the case where user does not exist
 
      
