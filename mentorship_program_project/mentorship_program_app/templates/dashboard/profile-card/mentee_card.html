@@ -25,11 +25,20 @@
 			  <p>{{ interest.strInterest }}</p>
 			  {% endfor %}
 		  </div>
-		  {% if session_user.is_mentor %}
-       		<div class="card-button">Request Mentee</div>
-		  {% else %}
-        		<div class="card-button">Request Mentor</div>
-		  {% endif %}
+		  
+
+		  <div class="card-button" onclick="request_user({{ user.id }}, '{{ session_user.is_mentee }}',{{ session_user.id }})" id="btn-request-{{ user.id }}">
+			{% if session_user.is_mentor %}
+			  Request Mentee
+			{% else %}
+				Request Mentor
+			{% endif %}
+		  </div>
+
+		  <script src = '{% static "js/backend_requests.js" %}'></script>
+		  <script src = '{% static "js/dashboard/dashboard_main.js" %}'></script>
+
+
     </div>
     
 </div>
