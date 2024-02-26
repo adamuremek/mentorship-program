@@ -304,39 +304,39 @@ def getAllInterests():
     ]
     return json.dumps(interests_json)
     
-#def addUserInterests(intUserID: int, intInterestID: int):
-    """
-    Description
-    -----------
-    Adds an interest (by ID) to a user (by ID)
+# def addUserInterests(intUserID: int, intInterestID: int):
+#     """
+#     Description
+#     -----------
+#     Adds an interest (by ID) to a user (by ID)
 
-    Parameters
-    ----------
-    - intUserID (int): The ID of the user to add the interest to
-    - intInterestID (int): The ID of the interest to be added
+#     Parameters
+#     ----------
+#     - intUserID (int): The ID of the user to add the interest to
+#     - intInterestID (int): The ID of the interest to be added
 
-    Optional Parameters
-    -------------------
-    (None)
+#     Optional Parameters
+#     -------------------
+#     (None)
 
-    Returns
-    -------
-    (None)
+#     Returns
+#     -------
+#     (None)
 
-    Example Usage
-    -------------
+#     Example Usage
+#     -------------
 
-    >>> addUserInterests(157, 39)
+#     >>> addUserInterests(157, 39)
 
-    Authors
-    -------
+#     Authors
+#     -------
     
-    """
+#     """
 
-    #Create a new User_Interests object with the provided user and interest IDs
-    #new_user_interest = user_interests(intUserID_id=intUserID, intInterestID_id=intInterestID)
-    #Save the new User_Interests object to the database
-    #new_user_interest.save()
+#     #Create a new User_Interests object with the provided user and interest IDs
+#     new_user_interest = user_interests(intUserID_id=intUserID, intInterestID_id=intInterestID)
+#     #Save the new User_Interests object to the database
+#     new_user_interest.save()
 
     
 

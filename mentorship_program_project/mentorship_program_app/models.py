@@ -1,3 +1,44 @@
+"""
+FILE NAME: models.py
+
+-------------------------------------------------------------------------------
+PART OF PROJECT: SVSU Mentorship Program App
+
+-------------------------------------------------------------------------------
+WRITTEN BY:
+DATE CREATED:
+
+-------------------------------------------------------------------------------
+FILE PURPOSE:
+Defines all models to store object into the database.
+
+-------------------------------------------------------------------------------
+COMMAND LINE PARAMETER LIST (In Parameter Order):
+(NONE)
+
+-------------------------------------------------------------------------------
+ENVIRONMENTAL RETURNS:
+(NOTHING)
+
+-------------------------------------------------------------------------------
+SAMPLE INVOCATION:
+from  mentorship_program_app.models import *
+User.objects.create(...)
+
+-------------------------------------------------------------------------------
+GLOBAL VARIABLE LIST (Alphabetically):
+(NONE)
+
+-------------------------------------------------------------------------------
+COMPILATION NOTES:
+
+-------------------------------------------------------------------------------
+MODIFICATION HISTORY:
+
+WHO   WHEN     WHAT
+WJL  2/26/24   Added and updated comments across the entire file
+"""
+
 from django.conf import settings
 from django.db import models
 from django.db.models import *
