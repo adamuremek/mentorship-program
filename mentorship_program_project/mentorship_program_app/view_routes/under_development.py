@@ -406,7 +406,7 @@ def enable_user(req:HttpRequest):
     return HttpResponse(f"user {id}'s status has been changed to enabled")
 
 
-def request_mentor(req:HttpRequest):
+def request_mentor(req : HttpRequest):
     post_data = json.loads(req.body.decode("utf-8"))
     mentor_id = post_data["mentor_id"] if "mentor_id" in post_data else None
     mentee_id = post_data["mentee_id"] if "mentee_id" in post_data else None
@@ -419,4 +419,7 @@ def request_mentor(req:HttpRequest):
     )
     
     return HttpResponse("GOOD")
+
+
+
 

@@ -5,6 +5,7 @@ from mentorship_program_app import views
 
 from .view_routes import navigation
 from .view_routes import under_development
+from .view_routes import development as development_views
 
 ##All created urls need to go here
 urlpatterns = [
@@ -60,13 +61,13 @@ urlpatterns = [
     path('logout/',views.logout,name='logout'),
 
     #development routes
-    path('dev/profile_pictures',views.profile_picture_test,name='profile_picture_tests'),
-    path('dev/generate_random_user_data/',views.generate_random_user_data,name='generate_random_user_data'),
-    path('dev/populate_default_interests/',views.populate_default_interest_values,name='populate_default_interest_values'),
-    path('dev/database_test',views.test_database_setup,name='database_test'),
-    path('dev/delete_users',views.delete_users,name='delete users'),
-    path('dev/test_login',views.test_login_page,name='test login'),
-    path('dev/is_logged_in',views.is_logged_in_test,name='logged in test')
+    path('dev/profile_pictures'           , development_views.profile_picture_test            ,name='profile_picture_tests'),
+    path('dev/generate_random_user_data/' , development_views.generate_random_user_data       ,name='generate_random_user_data'),
+    path('dev/populate_default_interests/', development_views.populate_default_interest_values,name='populate_default_interest_values'),
+    path('dev/database_test'              , development_views.test_database_setup             ,name='database_test'),
+    path('dev/delete_users'               , development_views.delete_users                    ,name='delete users'),
+    path('dev/test_login'                 , development_views.test_login_page                 ,name='test login'),
+    path('dev/is_logged_in'               , development_views.is_logged_in_test               ,name='logged in test')
 ]
 
 if settings.DEBUG:
