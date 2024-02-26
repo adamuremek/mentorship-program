@@ -282,11 +282,6 @@ class Mentor(SVSUModelData,Model):
         User,
         on_delete = models.CASCADE
     )
-    orginization = ForeignKey(
-        Organization,
-        on_delete = models.CASCADE,
-        null=True
-    )
 
 
     """
