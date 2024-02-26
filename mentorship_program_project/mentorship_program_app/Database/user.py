@@ -37,6 +37,7 @@ MODIFICATION HISTORY:
 
 WHO   WHEN     WHAT
 WJL  2/19/24   Added and updated comments across the entire file
+WJL  2/26/24   Changed method definitions to match the documentation standards
 """
 
 from  mentorship_program_app.models import *
@@ -44,9 +45,10 @@ from datetime import date
 import traceback
 import json
 
-def createUser(strEmailAddress: str, strPasswordHash:str, objRole:User.Role, 
+def create_user(strEmailAddress: str, strPasswordHash:str, objRole:User.Role, 
                strFirstname:str, strLastName:str, strPhoneNumber:str, 
-               clsDateOfBirth:date, strGender:str, strPreferredPronouns:str, strSessionID:str, strSessionKeyHash:str, strBio):
+               clsDateOfBirth:date, strGender:str, strPreferredPronouns:str, 
+               strSessionID:str, strSessionKeyHash:str, strBio) -> bool:
     try:
         User.objects.create(
         clsEmailAddress = strEmailAddress,
@@ -72,7 +74,7 @@ def createUser(strEmailAddress: str, strPasswordHash:str, objRole:User.Role,
         traceback.print_exc()
         return False
         
-def getUserLogin(clsEmailAddress: str):
+def get_user_login(clsEmailAddress: str) -> str:
     """
     Description
     -----------
@@ -105,7 +107,7 @@ def getUserLogin(clsEmailAddress: str):
     return User.objects.filter(clsEmailAddress = clsEmailAddress).values('strPasswordHash')
     
 
-def getUserID(strEmailAddress:str):
+def get_user_id(strEmailAddress:str) -> int:
     """
     Description
     -----------
@@ -138,7 +140,7 @@ def getUserID(strEmailAddress:str):
     return User.objects.filter(clsEmailAddress = strEmailAddress).values('id')
     
 
-def updatePassword(strEmailAddress: str, strNewHash: str):
+def update_password(strEmailAddress: str, strNewHash: str) -> bool:
     """
     Description
     -----------
@@ -176,7 +178,7 @@ def updatePassword(strEmailAddress: str, strNewHash: str):
     except Exception as e:
         return False
     
-def getUserObject(intID:int):
+def get_user_object(intID:int) -> User:
     """
     Description
     -----------
@@ -207,7 +209,7 @@ def getUserObject(intID:int):
 
     return User.objects.get(id=intID)
     
-def addInterests(strNewInterest: str):
+def add_interests(strNewInterest: str) -> None:
     """
     Description
     -----------
@@ -223,7 +225,7 @@ def addInterests(strNewInterest: str):
 
     Returns
     -------
-    (None)
+    - None: No return
 
     Example Usage
     -------------
@@ -237,7 +239,7 @@ def addInterests(strNewInterest: str):
 
     Interest.objects.create(strInterest=strNewInterest)
     
-def getInterest(intInterest:int):
+def get_interest(intInterest:int) -> Interest:
     """
     Description
     -----------
@@ -268,7 +270,7 @@ def getInterest(intInterest:int):
 
     return Interest.objects.get(id=intInterest)
 
-def getAllInterests():
+def get_all_interests() -> str:
     """
     Description
     -----------
@@ -304,7 +306,7 @@ def getAllInterests():
     ]
     return json.dumps(interests_json)
     
-# def addUserInterests(intUserID: int, intInterestID: int):
+# def add_user_interests(intUserID: int, intInterestID: int) -> None:
 #     """
 #     Description
 #     -----------
@@ -321,7 +323,7 @@ def getAllInterests():
 
 #     Returns
 #     -------
-#     (None)
+#     - None: No return
 
 #     Example Usage
 #     -------------
@@ -338,9 +340,7 @@ def getAllInterests():
 #     #Save the new User_Interests object to the database
 #     new_user_interest.save()
 
-    
-
-def getUserInformation(intUserID: int):
+def get_user_information(intUserID: int) -> dict:
     """
     Description
     -----------

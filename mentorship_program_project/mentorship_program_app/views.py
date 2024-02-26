@@ -249,7 +249,7 @@ def mentor_judgement(request):
 def profile_picture_test(request):
     context = {
                 "users":[
-                    u.sanatize_black_properties() for u in User.objects.all()
+                    u.sanitize_black_properties() for u in User.objects.all()
                 ]
             }
     

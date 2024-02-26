@@ -73,7 +73,7 @@ class SVSUModelData():
 
         returns a reference to ourselfs for convinient usage
     """
-    def sanatize_black_properties(self,black_list : [str] = []):
+    def sanitize_black_properties(self,black_list : [str] = []):
         security.black_list(self,self.get_backend_only_properties() + black_list)
         return self
 
