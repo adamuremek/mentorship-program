@@ -1,0 +1,92 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+    Mentor Applicant Approval
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/pending_mentors.css' %}">
+{% endblock %}
+
+{% block main_content%}
+
+<!-- link with back-arrow, currenlty does nothing -->
+    <div class="link-container">
+        <a href="" class="return-link">
+            <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
+            Admin Dashboard / Mentor Applications
+        </a>
+
+        <div class="title">
+            Mentor Application
+        </div>
+    </div>
+
+    <!-- container that holds all mentors under review -->
+    <div class="mentor-applicants-container">
+        
+        <!-- row for an individual mentor in the display container -->
+        <div class="mentor-applicant">
+
+            <div class="profile-picture-container">
+                <img src="../static/images/ex-pfp.jpg" alt="" class="profile-picture">
+            </div>
+            
+            <div class="mentor-name">
+                John Booth
+            </div>
+
+            <form action="">
+                <button>
+                    View
+                </button>
+            </form>
+
+            <form action="">
+                <input type="submit" value="Approve" name="status">
+            </form>
+
+            <form action="">
+                <input type="submit" value="Delete" name="status">
+            </form>
+
+        </div>
+
+
+        <div class="mentor-applicant">
+
+            <div class="profile-picture-container">
+                <img src="../static/images/my-channel.jpeg" alt="" class="profile-picture">
+            </div>
+            
+            <div class="mentor-name">
+                Mike White
+            </div>
+
+            <form action="">
+                <button>
+                    View
+                </button>
+            </form>
+
+            <form action="">
+                <input type="submit" value="Approve" name="status">
+            </form>
+
+            <form action="">
+                <input type="submit" value="Delete" name="status">
+            </form>
+
+        </div>
+
+        
+    </div>
+    
+
+
+
+
+
+{% endblock %}

@@ -234,8 +234,11 @@ def login_uname_text(request):
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
 
-
-
+# view goes to currently static approve/delete mentors page
+def mentor_judgement(request):
+    context = {}
+    template = loader.get_template('pending_mentors.html')
+    return HttpResponse(template.render(context,request))
 
 
 # development only views, these should be removed before production
@@ -293,4 +296,5 @@ def delete_users(request):
 def test_login_page(request):
     template = loader.get_template("dev/test_login.html")
     return HttpResponse(template.render({},request))
+
 
