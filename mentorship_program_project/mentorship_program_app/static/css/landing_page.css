@@ -2,6 +2,33 @@
     --ff-roboto: 'Roboto', sans-serif;
     --ff-roboto-slab: 'Roboto Slab', serif;
     --ff-montserrat: 'Montserrat', sans-serif;
+
+    --clr-font-primary: hsl(222, 27%, 95%);
+    --clr-font-secondary: hsl(197, 11%, 87%);
+    --clr-font-highlight: hsl(204, 86%, 55%);
+    --clr-font-extra-highlight: hsl(204, 86%, 60%);
+    --clr-btn-submit: hsl(222, 27%, 33%);
+    --clr-btn-submit-highlight: hsl(222, 27%, 35%);
+    --clr-modal-backdrop: hsl(210, 2%, 16%);
+
+    --ff-primary: 'Roboto', sans-serif;
+    --ff-primary-heading: 'Montserrat', sans-serif;
+    --ff-secondary-heading: 'Roboto Slab', serif;
+
+    --fs-primary-heading: 52px;
+    --fs-secondary-heading: 24px;
+
+    --fw-regular: 400;
+    --fw-medium: 500;
+    --fw-extrabold: 800;
+
+    --bg-gradient: linear-gradient(315deg,
+            hsl(216deg 36% 19%) 0%,
+            hsl(216deg 45% 24%) 23%,
+            hsl(229deg 23% 32%) 41%,
+            hsl(326deg 20% 31%) 57%,
+            hsl(355deg 43% 27%) 76%,
+            hsl(354deg 33% 23%) 100%);
 }
 
 /* Box sizing rules */
@@ -324,4 +351,97 @@ input:-moz-autofill:active {
     font-size: .85rem;
     letter-spacing: 1.5px;
     margin-left: 10px;
+}
+
+.submit-buttons {
+    font-family: var(--ff-primary);
+    font-size: 1.2rem;
+    font-weight: var(--fw-medium);
+    color: var(--clr-font-primary);
+    background-color: var(--clr-btn-submit);
+}
+
+.submit-buttons:hover,
+.submit-buttons:focus-visible {
+    background-color: var(--clr-btn-submit-highlight);
+}
+
+.modal {
+    padding: 1em;
+    width: 50ch;
+    height: 55ch;
+    border: 0;
+    box-shadow: 0 0 1em rgb(0 0 0 / .3);
+    border-radius: 15px;
+    background-color: var(--clr-modal-backdrop);
+
+    font-family: var(--ff-primary);
+    color: var(--clr-font-primary);
+
+    /* Below allows modals to be centered in the screen */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+
+    &>* {
+        margin: 0 0 0.5rem 0;
+    }
+}
+
+.modal::backdrop {
+    backdrop-filter: blur(.25em);
+    background: rgba(125, 125, 125, 0.1);
+}
+
+.modal-container {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.modal-content-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    gap: .25em;
+}
+
+.modal-footer-container {
+    display: flex;
+    /* margin-top: 4.43em; */
+    margin-top: 5em;
+
+}
+
+.modal-exit:hover,
+.modal-exit:focus-visible {
+    transform: scale(1.15);
+    outline: none;
+}
+
+.modal-header {
+    padding-bottom: 1em;
+}
+
+.modal-line {
+    height: 1;
+    background-color: var(--clr-font-primary);
+    flex-grow: 1;
+}
+
+.modal h2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    font-weight: var(--fw-extrabold);
+}
+
+.modal-content-container p {
+    margin-top: .5em;
+    font-size: 1.15rem;
+    color: var(--clr-font-secondary);
 }

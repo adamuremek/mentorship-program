@@ -3,26 +3,44 @@ from django.conf import settings
 from django.conf.urls.static import static
 from mentorship_program_app import views
 
-
+from .view_routes import navigation
+from .view_routes import under_development
 
 ##All created urls need to go here
 urlpatterns = [
     #path('home/', views.home, name='home'),
     #path('login/', views.login, name='login'),
     #path('login/success', views.success, name='success'),  ## some urls dont currently have html to go with them
+    
+    
+    #================NAVIGATION ROUTES================#
+    path('', navigation.default, name='default'),
+    path('landing/', navigation.landing, name='landing'),
+    path('dashboard/', navigation.dashboard, name='dashboard'),
+    #=================================================#
+    
+    #==================LOGICAL ROUTES=================#
+    path('landing-post/', views.landingPost, name='landing-post'),
+    path('register-test/', under_development.register_mentor, name='register-test'),
+    #8=============================================D~~#
 
-    path('', views.default, name='default'),
-    path('landing/', views.landing, name='landing'),
-
+    
+    #ADAM + ANDREW + JORDAN TESTING
+    path("view-pending", under_development.view_pending_mentors, name="view-pending"),
+    path("change-mentor-status", under_development.change_mentor_status, name="change-mentor-status"),
+    path("disable-user", under_development.disable_user, name="disable-user"),
+    path("enable-user", under_development.enable_user, name="enable-user"),
+    path("request-mentor", under_development.request_mentor, name="request-mentor"),
+    
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN
     path('role_selection/', views.role_selection, name='role_selection'),
     path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
     path('account_activation_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid'),
-    path('', views.default, name='default'),
-    path('landing/', views.landing, name='landing'),
-    path('landing-post/', views.landingPost, name='landing-post'),
+    # CURRENTLY STATIC ROUTE TO VIEW LIST OF MENTORS APPLYING FOR MENTORSHIP ROLE FROM BEN
+    path('judgement', views.mentor_judgement, name='mentor_judgement'),
     
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/', navigation.dashboard, name='dashboard'),
+    path('faq/', views.faq, name='faq'),
     path('profile-card/', views.profileCard, name='profile-card'),
     
     path('register/mentee/', views.register_mentee, name='register_mentee'),
@@ -35,8 +53,6 @@ urlpatterns = [
     path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
     path('account_activation_mentee_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid_mentee'),
     path('account_activation_mentee_valid/', views.account_activation_valid_mentee, name='account_activation_valid_mentee'),
-    path('account_creation_1_mentee/', views.account_creation_1_mentee, name='account_creation_1_mentee'),
-    path('account_creation_2_mentee/', views.account_creation_2_mentee, name='account_creation_2_mentee'),
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
 
     #log in and out routes

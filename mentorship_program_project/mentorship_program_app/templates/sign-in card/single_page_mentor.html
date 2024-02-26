@@ -3,12 +3,12 @@
 {% load static %}
 
 {% block title %}
-    TESTING
+    Sign Up Mentor TESTING
 {% endblock %}
 
 {% block card_corner %}
     <form action="">
-        <button type="submit" class="sign_in_top_left_element">X</button>
+        <button type="button" class="sign_in_top_left_element">X</button>
     </form>
 {% endblock %}
 
@@ -17,12 +17,17 @@
 {% endblock %}
 
 {% block card_content %}
-    <form action="/register-test/" method="POST">
+<!-- This IS is locked to JS. Careful changing it -->
+    <form class="sign-in-card-form" id="register-form-mentor" action="/register-test/" method="POST">
         {% csrf_token %}
-        {% include 'sign-in card/mentor/account_creation_1_mentor.html' %}
-        {% include 'sign-in card/mentor/account_creation_2_mentor.html' %}
+        {% include 'sign-in card/shared/account_creation_name_pronoun.html' %}
+        {% include 'sign-in card/shared/account_creation_email_password.html' %}
+        {% include 'sign-in card/mentor/account_creation_experience_mentor.html' %}
+        {% include 'sign-in card/shared/account_creation_interests.html' %}
+        {% include 'sign-in card/shared/account_creation_user_agreement.html' %}
     </form>
 
+    <script>var is_student = false</script>
     <script src="{% static 'js/dynamic_card.js' %}"></script>
     <script src="{% static 'js/validation.js' %}"></script>
 {% endblock %}

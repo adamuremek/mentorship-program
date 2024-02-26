@@ -1,7 +1,7 @@
 import json
 from typing import Union
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.template import loader
 from django.shortcuts import render, redirect
 
@@ -58,6 +58,7 @@ def request_mentor(request):
     return invalid_request_401(request,{"error","must use post method"})
 
 
+
 # -------------------- <<< Big Move stuff >>> -------------------- #
 # - Will delete later
 
@@ -70,7 +71,37 @@ def BIGMOVE(req):
 def THEBIGMOVE(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
     context = {
-        'pronounlist': ['he', 'she', 'they']
+        'interestlist': [
+            'Artificial Intelligence', 
+            'Computer Graphics', 
+            'Data Structures & Algorithms',
+            'Networking',
+            'Operating Systems',
+            'Embedded Systems',
+            'Cloud Computing',
+            'Software Engineering',
+            'Distrubuted Systems',
+            'Game Development',
+            'Cybersecruity',
+            'System Analysis'],
+
+        'pronounlist': ['he', 'she', 'they'],
+
+        'companytypelist': [
+            'Manufacturing',
+            'Comptuer Science', 
+            'Math?'],
+            
+        'experiencelist': [
+            '0 years',
+            '0-2 years', 
+            '2-5 years'],
+
+        'useragreement': 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+
     }
     return HttpResponse(template.render(context, req))
 
@@ -99,13 +130,15 @@ def register_mentee(req):
         'pronounlist': ['he', 'she', 'they'],
         
         'useragreement': 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 
     }
     return HttpResponse(template.render(context, req))
 
 def register_mentor(req):
-    template = loader.get_template('sign-in card/mentor/account_creation_0_mentor.html')
+    template = loader.get_template('sign-in card/mentor/account_creation_sign_up_choices_mentor.html')
     context = {}
     return HttpResponse(template.render(context, req))
 
@@ -113,13 +146,10 @@ def register_mentor(req):
 # --- #
 # --- #
 
-def default(req):
-    template = loader.get_template('index.html')
-    context = {}
-    return HttpResponse(template.render(context, req))
 
-def landing(req):
-    template = loader.get_template('landing_page.html')
+
+def faq(req):
+    template = loader.get_template('faq.html')
     context = {}
     return HttpResponse(template.render(context, req))
 
@@ -129,44 +159,6 @@ def landingPost(req):
         return redirect('dashboard')
     else:
         return redirect('landing')
-
-@security.Decorators.require_login(invalid_request_401)
-def dashboard(req):
-    template = loader.get_template('dashboard/dashboard.html')
-
-    data = User.objects.all()
-
-    context = {
-            'recommended_users': [u.sanatize_black_properties() for u in data[0:4]],
-            'all_users'        : [u.sanatize_black_properties() for u in data]
-               }
-
-    return HttpResponse(template.render(context, req))
-
-#make sure that we are a logged in mentee
-#@User.require_loggedin_mentee(invalid_request_401)
-#def request_mentor(req):
-#    mentor_id = req.get("mentor_id")
-#   
-#    #ensure that the id exists and that it belongs to a mentor
-#    mentor = None
-#    try:
-#        mentor = User.objects.get(id=mentor_id)
-#    except ObjectDoesNotExist:
-#        return invalid_request_401(req)
-#
-#    if not mentor.is_mentor():
-#        return invalid_request_401(req)
-#
-#    security.get_user_id_from_session(req.session)
-
-
-
-
-
-def admin_dashboard(req):
-    context = {}
-    return HttpResponse(template.render(context, req))
 
 def profileCard(req):
     template = loader.get_template('dashboard/profile-card/mentor_card.html')
@@ -187,7 +179,7 @@ def role_test(req):
 
 # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
 def role_selection(request):
-    template = loader.get_template('sign-in card/role_selection.html')
+    template = loader.get_template('sign-in card/shared/role_selection.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
@@ -211,64 +203,8 @@ def account_activation_valid_mentee(request):
     }
     return HttpResponse(template.render(context, request))
 
-def account_creation_1_mentee(request):
-    template = loader.get_template('sign-in card/mentee/account_creation_1_mentee.html')
-    context = {
-        'pronounlist': ['he', 'she', 'they'],
-    }
-    return HttpResponse(template.render(context, request))
-
-def account_creation_2_mentee(request):
-    template = loader.get_template('sign-in card/mentee/account_creation_2_mentee.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
-
-def account_creation_3_mentee(request):
-    template = loader.get_template('sign-in card/mentee/account_creation_3_mentee.html')
-    context = {
-        'interestlist': [
-            'Artificial Intelligence', 
-            'Computer Graphics', 
-            'Data Structures & Algorithms',
-            'Networking',
-            'Operating Systems',
-            'Embedded Systems',
-            'Cloud Computing',
-            'Software Engineering',
-            'Distrubuted Systems',
-            'Game Development',
-            'Cybersecruity',
-            'System Analysis'],
-    }
-    return HttpResponse(template.render(context, request))
-
-def account_creation_4_mentee(request):
-    template = loader.get_template('sign-in card/mentee/account_creation_4_mentee.html')
-    context = {
-        'useragreement': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    }
-    return HttpResponse(template.render(context, request))
-
-
 def account_activation_mentor(request):
     template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
-
-def account_creation_0_mentor(request):
-    template = loader.get_template('sign-in card/mentor/account_creation_0_mentor.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
-
-def account_creation_1_mentor(request):
-    template = loader.get_template('sign-in card/mentor/account_creation_1_mentor.html')
-    context = {
-        'pronounlist': ['he', 'she', 'they'],
-    }
-    return HttpResponse(template.render(context, request))
-
-def account_creation_2_mentor(request):
-    template = loader.get_template('sign-in card/mentor/account_creation_2_mentor.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
@@ -308,8 +244,11 @@ def login_uname_text(request):
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
 
-
-
+# view goes to currently static approve/delete mentors page
+def mentor_judgement(request):
+    context = {}
+    template = loader.get_template('pending_mentors.html')
+    return HttpResponse(template.render(context,request))
 
 
 # development only views, these should be removed before production
@@ -367,4 +306,5 @@ def delete_users(request):
 def test_login_page(request):
     template = loader.get_template("dev/test_login.html")
     return HttpResponse(template.render({},request))
+
 
