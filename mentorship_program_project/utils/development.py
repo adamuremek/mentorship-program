@@ -67,22 +67,25 @@ def populate_database_with_random_users(amount  : int = 10)->None:
 
         #try:
         new_user = None
+        first_name_prefix = ""
         
         if i < mentor_threshold_amount:
             new_user = Mentee.create_from_plain_text_and_email(
                                                 f'password{i}',
                                                 user
                                                 )
+            first_name_prefix = "mentee "
         else:
             new_user = Mentor.create_from_plain_text_and_email(
                                                 f'password{i}',
                                                 user
                                                 )
+            first_name_prefix = "mentor "
             
         #we specifically want the account from the mentor/mentee class for the following code
         new_user = new_user.account
 
-        new_user.strFirstName = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+        new_user.strFirstName = first_name_prefix + random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
         new_user.strLastName = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
 
         #except:

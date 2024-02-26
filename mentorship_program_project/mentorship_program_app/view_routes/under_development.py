@@ -405,21 +405,22 @@ def enable_user(req:HttpRequest):
     
     return HttpResponse(f"user {id}'s status has been changed to enabled")
 
-
-def request_mentor(req : HttpRequest):
-    post_data = json.loads(req.body.decode("utf-8"))
-    mentor_id = post_data["mentor_id"] if "mentor_id" in post_data else None
-    mentee_id = post_data["mentee_id"] if "mentee_id" in post_data else None
-    mentorObject = User.objects.get(id = mentor_id)
-    menteeObject = User.objects.get(id = mentee_id)
-
-    MentorshipRequest.objects.create(
-        mentor = mentorObject,
-        mentee = menteeObject
-    )
+@security.Decorators.require_login(bad_request_400)
+def request_mentor(req : HttpRequest,mentor_id : int,mentee_id : int = None):
+    user = User.from_session(req.session)
     
+    if user.is_mentee():
+        mentee_id : int = user.id
+    elif user.is_mentor() and mentee_id == None:
+        return bad_request_400("mentee id required for mentors")
+
+    mentorship_request = MentorshipRequest.objects.create(
+                mentor_id=mentor_id,
+                mentee_id=mentee_id
+            )
+
+    mentorship_request.save()
+
     return HttpResponse("GOOD")
-
-
 
 

@@ -231,8 +231,9 @@ def login_uname_text(request):
     uname    = login_data["username"] if "username" in login_data else None
     password = login_data["password"] if "password" in login_data else None
     
-    print_debug("uname " + uname)
-    print_debug("password " + password)
+    #even though these are print debug printing passwords makes me nervous
+    #print_debug("uname " + uname)
+    #print_debug("password " + password)
 
     if not User.check_valid_login(uname,password):
         response = HttpResponse(json.dumps({"warning":"invalid creds"}))

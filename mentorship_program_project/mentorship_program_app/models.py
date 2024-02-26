@@ -347,19 +347,16 @@ class MentorshipRequest(SVSUModelData,Model):
     )
     
     @staticmethod
-    def create_request(intMentorID: int, intMenteeID: int)->bool:
+    def create_request(intMentorID: int, intMenteeID: int):
         """
         2/25/2024
         Creates a relationship given a mentorID and menteeID.
         """
-        try:
-            MentorshipRequest.objects.create(
-                mentor_id = intMentorID,
-                mentee_id = intMenteeID
-            )
-            return True
-        except Exception as e:
-            return False
+        obj = MentorshipRequest.objects.create(
+            mentor_id = intMentorID,
+            mentee_id = intMenteeID
+        )
+        return obj
 
     def getRequest(intId: int):
         """

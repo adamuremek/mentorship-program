@@ -1,7 +1,6 @@
 """
 contains views that should only be accessable in development mode
 """
-
 from django.http import HttpRequest, HttpRequest,HttpResponse
 from django.template import loader
 
@@ -28,7 +27,8 @@ def profile_picture_test(request):
 @security.Decorators.require_login(invalid_request_401)
 @security.Decorators.require_debug(invalid_request_401)
 def is_logged_in_test(request):
-    return HttpResponse("you are currently logged in!")
+    u = User.from_session(request.session)
+    return HttpResponse(f"you are currently logged in as {u.strFirstName}, and is a mentee={u.is_mentee()}")
 
 
 
