@@ -36,7 +36,7 @@ COMPILATION NOTES:
 MODIFICATION HISTORY:
 
 WHO   WHEN     WHAT
-WJL  2/26/24   Added and updated comments across the entire file
+WJL  2/26/24   Added file header comment and began commenting functions
 """
 
 from django.conf import settings
@@ -59,21 +59,66 @@ class SVSUModelData():
     #it is ONLY a logical model
     abstract = True
 
-    """
-        returns a list of string properties
-        that we do not want front end technologies
-        to see
-    """
     @staticmethod
     def get_backend_only_properties()->[str]:
+        """
+        Description
+        -----------
+        Get a static list of properties to be hidden from front-end technologies
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - [str]: A list containing the properties as strings
+
+        Example Usage
+        -------------
+
+        >>> get_backend_only_properties()
+        '["save", "delete"]'
+
+        Authors
+        -------
+        
+        """
         return ["save","delete"]
     
-    """
-        sets all properties that are read only in the black list to None
 
-        returns a reference to ourselfs for convinient usage
-    """
-    def sanitize_black_properties(self,black_list : [str] = []):
+    def sanitize_black_properties(self, black_list : [str] = []) -> SVSUModelData:
+        """
+        Description
+        -----------
+        Sets all read-only properties in the blacklist to None
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        - black_list ([str]): The list of properties on the blacklist.
+
+        Returns
+        -------
+        - SVSUModelData: Returns itself for convenience.
+
+        Example Usage
+        -------------
+
+        >>> getUserLogin('fake@email.com')
+        'adlkfy8o90q23gb876df'
+
+        Authors
+        -------
+        
+        """
         security.black_list(self,self.get_backend_only_properties() + black_list)
         return self
 
