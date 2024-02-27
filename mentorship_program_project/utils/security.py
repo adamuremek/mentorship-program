@@ -143,15 +143,15 @@ class Decorators:
         #and an alternate value if the check is false
         def check_decorator(decorated_function : Callable )->callable:
             
-            def return_function(*args):
+            def return_function(*args,**kwargs):
                 if len(args) < 0:
-                    return alternate(*args)
+                    return alternate(*args,**kwargs)
 
                 first_arg = args[0]
 
                 if check(first_arg):
-                    return decorated_function(*args)
-                return alternate(*args)
+                    return decorated_function(*args,**kwargs)
+                return alternate(*args,**kwargs)
                 #end the inner function that contains the actual behavor
 
             return return_function
