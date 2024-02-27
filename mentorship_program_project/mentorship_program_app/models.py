@@ -43,6 +43,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import *
 from datetime import date
+from typing import List
 
 from utils import security
 
@@ -60,7 +61,7 @@ class SVSUModelData():
     abstract = True
 
     @staticmethod
-    def get_backend_only_properties()->[str]:
+    def get_backend_only_properties()->List[str]:
         """
         Description
         -----------
@@ -91,7 +92,7 @@ class SVSUModelData():
         return ["save","delete"]
     
 
-    def sanitize_black_properties(self, black_list : list[str] = []) -> 'SVSUModelData':
+    def sanitize_black_properties(self, black_list : List[str] = []) -> 'SVSUModelData':
         """
         Description
         -----------
@@ -149,7 +150,7 @@ class Interest(SVSUModelData,Model):
     #simply returns an array representing the inital default interests that we want
     #to be populated to the database
     @staticmethod 
-    def get_initial_default_interest_strings()->[str]:
+    def get_initial_default_interest_strings()->List[str]:
         return [
                 "c++",
                 "python",
@@ -169,7 +170,7 @@ class User(SVSUModelData,Model):
 
         see SVSUModelData as to what this is overloading
     """
-    def get_backend_only_properties(self)->[str]:
+    def get_backend_only_properties(self)->List[str]:
         return super().get_backend_only_properties() + [
                 "strPasswordHash",
                 "strPasswordSalt",
