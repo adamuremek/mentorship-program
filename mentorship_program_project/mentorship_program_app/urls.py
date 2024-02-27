@@ -23,7 +23,7 @@ urlpatterns = [
     #==================LOGICAL ROUTES=================#
     path('landing-post/'                                 , views.landingPost                 , name='landing-post'),
     path('register-test/'                                , under_development.register_mentor , name='register-test'),
-    path('request_mentor/<int:mentor_id>/<int:mentee_id>',under_development.request_mentor   ,name='request mentor'),
+    path('request_mentor/<int:mentee_id>/<int:mentor_id>',under_development.request_mentor   ,name='request mentor'),
     #8=============================================D~~#
 
     

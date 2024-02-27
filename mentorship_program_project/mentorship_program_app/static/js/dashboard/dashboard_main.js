@@ -9,6 +9,8 @@ async function request_user(requested_user_id,is_mentee,session_user_id) {
 
 	let btn = document.getElementById("btn-request-" + requested_user_id);
 	let response = null;
+
+
 	if (is_mentee)
 		response = await attempt_mentor_request(session_user_id,requested_user_id);
 	else
@@ -18,5 +20,4 @@ async function request_user(requested_user_id,is_mentee,session_user_id) {
 		btn.innerText = "requested!";
 		btn.onclick = ()=>{};
 	}
-	alert(response);
 }

@@ -103,5 +103,3 @@ async function attempt_mentor_request(mentor_id,mentee_id = null) {
 	let response = await fetch(req);
 	return response;
 }
-
-alert("I am in the file!");
