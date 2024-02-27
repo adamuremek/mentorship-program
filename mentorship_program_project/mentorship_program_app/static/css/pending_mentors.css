@@ -1,0 +1,89 @@
+button, input{
+    font-size: 1.5rem;
+    padding: 2px 2rem;
+    background-color: rgba(0, 0, 0, .15);
+    border: none;
+    border-radius: 10px;
+    width: 8em;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, .15);
+}
+
+button:hover, input:hover{
+    background-color: rgba(0, 0, 0, .50);
+    cursor: pointer;
+}
+
+button:focus, input:focus{
+    background-color: rgba(0, 0, 0, 1);
+}
+
+/* container holds back to dashboard link, arrow and title */
+.link-container {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 100%;
+}
+
+.left-arrow {
+    position: absolute;
+    height: 1rem;
+    top: 4%;
+    left: -2rem;
+}
+
+.title {
+    font-size: 2rem;
+    position: inherit;
+    left: -2rem;
+    width: 100%;
+}
+
+.return-link {
+    text-decoration: none;
+}
+
+/* main container which holds all applicants awaiting judgement */
+.mentor-applicants-container {
+    height: 70vh;
+    width: 80vw;
+    background-color: rgba(0, 0, 0, .15);
+    border-radius: 5vh;
+    margin-top: 5rem;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, .15);
+    overflow: scroll;
+}
+
+/* mentor information and buttons */
+.mentor-applicant {
+    display: grid;
+    grid-template-columns: .5fr 1fr 1fr 1fr 1fr;
+    align-items: center;
+    padding: 1rem;
+}
+
+/* force profile pictures to be circles and same size */
+.profile-picture-container {
+    background-color: black;
+    object-fit: cover;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 4rem;
+    width: 4rem;
+}
+
+/* make the picture fit in the container */
+.profile-picture {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.mentor-name {
+    font-size: 1.5rem;
+}
+
+
+

@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-    TESTING
+    Sign Up Mentee TESTING
 {% endblock %}
 
 {% block card_corner %}
@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block card_content %}
-    <form id="register-form-mentee" action="/register-test/" method="POST">
+    <form class="sign-in-card-form" id="register-form-mentee" action="/register-test/" method="POST">
         {% csrf_token %}
         {% include 'sign-in card/shared/account_creation_name_pronoun.html' %}
         {% include 'sign-in card/shared/account_creation_email_password.html' %}

@@ -1,10 +1,8 @@
 <div class="sign-in-card-content">
-    <div class="sign-in-card-element">
-        <div class="sign-in-card-user-agreement-containter">
-            <p class="sign-in-card-text-scroll">
-                {{ useragreement }}
-            </p>
-        </div>
+    <div class="sign-in-card-user-agreement-containter">
+        <p class="sign-in-card-text-scroll">
+            {{ useragreement }}
+        </p>
     </div>
 
     <div class="sign-in-card-element-horizontal">
@@ -16,45 +14,3 @@
         <button type="button" id="btnUserAgree" class="sign-in-card-option-button">Submit Application</button>
     </div>
 </div>
-
-<!-- Logan JavaScript -->
-<script>
-/*********************************************************************/
-/* FUNCTION NAME: <script>  [inline function (^-^)]                  */
-/*********************************************************************/
-/* WRITTEN BY: Logan Zipp                                            */
-/* DATE CREATED: February 14, 2024                                   */
-/*********************************************************************/
-/* FUNCTION PURPOSE:                                                 */
-/* -     -     -     -     -     -     -     -     -     -     -     */
-/* Show final register button ONLY when checkbox is checked          */
-/*********************************************************************/
-/* PARAMETER LIST (VOID):                                            */
-/*********************************************************************/
-/* RETURNS:                                                          */
-/* (NOTHING)                                                         */
-/*********************************************************************/
-/* INVOCATED INLINE:                                                  */
-/*********************************************************************/
-/* LOCAL VARIABLE LIST (Alphabetically):                             */
-/* -     -     -     -     -     -     -     -     -     -     -     */
-/* chkAgree – Checkbox HTMLElement.                                  */
-/* btnUserAgree – Register Button HTMLElement.                       */
-/*********************************************************************/
-/* MODIFICATION HISTORY:                                             */
-/*********************************************************************/
-    const chkAgree = document.getElementById('useragreement')
-    const btnUserAgree = document.getElementById('btnUserAgree')
-
-    // Hide button initially
-    btnUserAgree.style.visibility = 'hidden'
-
-    // Show button only when checkbox is checked
-    chkAgree.addEventListener('change', e => {
-        if (e.target.checked)
-            btnUserAgree.style.visibility = 'visible'
-        else
-            btnUserAgree.style.visibility = 'hidden'
-    })
-    
-</script>

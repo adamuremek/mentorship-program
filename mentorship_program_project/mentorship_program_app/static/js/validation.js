@@ -46,26 +46,45 @@
 /*********************************************************************/
 document.addEventListener('DOMContentLoaded', winloaded => {
 
-
-console.log('why are you not working :(')
 const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Validates <{string}@{string}.{string}>
 const regex_svsu = /^[^\s@]+@svsu[.]edu$/ // Validates <{string}@{svsu}.{edu}>
 const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
 
 // const is_student = document.getElementById('register-form-mentee')
 
-
-const input_email = document.getElementById('email');
-const input_phone = document.getElementById('phone');
 const input_first_name  = document.getElementById('fname');
 const input_last_name  = document.getElementById('lname');
 
+const input_email = document.getElementById('email');
+const input_phone = document.getElementById('phone');
+const input_password = document.getElementById('password')
+
+const input_company = document.getElementById('company')
+// const input_company_type = document.getElementById('company-type')
+// const input_experience = document.getElementById('experience')
+const input_job_title = document.getElementById('job-title')
+
+// const input_interests = idek what the fuck to do for that shit
+
 var regex_custom = /^/
+
+// ID of current 'page'
+let cur_id = 0
 
 const RED = 'firebrick'
 const GREEN = 'forestgreen'
 
 console.log(`Student: ${is_student}`)
+
+// PREVENT SENDING FORM ON 'ENTER
+// Reassign to simply go to next page
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      buttons[cur_id].click()
+    }
+  });
+
 
 input_email.addEventListener("input", e => {
     if(is_student)
@@ -83,13 +102,13 @@ input_email.addEventListener("input", e => {
 }) 
 
 input_first_name.addEventListener("input", e => {
-    let inputValue = e.target.value.replace(/\d/g, ""); // Remove numeric characters
+    const input_value = e.target.value.replace(/\d/g, ""); // Remove numeric characters
     // Set input to new value
-    e.target.value = inputValue;
+    e.target.value = input_value;
 })
 
 input_last_name.addEventListener("input", e => {
-    let inputValue = e.target.value.replace(/\d/g, ""); // Remove numeric characters
+    const inputValue = e.target.value.replace(/\d/g, ""); // Remove numeric characters
     // Set input to new value
     e.target.value = inputValue;
 })
@@ -97,37 +116,36 @@ input_last_name.addEventListener("input", e => {
 
 // -------------------- <<< COMPLETED REGEX PATTERNS >>> -------------------- \\
 
-
-// let previousValue = input_phone.value.replace(/\D/g, "")
-let previousValue
+// Record value for deletions on special characters
+let previous_value
 
 input_phone.addEventListener("input", e => {
-    let inputValue = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-    console.log(`inputValue: ${inputValue}`)
-    console.log(`previous: ${previousValue}`)
+    let input_value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+    console.log(`inputValue: ${input_value}`)
+    console.log(`previous: ${previous_value}`)
     // Account for backspaces on non-numeric characters
-    if(inputValue === previousValue)
-        inputValue = inputValue.slice(0, -1)
+    if(input_value === previous_value)
+        input_value = input_value.slice(0, -1)
 
 
     // User backspaces with one number. Remove '('
-    if (inputValue.length == 0) {
-        inputValue = ''
+    if (input_value.length == 0) {
+        input_value = ''
     // Format as '( XXX )'
-    } else if(inputValue.length <= 3) {
-        inputValue = '(' + inputValue + ')'; // Start with (
+    } else if(input_value.length <= 3) {
+        input_value = '(' + input_value + ')'; // Start with (
     // Format as '( XXX ) XXX'
-    } else if (inputValue.length <= 6) {
-        inputValue = '(' + inputValue.substring(0, 3) + ') ' + inputValue.substring(3);
+    } else if (input_value.length <= 6) {
+        input_value = '(' + input_value.substring(0, 3) + ') ' + input_value.substring(3);
     // Format as '( XXX ) XXX-XXXX'
     } else {
-        inputValue = '(' + inputValue.substring(0, 3) + ') ' + inputValue.substring(3, 6) + '-' + inputValue.substring(6, 10); // Format as (XXX) XXX-XXXX
+        input_value = '(' + input_value.substring(0, 3) + ') ' + input_value.substring(3, 6) + '-' + input_value.substring(6, 10); // Format as (XXX) XXX-XXXX
     }
     
     // Record value for next iteration
-    previousValue = inputValue.replace(/\D/g, "")
+    previous_value = input_value.replace(/\D/g, "")
     // Set input to new value
-    e.target.value = inputValue;
+    e.target.value = input_value;
 
     const regex_result = regex_phone.test(e.target.value)
     // Visually indicate Regex Success
@@ -139,9 +157,9 @@ input_phone.addEventListener("input", e => {
 
 // Ensure keyboard inputs are only numbers or backspace
 input_phone.addEventListener("keypress", e => {
-    const keyCode = e.keyCode || e.which;
-    const keyValue = String.fromCharCode(keyCode);
-    if (!/\d/.test(keyValue)) { // Allow only numeric input
+    const key_code = e.keyCode || e.which;
+    const key_value = String.fromCharCode(key_code);
+    if (!/\d/.test(key_value)) { // Allow only numeric input
         e.preventDefault();
     }
 });
@@ -154,7 +172,6 @@ input_phone.addEventListener("keypress", e => {
         i.style = 'display: none;'
 
     // Display first snippet
-    let curID = 0
     snippets[0].style = 'display: flex'
 
     // Get progression buttons
@@ -167,19 +184,19 @@ input_phone.addEventListener("keypress", e => {
     console.log('corner guy')
     console.log(corner_guy)
 
-    corner_guy.innerText = `<- Step ${(curID+1)} of ${page_count}`
+    corner_guy.innerText = `<- Step ${(cur_id+1)} of ${page_count}`
 
     corner_guy.addEventListener('click', e => {
-        snippets[curID].style = 'display: none;'
+        snippets[cur_id].style = 'display: none;'
         
-        curID -= 1
+        cur_id -= 1
 
-        if(curID == -1)
+        if(cur_id == -1)
             window.location.href = "http://localhost:8000/landing";
         else {
-            snippets[curID].style = 'display: flex;'
+            snippets[cur_id].style = 'display: flex;'
 
-            corner_guy.innerText = `<- Step ${(curID+1)} of ${page_count}`
+            corner_guy.innerText = `<- Step ${(cur_id+1)} of ${page_count}`
         }
         
     })
@@ -188,21 +205,24 @@ input_phone.addEventListener("keypress", e => {
     for(button of buttons) 
     {
         button.addEventListener('click', e => {
-            snippets[curID].style = 'display: none;'
+            if(!is_page_valid(cur_id + 1))
+                return
+            snippets[cur_id].style = 'display: none;'
 
             // When button is clicked, progress displayed card
-            curID += 1
+            cur_id += 1
 
             // Submit at the end
-            if(curID >= snippets.length) {
-                form_submit()
+            if(cur_id >= snippets.length) {
+                // Do nothing?
+                // form_submit()
             }
             else {
-                 snippets[curID].style = 'display: flex;'
+                 snippets[cur_id].style = 'display: flex;'
 
-                corner_guy.innerText = `<- Step ${(curID+1)} of ${page_count}`
+                corner_guy.innerText = `<- Step ${(cur_id+1)} of ${page_count}`
 
-                console.log(`Current ID: ${curID}`)
+                console.log(`Current ID: ${cur_id}`)
             }
         })
     }
@@ -211,14 +231,97 @@ input_phone.addEventListener("keypress", e => {
 
 // -------------------- <<< FORM SUBMIT >>> -------------------- \\
 
-// function form_submit() {
-//     const good_form = regex_custom.test(input_email.value) && regex_phone.test(input_phone.value)
+/**
+ * @param {int} form_idx Index of current page of registration form
+ * @returns Status of form component ( true=completed )
+ */
+function is_page_valid(form_idx) {
+    // Use form validation for ? mentee | mentor
+    const form_function = is_student ? is_mentee_page_valid : is_mentor_page_valid
+    console.log(`Form_Index: ${form_idx}`)
+    let is_valid = true
+    switch(form_idx) {
+        case 1: // Name and Pronouns
+            is_valid = input_first_name.value.length > 1 && 
+                      input_last_name.value.length > 1
+            break
 
-//     if(good_form)
-//         console.log('this form is good!')
-//     else
-//         console.log('this form sux you fucking idiot')
-// }
+        case 2: // Email | Phone | Password
+        is_valid = regex_custom.test(input_email.value) &&
+                regex_phone.test(input_phone.value)  &&
+                input_password.value.length > 1
+        break
 
+        default:
+            is_valid = form_function(form_idx)
+    }
+
+    return is_valid
+}
+
+
+function is_mentee_page_valid(form_idx) {
+    // If flag becomes false, a form component failed validation
+    let is_valid = true
+    switch(form_idx) {
+        // case 1: // Name and Pronouns
+        //     is_valid = input_first_name.value.length > 1 && 
+        //               input_last_name.value.length > 1
+
+        // case 2: // Email | Phone | Password
+        //     is_valid = regex_custom.test(input_email.value) &&
+        //             regex_phone.test(input_phone.value)  &&
+        //             input_password.value.length > 1
+
+        case 3: // Interests
+            is_valid = true
+            break
+
+        case 4: // User Agreement
+            const chk_agree = document.getElementById('useragreement')
+            is_valid = chk_agree.checked
+            if(is_valid)
+                document.getElementById('register-form-mentee').submit()
+            break
+    }
+
+    return is_valid
+}
+
+function is_mentor_page_valid(form_idx) {
+    // If flag becomes false, a form component failed validation
+    let is_valid = true
+    switch(form_idx) {
+        // case 1: // Name and Pronouns
+        //     is_valid = input_first_name.value.length > 1 && 
+        //               input_last_name.value.length > 1
+
+        // case 2: // Email | Phone | Password
+        //     is_valid = regex_custom.test(input_email.value) &&
+        //               regex_phone.test(input_phone.value)  &&
+        //               input_password.value.length > 1
+        //     break
+
+        case 3: // company information
+            is_valid = input_company.value.length > 1 &&
+                      input_job_title.value.length > 1
+                    //input_company-type.value != none ??
+                    //input_expeience.value != none    ??
+            break
+
+        case 4: // Interests
+            is_valid = true
+            break
+
+        case 5: // User Agreement
+            const chk_agree = document.getElementById('useragreement')
+            is_valid = chk_agree.checked
+            if(is_valid)
+                document.getElementById('register-form-mentor').submit()
+            break
+    }
+
+    return is_valid
+}
 
 }) // DOM listener

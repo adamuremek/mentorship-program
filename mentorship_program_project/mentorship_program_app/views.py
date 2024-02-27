@@ -9,6 +9,36 @@ from utils import security
 
 from .models import User
 from .models import Interest
+from .models import MentorshipRequest
+
+def request_mentor(request):
+
+    strRequest = "request"
+    strMentor = "mentor_id"
+    strMentee = "mentee_id"
+    boolResponse = False
+
+    if request.method == 'POST':
+        """
+        I currently have no idea the format frontend will use to pass the data here.
+        So, make the changes as needed.
+        """
+
+        #Get the data from the POST request.
+        data = request.POST
+        #Get the action that should be performed.
+        action = data.get(strRequest)
+
+        if action == strRequest:
+            #User is making a request.
+            boolResponse = MentorshipRequest.createRequest(data.get(strMentor), data.get(strMentee))
+        else:
+            #Else the user is recending the request.
+            boolResponse = MentorshipRequest.removeRequest(data.get(strMentor), data.get(strMentee))
+    else:
+        #PLACEHOLDER
+        return HttpRequest("Something happened!")
+
 
 
 # -------------------- <<< Big Move stuff >>> -------------------- #
@@ -96,7 +126,7 @@ def register_mentee(req):
     return HttpResponse(template.render(context, req))
 
 def register_mentor(req):
-    template = loader.get_template('sign-in card/mentor/account_creation_0_mentor.html')
+    template = loader.get_template('sign-in card/mentor/account_creation_sign_up_choices_mentor.html')
     context = {}
     return HttpResponse(template.render(context, req))
 
@@ -139,88 +169,32 @@ def role_test(req):
 
 # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
 def role_selection(request):
-    template = loader.get_template('sign-in card/role_selection.html')
+    template = loader.get_template('sign-in card/shared/role_selection.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
 
 def account_activation_mentee(request):
-    template = loader.get_template('sign-in card/account_activation_mentee.html')
+    template = loader.get_template('sign-in card/mentee/account_activation_mentee.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
 def account_activation_invalid_mentee(request):
-    template = loader.get_template('sign-in card/account_activation_invalid_mentee.html')
+    template = loader.get_template('sign-in card/mentee/account_activation_invalid_mentee.html')
     context = {
         'email':'demoemail@something.com'
     }
     return HttpResponse(template.render(context, request))
 
 def account_activation_valid_mentee(request):
-    template = loader.get_template('sign-in card/account_activation_valid_mentee.html')
+    template = loader.get_template('sign-in card/mentee/account_activation_valid_mentee.html')
     context = {
         'email':'demoemail@something.com'
     }
     return HttpResponse(template.render(context, request))
 
-def account_creation_1_mentee(request):
-    template = loader.get_template('sign-in card/account_creation_1_mentee.html')
-    context = {
-        'pronounlist': ['he', 'she', 'they'],
-    }
-    return HttpResponse(template.render(context, request))
-
-def account_creation_2_mentee(request):
-    template = loader.get_template('sign-in card/account_creation_2_mentee.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
-
-def account_creation_3_mentee(request):
-    template = loader.get_template('sign-in card/account_creation_3_mentee.html')
-    context = {
-        'interestlist': [
-            'Artificial Intelligence', 
-            'Computer Graphics', 
-            'Data Structures & Algorithms',
-            'Networking',
-            'Operating Systems',
-            'Embedded Systems',
-            'Cloud Computing',
-            'Software Engineering',
-            'Distrubuted Systems',
-            'Game Development',
-            'Cybersecruity',
-            'System Analysis'],
-    }
-    return HttpResponse(template.render(context, request))
-
-def account_creation_4_mentee(request):
-    template = loader.get_template('sign-in card/account_creation_4_mentee.html')
-    context = {
-        'useragreement': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    }
-    return HttpResponse(template.render(context, request))
-
-
 def account_activation_mentor(request):
-    template = loader.get_template('sign-in card/account_activation_mentor.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
-
-def account_creation_0_mentor(request):
-    template = loader.get_template('sign-in card/account_creation_0_mentor.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
-
-def account_creation_1_mentor(request):
-    template = loader.get_template('sign-in card/account_creation_1_mentor.html')
-    context = {
-        'pronounlist': ['he', 'she', 'they'],
-    }
-    return HttpResponse(template.render(context, request))
-
-def account_creation_2_mentor(request):
-    template = loader.get_template('sign-in card/account_creation_2_mentor.html')
+    template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
@@ -260,8 +234,17 @@ def login_uname_text(request):
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
 
+# view goes to currently static approve/delete mentors page
+def mentor_judgement(request):
+    context = {}
+    template = loader.get_template('pending_mentors.html')
+    return HttpResponse(template.render(context,request))
 
-
+# view goes to mentor_group_view
+def mentor_group_view(req):
+    template = loader.get_template('group_view/mentor_group_view.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
 
 
 # development only views, these should be removed before production
@@ -272,7 +255,7 @@ def login_uname_text(request):
 def profile_picture_test(request):
     context = {
                 "users":[
-                    u.sanatize_black_properties() for u in User.objects.all()
+                    u.sanitize_black_properties() for u in User.objects.all()
                 ]
             }
     
@@ -319,4 +302,5 @@ def delete_users(request):
 def test_login_page(request):
     template = loader.get_template("dev/test_login.html")
     return HttpResponse(template.render({},request))
+
 

@@ -1,0 +1,151 @@
+.hero-container {
+    display: flex;
+}
+
+hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.column-left {
+    margin-left: 2rem;
+}
+
+.column-right {
+    padding-left: 0rem 2rem;
+    margin-right: 2rem;
+    margin-left: 2rem;
+}
+
+.row-titles h1{
+    font-size: 3rem;
+}
+
+.row-titles h2 {
+    color: gray;
+}
+
+.top-title {
+    display: flex;
+    align-items: center;
+}
+
+.button-edit {
+    margin-left: auto;
+    height: 3rem;
+    width: 3rem;
+}
+
+.top-title h2 {
+    font-size: 2rem;
+    margin-left: 1rem;
+    margin-top: 1rem;
+    color: gray;
+}
+
+.top-title button {
+    color: gray;
+    font-size: 1rem;
+    background-color: transparent;
+    border: 2px solid;
+    border-radius: 1rem;
+    width: 7rem;
+}
+
+.specialties {
+    display: inline-flex;
+}
+
+.specialties button {
+    color: white;
+    background-color: gray;
+    border: none;
+    border-radius: 1rem;
+    width: 10rem;
+    margin-left: 1rem;
+}
+
+.row-communication-methods p {
+    color: gray;
+}
+
+.row-overview p {
+    color: gray;
+}
+
+.profile-picture {
+    border-radius: 50%;
+    height: 15rem;
+    width: 15rem;
+}
+
+.mentee-manager {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.button-mentee-remove {
+    color: white;
+    background-color: transparent;
+    border: 2px solid;
+    border-radius: 25px;
+    width: 5rem;
+    margin-left: auto;
+}
+
+.row-notes {
+    display: inline-flex;
+}
+
+.row-notes button {
+    color: grey;
+    border: solid;
+    border-radius: 1rem;
+    background-color: transparent;
+    height: 2rem;
+    margin-left: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.note-header {
+    display: flex;
+}
+
+.note-header p{
+    color: grey;
+}
+
+.invisible {
+    color: transparent;
+}
+
+.note-title {
+    flex: 1 1 50%;
+}
+
+.note-header p:not(.note-title) {
+    flex: 1;
+    margin: 0 5px;
+}
+
+.note {
+    margin-bottom: 0.5rem;
+    background-color: grey;
+    display: flex;
+    height: 2rem;
+    border-radius: 5px;
+}
+
+.note p:not(.note-title) {
+    flex: 1;
+    margin: 0 5px;
+}
+
+.note button:not(.note-title) {
+    flex: 1;
+    margin: 0 5px;
+    background-color: transparent;
+    border: none;
+}
