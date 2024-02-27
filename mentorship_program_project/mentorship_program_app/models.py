@@ -91,7 +91,7 @@ class SVSUModelData():
         return ["save","delete"]
     
 
-    def sanitize_black_properties(self, black_list : [str] = []) -> SVSUModelData:
+    def sanitize_black_properties(self, black_list : [str] = []) -> 'SVSUModelData':
         """
         Description
         -----------
