@@ -36,8 +36,8 @@ urlpatterns = [
     path('role_selection/', views.role_selection, name='role_selection'),
     path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
     path('account_activation_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid'),
-    
-    path('admin_user_management/', views.admin_user_management, name='admin_user_management'),
+    # CURRENTLY STATIC ROUTE TO VIEW LIST OF MENTORS APPLYING FOR MENTORSHIP ROLE FROM BEN
+    path('judgement', views.mentor_judgement, name='mentor_judgement'),
     
     
     path('dashboard/', navigation.dashboard, name='dashboard'),
@@ -55,6 +55,8 @@ urlpatterns = [
     path('account_activation_mentee_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid_mentee'),
     path('account_activation_mentee_valid/', views.account_activation_valid_mentee, name='account_activation_valid_mentee'),
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
+
+    path('admin_user_management/', views.admin_user_management, name='admin_user_management'),
 
     #log in and out routes
     path('login/',views.login_uname_text,name='login'),
