@@ -168,6 +168,12 @@ def account_activation_mentor(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
+def admin_user_management(request):
+    template = loader.get_template('admin/user_management.html')
+    context = {
+        #TODO NEED TO ADD SOME DUMMY INFO
+    }
+    return HttpResponse(template.render(context,request))\
 
 
 
