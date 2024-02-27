@@ -26,6 +26,8 @@ from mentorship_program_app import views
 #     path('dashboard/', views.dashboard, name='dashboard'),
 #     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
 #     path('profile-card/', views.profileCard, name='profile-card'),
+
+#     path('mentor_group_view/', views.mentor_group_view, name='mentor_group_view'),
     
 #     # -------------------- <<< BIG MOVE TEMPORARY >>> -------------------- #
 #     path('bigmove/', views.BIGMOVE, name='bigmove'),

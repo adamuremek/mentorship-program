@@ -240,6 +240,12 @@ def mentor_judgement(request):
     template = loader.get_template('pending_mentors.html')
     return HttpResponse(template.render(context,request))
 
+# view goes to mentor_group_view
+def mentor_group_view(req):
+    template = loader.get_template('group_view/mentor_group_view.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
+
 
 # development only views, these should be removed before production
 # still if they are forgotten they should automatically redirect
