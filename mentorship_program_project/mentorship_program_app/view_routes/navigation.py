@@ -58,5 +58,6 @@ def dashboard(req):
     return HttpResponse(template.render(context, req))
 
 def admin_dashboard(req):
+    template = loader.get_template('admin_dashboard.html')
     context = {}
     return HttpResponse(template.render(context, req))
