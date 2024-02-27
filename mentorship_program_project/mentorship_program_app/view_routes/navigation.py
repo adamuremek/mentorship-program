@@ -41,8 +41,8 @@ def dashboard(req):
     data = User.objects.all()
 
     context = {
-            'recommended_users': [u.sanatize_black_properties() for u in data[0:4]],
-            'all_users'        : [u.sanatize_black_properties() for u in data]
+            'recommended_users': [u.sanitize_black_properties() for u in data[0:4]],
+            'all_users'        : [u.sanitize_black_properties() for u in data]
                }
 
     return HttpResponse(template.render(context, req))

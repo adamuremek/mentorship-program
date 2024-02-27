@@ -170,7 +170,7 @@ def register_mentor(req: HttpRequest):
     
     Authors
     -------
-    Adam U. 8==D~
+    Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     '''
     if req.method == "POST":
@@ -246,7 +246,7 @@ def view_pending_mentors(req: HttpRequest):
 
     Authors
     -------
-    Adam U. 8==D~
+    Adam U. ♣
     Andrew P.
     '''
     
@@ -290,7 +290,7 @@ def change_mentor_status(req:HttpRequest):
     
     Authors
     -------
-    Adam U. 8==D~
+    Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     '''
     #TODO Verify you're an admin
@@ -339,7 +339,7 @@ def disable_user(req:HttpRequest):
     
     Authors
     -------
-    Adam U. 8==D~
+    Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     Jordan A.
     '''
@@ -384,7 +384,7 @@ def enable_user(req:HttpRequest):
     
     Authors
     -------
-    Adam U. 8==D~
+    Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     Jordan A.
     '''

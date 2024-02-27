@@ -46,8 +46,8 @@
 /*********************************************************************/
 document.addEventListener('DOMContentLoaded', winloaded => {
 
-const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Validates <{string}@{string}.{string}>
-const regex_svsu = /^[^\s@]+@svsu[.]edu$/ // Validates <{string}@{svsu}.{edu}>
+const regex_email = /^[a-zA-Z]+@[a-zA-Z]+\.[a-zA-Z]+$/ // Validates <{string}@{string}.{string}>
+const regex_svsu = /^[a-zA-Z]+@svsu[.]edu$/ // Validates <{string}@{svsu}.{edu}>
 const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
 
 // const is_student = document.getElementById('register-form-mentee')
@@ -105,12 +105,20 @@ input_first_name.addEventListener("input", e => {
     const input_value = e.target.value.replace(/\d/g, ""); // Remove numeric characters
     // Set input to new value
     e.target.value = input_value;
+    if(input_value.length > 0)
+        input_first_name.style.backgroundColor = GREEN
+    else
+        input_first_name.style.backgroundColor = RED
 })
 
 input_last_name.addEventListener("input", e => {
-    const inputValue = e.target.value.replace(/\d/g, ""); // Remove numeric characters
+    const input_value = e.target.value.replace(/\d/g, ""); // Remove numeric characters
     // Set input to new value
-    e.target.value = inputValue;
+    e.target.value = input_value;
+    if(input_value.length > 0)
+        input_last_name.style.backgroundColor = GREEN
+    else
+        input_last_name.style.backgroundColor = RED
 })
 
 
@@ -163,6 +171,27 @@ input_phone.addEventListener("keypress", e => {
         e.preventDefault();
     }
 });
+
+input_password.addEventListener('input', e => {
+    if(input_password.value.length >= 8)
+        input_password.style.backgroundColor = GREEN
+    else
+        input_password.style.backgroundColor = RED
+})
+
+input_company.addEventListener('input', e => {
+    if(input_company.value.length > 0)
+        input_company.style.backgroundColor = GREEN
+    else
+        input_company.style.backgroundColor = RED
+})
+
+input_job_title.addEventListener('input', e => {
+    if(input_job_title.value.length > 0)
+        input_job_title.style.backgroundColor = GREEN
+    else
+        input_job_title.style.backgroundColor = RED
+})
 
     // Get all snippets being rendered
     const snippets = document.getElementsByClassName('sign-in-card-content')
@@ -242,8 +271,8 @@ function is_page_valid(form_idx) {
     let is_valid = true
     switch(form_idx) {
         case 1: // Name and Pronouns
-            is_valid = input_first_name.value.length > 1 && 
-                      input_last_name.value.length > 1
+            is_valid = input_first_name.value.length > 0 && 
+                      input_last_name.value.length > 0
             break
 
         case 2: // Email | Phone | Password

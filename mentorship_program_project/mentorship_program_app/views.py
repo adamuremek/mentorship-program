@@ -9,6 +9,36 @@ from utils import security
 
 from .models import User
 from .models import Interest
+from .models import MentorshipRequest
+
+def request_mentor(request):
+
+    strRequest = "request"
+    strMentor = "mentor_id"
+    strMentee = "mentee_id"
+    boolResponse = False
+
+    if request.method == 'POST':
+        """
+        I currently have no idea the format frontend will use to pass the data here.
+        So, make the changes as needed.
+        """
+
+        #Get the data from the POST request.
+        data = request.POST
+        #Get the action that should be performed.
+        action = data.get(strRequest)
+
+        if action == strRequest:
+            #User is making a request.
+            boolResponse = MentorshipRequest.createRequest(data.get(strMentor), data.get(strMentee))
+        else:
+            #Else the user is recending the request.
+            boolResponse = MentorshipRequest.removeRequest(data.get(strMentor), data.get(strMentee))
+    else:
+        #PLACEHOLDER
+        return HttpRequest("Something happened!")
+
 
 
 # -------------------- <<< Big Move stuff >>> -------------------- #
@@ -210,8 +240,17 @@ def login_uname_text(request):
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
 
+# view goes to currently static approve/delete mentors page
+def mentor_judgement(request):
+    context = {}
+    template = loader.get_template('pending_mentors.html')
+    return HttpResponse(template.render(context,request))
 
-
+# view goes to mentor_group_view
+def mentor_group_view(req):
+    template = loader.get_template('group_view/mentor_group_view.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
 
 
 # development only views, these should be removed before production
@@ -222,7 +261,7 @@ def login_uname_text(request):
 def profile_picture_test(request):
     context = {
                 "users":[
-                    u.sanatize_black_properties() for u in User.objects.all()
+                    u.sanitize_black_properties() for u in User.objects.all()
                 ]
             }
     
@@ -269,4 +308,5 @@ def delete_users(request):
 def test_login_page(request):
     template = loader.get_template("dev/test_login.html")
     return HttpResponse(template.render({},request))
+
 

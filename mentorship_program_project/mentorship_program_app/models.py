@@ -1,7 +1,49 @@
+"""
+FILE NAME: models.py
+
+-------------------------------------------------------------------------------
+PART OF PROJECT: SVSU Mentorship Program App
+
+-------------------------------------------------------------------------------
+WRITTEN BY:
+DATE CREATED:
+
+-------------------------------------------------------------------------------
+FILE PURPOSE:
+Defines all models to store object into the database.
+
+-------------------------------------------------------------------------------
+COMMAND LINE PARAMETER LIST (In Parameter Order):
+(NONE)
+
+-------------------------------------------------------------------------------
+ENVIRONMENTAL RETURNS:
+(NOTHING)
+
+-------------------------------------------------------------------------------
+SAMPLE INVOCATION:
+from  mentorship_program_app.models import *
+User.objects.create(...)
+
+-------------------------------------------------------------------------------
+GLOBAL VARIABLE LIST (Alphabetically):
+(NONE)
+
+-------------------------------------------------------------------------------
+COMPILATION NOTES:
+
+-------------------------------------------------------------------------------
+MODIFICATION HISTORY:
+
+WHO   WHEN     WHAT
+WJL  2/26/24   Added file header comment and began commenting functions
+"""
+
 from django.conf import settings
 from django.db import models
 from django.db.models import *
 from datetime import date
+from typing import List
 
 from utils import security
 
@@ -18,21 +60,66 @@ class SVSUModelData():
     #it is ONLY a logical model
     abstract = True
 
-    """
-        returns a list of string properties
-        that we do not want front end technologies
-        to see
-    """
     @staticmethod
-    def get_backend_only_properties()->[str]:
+    def get_backend_only_properties()->List[str]:
+        """
+        Description
+        -----------
+        Get a static list of properties to be hidden from front-end technologies
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - [str]: A list containing the properties as strings
+
+        Example Usage
+        -------------
+
+        >>> get_backend_only_properties()
+        '["save", "delete"]'
+
+        Authors
+        -------
+        
+        """
         return ["save","delete"]
     
-    """
-        sets all properties that are read only in the black list to None
 
-        returns a reference to ourselfs for convinient usage
-    """
-    def sanatize_black_properties(self,black_list : [str] = []):
+    def sanitize_black_properties(self, black_list : List[str] = []) -> 'SVSUModelData':
+        """
+        Description
+        -----------
+        Sets all read-only properties in the blacklist to None
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        - black_list ([str]): The list of properties on the blacklist.
+
+        Returns
+        -------
+        - SVSUModelData: Returns itself for convenience.
+
+        Example Usage
+        -------------
+
+        >>> getUserLogin('fake@email.com')
+        'adlkfy8o90q23gb876df'
+
+        Authors
+        -------
+        
+        """
         security.black_list(self,self.get_backend_only_properties() + black_list)
         return self
 
@@ -63,7 +150,7 @@ class Interest(SVSUModelData,Model):
     #simply returns an array representing the inital default interests that we want
     #to be populated to the database
     @staticmethod 
-    def get_initial_default_interest_strings()->[str]:
+    def get_initial_default_interest_strings()->List[str]:
         return [
                 "c++",
                 "python",
@@ -83,7 +170,7 @@ class User(SVSUModelData,Model):
 
         see SVSUModelData as to what this is overloading
     """
-    def get_backend_only_properties(self)->[str]:
+    def get_backend_only_properties(self)->List[str]:
         return super().get_backend_only_properties() + [
                 "strPasswordHash",
                 "strPasswordSalt",
@@ -258,6 +345,60 @@ class MentorshipRequest(SVSUModelData,Model):
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
+
+    def createRequest(intMentorID: int, intMenteeID: int):
+        """
+        2/25/2024
+        Creates a relationship given a mentorID and menteeID.
+        """
+        try:
+            MentorshipRequest.objects.create(
+                mentor_id = intMentorID,
+                mentee_id = intMenteeID
+            )
+            return True
+        except Exception as e:
+            return False
+
+    def getRequest(intId: int):
+        """
+        2/25/2024
+        returns a MentorshipRequest object. 
+        """
+        return MentorshipRequest.objects.get(id = intId)
+
+
+    def getRequestInfo(intId: int):
+        """
+        2/25/2024
+        returns a dictionary containing the User id of the mentorID and menteeID for a MentorshipRequest object
+        """
+
+        clsRequest =  MentorshipRequest.getRequest(intId)
+
+        dictRequest = {
+            "mentorID" : clsRequest.mentor_id,
+            "menteeID" : clsRequest.mentee_id
+        }
+
+        return dictRequest
+    
+    def removeRequest(intMentorID: int, intMenteeID: int):
+        """
+        2/25/2024 Removes a request from the database. 
+        NOTE: Currently the delete command is commented out. So it will only return MentorshipRequest ID.
+        """
+
+        return  MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).first().id
+            
+        """
+        try:
+            MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).delete()
+            return True
+        except Exception as e:
+            return False
+        """
+
 
 
 class MentorshipReferral(SVSUModelData,Model):
