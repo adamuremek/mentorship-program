@@ -26,7 +26,7 @@ class SVSUModelData():
         to see
     """
     @staticmethod
-    def get_backend_only_properties()->[str]:
+    def get_backend_only_properties()->list[str]:
         return ["save","delete"]
     
     """
@@ -34,7 +34,7 @@ class SVSUModelData():
 
         returns a reference to ourselfs for convinient usage
     """
-    def sanatize_black_properties(self,black_list : [str] = []):
+    def sanatize_black_properties(self,black_list : list[str] = []):
         security.black_list(self,self.get_backend_only_properties() + black_list)
         return self
 
@@ -63,7 +63,7 @@ class Interest(SVSUModelData,Model):
     #simply returns an array representing the inital default interests that we want
     #to be populated to the database
     @staticmethod 
-    def get_initial_default_interest_strings()->[str]:
+    def get_initial_default_interest_strings()-> list[str]:
         return [
                 "c++",
                 "python",
@@ -83,7 +83,7 @@ class User(SVSUModelData,Model):
 
         see SVSUModelData as to what this is overloading
     """
-    def get_backend_only_properties(self)->[str]:
+    def get_backend_only_properties(self)-> list[str]:
         return super().get_backend_only_properties() + [
                 "strPasswordHash",
                 "strPasswordSalt",
