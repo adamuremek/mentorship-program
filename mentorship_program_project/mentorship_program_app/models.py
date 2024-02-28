@@ -42,6 +42,8 @@ WJL  2/26/24   Added file header comment and began commenting functions
 from django.conf import settings
 from django.db import models
 from django.db.models import *
+from django.core.exceptions import ObjectDoesNotExist
+
 from datetime import date
 from typing import List
 
@@ -126,8 +128,6 @@ class SVSUModelData():
 
 
 
-
-
 class Interest(SVSUModelData,Model):
     """
 
@@ -150,7 +150,7 @@ class Interest(SVSUModelData,Model):
     #simply returns an array representing the inital default interests that we want
     #to be populated to the database
     @staticmethod 
-    def get_initial_default_interest_strings()->List[str]:
+    def get_initial_default_interest_strings()-> list[str]:
         return [
                 "c++",
                 "python",
@@ -170,7 +170,7 @@ class User(SVSUModelData,Model):
 
         see SVSUModelData as to what this is overloading
     """
-    def get_backend_only_properties(self)->List[str]:
+    def get_backend_only_properties(self)-> list[str]:
         return super().get_backend_only_properties() + [
                 "strPasswordHash",
                 "strPasswordSalt",
@@ -216,11 +216,30 @@ class User(SVSUModelData,Model):
     #foregn key fields
     interests = models.ManyToManyField(Interest)
 
-    #returns true if the incoming plain text hashes out to our stored
-    #password hash
+    """
+    returns true if we have a mentor account in the database
+    """
+    def is_mentor(self)->bool:
+        try:
+            self.mentor
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    """
+    returns true if we have a mentee acount in the database
+    """
+    def is_mentee(self)->bool:
+        try:
+            self.mentee
+            return True
+        except ObjectDoesNotExist:
+            return False
+    """
+    returns true if the incoming pasword matches the stored password for the 
+    current user
+    """
     def check_valid_password(self,password_plain_text : str)->bool:
-        print("check valid password")
-        print(self.strPasswordHash)
         return security.hash_password(password_plain_text,self.strPasswordHash) ==\
                 self.strPasswordHash
 
@@ -244,14 +263,26 @@ class User(SVSUModelData,Model):
                 )
 
     """
+    returns a new user object from given session data if the user is logged in
+    note that the user must be logged in for this to work, if they are not logged in 
+    returns None
+    """
+    @staticmethod 
+    def from_session(session)->'User':
+        if not security.is_logged_in(session): return None
+
+        return User.objects.get(id=session.get("user_id"))
+
+    """
     returns true if the given email password combination is
     a valid account, otherwise false
     """
     @staticmethod
     def check_valid_login(email_str : str,password_plain_text : str):
-        print("checking valid login!")
-        print(email_str)
-        u = User.objects.get(clsEmailAddress=email_str)
+        try:
+            u = User.objects.get(clsEmailAddress=email_str)
+        except ObjectDoesNotExist:
+            return False
         return u.check_valid_password(password_plain_text)
 
     def getUserInfo(self):
@@ -274,6 +305,27 @@ class User(SVSUModelData,Model):
             user_info["Biography"] = self.biographies.strBio
 
         return user_info
+    
+    
+    """
+    namespace for decorators that apply to views SPECIFICALLY to limit the kind of user 
+    that can interact with the view. 
+
+    We would prefer these in the security file, but since that will cause a circular dependency,
+    and these have to do entierly with users it makes sense to place them here
+    """
+    class Decorators:
+        @staticmethod
+        def require_loggedin_mentor(alternate_view):
+            validator = lambda req : security.is_logged_in(req.session) \
+                                     and User.from_session(req.session).is_mentor()
+            return security.Decorators.require_check(validator, alternate_view)
+        
+        @staticmethod
+        def require_loggedin_mentee(alternate_view):
+            validator = lambda req : security.is_logged_in(req.session) \
+                                     and User.from_session(req.session).is_mentee()
+            return security.Decorators.require_check(validator, alternate_view)
 
 
 
@@ -313,12 +365,23 @@ class Mentor(SVSUModelData,Model):
         User,
         on_delete = models.CASCADE
     )
-    orginization = ForeignKey(
-        Organization,
-        on_delete = models.CASCADE
-    )
 
 
+    """
+    creates and saves a mentor and user account to the database that uses the given
+    username and password 
+
+    returns a reference to this object
+    """
+    @staticmethod
+    def create_from_plain_text_and_email(password_plain_text : str,
+                                         email : str)->'Mentee':
+        user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        user_model.save()
+
+        mentor = Mentor.objects.create(account=user_model)
+        mentor.save()
+        return mentor
 
 class Mentee(SVSUModelData,Model):
     """
@@ -328,6 +391,23 @@ class Mentee(SVSUModelData,Model):
         "User",
         on_delete = models.CASCADE
     )
+    
+    """
+    creates and saves a mentee and user account to the database that uses the given
+    username and password 
+
+    returns a reference to this object
+    """
+    @staticmethod
+    def create_from_plain_text_and_email(password_plain_text : str,
+                                         email : str)->'Mentee':
+        user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        user_model.save()
+
+        mentee = Mentee.objects.create(account=user_model)
+        mentee.save()
+        return mentee
+
 
 
 class MentorshipRequest(SVSUModelData,Model):
@@ -345,20 +425,18 @@ class MentorshipRequest(SVSUModelData,Model):
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
-
-    def createRequest(intMentorID: int, intMenteeID: int):
+    
+    @staticmethod
+    def create_request(intMentorID: int, intMenteeID: int):
         """
         2/25/2024
         Creates a relationship given a mentorID and menteeID.
         """
-        try:
-            MentorshipRequest.objects.create(
-                mentor_id = intMentorID,
-                mentee_id = intMenteeID
-            )
-            return True
-        except Exception as e:
-            return False
+        obj = MentorshipRequest.objects.create(
+            mentor_id = intMentorID,
+            mentee_id = intMenteeID
+        )
+        return obj
 
     def getRequest(intId: int):
         """
@@ -383,21 +461,16 @@ class MentorshipRequest(SVSUModelData,Model):
 
         return dictRequest
     
-    def removeRequest(intMentorID: int, intMenteeID: int):
+    def remove_request(intMentorID: int, intMenteeID: int):
         """
         2/25/2024 Removes a request from the database. 
-        NOTE: Currently the delete command is commented out. So it will only return MentorshipRequest ID.
         """
 
-        return  MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).first().id
-            
-        """
         try:
             MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).delete()
             return True
         except Exception as e:
             return False
-        """
 
 
 

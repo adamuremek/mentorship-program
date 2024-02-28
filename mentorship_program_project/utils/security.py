@@ -5,6 +5,14 @@ from typing import Callable
 from base64 import b64encode,b64decode
 
 """
+this file is the one stop shop for security functins and things that 
+we are afraid we could mess up the math with ;)
+
+make sure any basic securty related functions goes in here so we only have
+to change things in one place to fix stuff up
+"""
+
+"""
 logs the current session out 
 
 returns true if we managed to log out 
@@ -26,6 +34,12 @@ def is_logged_in(session : dict)->bool:
     return session["login"] if "login" in session else False
 
 """
+convinence function to return the id of the current user from a given session id
+"""
+def get_user_id_from_session(session : dict)->int:
+    return session["user_id"]
+
+"""
 nulls all objects that are inside of the black list to purge
 data for front end, this modifies in place, do not use it if 
 you inteand to use the data that gets cleared out. Once used,
@@ -40,13 +54,6 @@ def black_list(data : object, black_listed_keys : [str])->None:
 def is_in_debug_mode()->bool:
     return settings.DEBUG
 
-"""
-this file is the one stop shop for security functins and things that 
-we are afraid we could mess up the math with ;)
-
-make sure any basic securty related functions goes in here so we only have
-to change things in one place to fix stuff up
-"""
 
 
 """
@@ -90,8 +97,6 @@ def hash_password(password_plain_text : str,salt : str)->str:
     ret_val = b64encode(
             bcrypt.hashpw(pepperd_password.encode('UTF-8'),salt_data)
             ).decode('UTF-8')
-    
-    print(ret_val)
     return ret_val
 
 """
@@ -138,15 +143,15 @@ class Decorators:
         #and an alternate value if the check is false
         def check_decorator(decorated_function : Callable )->callable:
             
-            def return_function(*args):
+            def return_function(*args,**kwargs):
                 if len(args) < 0:
-                    return alternate(*args)
+                    return alternate(*args,**kwargs)
 
                 first_arg = args[0]
 
                 if check(first_arg):
-                    return decorated_function(*args)
-                return alternate(*args)
+                    return decorated_function(*args,**kwargs)
+                return alternate(*args,**kwargs)
                 #end the inner function that contains the actual behavor
 
             return return_function
@@ -197,5 +202,3 @@ class Decorators:
     """
     def require_debug(alternate_view):
         return Decorators.require_check(lambda _ : is_in_debug_mode(),alternate_view)
-
-

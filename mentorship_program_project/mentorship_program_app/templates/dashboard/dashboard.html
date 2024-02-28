@@ -16,7 +16,13 @@ Dashboard
     <div class="hero-container">
 
         <div class="section-recommended">
+				
+			  	{% if session_user.is_mentor %}
             <h1>Recommended Mentees</h1>
+				{% else %}
+            <h1>Recommended Mentors</h1>
+				{% endif %}
+
             <div class="recommended-cards">
                 <!-- 5 Cards should be inserted -->
                 {% for user in recommended_users %}
@@ -27,7 +33,11 @@ Dashboard
 
         <div class="section-available">
 
+				{% if session_user.is_mentor %}
             <h1>Available Mentees</h1>
+				{% else %}
+            <h1>Available Mentors</h1>
+				{% endif %}
 
             <div class="available-filters">
                 <div class="available-interests-filter">

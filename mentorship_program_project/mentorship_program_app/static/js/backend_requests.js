@@ -1,4 +1,9 @@
 /*
+ * this file contains functions to interact with and talk to the back end
+ * to make creating requests to and from easier for front end :D
+ * */
+
+/*
  * gets the given named cookie from django, straight from the django documentation page
  *
  * see: https://docs.djangoproject.com/en/5.0/howto/csrf/
@@ -69,6 +74,32 @@ async function attempt_logout_request() {
 								},
 							mode: 'same-origin'
 	});
+	let response = await fetch(req);
+	return response;
+}
+
+/*
+ * requests that the back end creates a mentor request for the given mentee/ mentor
+ *
+ * this may or may not work depending on the permissions of the logged in user
+ * and if the request already exists
+ * */
+async function attempt_mentor_request(mentor_id,mentee_id = null) {
+	let request_url = "/request_mentor/" + mentor_id;
+	
+
+	if (mentee_id)
+		request_url += "/"+mentee_id;
+
+	const req = new Request(request_url,{
+							method: "POST",
+							headers: {
+									"Content-type": "application/json; charset=UTF-8",
+									'X-CSRFToken': csrftoken
+							},
+							mode: "same-origin"
+	});
+
 	let response = await fetch(req);
 	return response;
 }

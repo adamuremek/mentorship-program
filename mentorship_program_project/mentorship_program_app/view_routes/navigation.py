@@ -6,9 +6,11 @@ from django.shortcuts import render, redirect
 from utils import development
 from utils.development import print_debug
 from utils import security
-from .status_codes import invalid_request_401
+from .status_codes import bad_request_400
 
 from ..models import User
+from ..models import Mentor
+from ..models import Mentee
 from ..models import Interest
 
 
@@ -34,19 +36,33 @@ def landing(req):
     
     return HttpResponse(template.render(context, req))
 
-@security.Decorators.require_login(invalid_request_401)
+@security.Decorators.require_login(bad_request_400)
 def dashboard(req):
     template = loader.get_template('dashboard/dashboard.html')
 
-    data = User.objects.all()
+    user = User.from_session(req.session)
+
+    data = []
+    
+    if user.is_mentor():
+        data = [m.account for m in Mentee.objects.all()]
+    else:
+        data = [m.account for m in Mentor.objects.all()]
 
     context = {
+<<<<<<< HEAD
             'recommended_users': [u.sanitize_black_properties() for u in data[0:4]],
             'all_users'        : [u.sanitize_black_properties() for u in data]
+=======
+            'session_user' : user.sanatize_black_properties(),
+            'recommended_users': [u.sanatize_black_properties() for u in data[0:4]],
+            'all_users'        : [u.sanatize_black_properties() for u in data]
+>>>>>>> back-end
                }
 
     return HttpResponse(template.render(context, req))
 
 def admin_dashboard(req):
+    template = loader.get_template('admin_dashboard.html')
     context = {}
     return HttpResponse(template.render(context, req))
