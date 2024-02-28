@@ -6,10 +6,12 @@ from django.conf import settings
 from utils import development
 from utils.development import print_debug
 from utils import security
-from .status_codes import invalid_request_401
+from .status_codes import bad_request_400
 from django.db.models import Count, Q
 
 from ..models import User
+from ..models import Mentor
+from ..models import Mentee
 from ..models import Interest
 
 
@@ -35,7 +37,7 @@ def landing(req):
     
     return HttpResponse(template.render(context, req))
 
-@security.Decorators.require_login(invalid_request_401)
+@security.Decorators.require_login(bad_request_400)
 def dashboard(req):
     template = loader.get_template('dashboard/dashboard.html')
 
@@ -59,5 +61,6 @@ def dashboard(req):
     return HttpResponse(template.render(context, req))
 
 def admin_dashboard(req):
+    template = loader.get_template('admin_dashboard.html')
     context = {}
     return HttpResponse(template.render(context, req))

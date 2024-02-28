@@ -1,4 +1,6 @@
 import json
+from typing import Union
+
 from django.http import HttpResponse, HttpRequest
 from django.template import loader
 from django.shortcuts import render, redirect
@@ -9,34 +11,54 @@ from utils import security
 
 from .models import User
 from .models import Interest
+from .models import Mentor
 from .models import MentorshipRequest
 
-def request_mentor(request):
 
-    strRequest = "request"
+#please make it pretty front end :)
+def invalid_request_401(request,response_data : Union[dict,str] = 'Unauthorized'):
+    response = None
+    
+    if type(response_data) == str:
+        response = HttpResponse(response_data)
+    elif type(response_data) == dict:
+        response = HttpResponse(json.dumps(response_data))
+    
+    response.status_code = 401
+    return response
+
+"""
+creates or deletes a request for the given mentor from the current mentee that is logged in
+"""
+@User.Decorators.require_loggedin_mentee(invalid_request_401)
+def request_mentor(request):
+    
     strMentor = "mentor_id"
-    strMentee = "mentee_id"
+    #Init the variable.
     boolResponse = False
 
     if request.method == 'POST':
-        """
-        I currently have no idea the format frontend will use to pass the data here.
-        So, make the changes as needed.
-        """
+        
+        #attempt to parse out data from the post response
+        mentee_id = security.get_user_id_from_session(request.session)
+        action = request.POST.get("create",False)
+        mentor_id = request.POST.get("mentor_id",None)
 
         #Get the data from the POST request.
-        data = request.POST
-        #Get the action that should be performed.
-        action = data.get(strRequest)
+        data = request.POST        
+        intMenteeID = security.get_user_id_from_session(request.session)
+        
+        #Insert the request into the database.
+        boolResponse = MentorshipRequest.create_request(data.get(strMentor), intMenteeID)
 
-        if action == strRequest:
-            #User is making a request.
-            boolResponse = MentorshipRequest.createRequest(data.get(strMentor), data.get(strMentee))
+        if boolResponse:
+            #Request was added to the database.
+            return HttpRequest("Something happened!") #PLACEHOLDER - REMOVE WHEN CHANGED WITH REAL DATA plz
         else:
-            #Else the user is recending the request.
-            boolResponse = MentorshipRequest.removeRequest(data.get(strMentor), data.get(strMentee))
+            #Request was NOT added to the database.
+            return HttpRequest("Something happened!") #PLACEHOLDER - REMOVE WHEN CHANGED WITH REAL DATA plz  
     else:
-        #PLACEHOLDER
+        #PLACEHOLDER - REMOVE WHEN CHANGED WITH REAL DATA plz
         return HttpRequest("Something happened!")
 
 
@@ -44,12 +66,6 @@ def request_mentor(request):
 # -------------------- <<< Big Move stuff >>> -------------------- #
 # - Will delete later
 
-#please make it pretty front end :)
-def invalid_request_401(request):
-    response = HttpResponse('Unauthorized') #better 401 page here
-    
-    response.status_code = 401
-    return response
 
 def BIGMOVE(req):
     template = loader.get_template('sign-in card/mentor/account_creation_0_mentor.html')
@@ -148,8 +164,6 @@ def landingPost(req):
     else:
         return redirect('landing')
 
-
-
 def profileCard(req):
     template = loader.get_template('dashboard/profile-card/mentor_card.html')
     
@@ -198,6 +212,12 @@ def account_activation_mentor(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
+def admin_user_management(request):
+    template = loader.get_template('admin/user_management.html')
+    context = {
+        #TODO NEED TO ADD SOME DUMMY INFO
+    }
+    return HttpResponse(template.render(context,request))\
 
 
 
@@ -221,8 +241,9 @@ def login_uname_text(request):
     uname    = login_data["username"] if "username" in login_data else None
     password = login_data["password"] if "password" in login_data else None
     
-    print_debug("uname " + uname)
-    print_debug("password " + password)
+    #even though these are print debug printing passwords makes me nervous
+    #print_debug("uname " + uname)
+    #print_debug("password " + password)
 
 
     if not User.check_valid_login(uname,password):

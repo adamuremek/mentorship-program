@@ -42,6 +42,8 @@ WJL  2/26/24   Added file header comment and began commenting functions
 from django.conf import settings
 from django.db import models
 from django.db.models import *
+from django.core.exceptions import ObjectDoesNotExist
+
 from datetime import date
 
 from utils import security
@@ -122,6 +124,9 @@ class SVSUModelData():
         security.black_list(self,self.get_backend_only_properties() + black_list)
         return self
 
+
+
+
 class Interest(SVSUModelData,Model):
     """
 
@@ -144,7 +149,7 @@ class Interest(SVSUModelData,Model):
     #simply returns an array representing the inital default interests that we want
     #to be populated to the database
     @staticmethod 
-    def get_initial_default_interest_strings()->[str]:
+    def get_initial_default_interest_strings()-> list[str]:
         return [
                 "c++",
                 "python",
@@ -165,15 +170,13 @@ class User(SVSUModelData,Model):
 
         see SVSUModelData as to what this is overloading
     """
-    def get_backend_only_properties(self)->[str]:
+    def get_backend_only_properties(self)-> list[str]:
         return super().get_backend_only_properties() + [
                 "strPasswordHash",
                 "strPasswordSalt",
                 "check_valid_password"
                 ]
 
-    #PLACEHOLDER: Change to User_Accounts
-    #   User_Accounts have a User_Profile
     class Role(TextChoices):
         ADMIN = 'Admin'
         MENTOR = 'Mentor'
@@ -191,7 +194,6 @@ class User(SVSUModelData,Model):
     blnActive = BooleanField(default=True)
     blnAccountDisabled =  BooleanField(default=False)
 
-    #PLACEHOLDER: Move to User_Profiles
     strFirstName: CharField =  CharField(max_length=747,null=True)
     strLastName =  CharField(max_length=747, null=True) 
     strPhoneNumber =  CharField(max_length=15, null=True)
@@ -199,23 +201,40 @@ class User(SVSUModelData,Model):
     strGender = CharField(max_length=35, default='')
     strPreferredPronouns = CharField(max_length=50, null=True)
 
-
     #image field with url location
     imgUserProfile = ImageField(
                                 upload_to="images/",
                                 default=
                                     "images/default_profile_picture.png"
                                 )
- 
 
     #foregn key fields
     interests = models.ManyToManyField(Interest)
 
-    #returns true if the incoming plain text hashes out to our stored
-    #password hash
+    """
+    returns true if we have a mentor account in the database
+    """
+    def is_mentor(self)->bool:
+        try:
+            self.mentor
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    """
+    returns true if we have a mentee acount in the database
+    """
+    def is_mentee(self)->bool:
+        try:
+            self.mentee
+            return True
+        except ObjectDoesNotExist:
+            return False
+    """
+    returns true if the incoming pasword matches the stored password for the 
+    current user
+    """
     def check_valid_password(self,password_plain_text : str)->bool:
-        print("check valid password")
-        print(self.strPasswordHash)
         return security.hash_password(password_plain_text,self.strPasswordHash) ==\
                 self.strPasswordHash
 
@@ -239,16 +258,26 @@ class User(SVSUModelData,Model):
                 )
 
     """
+    returns a new user object from given session data if the user is logged in
+    note that the user must be logged in for this to work, if they are not logged in 
+    returns None
+    """
+    @staticmethod 
+    def from_session(session)->'User':
+        if not security.is_logged_in(session): return None
+
+        return User.objects.get(id=session.get("user_id"))
+
+    """
     returns true if the given email password combination is
     a valid account, otherwise false
     """
     @staticmethod
     def check_valid_login(email_str : str,password_plain_text : str):
-        print("checking valid login!")
-        u = User.objects.filter(clsEmailAddress=email_str).first()
-        if(u == None):
+        try:
+            u = User.objects.get(clsEmailAddress=email_str)
+        except ObjectDoesNotExist:
             return False
-        
         return u.check_valid_password(password_plain_text)
 
     def getUserInfo(self):
@@ -271,6 +300,27 @@ class User(SVSUModelData,Model):
             user_info["Biography"] = self.biographies.strBio
 
         return user_info
+    
+    
+    """
+    namespace for decorators that apply to views SPECIFICALLY to limit the kind of user 
+    that can interact with the view. 
+
+    We would prefer these in the security file, but since that will cause a circular dependency,
+    and these have to do entierly with users it makes sense to place them here
+    """
+    class Decorators:
+        @staticmethod
+        def require_loggedin_mentor(alternate_view):
+            validator = lambda req : security.is_logged_in(req.session) \
+                                     and User.from_session(req.session).is_mentor()
+            return security.Decorators.require_check(validator, alternate_view)
+        
+        @staticmethod
+        def require_loggedin_mentee(alternate_view):
+            validator = lambda req : security.is_logged_in(req.session) \
+                                     and User.from_session(req.session).is_mentee()
+            return security.Decorators.require_check(validator, alternate_view)
 
 class Biographies(SVSUModelData,Model):
     """
@@ -305,24 +355,100 @@ class Mentor(SVSUModelData,Model):
         User,
         on_delete = models.CASCADE
     )
-    orginization = ForeignKey(
-        Organization,
-        on_delete = models.CASCADE
-    )
+
+
+    """
+    creates and saves a mentor and user account to the database that uses the given
+    username and password 
+
+    returns a reference to this object
+    """
+    @staticmethod
+    def create_from_plain_text_and_email(password_plain_text : str,
+                                         email : str)->'Mentee':
+        user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        user_model.save()
+
+        mentor = Mentor.objects.create(account=user_model)
+        mentor.save()
+        return mentor
 
 class Mentee(SVSUModelData,Model):
     """
+    Description
+    -----------
+
+    Properties
+    ----------
+
+    Instance Functions
+    ------------------
+
+    Static Functions
+    ----------------
+
+    Magic Functions
+    ---------------
+
+    Authors
+    -------
 
     """
     account = OneToOneField(
         "User",
         on_delete = models.CASCADE
     )
+    
+    """
+    creates and saves a mentee and user account to the database that uses the given
+    username and password 
+
+    returns a reference to this object
+    """
+    @staticmethod
+    def create_from_plain_text_and_email(password_plain_text : str,
+                                         email : str)->'Mentee':
+        user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        user_model.save()
+
+        mentee = Mentee.objects.create(account=user_model)
+        mentee.save()
+        return mentee
+
 
 class MentorshipRequest(SVSUModelData,Model):
     """
+    Description
+    -----------
+    MentorshipRequest is a database access object. 
+    This class represents the mentorship relation 
+    between a mentor and mentee.
 
+    Properties
+    ----------
+    - mentor (ForeignKey): Represents a user who is a mentor.
+    - mentee (ForeignKey): Represents a user who is a mentee.
+
+    Instance Functions
+    ------------------
+    - create_request: Creates a request in the database using two user IDs.
+    - get_request_id: Returns a specified request using an ID.
+    - get_request_info: Returns a dictionary containing the fields of the request.
+    - remove_request: Removes an entry from the database using two user IDs.
+
+    Static Functions
+    ----------------
+    - NONE -
+
+    Magic Functions
+    ---------------
+    - NONE -
+
+    Authors
+    -------
+    Justin G.
     """
+
     mentor = ForeignKey(
         User,
         on_delete = models.CASCADE,
@@ -334,12 +460,38 @@ class MentorshipRequest(SVSUModelData,Model):
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
+    def create_request(intMentorID: int, intMenteeID: int):
+        """
+        Description
+        -----------
+        Creates a mentorship request using two user ids.
 
-    def createRequest(intMentorID: int, intMenteeID: int):
+        Parameters
+        ----------
+        - intMentorID (int): User ID that is the mentor.
+        - intMenteeID (int): User ID that is the mentee.
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - True (boolean): IF the mentorship request was sucessfully created.
+        - False (boolean): IF the mentorship request was NOT created.
+
+        Example Usage
+        -------------
+        >>> boolFlag = create_request(13, 16)
+        boolFlag = False
+        >>> boolFlag = create_request(5, 24)
+        boolFlag = True
+
+        Authors
+        -------
+        Justin G.
         """
-        2/25/2024
-        Creates a relationship given a mentorID and menteeID.
-        """
+
         try:
             MentorshipRequest.objects.create(
                 mentor_id = intMentorID,
@@ -349,21 +501,67 @@ class MentorshipRequest(SVSUModelData,Model):
         except Exception as e:
             return False
 
-    def getRequest(intId: int):
+    def get_request_id(intId: int):
         """
-        2/25/2024
-        returns a MentorshipRequest object. 
+        Description
+        -----------
+        - Gets a MentorshipRequest object specified by it's ID.
+
+        Parameters
+        ----------
+        -intId (int): An intiger specifying an object in the database.
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - A MentorshipRequest object.
+        - Nothing if the requested MentorshipRequest object does not exist.
+
+        Example Usage
+        -------------
+        >>> clsRequest = get_request_id()
+        clsRequest.mentee = 7
+        clsRequest.mentor = 8
+
+        Authors
+        -------
+        Justin G.
         """
         return MentorshipRequest.objects.get(id = intId)
 
 
-    def getRequestInfo(intId: int):
+    def get_request_info(intId: int):
         """
-        2/25/2024
-        returns a dictionary containing the User id of the mentorID and menteeID for a MentorshipRequest object
+        Description
+        -----------
+        - Gets a specified MentorshipRequest by it's ID.
+        - Returns a dictionary containing the user ID of the mentor and mentee.
+
+        Parameters
+        ----------
+        - intId (int): Integer specifying the id of a MentorshipRequest in
+            the database.
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - dictRequest (Dictionary, String): Containing mentorID and menteeID.
+        Example Usage
+        -------------
+        >>> dictRequest = get_request_id(5)
+        dictRequest = {'mentorID': 1, 'menteeID': 2}
+
+        Authors
+        -------
+        Justin G.
         """
 
-        clsRequest =  MentorshipRequest.getRequest(intId)
+        clsRequest =  MentorshipRequest.get_request_id(intId)
 
         dictRequest = {
             "mentorID" : clsRequest.mentor_id,
@@ -372,21 +570,42 @@ class MentorshipRequest(SVSUModelData,Model):
 
         return dictRequest
     
-    def removeRequest(intMentorID: int, intMenteeID: int):
+    def remove_request(intMentorID: int, intMenteeID: int):
         """
-        2/25/2024 Removes a request from the database. 
-        NOTE: Currently the delete command is commented out. So it will only return MentorshipRequest ID.
-        """
+        Description
+        -----------
+        Removes a mentorship request from the database.
 
-        return  MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).first().id
-            
+        Parameters
+        ----------
+        - intMentorID: (int):
+        - intMenteeID: (int):
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - True: IF the MentorshipRequest was removed from the database.
+        - False IF the MentorshipRequest was NOT removed from the database.
+        
+        Example Usage
+        -------------
+        >>> boolFlag = remove_request(25, 19)
+        boolFlag = True
+        >>> boolFlag = remove_request(45, 75)
+        boolFlag = False
+
+        Authors
+        -------
+        Justin G.
         """
         try:
             MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).delete()
             return True
         except Exception as e:
             return False
-        """
 
 class MentorshipReferral(SVSUModelData,Model):
     """

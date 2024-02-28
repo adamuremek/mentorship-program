@@ -11,6 +11,8 @@ from utils.security import is_in_debug_mode
 
 from mentorship_program_app.models import User
 from mentorship_program_app.models import Interest
+from mentorship_program_app.models import Mentee
+from mentorship_program_app.models import Mentor
 
 
 
@@ -55,29 +57,51 @@ def populate_database_with_random_users(amount  : int = 10)->None:
 
     print_debug("[random user generator] generating users...")
 
+
+    mentor_threshold_amount = amount / 2
+
     for i in range(amount):
         user = f'user{i}@fakeemail{i}.com'
+        
+        new_user = None
 
-
-        try:
-            new_user = User.create_from_plain_text_and_email(
+        #try:
+        new_user = None
+        first_name_prefix = ""
+        
+        if i < mentor_threshold_amount:
+            new_user = Mentee.create_from_plain_text_and_email(
                                                 f'password{i}',
                                                 user
                                                 )
-        except:
-            print_debug("that user already exists ya silly goose")
+            first_name_prefix = "mentee "
+        else:
+            new_user = Mentor.create_from_plain_text_and_email(
+                                                f'password{i}',
+                                                user
+                                                )
+            first_name_prefix = "mentor "
+            
+        #we specifically want the account from the mentor/mentee class for the following code
+        new_user = new_user.account
+
+        new_user.strFirstName = first_name_prefix + random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+        new_user.strLastName = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+
+        #except:
+        #    print_debug("that user already exists ya silly goose")
+        #    continue #if the user already exists, move onto the next user
 
 
 
+        if new_user == None:
+            print_debug("[random user generator] WARNING, unkown error occured while generating the user")
+            continue
         user_interests = get_random_interests(5)
         new_user.interests.add(*user_interests)
 
-
-        for i in new_user.interests.all():
-            print_debug(i.strInterest)
-
         new_user.save()
-        print_debug('[random user generator] finished random user generation!\n\tenjoy the data :) '+user)
+        print_debug('[random user generator] ' + user + ' as ' + ('mentor' if new_user.is_mentor() else 'mentee'))
 
 """
 populate the database with debug generated interests
