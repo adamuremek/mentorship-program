@@ -1,0 +1,154 @@
+.admin_user_management_container {
+    display: flex;
+    flex-direction: column;
+
+    text-align: center;
+    justify-content: space-around;
+    align-items: center;
+
+    min-height: 80vh;
+    max-height: 90vh;
+}
+
+.user_board_title_container {
+    display: flex;
+    flex-direction: row;
+}
+
+.user_board_search_container {
+    /* height: 1vh; */
+    width: 25vw;
+
+    background: rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 1em;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.search_bar {
+    height: 3vh;
+    width: 25vw;
+
+    background: none;
+    border: none;
+}
+
+
+#search_icon {
+    height: 2.5vh;
+    width: 1.5vw;
+}
+
+.dual_user_board_container {
+    display: flex;
+    flex-direction: row;
+
+    align-items: center;
+}
+
+.user_board_container {
+    width: 45vw;
+    margin: 1vw;
+}
+
+.user_board {
+    height: 50vh;
+
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 1em;
+}
+
+.admin_user_management_button {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+
+    padding-left: 2%;
+    padding-right: 2%;
+    min-width: 12vw;
+    min-height: 4vh;
+
+    margin: 0.5%;
+}
+
+#address_arrow {
+    height: 1vh;
+    width: 1vw;
+}
+
+.admin_user_management_header_elements {
+    text-align: left;
+    width: 95vw;
+}
+
+#admin_user_management_header_small_text {
+    font-size: 1vw
+}
+
+#admin_user_management_header_medium_text {
+    font-size: 1.25vw
+}
+
+#admin_user_management_header_large_text {
+    font-size: 2vw
+}
+
+
+/* @media screen and (max-width: 1200px) {
+    .admin_mentor_review_container {
+        min-height: 85vh;
+
+        min-width: 70vw;
+    }
+} */
+
+@media screen and (max-width: 900px) {
+    .user_board_container {
+        width: 46vw;
+        margin: 0.5vw;
+    }
+
+    .user_board {
+        height: 55vh;
+    }
+
+    #admin_user_management_header_small_text {
+        font-size: 1.5vw
+    }
+    
+    #admin_user_management_header_medium_text {
+        font-size: 1.75vw
+    }
+    
+    #admin_user_management_header_large_text {
+        font-size: 3vw
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .user_board_container {
+        width: 48vw;
+        margin: 0.5vw;
+    }
+
+    .user_board {
+        height: 55vh;
+    }
+
+    #admin_user_management_header_small_text {
+        font-size: 2vw
+    }
+    
+    #admin_user_management_header_medium_text {
+        font-size: 2.25vw
+    }
+    
+    #admin_user_management_header_large_text {
+        font-size: 3.25vw
+    }
+}

@@ -32,6 +32,11 @@ creates or deletes a request for the given mentor from the current mentee that i
 """
 @User.Decorators.require_loggedin_mentee(invalid_request_401)
 def request_mentor(request):
+    
+    strMentor = "mentor_id"
+    #Init the variable.
+    boolResponse = False
+
     if request.method == 'POST':
         
         #attempt to parse out data from the post response
@@ -39,23 +44,22 @@ def request_mentor(request):
         action = request.POST.get("create",False)
         mentor_id = request.POST.get("mentor_id",None)
 
-        if mentor_id == None:
-            return invalid_request_401(request,{"error":"invalid mentor id"})
-
-
-        bool_response = False
-        if action:
-            bool_response = MentorshipRequest.create_request(mentor_id, mentee_id)
-        else:
-            bool_response = MentorshipRequest.remove_request(mentor_id, mentee_id)
+        #Get the data from the POST request.
+        data = request.POST        
+        intMenteeID = security.get_user_id_from_session(request.session)
         
-        #we failed to make a response
-        if not bool_response:
-            return invalid_request_401(request,{"error":"failed to create mapping"})
-    
-    #if we get here the method on the request was not post
-    #which means we get invalid data
-    return invalid_request_401(request,{"error","must use post method"})
+        #Insert the request into the database.
+        boolResponse = MentorshipRequest.create_request(data.get(strMentor), intMenteeID)
+
+        if boolResponse:
+            #Request was added to the database.
+            return HttpRequest("Something happened!") #PLACEHOLDER - REMOVE WHEN CHANGED WITH REAL DATA plz
+        else:
+            #Request was NOT added to the database.
+            return HttpRequest("Something happened!") #PLACEHOLDER - REMOVE WHEN CHANGED WITH REAL DATA plz  
+    else:
+        #PLACEHOLDER - REMOVE WHEN CHANGED WITH REAL DATA plz
+        return HttpRequest("Something happened!")
 
 
 
@@ -208,6 +212,12 @@ def account_activation_mentor(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
+def admin_user_management(request):
+    template = loader.get_template('admin/user_management.html')
+    context = {
+        #TODO NEED TO ADD SOME DUMMY INFO
+    }
+    return HttpResponse(template.render(context,request))\
 
 
 
