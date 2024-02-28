@@ -184,10 +184,10 @@ def register_mentor(req: HttpRequest):
         generated_user_salt = security.generate_salt()
 
         organization = None
-        if(not Organizations.objects.filter(strName=req.POST["organization"]).exists()):
-            organization = Organizations.objects.create(strName=req.POST["organization"])
+        if(not Organization.objects.filter(strName=req.POST["organization"]).exists()):
+            organization = Organization.objects.create(strName=req.POST["organization"])
         else:
-            organization = Organizations.objects.get(strName=req.POST["organization"])
+            organization = Organization.objects.get(strName=req.POST["organization"])
             
         # create a new user in the database with the role "Pending"
         User.objects.create(
