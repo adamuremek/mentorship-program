@@ -12,10 +12,9 @@ from .models import Interest
 from .models import MentorshipRequest
 
 def request_mentor(request):
-
-    strRequest = "request"
+    
     strMentor = "mentor_id"
-    strMentee = "mentee_id"
+    #Init the variable.
     boolResponse = False
 
     if request.method == 'POST':
@@ -25,18 +24,20 @@ def request_mentor(request):
         """
 
         #Get the data from the POST request.
-        data = request.POST
-        #Get the action that should be performed.
-        action = data.get(strRequest)
+        data = request.POST        
+        intMenteeID = security.get_user_id_from_session(request.session)
+        
+        #Insert the request into the database.
+        boolResponse = MentorshipRequest.create_request(data.get(strMentor), intMenteeID)
 
-        if action == strRequest:
-            #User is making a request.
-            boolResponse = MentorshipRequest.createRequest(data.get(strMentor), data.get(strMentee))
+        if boolResponse:
+            #Request was added to the database.
+            return HttpRequest("Something happened!") #PLACEHOLDER - REMOVE WHEN CHANGED WITH REAL DATA plz
         else:
-            #Else the user is recending the request.
-            boolResponse = MentorshipRequest.removeRequest(data.get(strMentor), data.get(strMentee))
+            #Request was NOT added to the database.
+            return HttpRequest("Something happened!") #PLACEHOLDER - REMOVE WHEN CHANGED WITH REAL DATA plz  
     else:
-        #PLACEHOLDER
+        #PLACEHOLDER - REMOVE WHEN CHANGED WITH REAL DATA plz
         return HttpRequest("Something happened!")
 
 

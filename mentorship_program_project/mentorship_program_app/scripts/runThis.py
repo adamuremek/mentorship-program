@@ -25,8 +25,8 @@ def run():
     #print(getUserInformation(3))
 
     #mentorshipRequest.createRequest(1, 2)
-    print(MentorshipRequest.getRequestInfo(1))
-    print(MentorshipRequest.removeRequest(4, 5))
+    print(MentorshipRequest.get_request_info(1))
+    #print(MentorshipRequest.removeRequest(4, 5))
 
 
     

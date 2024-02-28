@@ -177,8 +177,6 @@ class User(SVSUModelData,Model):
                 "check_valid_password"
                 ]
 
-    #PLACEHOLDER: Change to User_Accounts
-    #   User_Accounts have a User_Profile
     class Role(TextChoices):
         ADMIN = 'Admin'
         MENTOR = 'Mentor'
@@ -196,7 +194,6 @@ class User(SVSUModelData,Model):
     blnActive = BooleanField(default=True)
     blnAccountDisabled =  BooleanField(default=False)
 
-    #PLACEHOLDER: Move to User_Profiles
     strFirstName: CharField =  CharField(max_length=747,null=True)
     strLastName =  CharField(max_length=747, null=True) 
     strPhoneNumber =  CharField(max_length=15, null=True)
@@ -204,14 +201,12 @@ class User(SVSUModelData,Model):
     strGender = CharField(max_length=35, default='')
     strPreferredPronouns = CharField(max_length=50, null=True)
 
-
     #image field with url location
     imgUserProfile = ImageField(
                                 upload_to="images/",
                                 default=
                                     "images/default_profile_picture.png"
                                 )
- 
 
     #foregn key fields
     interests = models.ManyToManyField(Interest)
@@ -322,6 +317,23 @@ class Mentor(SVSUModelData,Model):
 
 class Mentee(SVSUModelData,Model):
     """
+    Description
+    -----------
+
+    Properties
+    ----------
+
+    Instance Functions
+    ------------------
+
+    Static Functions
+    ----------------
+
+    Magic Functions
+    ---------------
+
+    Authors
+    -------
 
     """
     account = OneToOneField(
@@ -332,8 +344,37 @@ class Mentee(SVSUModelData,Model):
 
 class MentorshipRequest(SVSUModelData,Model):
     """
+    Description
+    -----------
+    MentorshipRequest is a database access object. 
+    This class represents the mentorship relation 
+    between a mentor and mentee.
 
+    Properties
+    ----------
+    - mentor (ForeignKey): Represents a user who is a mentor.
+    - mentee (ForeignKey): Represents a user who is a mentee.
+
+    Instance Functions
+    ------------------
+    - create_request: Creates a request in the database using two user IDs.
+    - get_request_id: Returns a specified request using an ID.
+    - get_request_info: Returns a dictionary containing the fields of the request.
+    - remove_request: Removes an entry from the database using two user IDs.
+
+    Static Functions
+    ----------------
+    - NONE -
+
+    Magic Functions
+    ---------------
+    - NONE -
+
+    Authors
+    -------
+    Justin G.
     """
+
     mentor = ForeignKey(
         User,
         on_delete = models.CASCADE,
@@ -346,11 +387,38 @@ class MentorshipRequest(SVSUModelData,Model):
         related_name = "mentee_to_mentor_set"
     )
 
-    def createRequest(intMentorID: int, intMenteeID: int):
+    def create_request(intMentorID: int, intMenteeID: int):
         """
-        2/25/2024
-        Creates a relationship given a mentorID and menteeID.
+        Description
+        -----------
+        Creates a mentorship request using two user ids.
+
+        Parameters
+        ----------
+        - intMentorID (int): User ID that is the mentor.
+        - intMenteeID (int): User ID that is the mentee.
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - True (boolean): IF the mentorship request was sucessfully created.
+        - False (boolean): IF the mentorship request was NOT created.
+
+        Example Usage
+        -------------
+        >>> boolFlag = create_request(13, 16)
+        boolFlag = False
+        >>> boolFlag = create_request(5, 24)
+        boolFlag = True
+
+        Authors
+        -------
+        Justin G.
         """
+
         try:
             MentorshipRequest.objects.create(
                 mentor_id = intMentorID,
@@ -360,21 +428,67 @@ class MentorshipRequest(SVSUModelData,Model):
         except Exception as e:
             return False
 
-    def getRequest(intId: int):
+    def get_request_id(intId: int):
         """
-        2/25/2024
-        returns a MentorshipRequest object. 
+        Description
+        -----------
+        - Gets a MentorshipRequest object specified by it's ID.
+
+        Parameters
+        ----------
+        -intId (int): An intiger specifying an object in the database.
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - A MentorshipRequest object.
+        - Nothing if the requested MentorshipRequest object does not exist.
+
+        Example Usage
+        -------------
+        >>> clsRequest = get_request_id()
+        clsRequest.mentee = 7
+        clsRequest.mentor = 8
+
+        Authors
+        -------
+        Justin G.
         """
         return MentorshipRequest.objects.get(id = intId)
 
 
-    def getRequestInfo(intId: int):
+    def get_request_info(intId: int):
         """
-        2/25/2024
-        returns a dictionary containing the User id of the mentorID and menteeID for a MentorshipRequest object
+        Description
+        -----------
+        - Gets a specified MentorshipRequest by it's ID.
+        - Returns a dictionary containing the user ID of the mentor and mentee.
+
+        Parameters
+        ----------
+        - intId (int): Integer specifying the id of a MentorshipRequest in
+            the database.
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - dictRequest (Dictionary, String): Containing mentorID and menteeID.
+        Example Usage
+        -------------
+        >>> dictRequest = get_request_id(5)
+        dictRequest = {'mentorID': 1, 'menteeID': 2}
+
+        Authors
+        -------
+        Justin G.
         """
 
-        clsRequest =  MentorshipRequest.getRequest(intId)
+        clsRequest =  MentorshipRequest.get_request_id(intId)
 
         dictRequest = {
             "mentorID" : clsRequest.mentor_id,
@@ -383,21 +497,42 @@ class MentorshipRequest(SVSUModelData,Model):
 
         return dictRequest
     
-    def removeRequest(intMentorID: int, intMenteeID: int):
+    def remove_request(intMentorID: int, intMenteeID: int):
         """
-        2/25/2024 Removes a request from the database. 
-        NOTE: Currently the delete command is commented out. So it will only return MentorshipRequest ID.
-        """
+        Description
+        -----------
+        Removes a mentorship request from the database.
 
-        return  MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).first().id
-            
+        Parameters
+        ----------
+        - intMentorID: (int):
+        - intMenteeID: (int):
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - True: IF the MentorshipRequest was removed from the database.
+        - False IF the MentorshipRequest was NOT removed from the database.
+        
+        Example Usage
+        -------------
+        >>> boolFlag = remove_request(25, 19)
+        boolFlag = True
+        >>> boolFlag = remove_request(45, 75)
+        boolFlag = False
+
+        Authors
+        -------
+        Justin G.
         """
         try:
             MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).delete()
             return True
         except Exception as e:
             return False
-        """
 
 
 
