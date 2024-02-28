@@ -122,11 +122,6 @@ class SVSUModelData():
         security.black_list(self,self.get_backend_only_properties() + black_list)
         return self
 
-
-
-
-
-
 class Interest(SVSUModelData,Model):
     """
 
@@ -160,7 +155,8 @@ class Interest(SVSUModelData,Model):
                 "calculus",
                 "AI"
                 ]
-
+    # def __str__(self) -> str:
+    #     return self.strInterest
 
 class User(SVSUModelData,Model):
     """
@@ -249,8 +245,10 @@ class User(SVSUModelData,Model):
     @staticmethod
     def check_valid_login(email_str : str,password_plain_text : str):
         print("checking valid login!")
-        print(email_str)
-        u = User.objects.get(clsEmailAddress=email_str)
+        u = User.objects.filter(clsEmailAddress=email_str).first()
+        if(u == None):
+            return False
+        
         return u.check_valid_password(password_plain_text)
 
     def getUserInfo(self):
@@ -274,8 +272,6 @@ class User(SVSUModelData,Model):
 
         return user_info
 
-
-
 class Biographies(SVSUModelData,Model):
     """
 
@@ -288,8 +284,6 @@ class Biographies(SVSUModelData,Model):
 
     strBio = CharField(max_length=5000, null=True)
 
-
-
 class Organization(SVSUModelData,Model):
     """
     
@@ -298,7 +292,6 @@ class Organization(SVSUModelData,Model):
     strIndustryType = CharField(max_length=100)
 
     admins = models.ManyToManyField('Mentor')
-
 
 class Mentor(SVSUModelData,Model):
 
@@ -317,8 +310,6 @@ class Mentor(SVSUModelData,Model):
         on_delete = models.CASCADE
     )
 
-
-
 class Mentee(SVSUModelData,Model):
     """
 
@@ -327,7 +318,6 @@ class Mentee(SVSUModelData,Model):
         "User",
         on_delete = models.CASCADE
     )
-
 
 class MentorshipRequest(SVSUModelData,Model):
     """
@@ -398,8 +388,6 @@ class MentorshipRequest(SVSUModelData,Model):
             return False
         """
 
-
-
 class MentorshipReferral(SVSUModelData,Model):
     """
 
@@ -418,7 +406,6 @@ class MentorshipReferral(SVSUModelData,Model):
         Mentee,
         on_delete = models.CASCADE
     )
-
 
 class MentorReports(SVSUModelData,Model):
     class ReportType(TextChoices):
@@ -442,8 +429,6 @@ class Notes(SVSUModelData,Model):
         on_delete = models.CASCADE
     )
 
-
-
 class SystemLogs(SVSUModelData,Model):
     """
     
@@ -451,3 +436,4 @@ class SystemLogs(SVSUModelData,Model):
     
     strActivity = CharField(max_length = 500)
     clsCreatedOn = DateField(default=date.today)
+

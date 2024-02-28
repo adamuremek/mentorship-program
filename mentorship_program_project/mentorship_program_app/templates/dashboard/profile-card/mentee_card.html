@@ -14,7 +14,7 @@
 
 		  <img class="card-profile-image" src="{{ user.imgUserProfile.url }}"/>
 
-		  <p class="card-name">{{ user.strFirstName }}</p>
+		  <p class="card-name">{{ user.strFirstName }} {{ user.strLastName }}</p>
 
         <div class="card-line-divider-2"></div>
 
@@ -25,8 +25,12 @@
 			  <p>{{ interest.strInterest }}</p>
 			  {% endfor %}
 		  </div>
-
-        <div class="card-button">Request Mentee</div>
+		  {% if role == 'Mentee' %}
+		  <div class="card-button">Request Mentor</div>
+	  {% else %}
+	  <div class="card-button">Request Mentee</div>
+	  {% endif %}
+        
     </div>
     
 </div>

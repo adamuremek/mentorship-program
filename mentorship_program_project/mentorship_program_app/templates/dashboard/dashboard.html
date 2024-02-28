@@ -16,18 +16,26 @@ Dashboard
     <div class="hero-container">
 
         <div class="section-recommended">
-            <h1>Recommended Mentees</h1>
+            {% if role == 'Mentee' %}
+                <h1>Recommended Mentors</h1>
+            {% else %}
+                <h1>Recommended Mentees</h1>
+            {% endif %}
             <div class="recommended-cards">
                 <!-- 5 Cards should be inserted -->
                 {% for user in recommended_users %}
-                {% include 'dashboard/profile-card/mentee_card.html' %}
+                    {% include 'dashboard/profile-card/mentee_card.html' %}
                 {% endfor %}
             </div>
         </div>
 
         <div class="section-available">
 
-            <h1>Available Mentees</h1>
+            {% if role == 'Mentee' %}
+                <h1>Available Mentors</h1>
+            {% else %}
+                <h1>Available Mentees</h1>
+            {% endif %}
 
             <div class="available-filters">
                 <div class="available-interests-filter">
@@ -44,13 +52,23 @@ Dashboard
 
                             <div id="inner-popup-content">
                                 <div class="popup-search-box">
-                                    <input type="text" placeholder="Search Interests">
-                                    <img class="search-icon" src="{% static 'images/search-icon.png' %}"></img>
+                                    <input type="text" name="search-interests" placeholder="Search Interests" onkeyup="filterInterests()">
+                                    
+
                                 </div>
 
                                 <div class="popup-checkboxes">
 
-                                    <div class="popup-checkbox-item">
+
+                                    {% for interest in interests %}
+                                        <div class="popup-checkbox-item {{ interest.strInterest }}">
+                                            <input type="checkbox" id="cb1" name="{{ interest.strInterest }}" onchange="filterInterests()">
+                                            <label for="cb1">{{interest.strInterest}} ({{interest.mentor_count}})</label>
+                                        </div>
+                                    {% endfor %}
+
+
+                                    <!-- <div class="popup-checkbox-item">
                                         <input type="checkbox" id="cb1" checked>
                                         <label for="cb1">Artificial Intelligence (32)</label>
                                     </div>
@@ -73,7 +91,7 @@ Dashboard
                                     <div class="popup-checkbox-item">
                                         <input type="checkbox" id="cb5" checked>
                                         <label for="cb5">Networking (4)</label>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -87,9 +105,11 @@ Dashboard
             </div>
 
             <div class="available-cards">
-                {% for user in all_users %}
-                {% include 'dashboard/profile-card/mentee_card.html' %}
-                {% endfor %}
+                    {% for user in all_users %}
+                    <div class="goFuckYourself{% for interest in user.interests.all %} {{interest.strInterest}}{% endfor %}">
+                        {% include 'dashboard/profile-card/mentee_card.html' %}
+                    </div>
+                    {% endfor %}
             </div>
 
         </div>
@@ -97,7 +117,10 @@ Dashboard
     </div>
 </section>
 
+{{ interests|json_script:"interests-dictionary" }}
+
 <script>
+
     /* These event listeners show/hide the Interests popup when it is clicked on */
     var popupRoot = document.getElementById('popup-root')
     var popup = document.getElementById('popup')
@@ -105,8 +128,63 @@ Dashboard
     popupRoot.addEventListener("mouseup", event => {
         if (event.target != popupContent && (event.target == popupRoot || event.target.parentNode == popup)) {
             popup.classList.toggle('show')
+            
         }
     })
+
+  
+    filterInterests = () => {
+        console.log('fuck offf asshoole')
+        const users = document.getElementsByClassName('goFuckYourself')
+        const filter_tags = document.getElementsByClassName('popup-checkbox-item')
+
+        console.log('users')
+        console.log(users)
+        console.log('filter_tags')
+        console.log(filter_tags)
+
+        // Some Experimental Bullshit
+        for(const user of users) {
+            user.style.display = 'none'
+        }
+
+        const selected_filters = []
+        for(const interest_filter of filter_tags) {
+            if(interest_filter.querySelector('input').checked) {
+                const class_of_interest = Array.from(interest_filter.classList).pop(0)
+                console.log('hello?')
+                selected_filters.push(class_of_interest)
+            }
+        }
+
+        console.log(selected_filters)
+        if(selected_filters.length == 0) {
+            for(const user of users)
+                user.style.display = 'block'
+            return
+        }
+            
+
+        for (const user of users) {
+            console.log('name:' + user.classList)
+            // if(Array.from(user.classList).some(i => selected_filters.some(j => j==i)))
+            if(Array.from(user.classList).some(className => selected_filters.includes(className))) {
+                console.log('this dude roicks')
+                user.style.display = 'block'
+            }
+                
+        }
+        
+        
+        
+    }
+    
+    const value = JSON.parse(document.getElementById("interests-dictionary").textContent);
+    console.log(value)
+
+    
 </script>
+
+
 
 {% endblock %}

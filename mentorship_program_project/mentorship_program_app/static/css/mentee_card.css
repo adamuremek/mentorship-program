@@ -10,6 +10,7 @@
 
 .card-gray-part {
     position: relative;
+    justify-items: center;
     background-color: rgb(44, 44, 44);
     width: 100%;
     height: 76%;
@@ -20,6 +21,7 @@
 
 .card-profile-image {
     position: relative;
+    display: block;
     width: 90px;
     height: 90px;
     border-radius: 50%;

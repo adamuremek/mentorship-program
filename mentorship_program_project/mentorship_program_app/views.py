@@ -224,11 +224,13 @@ def login_uname_text(request):
     print_debug("uname " + uname)
     print_debug("password " + password)
 
+
     if not User.check_valid_login(uname,password):
         response = HttpResponse(json.dumps({"warning":"invalid creds"}))
         response.status_code = 401
         return response
-    
+ 
+
     #valid login
     security.set_logged_in(request.session,User.objects.get(clsEmailAddress=uname).id)
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
