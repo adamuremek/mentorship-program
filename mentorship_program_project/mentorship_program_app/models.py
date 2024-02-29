@@ -627,6 +627,34 @@ class MentorshipReferral(SVSUModelData,Model):
     )
 
 class MentorReports(SVSUModelData,Model):
+    """
+    Description
+    -----------
+    MentorshipReports is a database access object.
+    This class represents a report for a mentor.
+
+    Properties
+    ----------
+    - mentor (ForeignKey): Represents a user who is a mentor.
+
+    Instance Functions
+    ------------------
+    - create_mentor_report: Creates a report in the database using the report type, body,and mentor's ID.
+    - get_report_id: Returns a specified report using an ID.
+    - get_reoort_info: Returns a dictionary containing the fields of the report.
+
+    Static Functions
+    ----------------
+    - NONE -
+
+    Magic Functions
+    ---------------
+    - NONE -
+
+    Authors
+    -------
+    Adam C.
+    """
     class ReportType(TextChoices):
         BEHAVIOR : 'Behavior'
 
@@ -636,6 +664,120 @@ class MentorReports(SVSUModelData,Model):
     )
     strReportType = CharField(max_length=10, choices=ReportType.choices, default='')
     strReportBody = CharField(max_length = 3500)
+
+    def create_mentor_report(strProvidedReportType: str, strProvidedReportBody: str, intMentorID: int):
+        """
+        Description
+        -----------
+        Creates a mentor report using the report type, body, and mentor's ID.
+
+        Parameters
+        ----------
+        - strProvidedReportType (str): The type of report.
+        - strProvidedReportBody (str): The body of the report.
+        - intMentorID (int): User ID that is the mentor.
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - True (boolean): IF the mentor report was sucessfully created.
+        - False (boolean): IF the mentor report was NOT created.
+
+        Example Usage
+        -------------
+        >>> boolFlag = create_mentor_report('Accidentally', '', 24)
+        boolFlag = False
+        >>> boolFlag = create_mentor_report('Incident', 'Mentor was rude', 4)
+        boolFlag = True
+
+        Authors
+        -------
+        Adam C.
+        """
+        try:
+            MentorReports.objects.create(
+                strReportType = strProvidedReportType,
+                strReportBody = strProvidedReportBody,
+                mentor = intMentorID
+            )
+            return True
+        except Exception as e:
+            return False
+        
+    def get_report_id(intID: int):
+        """
+        Description
+        -----------
+        - Gets a MentorReport object specified by it's ID.
+
+        Parameters
+        ----------
+        -intId (int): An intiger specifying an object in the database.
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - A MentorReport object.
+        - Nothing if the requested MentorReport object does not exist.
+
+        Example Usage
+        -------------
+        >>> clsReport = get_report_id(2)
+        clsReport.strReportType = 'Incident'
+        clsReport.strReportBody = 'Mentor was rude'
+        clsReport.mentor_id = 4
+
+        Authors
+        -------
+        Adam C.
+        """
+        return MentorReports.objects.get(id = intID)
+    
+    def get_mentor_report_info(intReportID: int):
+        """
+        Description
+        -----------
+        - Gets a specified MentorReport by it's ID.
+        - Returns a dictionary containing the report type, body, and mentor's ID.
+
+        Parameters
+        ----------
+        - intReportId (int): Integer specifying the id of a MentorReport in
+            the database.
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - dictReport (Dictionary, String): containing the report type, body, and mentorID.
+
+        Example Usage
+        -------------
+        >>> dictReport = get_report_id(2)
+        dictReport = {'reportType': 'Incident', 'reportBody': 'Mentor was rude', 'mentorID': 4}
+
+        Authors
+        -------
+        Adam C.
+        """
+        clsReport =  MentorReports.get_report_id(intReportID)
+
+        dictReport = {
+            "reportType" : clsReport.strReportType,
+            "reportBody" : clsReport.strReportBody,
+            "mentorID" : clsReport.mentor_id
+        }
+
+        return dictReport
+
 
 class Notes(SVSUModelData,Model):
     strTitle = CharField(max_length=100)
