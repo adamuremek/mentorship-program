@@ -2,11 +2,13 @@ import json
 import re
 from collections.abc import Callable
 from datetime import date
+
 from django.http import HttpResponse, HttpRequest
 from django.template import loader, Template
 from django.shortcuts import render, redirect
-from mentorship_program_app.models import *
+from django.core.exceptions import ObjectDoesNotExist
 
+from mentorship_program_app.models import *
 from .status_codes import bad_request_400
 from utils import security
 
@@ -407,16 +409,56 @@ def enable_user(req:HttpRequest):
 
 
 @security.Decorators.require_login(bad_request_400)
-def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int):
+def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpResponse:
+    '''
+     Description
+     ___________
+     view that creates a mentor request between a given mentor id 
+     and mentee id
+
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+        mentee_id : int - mentee id from the datbase, must be valid
+        mentor_id : int - mentee id from the database, must be valid
+
+     Returns
+     _______
+        HttpResponse containing a valid json ok signature or 401 error code for invalid data
+     
+     Example Usage
+     _____________
+        >>> request_mentor(request,mentee_id,mentor_id)
+
+        /path/to/route/mentee_id/mentor_id
+
+     >>> 
+     Authors
+     _______
+     David Kennamer *^*
+    '''
     user = User.from_session(req.session)
     
+
+    #if you are a mentee you can only request for yourself
     if user.is_mentee():
         mentee_id : int = user.id
     elif user.is_mentor() and mentee_id == None:
         return bad_request_400("mentee id required for mentors")
+
+
+    mentor_account = None
+    mentee_account = None
     
-    mentor_account = User.objects.get(id=mentor_id)
-    mentee_account = User.objects.get(id=mentee_id)
+    try:
+        mentor_account = User.objects.get(id=mentor_id)
+        mentee_account = User.objects.get(id=mentee_id)
+    except ObjectDoesNotExist:
+        return bad_request_400("invalid id detected!")
+    
+    if mentor_account == None or mentee_account == None:
+        #we should never get here, but just in case for some reason
+        return bad_request_400("internal error occured")
 
 
     mentorship_request = MentorshipRequest.objects.create(

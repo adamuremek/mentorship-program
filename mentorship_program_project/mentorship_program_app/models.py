@@ -367,6 +367,7 @@ class Mentor(SVSUModelData,Model):
     def create_from_plain_text_and_email(password_plain_text : str,
                                          email : str)->'Mentee':
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        user_model.strRole = User.Role.MENTOR
         user_model.save()
 
         mentor = Mentor.objects.create(account=user_model)
@@ -409,6 +410,7 @@ class Mentee(SVSUModelData,Model):
     def create_from_plain_text_and_email(password_plain_text : str,
                                          email : str)->'Mentee':
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        user_model.strRole = User.Role.MENTEE
         user_model.save()
 
         mentee = Mentee.objects.create(account=user_model)
@@ -453,13 +455,33 @@ class MentorshipRequest(SVSUModelData,Model):
         User,
         on_delete = models.CASCADE,
         related_name = "mentor_to_mentee_set"
-        
     )
     mentee = ForeignKey(
         User,
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
+    
+    class Meta:
+        """
+        django provides the capabilities to perform auto validation of 
+        different fields inside of the database via the meta class.
+
+        Resources
+        _________
+
+        django meta docs:         https://docs.djangoproject.com/en/5.0/ref/models/options/
+        django constraints docs:  https://docs.djangoproject.com/en/5.0/ref/models/constraints/
+        stack overflow reference: https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-couple
+
+        """
+        constraints = [
+            models.UniqueConstraint(
+                                    fields=["mentee","mentor"],
+                                    name="unique-mentorship-request-constraint")
+                ]
+
+
     def create_request(intMentorID: int, intMenteeID: int):
         """
         Description

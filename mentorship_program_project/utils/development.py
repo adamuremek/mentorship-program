@@ -75,14 +75,12 @@ def populate_database_with_random_users(amount  : int = 10)->None:
                                                 user
                                                 )
                 first_name_prefix = "mentee "
-                new_user.strRole = User.Role.MENTEE
             else:
                 new_user = Mentor.create_from_plain_text_and_email(
                                                 f'password{i}',
                                                 user
                                                 )
                 first_name_prefix = "mentor "
-                new_user.strRole = User.Role.MENTOR
                
             
         #we specifically want the account from the mentor/mentee class for the following code
@@ -90,7 +88,6 @@ def populate_database_with_random_users(amount  : int = 10)->None:
                 
             new_user.strFirstName = first_name_prefix + random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
             new_user.strLastName = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
-            new_user.strRole = User.Role.MENTOR
         except Exception as e:
     
             #print_debug("that user already exists ya silly goose")
