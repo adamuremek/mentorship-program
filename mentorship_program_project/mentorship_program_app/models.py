@@ -478,7 +478,7 @@ class MentorshipRequest(SVSUModelData,Model):
         constraints = [
             models.UniqueConstraint(
                                     fields=["mentee","mentor"],
-                                    name="unique-mentorship-request-constraint")
+                                    name="unique_mentorship_request_constraint")
                 ]
 
 
