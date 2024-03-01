@@ -6,7 +6,7 @@ additionally, functions in this
 """
 import random
 import string
-
+import traceback
 from utils.security import is_in_debug_mode
 
 from mentorship_program_app.models import User
@@ -65,32 +65,39 @@ def populate_database_with_random_users(amount  : int = 10)->None:
         
         new_user = None
 
-        #try:
-        new_user = None
-        first_name_prefix = ""
+        try:
+            new_user = None
+            first_name_prefix = ""
         
-        if i < mentor_threshold_amount:
-            new_user = Mentee.create_from_plain_text_and_email(
+            if i < mentor_threshold_amount:
+                new_user = Mentee.create_from_plain_text_and_email(
                                                 f'password{i}',
                                                 user
                                                 )
-            first_name_prefix = "mentee "
-        else:
-            new_user = Mentor.create_from_plain_text_and_email(
+                first_name_prefix = "mentee "
+                new_user.strRole = User.Role.MENTEE
+            else:
+                new_user = Mentor.create_from_plain_text_and_email(
                                                 f'password{i}',
                                                 user
                                                 )
-            first_name_prefix = "mentor "
+                first_name_prefix = "mentor "
+                new_user.strRole = User.Role.MENTOR
+               
             
         #we specifically want the account from the mentor/mentee class for the following code
-        new_user = new_user.account
+            new_user = new_user.account
+                
+            new_user.strFirstName = first_name_prefix + random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+            new_user.strLastName = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+            new_user.strRole = User.Role.MENTOR
+        except Exception as e:
+    
+            #print_debug("that user already exists ya silly goose")
+            print("An error occurred:", str(e))
 
-        new_user.strFirstName = first_name_prefix + random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
-        new_user.strLastName = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
-
-        #except:
-        #    print_debug("that user already exists ya silly goose")
-        #    continue #if the user already exists, move onto the next user
+            print(new_user)
+            continue #if the user already exists, move onto the next user
 
 
 

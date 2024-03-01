@@ -15,8 +15,8 @@ urlpatterns = [
     
     
     #================NAVIGATION ROUTES================#
-    path('', navigation.landing, name='default'),
-    # path('landing/', navigation.landing, name='landing'),
+    path('', navigation.landing, name='default'),     #Now landing
+    # path('landing/', navigation.landing, name='landing'), 
     path('dashboard/', navigation.dashboard, name='dashboard'),
     #=================================================#
     
