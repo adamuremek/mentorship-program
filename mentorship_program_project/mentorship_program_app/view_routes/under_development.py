@@ -461,6 +461,7 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
         return bad_request_400("internal error occured")
 
 
+    print("creating mentorship request in the database!")
     mentorship_request = MentorshipRequest.objects.create(
                 mentor=mentor_account,
                 mentee=mentee_account

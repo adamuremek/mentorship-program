@@ -40,8 +40,9 @@ def landing(req):
 @security.Decorators.require_login(bad_request_400)
 def dashboard(req):
     template = loader.get_template('dashboard/dashboard.html')
+    session_user = User.from_session(req.session)
 
-    role = User.objects.get(id=req.session["user_id"]).strRole
+    role = session_user.strRole
     # get the users of the opposite role to be displayed
     # mentors see mentees and mentees see mentors
     opposite_role = 'Mentee' if role == 'Mentor' else 'Mentor'
@@ -55,7 +56,8 @@ def dashboard(req):
             "recommended_users": [users.sanitize_black_properties() for users in card_data[0:4]],
             "all_users"        : [users.sanitize_black_properties() for users in card_data],
             "role"             : role,
-            "interests"        : list(interests_with_role_count)
+            "interests"        : list(interests_with_role_count),
+            "session_user"     : session_user
     }
 
     return HttpResponse(template.render(context, req))

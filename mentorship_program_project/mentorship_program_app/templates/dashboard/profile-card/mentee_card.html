@@ -25,14 +25,15 @@
 			  <p>{{ interest.strInterest }}</p>
 			  {% endfor %}
 		  </div>
+
+		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }}">
 		  {% if role == 'Mentee' %}
-		  <div class="card-button">Request Mentor</div>
-	  {% else %}
-	  <div class="card-button">Request Mentee</div>
-	  {% endif %}
-        
+			Request Mentor
+		  {% else %}
+		  	Request Mentee
+		  {% endif %}
+			</div>
     </div>
-    
 </div>
 
 {% endblock %}

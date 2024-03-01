@@ -32,7 +32,7 @@ urlpatterns = [
     path("change-mentor-status", under_development.change_mentor_status, name="change-mentor-status"),
     path("disable-user", under_development.disable_user, name="disable-user"),
     path("enable-user", under_development.enable_user, name="enable-user"),
-    path("request-mentor", under_development.request_mentor, name="request-mentor"),
+    #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN
     path('role_selection/', views.role_selection, name='role_selection'),

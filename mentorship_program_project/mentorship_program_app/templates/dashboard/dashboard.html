@@ -26,6 +26,7 @@ Dashboard
                 {% for user in recommended_users %}
                     {% include 'dashboard/profile-card/mentee_card.html' %}
                 {% endfor %}
+
             </div>
         </div>
 
@@ -53,8 +54,6 @@ Dashboard
                             <div id="inner-popup-content">
                                 <div class="popup-search-box">
                                     <input type="text" name="search-interests" placeholder="Search Interests" onkeyup="filterInterests()">
-                                    
-
                                 </div>
 
                                 <div class="popup-checkboxes">
@@ -115,10 +114,24 @@ Dashboard
         </div>
 
     </div>
+
+
 </section>
 
 {{ interests|json_script:"interests-dictionary" }}
 
+<script src = "{% static 'js/backend_requests.js' %}"></script>
+<script>
+	//scripts to make the buttons request a mentor
+
+
+	//start by giving the js script context from djangos back end
+	let session_user_id = {{ session_user.id }};
+	let is_mentee_str = "{{ role }}";
+
+	let is_mentee = is_mentee_str == 'Mentee';
+</script>
+<script src = "{% static 'js/dashboard/dashboard_request_button.js' %}"></script>
 <script>
 
     /* These event listeners show/hide the Interests popup when it is clicked on */

@@ -105,3 +105,9 @@
 .card-button:active {
     background-color: #182b46;
 }
+
+/* for buttons that no longer click, div. to increase
+ * priority */
+div.card-button-disabled , div.card-button-disabled:hover , div.card-button-disabled:active {
+    background-color: #363f4d;
+}
