@@ -258,7 +258,7 @@ def view_pending_mentors(req: HttpRequest):
     out_str = ""
     
     for user in pending_mentors:
-        user_info = user.getUserInfo()
+        user_info = user.get_user_info()
         first_name = user_info["FirstName"]
         last_name = user_info["LastName"]
         email = user_info["EmailAddress"]
@@ -305,10 +305,10 @@ def change_mentor_status(req:HttpRequest):
     
     # Update user role and activation status based on provided status
     if status == 'Approved':
-        user.blnActive = True
-        user.strRole = User.Role.MENTOR
+        user.bln_active = True
+        user.str_role = User.Role.MENTOR
     else:
-        user.strRole = User.Role.DECLINED
+        user.str_role = User.Role.DECLINED
         
     # Save changes to user object
     user.save()
@@ -353,7 +353,7 @@ def disable_user(req:HttpRequest):
     
     # Get the user and set their disabled field to True
     user = User.objects.get(id=id)
-    user.blnAccountDisabled = True
+    user.bln_account_disabled = True
     
     # Save changes to user object
     user.save()
@@ -398,7 +398,7 @@ def enable_user(req:HttpRequest):
     
     # Get the user and set their disabled field to False
     user = User.objects.get(id=id)
-    user.blnAccountDisabled = False
+    user.bln_account_disabled = False
     
     # Save changes to user object
     user.save()

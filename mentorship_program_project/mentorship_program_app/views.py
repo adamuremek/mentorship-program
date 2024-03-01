@@ -30,7 +30,7 @@ def invalid_request_401(request,response_data : Union[dict,str] = 'Unauthorized'
 """
 creates or deletes a request for the given mentor from the current mentee that is logged in
 """
-@User.Decorators.require_loggedin_mentee(invalid_request_401)
+@User.Decorators.require_logged_in_mentee(invalid_request_401)
 def request_mentor(request):
     
     strMentor = "mentor_id"

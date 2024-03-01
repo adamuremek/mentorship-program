@@ -37,6 +37,7 @@ MODIFICATION HISTORY:
 
 WHO   WHEN     WHAT
 WJL  2/26/24   Added file header comment and began commenting functions
+WJL   3/1/24   Finished adding comments to this file
 """
 
 from django.conf import settings
@@ -57,6 +58,34 @@ class containing functions we want in every one of our
 models, but not necessarily model classes
 """
 class SVSUModelData():
+    """
+    Description
+    -----------
+    A class containing functions we want in every one
+    of our models, but not necessarily model classes.
+
+    Properties
+    ----------
+    (None)
+
+    Instance Functions
+    -------------------
+    - sanitize_black_properties: Sets all read-only properties
+        in the blacklist to None
+
+    Static Functions
+    -------
+    - get_backend_only_properties:
+        Returns a string list of properties only for back-end technologies
+
+    Magic Functions
+    -------------
+    (None)
+
+    Authors
+    -------
+    
+    """
     #ensure that this model is not stored in the database
     #it is ONLY a logical model
     abstract = True
@@ -83,7 +112,7 @@ class SVSUModelData():
         Example Usage
         -------------
 
-        >>> get_backend_only_properties()
+        >>> SVSUModelData.get_backend_only_properties()
         '["save", "delete"]'
 
         Authors
@@ -114,8 +143,8 @@ class SVSUModelData():
         Example Usage
         -------------
 
-        >>> getUserLogin('fake@email.com')
-        'adlkfy8o90q23gb876df'
+        >>> svsu_data_model.sanititze_black_properties()
+        'svsu_data_model'
 
         Authors
         -------
@@ -129,7 +158,32 @@ class SVSUModelData():
 
 class Interest(SVSUModelData,Model):
     """
+    Description
+    -----------
+    A class outlining the model for user interests
 
+    Properties
+    ----------
+    - strInterest
+    - isDefaultInterest
+
+    Instance Functions
+    -------------------
+    (None)
+
+    Static Functions
+    -------
+    - get_default_interests: Returns a list of the default interests
+    - get_initial_default_interest_strings: Returns a string list of hard-coded
+        default interest strings
+
+    Magic Functions
+    -------------
+    (None)
+
+    Authors
+    -------
+    
     """
     strInterest = CharField(max_length=100, null=False,unique=True)
     isDefaultInterest = BooleanField(default=False)
@@ -137,19 +191,69 @@ class Interest(SVSUModelData,Model):
 
 
     #convinence methods
-
-    """
-        convinence function to return an array of default interest objects 
-        idk the return type of djangos queries so its not typed atm
-    """
     @staticmethod
-    def get_default_interests():
+    def get_default_interests() -> QuerySet:
+        """
+        Description
+        -----------
+        Returns a list of all default interest objects
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - QuerySet: The set of all default interest objects
+
+        Example Usage
+        -------------
+
+        >>> Interest.get_default_interests()
+        '<[Interest: c++, Interest: python, Interest: html, ...]>'
+
+        Authors
+        -------
+        
+        """
         return Interest.objects.filter(isDefaultInterest=True)
 
     #simply returns an array representing the inital default interests that we want
     #to be populated to the database
     @staticmethod 
     def get_initial_default_interest_strings()-> list[str]:
+        """
+        Description
+        -----------
+        Returns a list representing the inital default interests that we want
+        to be populated to the database
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - list[str]: The set of all default interest objects
+
+        Example Usage
+        -------------
+
+        >>> Interest.get_initial_default_interest_strings()
+        '[c++, python, html, ...]'
+
+        Authors
+        -------
+        
+        """
         return [
                 "c++",
                 "python",
@@ -165,19 +269,119 @@ class Interest(SVSUModelData,Model):
 
 class User(SVSUModelData,Model):
     """
-        generate a list of backend only properties appended to the 
-        general blackouted properties
+    Description
+    -----------
+    A class outlining the model for users
 
-        see SVSUModelData as to what this is overloading
+    Properties
+    ----------
+    - cls_email_address
+    - str_password_hash
+    - str_password_salt
+    - str_role
+    - cls_date_joined
+    - cls_active_changed_date
+    - bln_active
+    - bln_account_disabled
+    - str_first_name
+    - str_last_name
+    - str_phone_number
+    - cls_date_of_birth
+    - str_gender
+    - str_preferred_pronouns
+    - img_user_profile
+    - interests
+
+    Instance Functions
+    -------------------
+    - get_backend_only_properties:
+        Returns a string list of properties only for back-end technologies
+    - is_mentor: Returns true if the user is a mentor
+    - is_mentee: Returns true if the user is a mentee
+    - check_valid_password: Returns true if the entered
+        password matches the store password
+    - get_user_info: Returns a dictionary of the user's information
+
+    Static Functions
+    -------
+    - create_from_plain_text_and_email: Creates a new user object
+    - from_session: Gets a user object using a session
+    - check_valid_login: Checks if a given email/pass combination is correct
+
+    Magic Functions
+    -------------
+    (None)
+
+    Authors
+    -------
+
     """
     def get_backend_only_properties(self)-> list[str]:
+        """
+        Description
+        -----------
+        Get a list of properties to be hidden from front-end technologies
+        overrides from SVSUModelData
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - [str]: A list containing the properties as strings
+
+        Example Usage
+        -------------
+
+        >>> User.get_backend_only_properties()
+        '["save", "delete", "str_password_hash", "str_password_salt", "check_valid_passowrd"]'
+
+        Authors
+        -------
+        
+        """
         return super().get_backend_only_properties() + [
-                "strPasswordHash",
-                "strPasswordSalt",
+                "str_password_hash",
+                "str_password_salt",
                 "check_valid_password"
                 ]
 
     class Role(TextChoices):
+        """
+        Description
+        -----------
+        An enum subclass to hold the different user roles
+
+        Properties
+        ----------
+        - ADMIN
+        - MENTOR
+        - MENTEE
+        - MENTOR_PENDING
+        - GRADUATED
+        - DECLINED
+
+        Instance Functions
+        -------------------
+        (None)
+
+        Static Functions
+        -------
+        (None)
+
+        Magic Functions
+        -------------
+        (None)
+
+        Authors
+        -------
+        
+        """
         ADMIN = 'Admin'
         MENTOR = 'Mentor'
         MENTEE = 'Mentee'
@@ -185,24 +389,24 @@ class User(SVSUModelData,Model):
         GRADUATED = 'Graduated'
         DECLINED = 'Declined'
 
-    clsEmailAddress =  EmailField(null=True,unique=True)  
-    strPasswordHash =  CharField(max_length=1000, null=True, blank=False)
-    strPasswordSalt =  CharField(max_length=1000, null=True, blank=False)
-    strRole = CharField(max_length=15, choices=Role.choices, default='')
-    clsDateJoined = DateField(default=date.today)
-    clsActiveChangedDate = DateField(default=date.today)
-    blnActive = BooleanField(default=True)
-    blnAccountDisabled =  BooleanField(default=False)
+    cls_email_address =  EmailField(null=True,unique=True)  
+    str_password_hash =  CharField(max_length=1000, null=True, blank=False)
+    str_password_salt =  CharField(max_length=1000, null=True, blank=False)
+    str_role = CharField(max_length=15, choices=Role.choices, default='')
+    cls_date_joined = DateField(default=date.today)
+    cls_active_changed_date = DateField(default=date.today)
+    bln_active = BooleanField(default=True)
+    bln_account_disabled =  BooleanField(default=False)
 
-    strFirstName: CharField =  CharField(max_length=747,null=True)
-    strLastName =  CharField(max_length=747, null=True) 
-    strPhoneNumber =  CharField(max_length=15, null=True)
-    clsDateofBirth = DateField(default=date.today)
-    strGender = CharField(max_length=35, default='')
-    strPreferredPronouns = CharField(max_length=50, null=True)
+    str_first_name: CharField =  CharField(max_length=747,null=True)
+    str_last_name =  CharField(max_length=747, null=True) 
+    str_phone_number =  CharField(max_length=15, null=True)
+    cls_date_of_birth = DateField(default=date.today)
+    str_gender = CharField(max_length=35, default='')
+    str_preferred_pronouns = CharField(max_length=50, null=True)
 
     #image field with url location
-    imgUserProfile = ImageField(
+    img_user_profile = ImageField(
                                 upload_to="images/",
                                 default=
                                     "images/default_profile_picture.png"
@@ -211,41 +415,140 @@ class User(SVSUModelData,Model):
     #foregn key fields
     interests = models.ManyToManyField(Interest)
 
-    """
-    returns true if we have a mentor account in the database
-    """
+    
     def is_mentor(self)->bool:
+        """
+        Description
+        -----------
+        Returns whether the current user is a mentor
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - bool: Is the user a mentor
+
+        Example Usage
+        -------------
+
+        >>> user_joe.is_mentor()
+        true
+
+        Authors
+        -------
+        
+        """
         try:
             self.mentor
             return True
         except ObjectDoesNotExist:
             return False
 
-    """
-    returns true if we have a mentee acount in the database
-    """
     def is_mentee(self)->bool:
+        """
+        Description
+        -----------
+        Returns whether the current user is a mentee
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - bool: Is the user a mentee
+
+        Example Usage
+        -------------
+
+        >>> user_joe.is_mentee()
+        false
+
+        Authors
+        -------
+        
+        """
         try:
             self.mentee
             return True
         except ObjectDoesNotExist:
             return False
-    """
-    returns true if the incoming pasword matches the stored password for the 
-    current user
-    """
-    def check_valid_password(self,password_plain_text : str)->bool:
-        return security.hash_password(password_plain_text,self.strPasswordHash) ==\
-                self.strPasswordHash
 
-    """
-    returns a NON SAVED user object that has the password properly hashed
-    and salt correctly generated it's your responsibility to save this object 
-    if you want it to persist in the db YOU HAVE BEEN WARNED >_>
-    """
+    def check_valid_password(self,password_plain_text : str)->bool:
+        """
+        Description
+        -----------
+        Checks whether the incoming password matches the stored password
+
+        Parameters
+        ----------
+        - password_plain_text (str): The incoming password plaintext
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - bool: Do the passwords match
+
+        Example Usage
+        -------------
+
+        >>> user_joe.check_valid_password("password")
+        true
+
+        Authors
+        -------
+        
+        """
+        return security.hash_password(password_plain_text,self.str_password_hash) ==\
+                self.str_password_hash
+
+
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
                                          email : str)->'User':
+        """
+        Description
+        -----------
+        Creates a user object WITHOUT saving it to the database. Author note:
+        it's your responsibility to save this object 
+        if you want it to persist in the db YOU HAVE BEEN WARNED >_>
+
+        Parameters
+        ----------
+        - password_plain_text (str): The user's password as plaintext
+        - email (str): The user's email
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - User: the created user object
+
+        Example Usage
+        -------------
+
+        >>> User.create_from_plain_text_and_email("password", "joeshmo@email.com")
+        NewUserObject1
+
+        Authors
+        -------
+        
+        """
         generated_user_salt = security.generate_salt()
         #TODO: emails need to be validated, send a sacrifical lamb
         #to the regex gods
@@ -257,43 +560,123 @@ class User(SVSUModelData,Model):
                     clsEmailAddress = email
                 )
 
-    """
-    returns a new user object from given session data if the user is logged in
-    note that the user must be logged in for this to work, if they are not logged in 
-    returns None
-    """
     @staticmethod 
     def from_session(session)->'User':
+        """
+        Description
+        -----------
+        Returns a user object based on the session data
+        Requires the user to be logged in
+
+        Parameters
+        ----------
+        - session (dict): The session
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - User: The user object for the logged in user
+        - None: The user is not logged in
+
+        Example Usage
+        -------------
+
+        >>> User.from_session(req.session)
+        NewUserObject2
+
+        Authors
+        -------
+        
+        """
         if not security.is_logged_in(session): return None
 
         return User.objects.get(id=session.get("user_id"))
 
-    """
-    returns true if the given email password combination is
-    a valid account, otherwise false
-    """
     @staticmethod
-    def check_valid_login(email_str : str,password_plain_text : str):
+    def check_valid_login(str_email:str, str_password_plain_text:str):
+        """
+        Description
+        -----------
+        Returns whether the given email/password combination is correct
+
+        Parameters
+        ----------
+        - str_email (str): The entered email
+        - str_password_plain_text (str): The entered password
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - bool: The result of the login check
+
+        Example Usage
+        -------------
+
+        >>> User.check_valid_login("joeshmo@email.com", "password")
+        true
+
+        Authors
+        -------
+        
+        """
         try:
-            u = User.objects.get(clsEmailAddress=email_str)
+            u = User.objects.get(clsEmailAddress=str_email)
         except ObjectDoesNotExist:
             return False
-        return u.check_valid_password(password_plain_text)
+        return u.check_valid_password(str_password_plain_text)
 
-    def getUserInfo(self):
+    def get_user_info(self) -> dict:
+        """
+        Description
+        -----------
+        Returns a dictionary of the user information
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - dict: The user's information
+
+        Example Usage
+        -------------
+
+        >>> user_joe.get_user_info()
+        {
+        "EmailAddress":"joeshmo@email.com",
+        "Role":"Mentor",
+        "DateJoined":3/1/2024,
+        ...
+        }
+
+        Authors
+        -------
+        
+        """
         user_info = {
-            "EmailAddress": self.clsEmailAddress,
-            "Role": self.strRole,
-            "DateJoined": self.clsDateJoined,
-            "ActiveChangedDate": self.clsActiveChangedDate,
-            "Active": self.blnActive,
-            "AccountDisabled": self.blnAccountDisabled,
-            "FirstName": self.strFirstName,
-            "LastName": self.strLastName,
-            "PhoneNumber": self.strPhoneNumber,
-            "DateOfBirth": self.clsDateofBirth,
-            "Gender": self.strGender,
-            "PreferredPronouns": self.strPreferredPronouns
+            "EmailAddress": self.cls_email_address,
+            "Role": self.str_role,
+            "DateJoined": self.cls_date_joined,
+            "ActiveChangedDate": self.cls_active_changed_date,
+            "Active": self.bln_active,
+            "AccountDisabled": self.bln_account_disabled,
+            "FirstName": self.str_first_name,
+            "LastName": self.str_last_name,
+            "PhoneNumber": self.str_phone_number,
+            "DateOfBirth": self.cls_date_of_birth,
+            "Gender": self.str_gender,
+            "PreferredPronouns": self.str_preferred_pronouns
         }
 
         if hasattr(self, 'biographies') and self.biographies:
@@ -301,23 +684,47 @@ class User(SVSUModelData,Model):
 
         return user_info
     
-    
-    """
-    namespace for decorators that apply to views SPECIFICALLY to limit the kind of user 
-    that can interact with the view. 
-
-    We would prefer these in the security file, but since that will cause a circular dependency,
-    and these have to do entierly with users it makes sense to place them here
-    """
     class Decorators:
+        """
+        Description
+        -----------
+        A subclass containing decorators that apply to views SPECIFICALLY
+        to limit the kind of user that can interact with the view. We would
+        prefer these in the security file, but since that will cause a circular
+        dependency, and these have to do entierly with users it makes sense
+        to place them here.
+
+        Properties
+        ----------
+        (None)
+
+        Instance Functions
+        -------------------
+        (None)
+
+        Static Functions
+        -------
+        - require_logged_in_mentor: Prevents users who aren't logged in as a
+            mentor from accessing certain pages
+        - require_logged_in_mentee: Prevents users who aren't logged in as a
+            mentee from accessing certain pages
+
+        Magic Functions
+        -------------
+        (None)
+
+        Authors
+        -------
+        
+        """
         @staticmethod
-        def require_loggedin_mentor(alternate_view):
+        def require_logged_in_mentor(alternate_view):
             validator = lambda req : security.is_logged_in(req.session) \
                                      and User.from_session(req.session).is_mentor()
             return security.Decorators.require_check(validator, alternate_view)
         
         @staticmethod
-        def require_loggedin_mentee(alternate_view):
+        def require_logged_in_mentee(alternate_view):
             validator = lambda req : security.is_logged_in(req.session) \
                                      and User.from_session(req.session).is_mentee()
             return security.Decorators.require_check(validator, alternate_view)
