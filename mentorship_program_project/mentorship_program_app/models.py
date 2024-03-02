@@ -1122,7 +1122,7 @@ class MentorReports(SVSUModelData,Model):
 
         Parameters
         ----------
-        -intId (int): An intiger specifying an object in the database.
+        -intId (int): An integer specifying an object in the database.
 
         Optional Parameters
         -------------------
