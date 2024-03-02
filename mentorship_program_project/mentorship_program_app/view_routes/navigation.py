@@ -41,7 +41,6 @@ def landing(req):
 def dashboard(req):
     template = loader.get_template('dashboard/dashboard.html')
     session_user = User.from_session(req.session)
-
     role = session_user.strRole
     # get the users of the opposite role to be displayed
     # mentors see mentees and mentees see mentors

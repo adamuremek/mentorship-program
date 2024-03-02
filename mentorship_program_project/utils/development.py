@@ -223,7 +223,7 @@ def test_database()->None:
     print_debug("="*5)
     
     for user in all_users:
-        print_debug(user.clsEmailAddress)
+        print_debug(user.cls_email_address)
         user_interests = user.interests.all()
         print_debug(user_interests)
         
