@@ -1165,7 +1165,7 @@ class MentorshipRequest(SVSUModelData,Model):
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
-    def create_request(int_mentor_id: int, int_mentee_id: int):
+    def create_request(int_mentor_id: int, int_mentee_id: int) -> bool:
         """
         Description
         -----------
@@ -1206,7 +1206,7 @@ class MentorshipRequest(SVSUModelData,Model):
         except Exception as e:
             return False
 
-    def get_request_id(int_request_id: int):
+    def get_request_id(int_request_id: int) -> 'MentorshipRequest':
         """
         Description
         -----------
@@ -1238,7 +1238,7 @@ class MentorshipRequest(SVSUModelData,Model):
         return MentorshipRequest.objects.get(id = int_request_id)
 
 
-    def get_request_info(int_request_id: int):
+    def get_request_info(int_request_id: int) -> dict:
         """
         Description
         -----------
@@ -1275,7 +1275,7 @@ class MentorshipRequest(SVSUModelData,Model):
 
         return dict_request
     
-    def remove_request(int_mentor_id: int, int_mentee_id: int):
+    def remove_request(int_mentor_id: int, int_mentee_id: int) -> bool:
         """
         Description
         -----------
@@ -1419,7 +1419,7 @@ class MentorReports(SVSUModelData,Model):
     str_report_type = CharField(max_length=10, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
 
-    def create_mentor_report(str_provided_report_type: str, str_provided_report_body: str, int_mentor_id: int):
+    def create_mentor_report(str_provided_report_type: str, str_provided_report_body: str, int_mentor_id: int) -> bool:
         """
         Description
         -----------
@@ -1461,7 +1461,7 @@ class MentorReports(SVSUModelData,Model):
         except Exception as e:
             return False
         
-    def get_report_id(int_report_id: int):
+    def get_report_id(int_report_id: int) -> 'MentorReports':
         """
         Description
         -----------
@@ -1493,7 +1493,7 @@ class MentorReports(SVSUModelData,Model):
         """
         return MentorReports.objects.get(id = int_report_id)
     
-    def get_mentor_report_info(int_report_id: int):
+    def get_mentor_report_info(int_report_id: int) -> dict:
         """
         Description
         -----------
