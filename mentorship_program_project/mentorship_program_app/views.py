@@ -253,7 +253,7 @@ def login_uname_text(request):
  
 
     #valid login
-    security.set_logged_in(request.session,User.objects.get(clsEmailAddress=uname).id)
+    security.set_logged_in(request.session,User.objects.get(cls_email_address=uname).id)
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
 

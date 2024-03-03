@@ -179,7 +179,7 @@ def register_mentor(req: HttpRequest):
         
         incoming_email: str = req.POST["email"]
         # check if the account is already registered
-        if User.objects.filter(clsEmailAddress=req.POST["email"]).count() != 0:    
+        if User.objects.filter(cls_email_address=req.POST["email"]).count() != 0:    
             return HttpResponse(f"Email {incoming_email} already exsists!")
         
         # salt to store to unhash the password
@@ -193,10 +193,10 @@ def register_mentor(req: HttpRequest):
             
         # create a new user in the database with the role "Pending"
         User.objects.create(
-            clsEmailAddress = incoming_email,
-            strPasswordHash = security.hash_password(req.POST["password"], generated_user_salt),
-            strPasswordSalt = generated_user_salt,
-            strRole = User.Role.MENTOR_PENDING,
+            cls_email_address = incoming_email,
+            str_password_hash = security.hash_password(req.POST["password"], generated_user_salt),
+            str_password_salt = generated_user_salt,
+            str_role = User.Role.MENTOR_PENDING,
             clsDateJoined = date.today(),
             clsActiveChangedDate = date.today(),
             blnActive = False,
@@ -208,7 +208,7 @@ def register_mentor(req: HttpRequest):
             #strGender = strGender,
             strPreferredPronouns = req.POST["pronouns"]
         )
-        mentor = User.objects.get(clsEmailAddress = incoming_email)
+        mentor = User.objects.get(cls_email_address = incoming_email)
         Mentor.objects.create(
             account_id = mentor.id,
             intMaxMentees = 5,
@@ -255,7 +255,7 @@ def view_pending_mentors(req: HttpRequest):
     #TODO Verify youre an admin
 
     # get all mentors who are still pending
-    pending_mentors = User.objects.filter(strRole="MentorPending")
+    pending_mentors = User.objects.filter(str_role="MentorPending")
     
     out_str = ""
     

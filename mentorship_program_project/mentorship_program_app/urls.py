@@ -65,6 +65,8 @@ urlpatterns = [
     path('logout/',views.logout,name='logout'),
 
     #development routes
+    
+    path('dev/show_all_user_roles'           , development_views.display_all_user_roles            ,name='display all user roles'),
     path('dev/profile_pictures'           , development_views.profile_picture_test            ,name='profile_picture_tests'),
     path('dev/generate_random_user_data/' , development_views.generate_random_user_data       ,name='generate_random_user_data'),
     path('dev/populate_default_interests/', development_views.populate_default_interest_values,name='populate_default_interest_values'),

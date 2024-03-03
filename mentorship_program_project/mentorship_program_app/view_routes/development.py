@@ -12,6 +12,34 @@ from .status_codes import bad_request_400 as invalid_request_401
 
 from mentorship_program_app.models import User
 
+
+@security.Decorators.require_debug(invalid_request_401)
+def display_all_user_roles(request)->HttpResponse:
+    """
+    Description
+    ___________
+
+    simply displayes user roles to the console for debuging :)
+
+    Usage
+    _____
+
+    >>> display_all_user_roles(req)
+
+    you can also go to "dev/show_all_user_roles"
+    in the app to get a page displaying the roles and print out on console
+
+    Authors
+    _______
+    David Kennamer 0.0 😹
+    """
+    ret_val = ""
+    for u  in User.objects.all(): 
+        role_string = f"{u.cls_email_address} {u.str_first_name} has a role of : {u.str_role}"
+        ret_val +=  role_string  + "\n"
+        print(role_string)
+    return HttpResponse(role_string)
+
 @security.Decorators.require_debug(invalid_request_401)
 def profile_picture_test(request):
     context = {

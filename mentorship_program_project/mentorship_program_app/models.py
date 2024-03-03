@@ -415,7 +415,114 @@ class User(SVSUModelData,Model):
     #foregn key fields
     interests = models.ManyToManyField(Interest)
 
-    
+
+    def has_requested_user(self,other : 'User')->bool:
+        """
+        Description
+        -----------
+        returns true if the given user has a MentorShipRequest with the other user
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - User : other
+
+
+        Example Usage
+        -------------
+
+        >>> user_joe.has_requested_user(other)
+        'bool'
+
+        Authors
+        -------
+        David Kennamer ~.~
+        Tanner 🦞
+        """
+        try:
+            if self.is_mentor():
+                MentorshipRequest.objects.get(mentor=self,mentee=other) 
+            else:
+                MentorshipRequest.objects.get(mentee=self,mentor=other) 
+            return True
+        except:
+            return False
+
+
+    def get_opposite_database_role_string(self)->str:
+        """
+        Description
+        -----------
+        returns a string representing the opposite role based on existence in the database
+
+        convinence function
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - str: Mentor if mentor esle MEntee
+        read the python :p ^
+
+        Example Usage
+        -------------
+
+        >>> user_joe.get_database_role_str()
+        'Mentor'
+
+        Authors
+        -------
+        
+        """
+        return User.Role.MENTEE if  self.is_mentor()  else User.Role.MENTOR
+
+    def get_database_role_string(self)->str:
+        """
+        Description
+        -----------
+        returns a string representing the state of the database based on if 
+        the database is a mentor
+
+        convinence function
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - str: Mentor if mentor esle MEntee
+        read the python :p ^
+
+        Example Usage
+        -------------
+
+        >>> user_joe.get_database_role_str()
+        'Mentor'
+
+        Authors
+        -------
+        
+        """
+        return User.Role.MENTOR if self.is_mentor()  else User.Role.MENTEE
+
     def is_mentor(self)->bool:
         """
         Description
@@ -553,11 +660,11 @@ class User(SVSUModelData,Model):
         #TODO: emails need to be validated, send a sacrifical lamb
         #to the regex gods
         return User.objects.create(
-                    strPasswordHash = security.hash_password(
+                    str_password_hash = security.hash_password(
                                             password_plain_text,
                                             generated_user_salt),
-                    strPasswordSalt = generated_user_salt,
-                    clsEmailAddress = email
+                    str_password_salt = generated_user_salt,
+                    cls_email_address = email
                 )
 
     @staticmethod 
@@ -626,7 +733,7 @@ class User(SVSUModelData,Model):
         
         """
         try:
-            u = User.objects.get(clsEmailAddress=str_email)
+            u = User.objects.get(cls_email_address=str_email)
         except ObjectDoesNotExist:
             return False
         return u.check_valid_password(str_password_plain_text)
@@ -774,7 +881,7 @@ class Mentor(SVSUModelData,Model):
     def create_from_plain_text_and_email(password_plain_text : str,
                                          email : str)->'Mentee':
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
-        user_model.strRole = User.Role.MENTOR
+        user_model.str_role = User.Role.MENTOR
         user_model.save()
 
         mentor = Mentor.objects.create(account=user_model)
@@ -817,7 +924,7 @@ class Mentee(SVSUModelData,Model):
     def create_from_plain_text_and_email(password_plain_text : str,
                                          email : str)->'Mentee':
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
-        user_model.strRole = User.Role.MENTEE
+        user_model.str_role = User.Role.MENTEE
         user_model.save()
 
         mentee = Mentee.objects.create(account=user_model)

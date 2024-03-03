@@ -75,6 +75,7 @@ def populate_database_with_random_users(amount  : int = 10)->None:
                                                 user
                                                 )
                 first_name_prefix = "mentee "
+                
             else:
                 new_user = Mentor.create_from_plain_text_and_email(
                                                 f'password{i}',
@@ -86,8 +87,8 @@ def populate_database_with_random_users(amount  : int = 10)->None:
         #we specifically want the account from the mentor/mentee class for the following code
             new_user = new_user.account
                 
-            new_user.strFirstName = first_name_prefix + random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
-            new_user.strLastName = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+            new_user.str_first_name = first_name_prefix + random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+            new_user.str_last_name = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
         except Exception as e:
     
             #print_debug("that user already exists ya silly goose")
@@ -176,14 +177,14 @@ def test_database()->None:
                                                           'fakeuser1@fake.com')
     except:
         print_debug("fakeuser1 already exists")
-        fakeuser1 = User.objects.get(clsEmailAddress='fakeuser1@fake.com')
+        fakeuser1 = User.objects.get(cls_email_address='fakeuser1@fake.com')
     
     fakeuser2 = None
     try: 
         fakeuser2 = User.create_from_plain_text_and_email('fakeuser2',
                                                           'fakeuser2@fake.com')
     except:
-        fakeuser2 = User.objects.get(clsEmailAddress='fakeuser2@fake.com')
+        fakeuser2 = User.objects.get(cls_email_address='fakeuser2@fake.com')
         print_debug("fakeuser2 already exists")
     
     fakeuser3 = None
@@ -191,7 +192,7 @@ def test_database()->None:
         fakeuser3 = User.create_from_plain_text_and_email('fakeuser3',
                                                           'fakeuser3@fake.com')
     except:
-        fakeuser3 = User.objects.get(clsEmailAddress='fakeuser3@fake.com')
+        fakeuser3 = User.objects.get(cls_email_address='fakeuser3@fake.com')
         print_debug("fakeuser3 already exists")
 
     
