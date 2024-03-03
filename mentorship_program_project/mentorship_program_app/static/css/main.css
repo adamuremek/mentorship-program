@@ -29,7 +29,10 @@ body {
       
     /* stretches instead of repeats gradient on long pages */
     background-attachment: fixed;
+    position: static;
 }
+
+
 
 main {
     min-height: 90vh;
@@ -39,6 +42,11 @@ main {
     align-items: center;
     justify-content: center;
 }
+
+
+
+
+
 
 /* Red   :  #4C282C */
 /* Blue  :  #1E2E42 */
