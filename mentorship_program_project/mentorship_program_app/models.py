@@ -38,6 +38,7 @@ MODIFICATION HISTORY:
 WHO   WHEN     WHAT
 WJL  2/26/24   Added file header comment and began commenting functions
 WJL   3/1/24   Finished adding comments to this file
+WJL   3/3/24   Fully fixed and finished updating documentation on this file
 """
 
 from django.conf import settings
@@ -414,8 +415,6 @@ class User(SVSUModelData,Model):
 
     #foregn key fields
     interests = models.ManyToManyField(Interest)
-
-
         
     def has_requested_user(self,other_user_id : int)->'MentorshipRequest':
         """
@@ -517,6 +516,7 @@ class User(SVSUModelData,Model):
         
         """
         return User.Role.MENTOR if self.is_mentor()  else User.Role.MENTEE
+
 
     def is_mentor(self)->bool:
         """
@@ -876,7 +876,6 @@ class Mentor(SVSUModelData,Model):
     def create_from_plain_text_and_email(password_plain_text : str,
                                          email : str)->'Mentee':
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
-        user_model.str_role = User.Role.MENTOR
         user_model.save()
 
         mentor = Mentor.objects.create(account=user_model)
@@ -919,7 +918,6 @@ class Mentee(SVSUModelData,Model):
     def create_from_plain_text_and_email(password_plain_text : str,
                                          email : str)->'Mentee':
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
-        user_model.str_role = User.Role.MENTEE
         user_model.save()
 
         mentee = Mentee.objects.create(account=user_model)
@@ -964,34 +962,14 @@ class MentorshipRequest(SVSUModelData,Model):
         User,
         on_delete = models.CASCADE,
         related_name = "mentor_to_mentee_set"
+        
     )
     mentee = ForeignKey(
         User,
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
-    
-    class Meta:
-        """
-        django provides the capabilities to perform auto validation of 
-        different fields inside of the database via the meta class.
-
-        Resources
-        _________
-
-        django meta docs:         https://docs.djangoproject.com/en/5.0/ref/models/options/
-        django constraints docs:  https://docs.djangoproject.com/en/5.0/ref/models/constraints/
-        stack overflow reference: https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-couple
-
-        """
-        constraints = [
-            models.UniqueConstraint(
-                                    fields=["mentee","mentor"],
-                                    name="unique_mentorship_request_constraint")
-                ]
-
-
-    def create_request(int_mentor_user_id: int, int_mentee_user_id: int):
+    def create_request(int_mentor_id: int, int_mentee_id: int):
         """
         Description
         -----------
@@ -999,8 +977,8 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Parameters
         ----------
-        - int_mentor_user_id (int): User ID that is the mentor.
-        - int_mentee_user_id (int): User ID that is the mentee.
+        - int_mentor_id (int): User ID that is the mentor.
+        - int_mentee_id (int): User ID that is the mentee.
 
         Optional Parameters
         -------------------
@@ -1021,20 +999,15 @@ class MentorshipRequest(SVSUModelData,Model):
         Authors
         -------
         Justin G.
-
-        Changes
-        -------
-        David Kennamer 0-0 - returns request as object for saving
         """
 
         try:
-            mentor_ship_request = MentorshipRequest.objects.create(
-                mentor_id = int_mentor_user_id,
-                mentee_id = int_mentee_user_id
+            MentorshipRequest.objects.create(
+                mentor_id = int_mentor_id,
+                mentee_id = int_mentee_id
             )
-            return mentor_ship_request
+            return True
         except Exception as e:
-            print(e)
             return False
 
     def get_request_id(intId: int):
@@ -1106,7 +1079,7 @@ class MentorshipRequest(SVSUModelData,Model):
 
         return dictRequest
     
-    def remove_request(intMentorID: int, intMenteeID: int):
+    def remove_request(int_mentor_id: int, int_mentee_id: int):
         """
         Description
         -----------
@@ -1114,8 +1087,8 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Parameters
         ----------
-        - intMentorID: (int):
-        - intMenteeID: (int):
+        - int_mentor_id: (int):
+        - int_mentee_id: (int):
 
         Optional Parameters
         -------------------
@@ -1138,7 +1111,7 @@ class MentorshipRequest(SVSUModelData,Model):
         Justin G.
         """
         try:
-            MentorshipRequest.objects.filter(mentor = intMentorID, mentee = intMenteeID).delete()
+            MentorshipRequest.objects.filter(mentor = int_mentor_id, mentee = int_mentee_id).delete()
             return True
         except Exception as e:
             return False
@@ -1201,7 +1174,7 @@ class MentorReports(SVSUModelData,Model):
     strReportType = CharField(max_length=10, choices=ReportType.choices, default='')
     strReportBody = CharField(max_length = 3500)
 
-    def create_mentor_report(strProvidedReportType: str, strProvidedReportBody: str, intMentorID: int):
+    def create_mentor_report(strProvidedReportType: str, strProvidedReportBody: str, int_mentor_id: int):
         """
         Description
         -----------
@@ -1211,7 +1184,7 @@ class MentorReports(SVSUModelData,Model):
         ----------
         - strProvidedReportType (str): The type of report.
         - strProvidedReportBody (str): The body of the report.
-        - intMentorID (int): User ID that is the mentor.
+        - int_mentor_id (int): User ID that is the mentor.
 
         Optional Parameters
         -------------------
@@ -1237,7 +1210,7 @@ class MentorReports(SVSUModelData,Model):
             MentorReports.objects.create(
                 strReportType = strProvidedReportType,
                 strReportBody = strProvidedReportBody,
-                mentor = intMentorID
+                mentor = int_mentor_id
             )
             return True
         except Exception as e:

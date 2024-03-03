@@ -46,10 +46,10 @@ def request_mentor(request):
 
         #Get the data from the POST request.
         data = request.POST        
-        intMenteeID = security.get_user_id_from_session(request.session)
+        int_mentee_id = security.get_user_id_from_session(request.session)
         
         #Insert the request into the database.
-        boolResponse = MentorshipRequest.create_request(data.get(strMentor), intMenteeID)
+        boolResponse = MentorshipRequest.create_request(data.get(strMentor), int_mentee_id)
 
         if boolResponse:
             #Request was added to the database.
