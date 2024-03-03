@@ -996,7 +996,7 @@ class MentorshipRequest(SVSUModelData,Model):
                 ]
 
 
-    def create_request(intMentorID: int, intMenteeID: int):
+    def create_request(int_mentor_user_id: int, int_mentee_user_id: int):
         """
         Description
         -----------
@@ -1004,8 +1004,8 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Parameters
         ----------
-        - intMentorID (int): User ID that is the mentor.
-        - intMenteeID (int): User ID that is the mentee.
+        - int_mentor_user_id (int): User ID that is the mentor.
+        - int_mentee_user_id (int): User ID that is the mentee.
 
         Optional Parameters
         -------------------
@@ -1026,15 +1026,20 @@ class MentorshipRequest(SVSUModelData,Model):
         Authors
         -------
         Justin G.
+
+        Changes
+        -------
+        David Kennamer 0-0 - returns request as object for saving
         """
 
         try:
-            MentorshipRequest.objects.create(
-                mentor_id = intMentorID,
-                mentee_id = intMenteeID
+            mentor_ship_request = MentorshipRequest.objects.create(
+                mentor_id = int_mentor_user_id,
+                mentee_id = int_mentee_user_id
             )
-            return True
+            return mentor_ship_request
         except Exception as e:
+            print(e)
             return False
 
     def get_request_id(intId: int):

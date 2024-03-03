@@ -460,12 +460,12 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
         #we should never get here, but just in case for some reason
         return bad_request_400("internal error occured")
 
-    mentorship_request = MentorshipRequest.objects.create(
-                mentor=mentor_account,
-                mentee=mentee_account
-            )
+    mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id)
+    if mentorship_request: 
+        mentorship_request.save() 
+    else:
+        print("this request already exists, IDENTITY CRISIS ERROR 🤿  ⛰️")
 
-    mentorship_request.save()
 
     return HttpResponse(json.dumps({"result":"created request!"}));
 
