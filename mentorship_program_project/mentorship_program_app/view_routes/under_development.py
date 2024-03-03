@@ -198,16 +198,16 @@ def register_mentor(req: HttpRequest):
             str_password_hash = security.hash_password(req.POST["password"], generated_user_salt),
             str_password_salt = generated_user_salt,
             str_role = User.Role.MENTOR_PENDING,
-            clsDateJoined = date.today(),
-            clsActiveChangedDate = date.today(),
-            blnActive = False,
-            blnAccountDisabled = False,
-            strFirstName = req.POST["fname"],
-            strLastName = req.POST["lname"],
-            strPhoneNumber = req.POST["phone-number"],
-            #clsDateofBirth = clsDateOfBirth,
-            #strGender = strGender,
-            strPreferredPronouns = req.POST["pronouns"]
+            cls_date_joined = date.today(),
+            cls_active_changed_date = date.today(),
+            bln_active = False,
+            bln_account_disabled = False,
+            str_first_name = req.POST["fname"],
+            str_last_name = req.POST["lname"],
+            str_phone_number = req.POST["phone-number"],
+            #cls_date_of_birth = cls_date_of_birth,
+            #str_gender = str_gender,
+            str_preferred_pronouns = req.POST["pronouns"]
         )
         mentor = User.objects.get(cls_email_address = incoming_email)
         Mentor.objects.create(

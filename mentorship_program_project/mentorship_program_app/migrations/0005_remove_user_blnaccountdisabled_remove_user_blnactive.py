@@ -12,10 +12,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(
             model_name='user',
-            name='blnAccountDisabled',
+            name='bln_account_disabled',
         ),
         migrations.RemoveField(
             model_name='user',
-            name='blnActive',
+            name='bln_active',
         ),
     ]

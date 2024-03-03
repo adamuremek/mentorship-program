@@ -821,6 +821,42 @@ class User(SVSUModelData,Model):
         """
         @staticmethod
         def require_logged_in_mentor(alternate_view):
+            """
+            Commenter Note: I'm not entirely sure the exact details of how this
+            works. I know what it does on a high level (see class comment), but
+            I'm not 100% sure on the intricacies. Whoever wrote this should
+            double-check that I have everything right.
+
+            Description
+            -----------
+
+            Parameters
+            ----------
+            (None)
+
+            Optional Parameters
+            -------------------
+            (None)
+
+            Returns
+            -------
+            - dict: The user's information
+
+            Example Usage
+            -------------
+
+            >>> user_joe.get_user_info()
+            {
+            "EmailAddress":"joeshmo@email.com",
+            "Role":"Mentor",
+            "DateJoined":3/1/2024,
+            ...
+            }
+
+            Authors
+            -------
+            
+            """
             validator = lambda req : security.is_logged_in(req.session) \
                                      and User.from_session(req.session).is_mentor()
             return security.Decorators.require_check(validator, alternate_view)
