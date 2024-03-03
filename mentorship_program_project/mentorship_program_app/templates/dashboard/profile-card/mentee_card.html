@@ -26,12 +26,22 @@
 			  {% endfor %}
 		  </div>
 
-		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }}">
-		  {% if role == 'Mentee' %}
-			Request Mentor
-		  {% else %}
-		  	Request Mentee
+		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
+		  {% if user.is_requested_by_session %}
+		  card-button-disabled
 		  {% endif %}
+		  ">
+		  {% if not user.is_requested_by_session %}
+			  {% if role == 'Mentee' %}
+				Request Mentor
+			  {% else %}
+				Request Mentee
+			  {% endif %}
+		  {% else %}
+		  		requested!
+		  {% endif %}
+
+			
 			</div>
     </div>
 </div>
