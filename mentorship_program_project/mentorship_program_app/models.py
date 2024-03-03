@@ -10,7 +10,8 @@ DATE CREATED:
 
 -------------------------------------------------------------------------------
 FILE PURPOSE:
-Defines all models to store object into the database.
+Defines all models to store object into the database. Every class is a data-
+access object.
 
 -------------------------------------------------------------------------------
 COMMAND LINE PARAMETER LIST (In Parameter Order):
@@ -782,7 +783,7 @@ class User(SVSUModelData,Model):
         }
 
         if hasattr(self, 'biographies') and self.biographies:
-            user_info["Biography"] = self.biographies.strBio
+            user_info["Biography"] = self.biographies.str_bio
 
         return user_info
     
@@ -825,14 +826,17 @@ class User(SVSUModelData,Model):
             Commenter Note: I'm not entirely sure the exact details of how this
             works. I know what it does on a high level (see class comment), but
             I'm not 100% sure on the intricacies. Whoever wrote this should
-            double-check that I have everything right.
+            check that I have everything right and type-hint this method.
 
             Description
             -----------
+            Prevents users who aren't logged in as a mentor from accessing
+            certain pages
 
             Parameters
             ----------
-            (None)
+            - alternate_view (Any): The page to redirect to if the user logged
+                in is not a mentor
 
             Optional Parameters
             -------------------
@@ -840,18 +844,11 @@ class User(SVSUModelData,Model):
 
             Returns
             -------
-            - dict: The user's information
+            - Any: The decorated function with the redirect
 
             Example Usage
             -------------
-
-            >>> user_joe.get_user_info()
-            {
-            "EmailAddress":"joeshmo@email.com",
-            "Role":"Mentor",
-            "DateJoined":3/1/2024,
-            ...
-            }
+            I have no idea
 
             Authors
             -------
@@ -863,13 +860,68 @@ class User(SVSUModelData,Model):
         
         @staticmethod
         def require_logged_in_mentee(alternate_view):
+            """
+            Commenter Note: I'm not entirely sure the exact details of how this
+            works. I know what it does on a high level (see class comment), but
+            I'm not 100% sure on the intricacies. Whoever wrote this should
+            check that I have everything right and type-hint this method.
+
+            Description
+            -----------
+            Prevents users who aren't logged in as a mentee from accessing
+            certain pages
+
+            Parameters
+            ----------
+            - alternate_view (Any): The page to redirect to if the user logged
+                in is not a mentee
+
+            Optional Parameters
+            -------------------
+            (None)
+
+            Returns
+            -------
+            - Any: The decorated function with the redirect
+
+            Example Usage
+            -------------
+            I have no idea
+
+            Authors
+            -------
+            
+            """
             validator = lambda req : security.is_logged_in(req.session) \
                                      and User.from_session(req.session).is_mentee()
             return security.Decorators.require_check(validator, alternate_view)
 
 class Biographies(SVSUModelData,Model):
     """
+    Description
+    -----------
+    A class to hold the user biographies. This saves space in the database.
 
+    Properties
+    ----------
+    - user (User): The user who owns the biography is about
+    - str_bio (str): The user's biography text
+
+    Instance Functions
+    -------------------
+    (None)
+
+    Static Functions
+    -------
+    (None)
+
+    Magic Functions
+    -------------
+    (None)
+
+    Authors
+    -------
+    
     """
     user = OneToOneField(
         User,
@@ -877,22 +929,77 @@ class Biographies(SVSUModelData,Model):
         primary_key=True
     )
 
-    strBio = CharField(max_length=5000, null=True)
+    str_bio = CharField(max_length=5000, null=True)
 
 class Organization(SVSUModelData,Model):
     """
+    Description
+    -----------
+    A class to store information about an organization.
+
+    Properties
+    ----------
+    - str_org_name (str): The name of the organization
+    - str_industry_type (str): The industry the organization operate in
+
+    Instance Functions
+    -------------------
+    (None)
+
+    Static Functions
+    -------
+    (None)
+
+    Magic Functions
+    -------------
+    (None)
+
+    Authors
+    -------
     
     """
-    strName = CharField(max_length=100)
-    strIndustryType = CharField(max_length=100)
+    str_org_name = CharField(max_length=100)
+    str_industry_type = CharField(max_length=100)
 
     admins = models.ManyToManyField('Mentor')
 
 class Mentor(SVSUModelData,Model):
+    """
+    Description
+    -----------
+    A class that specifies a user as a mentor and provides mentor-specific
+    properties.
 
-    intMaxMentees = IntegerField(default=4)
-    intRecommendations = IntegerField(default=0)
-    strJobTitle = CharField(max_length=100)
+    Properties
+    ----------
+    - int_max_mentees (int): The most mentees that can be assigned to this
+        mentor at any given time
+    - int_recommendations (int): The number of recommendations this mentor has
+        received
+    - str_job_title (str): The mentor's official job title
+    - account (User): The base user account
+
+    Instance Functions
+    -------------------
+    (None)
+
+    Static Functions
+    -------
+    - create_from_plain_text_and_email: Creates a mentor object and saves it to
+        the database. Utilizes the existing User.create_from... method.
+
+    Magic Functions
+    -------------
+    (None)
+
+    Authors
+    -------
+    
+    """
+
+    int_max_mentees = IntegerField(default=4)
+    int_recommendations = IntegerField(default=0)
+    str_job_title = CharField(max_length=100)
 
 
 
@@ -901,16 +1008,39 @@ class Mentor(SVSUModelData,Model):
         on_delete = models.CASCADE
     )
 
-
-    """
-    creates and saves a mentor and user account to the database that uses the given
-    username and password 
-
-    returns a reference to this object
-    """
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
                                          email : str)->'Mentee':
+        """
+        Description
+        -----------
+        Creates a mentor object using a given email and password and saves it
+        to the database
+
+        Parameters
+        ----------
+        - password_plain_text: The unhashed password
+        - email: The email
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - Mentor: The newly created mentor object
+
+        Example Usage
+        -------------
+        
+        >>> Mentor.create_from_plain_text_and_email("password",
+                "smartguy@email.com")
+        MentorObjectInstance1
+
+        Authors
+        -------
+        
+        """
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
         user_model.save()
 
@@ -922,18 +1052,24 @@ class Mentee(SVSUModelData,Model):
     """
     Description
     -----------
+    A class that specifies a user as a mentee.
 
     Properties
     ----------
+    (None)
 
     Instance Functions
     ------------------
+    (None)
 
     Static Functions
     ----------------
+    - create_from_plain_text_and_email: Creates a mentee object and saves it to
+        the database. Utilizes the existing User.create_from... method.
 
     Magic Functions
     ---------------
+    (None)
 
     Authors
     -------
@@ -944,15 +1080,39 @@ class Mentee(SVSUModelData,Model):
         on_delete = models.CASCADE
     )
     
-    """
-    creates and saves a mentee and user account to the database that uses the given
-    username and password 
-
-    returns a reference to this object
-    """
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
                                          email : str)->'Mentee':
+        """
+        Description
+        -----------
+        Creates a mentee object using a given email and password and saves it
+        to the database
+
+        Parameters
+        ----------
+        - password_plain_text: The unhashed password
+        - email: The email
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - Mentee: The newly created mentee object
+
+        Example Usage
+        -------------
+        
+        >>> Mentee.create_from_plain_text_and_email("password",
+                "studentname@email.edu")
+        MenteeObjectInstance1
+
+        Authors
+        -------
+        
+        """
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
         user_model.save()
 
@@ -1046,7 +1206,7 @@ class MentorshipRequest(SVSUModelData,Model):
         except Exception as e:
             return False
 
-    def get_request_id(intId: int):
+    def get_request_id(int_request_id: int):
         """
         Description
         -----------
@@ -1054,7 +1214,7 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Parameters
         ----------
-        -intId (int): An intiger specifying an object in the database.
+        -int_request_id (int): An intiger specifying an object in the database.
 
         Optional Parameters
         -------------------
@@ -1067,18 +1227,18 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Example Usage
         -------------
-        >>> clsRequest = get_request_id()
-        clsRequest.mentee = 7
-        clsRequest.mentor = 8
+        >>> cls_request = get_request_id()
+        cls_request.mentee = 7
+        cls_request.mentor = 8
 
         Authors
         -------
         Justin G.
         """
-        return MentorshipRequest.objects.get(id = intId)
+        return MentorshipRequest.objects.get(id = int_request_id)
 
 
-    def get_request_info(intId: int):
+    def get_request_info(int_request_id: int):
         """
         Description
         -----------
@@ -1087,7 +1247,7 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Parameters
         ----------
-        - intId (int): Integer specifying the id of a MentorshipRequest in
+        - int_request_id (int): Integer specifying the id of a MentorshipRequest in
             the database.
         Optional Parameters
         -------------------
@@ -1095,25 +1255,25 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Returns
         -------
-        - dictRequest (Dictionary, String): Containing mentorID and menteeID.
+        - dict_request (Dictionary, String): Containing mentorID and menteeID.
         Example Usage
         -------------
-        >>> dictRequest = get_request_id(5)
-        dictRequest = {'mentorID': 1, 'menteeID': 2}
+        >>> dict_request = get_request_id(5)
+        dict_request = {'mentorID': 1, 'menteeID': 2}
 
         Authors
         -------
         Justin G.
         """
 
-        clsRequest =  MentorshipRequest.get_request_id(intId)
+        cls_request =  MentorshipRequest.get_request_id(int_request_id)
 
-        dictRequest = {
-            "mentorID" : clsRequest.mentor_id,
-            "menteeID" : clsRequest.mentee_id
+        dict_request = {
+            "mentor_ID" : cls_request.mentor_id,
+            "mentee_ID" : cls_request.mentee_id
         }
 
-        return dictRequest
+        return dict_request
     
     def remove_request(int_mentor_id: int, int_mentee_id: int):
         """
@@ -1154,7 +1314,31 @@ class MentorshipRequest(SVSUModelData,Model):
 
 class MentorshipReferral(SVSUModelData,Model):
     """
+    Description
+    -----------
+    A class to represent the referral of a mentee from one mentor to another.
 
+    Properties
+    ----------
+    - mentor_from (ForeignKey): The original mentor
+    - mentor_to (ForeignKey): The referred mentor
+    - mentee (ForeignKey): The mentee being referred.
+
+    Instance Functions
+    -------------------
+    (None)
+
+    Static Functions
+    -------
+    (None)
+
+    Magic Functions
+    -------------
+    (None)
+
+    Authors
+    -------
+    
     """
     mentor_from = ForeignKey(
         Mentor,
@@ -1201,16 +1385,41 @@ class MentorReports(SVSUModelData,Model):
     Adam C.
     """
     class ReportType(TextChoices):
+        """
+        Description
+        -----------
+        An enum subclass to hold the different types of reports
+
+        Properties
+        ----------
+        - BEHAVIOR
+
+        Instance Functions
+        -------------------
+        (None)
+
+        Static Functions
+        -------
+        (None)
+
+        Magic Functions
+        -------------
+        (None)
+
+        Authors
+        -------
+        Adam C.
+        """
         BEHAVIOR : 'Behavior'
 
     mentor = ForeignKey(
         Mentor,
         on_delete = models.CASCADE
     )
-    strReportType = CharField(max_length=10, choices=ReportType.choices, default='')
-    strReportBody = CharField(max_length = 3500)
+    str_report_type = CharField(max_length=10, choices=ReportType.choices, default='')
+    str_report_body = CharField(max_length = 3500)
 
-    def create_mentor_report(strProvidedReportType: str, strProvidedReportBody: str, int_mentor_id: int):
+    def create_mentor_report(str_provided_report_type: str, str_provided_report_body: str, int_mentor_id: int):
         """
         Description
         -----------
@@ -1218,8 +1427,8 @@ class MentorReports(SVSUModelData,Model):
 
         Parameters
         ----------
-        - strProvidedReportType (str): The type of report.
-        - strProvidedReportBody (str): The body of the report.
+        - str_provided_report_type (str): The type of report.
+        - str_provided_report_body (str): The body of the report.
         - int_mentor_id (int): User ID that is the mentor.
 
         Optional Parameters
@@ -1244,15 +1453,15 @@ class MentorReports(SVSUModelData,Model):
         """
         try:
             MentorReports.objects.create(
-                strReportType = strProvidedReportType,
-                strReportBody = strProvidedReportBody,
+                str_report_type = str_provided_report_type,
+                str_report_body = str_provided_report_body,
                 mentor = int_mentor_id
             )
             return True
         except Exception as e:
             return False
         
-    def get_report_id(intID: int):
+    def get_report_id(int_report_id: int):
         """
         Description
         -----------
@@ -1260,7 +1469,7 @@ class MentorReports(SVSUModelData,Model):
 
         Parameters
         ----------
-        -intId (int): An integer specifying an object in the database.
+        -int_report_id (int): An integer specifying an object in the database.
 
         Optional Parameters
         -------------------
@@ -1273,18 +1482,18 @@ class MentorReports(SVSUModelData,Model):
 
         Example Usage
         -------------
-        >>> clsReport = get_report_id(2)
-        clsReport.strReportType = 'Incident'
-        clsReport.strReportBody = 'Mentor was rude'
-        clsReport.mentor_id = 4
+        >>> cls_Report = get_report_id(2)
+        cls_Report.str_report_type = 'Incident'
+        cls_Report.str_report_body = 'Mentor was rude'
+        cls_Report.mentor_id = 4
 
         Authors
         -------
         Adam C.
         """
-        return MentorReports.objects.get(id = intID)
+        return MentorReports.objects.get(id = int_report_id)
     
-    def get_mentor_report_info(intReportID: int):
+    def get_mentor_report_info(int_report_id: int):
         """
         Description
         -----------
@@ -1293,7 +1502,7 @@ class MentorReports(SVSUModelData,Model):
 
         Parameters
         ----------
-        - intReportId (int): Integer specifying the id of a MentorReport in
+        - int_report_id (int): Integer specifying the id of a MentorReport in
             the database.
 
         Optional Parameters
@@ -1302,32 +1511,60 @@ class MentorReports(SVSUModelData,Model):
 
         Returns
         -------
-        - dictReport (Dictionary, String): containing the report type, body, and mentorID.
+        - dict_Report (Dictionary, String): containing the report type, body, and mentorID.
 
         Example Usage
         -------------
-        >>> dictReport = get_report_id(2)
-        dictReport = {'reportType': 'Incident', 'reportBody': 'Mentor was rude', 'mentorID': 4}
+        >>> dict_Report = get_report_id(2)
+        dict_Report = {'reportType': 'Incident', 'reportBody': 'Mentor was rude', 'mentorID': 4}
 
         Authors
         -------
         Adam C.
         """
-        clsReport =  MentorReports.get_report_id(intReportID)
+        cls_Report =  MentorReports.get_report_id(int_report_id)
 
-        dictReport = {
-            "reportType" : clsReport.strReportType,
-            "reportBody" : clsReport.strReportBody,
-            "mentorID" : clsReport.mentor_id
+        dict_Report = {
+            "report_type" : cls_Report.str_report_type,
+            "report_body" : cls_Report.str_report_body,
+            "mentor_id" : cls_Report.mentor_id
         }
 
-        return dictReport
+        return dict_Report
 
 
 class Notes(SVSUModelData,Model):
-    strTitle = CharField(max_length=100)
-    strBody = CharField(max_length=7000)
-    clsCreatedOn = DateField(default=date.today)
+    """
+    Description
+    -----------
+    A class to store user notes
+
+    Properties
+    ----------
+    - str_note_title (str): The title of the note
+    - str_note_body (str): The content of the note
+    - cls_note_created_on (date): The date the note was created
+    - user (User): The owner of the note
+
+    Instance Functions
+    -------------------
+    (None)
+
+    Static Functions
+    -------
+    (None)
+
+    Magic Functions
+    -------------
+    (None)
+
+    Authors
+    -------
+    
+    """
+    str_note_title = CharField(max_length=100)
+    str_note_body = CharField(max_length=7000)
+    cls_note_created_on = DateField(default=date.today)
 
 
     user = ForeignKey(
@@ -1337,9 +1574,32 @@ class Notes(SVSUModelData,Model):
 
 class SystemLogs(SVSUModelData,Model):
     """
+    Description
+    -----------
+    A class to system events
+
+    Properties
+    ----------
+    - str_event (str): A description of the event that occurred 
+    - cls_log_created_on (date): The date the event occured.
+
+    Instance Functions
+    -------------------
+    (None)
+
+    Static Functions
+    -------
+    (None)
+
+    Magic Functions
+    -------------
+    (None)
+
+    Authors
+    -------
     
     """
     
-    strActivity = CharField(max_length = 500)
-    clsCreatedOn = DateField(default=date.today)
+    str_event = CharField(max_length = 500)
+    cls_log_created_on = DateField(default=date.today)
 
