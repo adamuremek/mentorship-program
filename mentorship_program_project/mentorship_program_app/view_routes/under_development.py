@@ -11,6 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from mentorship_program_app.models import *
 from .status_codes import bad_request_400
 from utils import security
+from utils.development import print_debug
 
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
@@ -439,14 +440,14 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     '''
     user = User.from_session(req.session)
     
-
+    
     #if you are a mentee you can only request for yourself
     if user.is_mentee():
         mentee_id : int = user.id
     elif user.is_mentor() and mentee_id == None:
         return bad_request_400("mentee id required for mentors")
 
-
+    ##print_debug(user.has_requested_user(mentor_id))
     mentor_account = None
     mentee_account = None
     
@@ -466,7 +467,7 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     else:
         print("this request already exists, IDENTITY CRISIS ERROR 🤿  ⛰️")
 
-
+    ##print_debug(user.has_requested_user(mentor_id))
     return HttpResponse(json.dumps({"result":"created request!"}));
 
 

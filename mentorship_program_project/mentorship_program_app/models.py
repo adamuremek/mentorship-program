@@ -416,7 +416,8 @@ class User(SVSUModelData,Model):
     interests = models.ManyToManyField(Interest)
 
 
-    def has_requested_user(self,other : 'User')->bool:
+        
+    def has_requested_user(self,other_user_id : int)->'MentorshipRequest':
         """
         Description
         -----------
@@ -424,22 +425,18 @@ class User(SVSUModelData,Model):
 
         Parameters
         ----------
-        (None)
-
-        Optional Parameters
-        -------------------
-        (None)
+        other : User - the other use we want to see if we have a mentorship relation with
 
         Returns
         -------
-        - User : other
+        - MentorshipRequest if it exists, otherwise None
 
 
         Example Usage
         -------------
 
-        >>> user_joe.has_requested_user(other)
-        'bool'
+        >>> some_user.has_requested_user(other_user)
+        MentorShipRequest of the users or False if it doesn't exist
 
         Authors
         -------
@@ -448,10 +445,8 @@ class User(SVSUModelData,Model):
         """
         try:
             if self.is_mentor():
-                MentorshipRequest.objects.get(mentor=self,mentee=other) 
-            else:
-                MentorshipRequest.objects.get(mentee=self,mentor=other) 
-            return True
+                return MentorshipRequest.objects.get(mentor=self,mentee_id=other_user_id) 
+            return MentorshipRequest.objects.get(mentee=self,mentor_id=other_user_id ) 
         except:
             return False
 
