@@ -1,3 +1,43 @@
+"""
+FILE NAME: urls.py
+
+-------------------------------------------------------------------------------
+PART OF PROJECT: SVSU Mentorship Program App
+
+-------------------------------------------------------------------------------
+WRITTEN BY:
+DATE CREATED:
+
+-------------------------------------------------------------------------------
+FILE PURPOSE:
+Defines all usable routes for the website.
+
+-------------------------------------------------------------------------------
+COMMAND LINE PARAMETER LIST (In Parameter Order):
+(NONE)
+
+-------------------------------------------------------------------------------
+ENVIRONMENTAL RETURNS:
+(NONE)
+
+-------------------------------------------------------------------------------
+SAMPLE INVOCATION:
+(NONE)
+
+-------------------------------------------------------------------------------
+GLOBAL VARIABLE LIST (Alphabetically):
+- urlpatterns ([path])
+
+-------------------------------------------------------------------------------
+COMPILATION NOTES:
+
+-------------------------------------------------------------------------------
+MODIFICATION HISTORY:
+
+WHO     WHEN     WHAT
+WJL   3/3/2024   Added file header comment
+"""
+
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static

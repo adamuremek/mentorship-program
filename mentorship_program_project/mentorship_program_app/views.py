@@ -1,3 +1,43 @@
+"""
+FILE NAME: views.py
+
+-------------------------------------------------------------------------------
+PART OF PROJECT: SVSU Mentorship Program App
+
+-------------------------------------------------------------------------------
+WRITTEN BY:
+DATE CREATED:
+
+-------------------------------------------------------------------------------
+FILE PURPOSE:
+Defines all views used on the website.
+
+-------------------------------------------------------------------------------
+COMMAND LINE PARAMETER LIST (In Parameter Order):
+(NONE)
+
+-------------------------------------------------------------------------------
+ENVIRONMENTAL RETURNS:
+(NONE)
+
+-------------------------------------------------------------------------------
+SAMPLE INVOCATION:
+(NONE)
+
+-------------------------------------------------------------------------------
+GLOBAL VARIABLE LIST (Alphabetically):
+(NONE)
+
+-------------------------------------------------------------------------------
+COMPILATION NOTES:
+
+-------------------------------------------------------------------------------
+MODIFICATION HISTORY:
+
+WHO     WHEN     WHAT
+WJL   3/3/2024   Added file header comment and updating to doc standards
+"""
+
 import json
 from typing import Union
 
@@ -16,7 +56,34 @@ from .models import MentorshipRequest
 
 
 #please make it pretty front end :)
-def invalid_request_401(request,response_data : Union[dict,str] = 'Unauthorized'):
+def invalid_request_401(request : HttpRequest, response_data : Union[dict,str] = 'Unauthorized') -> HttpResponse:
+    """
+    Description
+    -----------
+    Page to handles any attempt to access a page without valid credentials
+
+    Parameters
+    ----------
+    - request (HttpRequest): The client request information
+
+    Optional Parameters
+    -------------------
+    - response_data (dict | str): The details of the request and how it's handled
+
+    Returns
+    -------
+    - HttpResponse: The error 401 information to return to the client
+
+    Example Usage
+    -------------
+    
+    >>> @User.Decorators.require_logged_in_mentee(invalid_request_401)
+    'Unauthorized'
+
+    Authors
+    -------
+    
+    """
     response = None
     
     if type(response_data) == str:
@@ -27,15 +94,41 @@ def invalid_request_401(request,response_data : Union[dict,str] = 'Unauthorized'
     response.status_code = 401
     return response
 
-"""
-creates or deletes a request for the given mentor from the current mentee that is logged in
-"""
 @User.Decorators.require_logged_in_mentee(invalid_request_401)
-def request_mentor(request):
+def request_mentor(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Creates or deletes a mentorship request for a given mentor from the current
+    mentee, given that they are signed in.
+
+    Parameters
+    ----------
+    - request (HttpRequest): The request information with the relevant
+        mentorship request creation/deletion details
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The results of the operation. Currently uses a placeholder.
+
+    Example Usage
+    -------------
     
-    strMentor = "mentor_id"
+    >>> path('request_mentor/', views.request_mentor, name='request mentor')
+    "Something Happened!"
+
+    Authors
+    -------
+    
+    """
+
+    str_mentor_id = "mentor_id"
     #Init the variable.
-    boolResponse = False
+    bool_response = False
 
     if request.method == 'POST':
         
@@ -49,9 +142,9 @@ def request_mentor(request):
         int_mentee_id = security.get_user_id_from_session(request.session)
         
         #Insert the request into the database.
-        boolResponse = MentorshipRequest.create_request(data.get(strMentor), int_mentee_id)
+        bool_response = MentorshipRequest.create_request(data.get(str_mentor_id), int_mentee_id)
 
-        if boolResponse:
+        if bool_response:
             #Request was added to the database.
             return HttpRequest("Something happened!") #PLACEHOLDER - REMOVE WHEN CHANGED WITH REAL DATA plz
         else:
