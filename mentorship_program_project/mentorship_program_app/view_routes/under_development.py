@@ -470,4 +470,54 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     ##print_debug(user.has_requested_user(mentor_id))
     return HttpResponse(json.dumps({"result":"created request!"}));
 
+@security.Decorators.require_login(bad_request_400)
+def create_note (req):
+    """
+    Description
+    -----------
+    
+
+    Properties
+    ----------
+    
+
+    Instance Functions
+    ------------------
+
+    
+    Static Functions
+    ----------------
+    - NONE
+
+    Magic Functions
+    ---------------
+    - NONE
+
+    Authors
+    -------
+    Justin Goupil
+    """
+
+    #Grab the users current session
+    user = User.from_session(req.session)
+    str_title = req.POST.get ("title", None)
+    str_body = req.POST.get("body", None) 
+    bool_flag = False
+
+    #Check if the title and body are None
+    if str_title != None and str_body != None:
+        #create the note and save it to the database.
+        bool_flag = Notes.create_note(user.id, str_title, str_body)
+    else:
+        return bad_request_400("Invalid title or body")
+
+    #Check if the note was created.
+    if bool_flag:
+        return HttpResponse("Note created!")
+    else:
+        return HttpResponse("Note creation failed")
+
+    
+
+
 

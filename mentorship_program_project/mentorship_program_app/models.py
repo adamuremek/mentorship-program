@@ -1537,40 +1537,87 @@ class Notes(SVSUModelData,Model):
     """
     Description
     -----------
-    A class to store user notes
+    Represents an object for creating and storing notes created by a user.
 
     Properties
     ----------
-    - str_note_title (str): The title of the note
-    - str_note_body (str): The content of the note
-    - cls_note_created_on (date): The date the note was created
-    - user (User): The owner of the note
+    str_title (CharField): Title of the note for user reference.
+    str_body (CharField): Main body of text the user entered.
+    cls_created_on (DateField): Date the note was created on.
+    user (ForeignKey): Denotes the user_id that created the note.
 
     Instance Functions
-    -------------------
-    (None)
-
+    ------------------
+    - create_note: Creates a note using a user's id, title, body, and todays date.
+    
     Static Functions
-    -------
-    (None)
+    ----------------
+    - NONE
 
     Magic Functions
-    -------------
-    (None)
+    ---------------
+    - NONE
 
     Authors
     -------
-    
+    Justin Goupil
     """
-    str_note_title = CharField(max_length=100)
-    str_note_body = CharField(max_length=7000)
-    cls_note_created_on = DateField(default=date.today)
+
+    str_title = CharField(max_length=100)
+    str_body = CharField(max_length=7000)
+    cls_created_on = DateField(default=date.today)
 
 
     user = ForeignKey(
         User,
         on_delete = models.CASCADE
     )
+
+    def create_note(int_user_id: int, str_title_: str, str_body_: str):
+        """
+        Description
+        -----------
+        Creates a note using the user's id, title and body. 
+        Then saves the note to the database. 
+
+        Parameters
+        ----------
+        int_user_id (int): User id associated with the request.
+        str_title_ (str): Title of the note.
+        str_body_ (str): Body of the note.
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - True (boolean): IF the note was sucessfully created.
+        - False (boolean): IF the note was NOT created.
+        Example Usage
+        -------------
+
+        Authors
+        -------
+        Justin G.
+
+        Changes
+        -------
+        """
+        try:
+            #create and save the entry in the database.
+            Notes.objects.create(
+                str_title = str_title_,
+                str_body = str_body_,
+                cls_created_on = date.now(),
+                user = int_user_id
+            )
+            #Operation was a success.
+            return True
+        except Exception as e:
+            print(e)
+            #Operation failed.
+            return False
 
 class SystemLogs(SVSUModelData,Model):
     """
