@@ -201,13 +201,6 @@ class User(SVSUModelData,Model):
     strGender = CharField(max_length=35, default='')
     strPreferredPronouns = CharField(max_length=50, null=True)
 
-    #image field with url location
-    imgUserProfile = ImageField(
-                                upload_to="images/",
-                                default=
-                                    "images/default_profile_picture.png"
-                                )
-
     #foregn key fields
     interests = models.ManyToManyField(Interest)
 
@@ -300,7 +293,6 @@ class User(SVSUModelData,Model):
             user_info["Biography"] = self.biographies.strBio
 
         return user_info
-    
     
     """
     namespace for decorators that apply to views SPECIFICALLY to limit the kind of user 
@@ -819,4 +811,54 @@ class SystemLogs(SVSUModelData,Model):
     
     strActivity = CharField(max_length = 500)
     clsCreatedOn = DateField(default=date.today)
+
+
+class ProfileImg(SVSUModelData,Model):
+
+    """
+    Description
+    -----------
+    ProfileImg is a class that represents database access objects
+    for each user's profile image.
+
+    Properties
+    ----------
+    - user (ForeignKey): Represents the given user who has said profile
+                         image.
+    - imgUserProfile:    The image file that is used for the user's profile.
+                         There will be a default image used as a placeholder
+                         When an object is first created.
+
+    Instance Functions
+    ------------------
+    NONE (could change)
+    
+    Static Functions
+    ----------------
+    NONE (could change)
+    
+    Magic Functions
+    ---------------
+    NONE (could change)
+
+    Authors
+    -------
+    Isaiah G.
+
+    """
+
+    user = ForeignKey(
+        User,
+        on_delete = models.CASCADE
+    )
+
+    #image field with url location
+    imgUserProfile = ImageField(
+                        upload_to="images/",
+                        default=
+                            "images/default_profile_picture.png"
+                    )
+    
+    
+
 
