@@ -12,17 +12,17 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterField(
             model_name='user',
-            name='str_password_hash',
+            name='strPasswordHash',
             field=models.CharField(max_length=1000, null=True),
         ),
         migrations.AlterField(
             model_name='user',
-            name='str_password_salt',
+            name='strPasswordSalt',
             field=models.CharField(max_length=1000, null=True),
         ),
         migrations.AlterField(
             model_name='user',
-            name='str_role',
+            name='strRole',
             field=models.CharField(choices=[('Admin', 'Admin'), ('Mentor', 'Mentor'), ('Mentee', 'Mentee'), ('MentorPending', 'Mentor Pending')], default='', max_length=15),
         ),
     ]

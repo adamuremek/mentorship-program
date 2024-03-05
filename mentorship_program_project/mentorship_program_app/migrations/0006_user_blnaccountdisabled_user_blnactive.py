@@ -12,12 +12,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='user',
-            name='bln_account_disabled',
+            name='blnAccountDisabled',
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
             model_name='user',
-            name='bln_active',
+            name='blnActive',
             field=models.BooleanField(default=True),
         ),
     ]
