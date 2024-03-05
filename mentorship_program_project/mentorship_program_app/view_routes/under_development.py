@@ -471,27 +471,27 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     return HttpResponse(json.dumps({"result":"created request!"}));
 
 @security.Decorators.require_login(bad_request_400)
-def create_note (req):
+def create_note (req : HttpRequest):
     """
     Description
     -----------
-    
+    This view creates and stores a note in the database 
+    given a user id, title and body.
 
-    Properties
-    ----------
-    
+    Paramaters
+    __________
+    req (HttpRequest): Django Http request.
 
-    Instance Functions
-    ------------------
+    Returns
+    _______
+    HttpResponse for data that is valid.
+    HttpResponse for data that is invalid.
+     
+    Example Usage
+    _____________
+    >>> create_note(request)
 
-    
-    Static Functions
-    ----------------
-    - NONE
-
-    Magic Functions
-    ---------------
-    - NONE
+    /path/to/route/
 
     Authors
     -------
