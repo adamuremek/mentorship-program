@@ -357,7 +357,7 @@ class Mentor(SVSUModelData,Model):
     """
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
-                                         email : str)->'Mentor':
+                                         email : str)->'Mentee':
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
         user_model.strRole = User.Role.MENTOR
         user_model.save()
