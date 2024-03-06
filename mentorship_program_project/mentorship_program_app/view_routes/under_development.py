@@ -470,3 +470,43 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     return HttpResponse(json.dumps({"result":"created request!"}));
 
 
+
+def update_profile_img(req:HttpRequest)->HttpResponse:
+    '''
+    Description
+    -----------
+    Function to update a user's profile image
+    
+    Parameters
+    ----------
+    - req : HttpRequest: HTTP request object containing the user whose profile image will be modified/
+    
+    Returns
+    -------
+    HttpResponse: HTTP response confirming the profile image modification.
+    
+    Example Usage
+    -------------
+    This function is typically called via an HTTP POST request with JSON data containing the user's ID and the confirmation
+    of their modified profile image.
+    
+    >>> updateProfileImg(req)
+    "..."
+    
+    Authors
+    -------
+    Isaiah Galaviz
+    '''
+
+    post_data = json.loads(req.body.decode("utf-8"))
+        
+    id = post_data["id"] if "id" in post_data else None
+
+    # Validate user id 
+    if(id == None):
+        return HttpResponse("User doesn't exist")
+    
+    #   ----- Modify profile image here -----   #
+    #   -------------------------------------   #
+
+    return HttpResponse

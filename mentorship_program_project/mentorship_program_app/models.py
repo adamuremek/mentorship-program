@@ -357,7 +357,7 @@ class Mentor(SVSUModelData,Model):
     """
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
-                                         email : str)->'Mentee':
+                                         email : str)->'Mentor':
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
         user_model.strRole = User.Role.MENTOR
         user_model.save()
@@ -847,9 +847,10 @@ class ProfileImg(SVSUModelData,Model):
 
     """
 
-    user = ForeignKey(
+    account = OneToOneField(
         User,
-        on_delete = models.CASCADE
+        on_delete = models.CASCADE,
+        primary_key=True
     )
 
     #image field with url location
@@ -859,6 +860,24 @@ class ProfileImg(SVSUModelData,Model):
                             "images/default_profile_picture.png"
                     )
     
+    """
+    Creates and save a profile image and user account to the database that uses the given
+    username and password.
+
+    Returns a reference to this object
+    
+    @staticmethod
+    def create_from_plain_text_and_email(password_plain_text : str,
+                                         email : str)->'ProfileImg':
+        user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        #user_model.strRole = User.Role.MENTOR
+        user_model.save()
+
+        profileImg = ProfileImg.objects.create(account=user_model)
+        profileImg.save()
+        return profileImg
+    
+    """
     
 
 
