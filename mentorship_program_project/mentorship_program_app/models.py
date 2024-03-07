@@ -42,16 +42,21 @@ WJL   3/1/24   Finished adding comments to this file
 WJL   3/3/24   Fully fixed and finished updating documentation on this file
 """
 
+#django imports
 from django.conf import settings
 from django.db import models
 from django.db.models import *
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse,HttpRequest # for typing
 
+#standard python imports
 from datetime import date
+import os
+from typing import Callable
 
+#project imports
 from utils import security
 
-import os
 
 # Create your models here.
 
@@ -821,13 +826,8 @@ class User(SVSUModelData,Model):
         
         """
         @staticmethod
-        def require_logged_in_mentor(alternate_view):
+        def require_logged_in_mentor(alternate_view : Callable) -> Callable[HttpRequest,HttpResponse]:
             """
-            Commenter Note: I'm not entirely sure the exact details of how this
-            works. I know what it does on a high level (see class comment), but
-            I'm not 100% sure on the intricacies. Whoever wrote this should
-            check that I have everything right and type-hint this method.
-
             Description
             -----------
             Prevents users who aren't logged in as a mentor from accessing
@@ -848,24 +848,23 @@ class User(SVSUModelData,Model):
 
             Example Usage
             -------------
-            I have no idea
+            def some_other_view(req : HttpRequest)->HttpResponse:
+                ...
+
+            @Users.require_logged_in_mentor(some_other_view)
+            def protected_view(req : HttpRequest)->HttpResponse
 
             Authors
             -------
-            
+            David Kennamer ._.
             """
             validator = lambda req : security.is_logged_in(req.session) \
                                      and User.from_session(req.session).is_mentor()
             return security.Decorators.require_check(validator, alternate_view)
         
         @staticmethod
-        def require_logged_in_mentee(alternate_view):
+        def require_logged_in_mentee(alternate_view : Callable) -> Callable[HttpRequest,HttpResponse]:
             """
-            Commenter Note: I'm not entirely sure the exact details of how this
-            works. I know what it does on a high level (see class comment), but
-            I'm not 100% sure on the intricacies. Whoever wrote this should
-            check that I have everything right and type-hint this method.
-
             Description
             -----------
             Prevents users who aren't logged in as a mentee from accessing
@@ -874,7 +873,7 @@ class User(SVSUModelData,Model):
             Parameters
             ----------
             - alternate_view (Any): The page to redirect to if the user logged
-                in is not a mentee
+                in is not a mentor
 
             Optional Parameters
             -------------------
@@ -886,11 +885,15 @@ class User(SVSUModelData,Model):
 
             Example Usage
             -------------
-            I have no idea
+            def some_other_view(req : HttpRequest)->HttpResponse:
+                ...
+
+            @Users.require_logged_in_mentee(some_other_view)
+            def protected_view(req : HttpRequest)->HttpResponse
 
             Authors
             -------
-            
+            David Kennamer >.<
             """
             validator = lambda req : security.is_logged_in(req.session) \
                                      and User.from_session(req.session).is_mentee()
