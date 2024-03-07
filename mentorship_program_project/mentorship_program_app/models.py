@@ -412,12 +412,14 @@ class User(SVSUModelData,Model):
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
 
-    #image field with url location
-    img_user_profile = ImageField(
-                                upload_to="images/",
-                                default=
-                                    "images/default_profile_picture.png"
-                                )
+    '''
+        #image field with url location
+        img_user_profile = ImageField(
+                                    upload_to="images/",
+                                    default=
+                                        "images/default_profile_picture.png"
+                                    )
+    '''
 
     #foregn key fields
     interests = models.ManyToManyField(Interest)
@@ -1689,3 +1691,49 @@ class SystemLogs(SVSUModelData,Model):
     str_event = CharField(max_length = 500)
     cls_log_created_on = DateField(default=date.today)
 
+
+class ProfileImg(SVSUModelData,Model):
+    """
+    Description
+    -----------
+    ProfileImg is a class that represents database access objects
+    for each user's profile image.
+
+    Properties
+    ----------
+    - user (ForeignKey): Represents the given user who has said profile
+                         image.
+    - imgUserProfile:    The image file that is used for the user's profile.
+                         There will be a default image used as a placeholder
+                         When an object is first created.
+
+    Instance Functions
+    ------------------
+    NONE (could change)
+    
+    Static Functions
+    ----------------
+    NONE (could change)
+    
+    Magic Functions
+    ---------------
+    NONE (could change)
+
+    Authors
+    -------
+    Isaiah G.
+
+    """
+
+    user = OneToOneField(
+        User,
+        on_delete = models.CASCADE,
+        primary_key = True
+    )
+
+    #image field with url location
+    imgUserProfile = ImageField(
+                        upload_to="images/",
+                        default=
+                            "images/default_profile_picture.png"
+                    )

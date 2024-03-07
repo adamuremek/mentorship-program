@@ -13,6 +13,9 @@ from .status_codes import bad_request_400
 from utils import security
 from utils.development import print_debug
 
+from tkinter import filedialog
+
+
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
 through the mentor sign up route and update their role user entry in the DB to mentor when approved
@@ -469,6 +472,64 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
 
     ##print_debug(user.has_requested_user(mentor_id))
     return HttpResponse(json.dumps({"result":"created request!"}));
+
+
+@security.Decorators.require_login(bad_request_400)
+def update_profile_img(req: HttpRequest)->HttpResponse:
+    '''
+    Description
+    -----------
+    Function to update a user's profile image
+
+    Parameters
+    ----------
+    -   req:HttpRequest: HTTP request object containing the user whose profile image
+                         will be modified.
+    
+    Returns
+    -------
+    HttpResponse: HTTP response confirming the modification to the user's profile
+                  image.
+
+    Example Usage
+    -------------
+    This function is typically called via an HTTP POST request with JSON data containing 
+    the user's ID and the confirmation of their modified profile picture.
+
+    >>> update_profile_img(req)
+    "user {id}'s image profile has been modified"
+
+    Authors
+    -------
+    Isaiah Galaviz
+
+    '''
+
+    # Validate user ID
+    post_data = json.loads(req.body.decode("utf-8"))
+    id = post_data["id"] if "id" in post_data else None
+    if(id == None):
+        return HttpResponse("User doesn't exist")
+
+    # Get the corresponding ProfileImg object
+    profile_img = ProfileImg.objects.get(id=id)
+
+    #   Open a files dialog box to choose an image
+    temp_filename = filedialog.askopenfilename(title="Select An Image File", 
+                                               filetypes=(("PNG files", "*.png"), ("JPG files", "*.jpg"))
+                                               )
+    
+    #   If a file has been choosen, replace the imagefield and save
+    #   the profile_img object.
+    if temp_filename:
+        profile_img.imgUserProfile = temp_filename
+        profile_img.save()
+        return HttpResponse(f"user {id}'s image profile has been modified")
+    
+    #   Otherwise, return a response indicating that the image was
+    #   not modified.
+    return HttpResponse("user {id}'s image profile was not modified")
+
 
 @security.Decorators.require_login(bad_request_400)
 def create_note (req : HttpRequest):
