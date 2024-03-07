@@ -1701,7 +1701,7 @@ class ProfileImg(SVSUModelData,Model):
 
     Properties
     ----------
-    - user (ForeignKey): Represents the given user who has said profile
+    - user (User): Represents the given user who has said profile
                          image.
     - imgUserProfile:    The image file that is used for the user's profile.
                          There will be a default image used as a placeholder
