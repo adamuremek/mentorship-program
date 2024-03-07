@@ -1010,7 +1010,8 @@ class Mentor(SVSUModelData,Model):
 
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
-                                         email : str)->'Mentee':
+                                         email : str)->'Mentor':
+
         """
         Description
         -----------
@@ -1042,6 +1043,7 @@ class Mentor(SVSUModelData,Model):
         
         """
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        user_model.str_role = User.Role.MENTOR
         user_model.save()
 
         mentor = Mentor.objects.create(account=user_model)
@@ -1114,6 +1116,7 @@ class Mentee(SVSUModelData,Model):
         
         """
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+        user_model.str_role = User.Role.MENTEE
         user_model.save()
 
         mentee = Mentee.objects.create(account=user_model)
@@ -1165,7 +1168,9 @@ class MentorshipRequest(SVSUModelData,Model):
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
-    def create_request(int_mentor_id: int, int_mentee_id: int) -> bool:
+    
+    @staticmethod
+    def create_request(int_mentor_user_id: int, int_mentee_user_id: int):
         """
         Description
         -----------
@@ -1173,8 +1178,8 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Parameters
         ----------
-        - int_mentor_id (int): User ID that is the mentor.
-        - int_mentee_id (int): User ID that is the mentee.
+        - int_mentor_user_id (int): User ID that is the mentor.
+        - int_mentee_user_id (int): User ID that is the mentee.
 
         Optional Parameters
         -------------------
@@ -1195,15 +1200,20 @@ class MentorshipRequest(SVSUModelData,Model):
         Authors
         -------
         Justin G.
+
+        Changes
+        -------
+        David Kennamer 0-0 - returns request as object for saving
         """
 
         try:
-            MentorshipRequest.objects.create(
-                mentor_id = int_mentor_id,
-                mentee_id = int_mentee_id
+            mentor_ship_request = MentorshipRequest.objects.create(
+                mentor_id = int_mentor_user_id,
+                mentee_id = int_mentee_user_id
             )
-            return True
+            return mentor_ship_request
         except Exception as e:
+            print(e)
             return False
 
     def get_request_id(int_request_id: int) -> 'MentorshipRequest':
@@ -1312,6 +1322,32 @@ class MentorshipRequest(SVSUModelData,Model):
         except Exception as e:
             return False
 
+    class Meta:
+        """
+        Description
+        ___________
+
+        django provides the capabilities to perform auto validation of 
+        different fields inside of the database via the meta class.
+
+        Resources
+        _________
+
+        django meta docs:         https://docs.djangoproject.com/en/5.0/ref/models/options/
+        django constraints docs:  https://docs.djangoproject.com/en/5.0/ref/models/constraints/
+        stack overflow reference: https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-couple
+
+        Authors
+        _______
+        
+        David Kennamer -_-
+
+        """
+        constraints = [
+            models.UniqueConstraint(
+                                    fields=["mentee","mentor"],
+                                    name="unique_mentorship_request_constraint")
+                ]
 class MentorshipReferral(SVSUModelData,Model):
     """
     Description
