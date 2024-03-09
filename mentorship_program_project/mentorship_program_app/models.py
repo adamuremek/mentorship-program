@@ -412,14 +412,12 @@ class User(SVSUModelData,Model):
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
 
-    '''
-        #image field with url location
-        img_user_profile = ImageField(
-                                    upload_to="images/",
-                                    default=
-                                        "images/default_profile_picture.png"
-                                    )
-    '''
+    #image field with url location
+    img_user_profile = ImageField(
+                                upload_to="images/",
+                                default=
+                                    "images/default_profile_picture.png"
+                                )
 
     #foregn key fields
     interests = models.ManyToManyField(Interest)
@@ -1709,31 +1707,60 @@ class ProfileImg(SVSUModelData,Model):
 
     Instance Functions
     ------------------
-    NONE (could change)
+    -   get_file_size:  Returns the size of the image; set a new value to the 
+                        file_size attribute if it does not currently have one.
     
     Static Functions
     ----------------
-    NONE (could change)
+    -   create_from_user_id:    Creates a new instance of the ProfileImg class,
+                                with the id of the user and the name of the image
+                                passed in through parameters
     
     Magic Functions
     ---------------
-    NONE (could change)
+    NONE
 
     Authors
     -------
     Isaiah G.
 
     """
-
+    #   The user that the image is associated with; set it as the primary key
     user = OneToOneField(
         User,
         on_delete = models.CASCADE,
         primary_key = True
     )
 
-    #image field with url location
-    imgUserProfile = ImageField(
-                        upload_to="images/",
-                        default=
-                            "images/default_profile_picture.png"
-                    )
+    #   The name of the image and its file size
+    img_name = CharField(max_length=100)
+    file_size = PositiveIntegerField(null=True, editable=False)
+
+    #   Static function that creates a new instance of the class
+    @staticmethod
+    def create_from_user_id(int_user_id_: int,
+                            temp_filename_: str)->'ProfileImg':
+
+        try:
+            user_model = User.objects.get(id=int_user_id_)
+            new_image = ProfileImg.objects.create(user=user_model, 
+                                                img_name=temp_filename_)
+            new_image.save()
+            return True
+        except Exception as e:
+            print(e)
+            #Operation failed.
+            return False
+        
+    #   Instance function that returns the size of the image
+    def get_file_size(self):
+        if self.file_size is None:
+            try:
+                self.file_size = self.user.img_user_profile.size
+            except Exception as e:
+                print(e)
+                #Operation failed.
+                return False
+
+            self.save(update_fields=['file_size'])
+        return self.file_size

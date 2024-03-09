@@ -475,7 +475,7 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
 
 
 @security.Decorators.require_login(bad_request_400)
-def update_profile_img(req: HttpRequest)->HttpResponse:
+def update_profile_img(req: HttpRequest, img_name: str)->HttpResponse:
     '''
     Description
     -----------
@@ -483,8 +483,10 @@ def update_profile_img(req: HttpRequest)->HttpResponse:
 
     Parameters
     ----------
-    -   req:HttpRequest: HTTP request object containing the user whose profile image
-                         will be modified.
+    -   req:HttpRequest: HTTP request object that will contain info. on the user currently 
+                         logged in.
+    -   img_name:str:    Info. on the image that will replace the current image
+                         being used as the user's profile.
     
     Returns
     -------
@@ -493,11 +495,8 @@ def update_profile_img(req: HttpRequest)->HttpResponse:
 
     Example Usage
     -------------
-    This function is typically called via an HTTP POST request with JSON data containing 
-    the user's ID and the confirmation of their modified profile picture.
-
-    >>> update_profile_img(req)
-    "user {id}'s image profile has been modified"
+    >>> update_profile_img(req, img_name)
+    "user {id}'s image profile has been SUCCESSFULLY modified"
 
     Authors
     -------
@@ -505,30 +504,34 @@ def update_profile_img(req: HttpRequest)->HttpResponse:
 
     '''
 
-    # Validate user ID
-    post_data = json.loads(req.body.decode("utf-8"))
-    id = post_data["id"] if "id" in post_data else None
-    if(id == None):
-        return HttpResponse("User doesn't exist")
-
-    # Get the corresponding ProfileImg object
-    profile_img = ProfileImg.objects.get(id=id)
-
-    #   Open a files dialog box to choose an image
-    temp_filename = filedialog.askopenfilename(title="Select An Image File", 
-                                               filetypes=(("PNG files", "*.png"), ("JPG files", "*.jpg"))
-                                               )
+    # Get the user id from the current session
+    user = User.from_session(req.session)
+    user_id = user.id
     
-    #   If a file has been choosen, replace the imagefield and save
-    #   the profile_img object.
-    if temp_filename:
-        profile_img.imgUserProfile = temp_filename
-        profile_img.save()
-        return HttpResponse(f"user {id}'s image profile has been modified")
+    #   If the name of the file is not 'null', replace the image stored in the user's imagefield,
+    #   and upload the new image into the images directory.
+    if img_name:
+        user.img_user_profile = img_name
+        user.save()
+
+        #   Create a new instance of the ProfileImg model and store it in the program's database
+        profile_img = ProfileImg.objects.get(user=user)
+        if profile_img == None:
+            bool_flag = ProfileImg.create_from_user_id(user_id, img_name)
+
+                #   Return a response saying the process did not go through, if so.
+            if bool_flag == False:
+                return HttpResponse(f"Something went wrong while trying to modify user {user_id}'s profile")
+        else:
+            #   Otherwise, store the image name and save the image instance
+            profile_img.img_name = img_name
+            profile_img.save()
+
+        return HttpResponse(f"user {user_id}'s image profile was SUCCESSFULLY modified")
     
     #   Otherwise, return a response indicating that the image was
     #   not modified.
-    return HttpResponse("user {id}'s image profile was not modified")
+    return HttpResponse(f"user {user_id}'s image profile was NOT modified")
 
 
 @security.Decorators.require_login(bad_request_400)
