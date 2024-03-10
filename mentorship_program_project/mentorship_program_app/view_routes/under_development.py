@@ -508,9 +508,17 @@ def update_profile_img(req: HttpRequest, img_name: str)->HttpResponse:
     user = User.from_session(req.session)
     user_id = user.id
     
-    #   If the name of the file is not 'null', replace the image stored in the user's imagefield,
-    #   and upload the new image into the images directory.
-    if img_name:
+    #   If the name of the file is not valid (wrong file extension or insufficient name length),
+    #   return an HttpResponse saying the user's profile was not modified.
+    if len(img_name) < 5:
+        return HttpResponse(f"File name was invalid. User {user_id}'s profile was not modified.")
+    elif img_name.endswith(".png") == False:
+        return HttpResponse(f"File name was invalid. User {user_id}'s profile was not modified.")
+    elif img_name.endswith(".jpg") == False:
+        return HttpResponse(f"File name was invalid. User {user_id}'s profile was not modified.")
+    #   Otherwise, continue on with running the function.
+    else:
+        #   Take the "name" of the image file and store it in the user's ImageView.
         user.img_user_profile = img_name
         user.save()
 
@@ -528,10 +536,6 @@ def update_profile_img(req: HttpRequest, img_name: str)->HttpResponse:
             profile_img.save()
 
         return HttpResponse(f"user {user_id}'s image profile was SUCCESSFULLY modified")
-    
-    #   Otherwise, return a response indicating that the image was
-    #   not modified.
-    return HttpResponse(f"user {user_id}'s image profile was NOT modified")
 
 
 @security.Decorators.require_login(bad_request_400)
