@@ -481,67 +481,75 @@ def update_profile_img(req: HttpRequest)->HttpResponse:
     -----------
     Function to update a user's profile image
 
+    
     Parameters
     ----------
     -   req:HttpRequest: HTTP request object should contain the image
-                         "name" that will be used to update the user's 
+                         name that will be used to update the user's 
                          profile.
     
+                         
     Returns
     -------
     HttpResponse: HTTP response confirming the modification to the user's profile
                   image.
 
+                  
     Example Usage
     -------------
-    >>> update_profile_img(req)
-    "user {id}'s image profile has been SUCCESSFULLY modified"
+    This function is typically called using a POST request, which should have retrieved
+    the name/location of an image file before it was invoked.
 
+    >>> update_profile_img(req)
+    "user {int_user_id}'s image profile has been SUCCESSFULLY modified"
+
+    
     Authors
     -------
     🌟 Isaiah Galaviz 🌟
-
     '''
 
     # Get the user id from the current session
     user = User.from_session(req.session)
-    user_id = user.id
-    #   Get the "name" of the file through an HTTP POST request with JSON data.
+    int_user_id = user.id
+    #   Get the name of the file through an HTTP POST request with JSON data.
     post_data = json.loads(req.body.decode("utf-8"))
-    img_name = post_data["image"] if "image" in post_data else None
+    str_img_name = post_data["image"] if "image" in post_data else None
     
     #   If the name of the file is not valid (wrong file extension or insufficient name length),
     #   return an HttpResponse saying the user's profile was not modified.
-    if img_name == None:
-        return HttpResponse(f"User {user_id}'s image profile was NOT modified")
-    elif len(img_name) < 5:
-        return HttpResponse(f"File name was invalid. User {user_id}'s profile was NOT modified.")
-    elif img_name.endswith(".png") == False:
-        return HttpResponse(f"File name was invalid. User {user_id}'s profile was NOT modified.")
-    elif img_name.endswith(".jpg") == False:
-        return HttpResponse(f"File name was invalid. User {user_id}'s profile was NOT modified.")
+    if str_img_name == None:
+        return HttpResponse(f"User {int_user_id}'s image profile was NOT modified")
+    elif len(str_img_name) < 5:
+        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
+    elif str_img_name.endswith(".png") == False:
+        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
+    elif str_img_name.endswith(".jpg") == False:
+        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
     
     #   Otherwise, continue on with running the function.
     else:
-        #   Take the "name" of the image file and store it in the user's ImageView.
-        user.img_user_profile = img_name
-        user.save()
         #   Check if a 'ProfileImg' instance exists that is associated
         #   with the user currently logged into the system.
         profile_img = ProfileImg.objects.get(user=user)
         if profile_img == None:
             #   If not, create a new instance of the ProfileImg model 
             #   and store it in the program's database
-            bool_flag = ProfileImg.create_from_user_id(user_id, img_name)
+            bool_flag = ProfileImg.create_from_user_id(int_user_id, str_img_name)
             #   Return a response saying the process did not go through, if so.
             if bool_flag == False:
-                return HttpResponse(f"Something went wrong while trying to modify user {user_id}'s profile")
+                return HttpResponse(f"Something went wrong while trying to modify user {int_user_id}'s profile.")
+            #   If the process did go through, get the newly created instance.
+            profile_img = ProfileImg.objects.get(user=user)
         else:
             #   Otherwise, store the image name and save the image instance
-            profile_img.img_name = img_name
-            profile_img.save()
+            profile_img.img_title = str_img_name
 
-        return HttpResponse(f"User {user_id}'s image profile was SUCCESSFULLY modified")
+        #   Take the name of the image file and store it in the user's ImageView.
+        profile_img.img_profile = str_img_name
+        profile_img.save()
+
+        return HttpResponse(f"User {int_user_id}'s image profile was SUCCESSFULLY modified")
 
 
 @security.Decorators.require_login(bad_request_400)

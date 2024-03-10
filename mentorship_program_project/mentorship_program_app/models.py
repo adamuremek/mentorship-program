@@ -296,7 +296,6 @@ class User(SVSUModelData,Model):
     - cls_date_of_birth
     - str_gender
     - str_preferred_pronouns
-    - img_user_profile
     - interests
 
     Instance Functions
@@ -411,13 +410,6 @@ class User(SVSUModelData,Model):
     cls_date_of_birth = DateField(default=date.today)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
-
-    #image field with url location
-    img_user_profile = ImageField(
-                                upload_to="images/",
-                                default=
-                                    "images/default_profile_picture.png"
-                                )
 
     #foregn key fields
     interests = models.ManyToManyField(Interest)
@@ -1697,14 +1689,22 @@ class ProfileImg(SVSUModelData,Model):
     ProfileImg is a class that represents database access objects
     for each user's profile image.
 
+    
     Properties
     ----------
     - user (User):      Represents the given user who has said profile
                         image.
-    - imgUserProfile:   The image file that is used for the user's profile.
-                        There will be a default image used as a placeholder
-                        When an object is first created.
 
+    - img_title:        Represents the file name/location of the image
+                        associated with the user.
+
+    - img_profile:      The ImageField for the user's profile.
+                        There will be a default image used as a placeholder
+                        when an instance of the class is first created.
+
+    - file_size:        Represents the size of an image
+
+    
     Instance Functions
     ------------------
     -   get_file_size:  Returns the size of the image; set a new value to the 
@@ -1732,19 +1732,24 @@ class ProfileImg(SVSUModelData,Model):
         primary_key = True
     )
 
-    #   The name of the image and its file size
-    img_name = CharField(max_length=100)
+    #   The image, its name, and its file size.
+    img_title = CharField(max_length=100)
+    img_profile = ImageField(
+                                upload_to="images/",
+                                default=
+                                    "images/default_profile_picture.png"
+                            )
     file_size = PositiveIntegerField(null=True, editable=False)
 
     #   Static function that creates a new instance of the class
     @staticmethod
     def create_from_user_id(int_user_id: int,
-                            filename: str)->'ProfileImg':
+                            str_filename: str)->'ProfileImg':
 
         try:
             user_model = User.objects.get(id=int_user_id)
             new_image = ProfileImg.objects.create(user=user_model, 
-                                                img_name=filename)
+                                                img_title=str_filename)
             new_image.save()
             return True
         except Exception as e:
@@ -1756,7 +1761,7 @@ class ProfileImg(SVSUModelData,Model):
     def get_file_size(self):
         if self.file_size is None:
             try:
-                self.file_size = self.user.img_user_profile.size
+                self.file_size = self.img_profile.size
             except Exception as e:
                 print(e)
                 #Operation failed.
