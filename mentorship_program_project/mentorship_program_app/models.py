@@ -1738,13 +1738,13 @@ class ProfileImg(SVSUModelData,Model):
 
     #   Static function that creates a new instance of the class
     @staticmethod
-    def create_from_user_id(int_user_id_: int,
-                            temp_filename_: str)->'ProfileImg':
+    def create_from_user_id(int_user_id: int,
+                            filename: str)->'ProfileImg':
 
         try:
-            user_model = User.objects.get(id=int_user_id_)
+            user_model = User.objects.get(id=int_user_id)
             new_image = ProfileImg.objects.create(user=user_model, 
-                                                img_name=temp_filename_)
+                                                img_name=filename)
             new_image.save()
             return True
         except Exception as e:
