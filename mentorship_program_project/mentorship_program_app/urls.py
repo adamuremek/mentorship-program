@@ -45,7 +45,9 @@ from mentorship_program_app import views
 
 from .view_routes import navigation
 from .view_routes import under_development
+from .view_routes import backend_requests
 from .view_routes import development as development_views
+
 
 ##All created urls need to go here
 urlpatterns = [
@@ -63,7 +65,7 @@ urlpatterns = [
     #==================LOGICAL ROUTES=================#
     path('landing-post/'                                 , views.landingPost                 , name='landing-post'),
     path('register-test/'                                , under_development.register_mentor , name='register-test'),
-    path('request_mentor/<int:mentee_id>/<int:mentor_id>',under_development.request_mentor   ,name='request mentor'),
+    path('request_mentor/<int:mentee_id>/<int:mentor_id>',backend_requests.request_mentor,name='request mentor'),
     #8=============================================D~~#
 
     
