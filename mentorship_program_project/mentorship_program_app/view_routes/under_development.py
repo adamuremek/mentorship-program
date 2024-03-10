@@ -500,7 +500,7 @@ def update_profile_img(req: HttpRequest, img_name: str)->HttpResponse:
 
     Authors
     -------
-    Isaiah Galaviz
+    🌟 Isaiah Galaviz 🌟
 
     '''
 
