@@ -475,7 +475,7 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
 
 
 @security.Decorators.require_login(bad_request_400)
-def update_profile_img(req: HttpRequest, img_name: str)->HttpResponse:
+def update_profile_img(req: HttpRequest)->HttpResponse:
     '''
     Description
     -----------
@@ -483,10 +483,9 @@ def update_profile_img(req: HttpRequest, img_name: str)->HttpResponse:
 
     Parameters
     ----------
-    -   req:HttpRequest: HTTP request object that will contain info. on the user currently 
-                         logged in.
-    -   img_name:str:    Info. on the image that will replace the current image
-                         being used as the user's profile.
+    -   req:HttpRequest: HTTP request object should contain the image
+                         "name" that will be used to update the user's 
+                         profile.
     
     Returns
     -------
@@ -495,7 +494,7 @@ def update_profile_img(req: HttpRequest, img_name: str)->HttpResponse:
 
     Example Usage
     -------------
-    >>> update_profile_img(req, img_name)
+    >>> update_profile_img(req)
     "user {id}'s image profile has been SUCCESSFULLY modified"
 
     Authors
@@ -507,27 +506,34 @@ def update_profile_img(req: HttpRequest, img_name: str)->HttpResponse:
     # Get the user id from the current session
     user = User.from_session(req.session)
     user_id = user.id
+    #   Get the "name" of the file through an HTTP POST request with JSON data.
+    post_data = json.loads(req.body.decode("utf-8"))
+    img_name = post_data["image"] if "image" in post_data else None
     
     #   If the name of the file is not valid (wrong file extension or insufficient name length),
     #   return an HttpResponse saying the user's profile was not modified.
-    if len(img_name) < 5:
-        return HttpResponse(f"File name was invalid. User {user_id}'s profile was not modified.")
+    if img_name == None:
+        return HttpResponse(f"User {user_id}'s image profile was NOT modified")
+    elif len(img_name) < 5:
+        return HttpResponse(f"File name was invalid. User {user_id}'s profile was NOT modified.")
     elif img_name.endswith(".png") == False:
-        return HttpResponse(f"File name was invalid. User {user_id}'s profile was not modified.")
+        return HttpResponse(f"File name was invalid. User {user_id}'s profile was NOT modified.")
     elif img_name.endswith(".jpg") == False:
-        return HttpResponse(f"File name was invalid. User {user_id}'s profile was not modified.")
+        return HttpResponse(f"File name was invalid. User {user_id}'s profile was NOT modified.")
+    
     #   Otherwise, continue on with running the function.
     else:
         #   Take the "name" of the image file and store it in the user's ImageView.
         user.img_user_profile = img_name
         user.save()
-
-        #   Create a new instance of the ProfileImg model and store it in the program's database
+        #   Check if a 'ProfileImg' instance exists that is associated
+        #   with the user currently logged into the system.
         profile_img = ProfileImg.objects.get(user=user)
         if profile_img == None:
+            #   If not, create a new instance of the ProfileImg model 
+            #   and store it in the program's database
             bool_flag = ProfileImg.create_from_user_id(user_id, img_name)
-
-                #   Return a response saying the process did not go through, if so.
+            #   Return a response saying the process did not go through, if so.
             if bool_flag == False:
                 return HttpResponse(f"Something went wrong while trying to modify user {user_id}'s profile")
         else:
@@ -535,7 +541,7 @@ def update_profile_img(req: HttpRequest, img_name: str)->HttpResponse:
             profile_img.img_name = img_name
             profile_img.save()
 
-        return HttpResponse(f"user {user_id}'s image profile was SUCCESSFULLY modified")
+        return HttpResponse(f"User {user_id}'s image profile was SUCCESSFULLY modified")
 
 
 @security.Decorators.require_login(bad_request_400)
@@ -568,7 +574,7 @@ def create_note (req : HttpRequest):
 
     #Grab the users current session
     user = User.from_session(req.session)
-    str_title = req.POST.get ("title", None)
+    str_title = req.POST.get("title", None)
     str_body = req.POST.get("body", None) 
     bool_flag = False
 

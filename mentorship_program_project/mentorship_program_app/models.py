@@ -1699,11 +1699,11 @@ class ProfileImg(SVSUModelData,Model):
 
     Properties
     ----------
-    - user (User): Represents the given user who has said profile
-                         image.
-    - imgUserProfile:    The image file that is used for the user's profile.
-                         There will be a default image used as a placeholder
-                         When an object is first created.
+    - user (User):      Represents the given user who has said profile
+                        image.
+    - imgUserProfile:   The image file that is used for the user's profile.
+                        There will be a default image used as a placeholder
+                        When an object is first created.
 
     Instance Functions
     ------------------
@@ -1722,7 +1722,7 @@ class ProfileImg(SVSUModelData,Model):
 
     Authors
     -------
-    Isaiah G.
+    🌟 Isaiah Galaviz 🌟
 
     """
     #   The user that the image is associated with; set it as the primary key
