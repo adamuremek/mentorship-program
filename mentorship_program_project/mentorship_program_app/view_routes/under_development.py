@@ -230,8 +230,10 @@ def register_mentor(req: HttpRequest):
         pending_mentor_object.save()
             
             
+        template: Template = loader.get_template('successful_registration.html')
+        ctx = {}
         
-        return HttpResponse("Registration request successful! We'll get back to ya!")
+        return HttpResponse(template.render(ctx, req))
         
     else:
         return HttpResponse("Bad :(")
