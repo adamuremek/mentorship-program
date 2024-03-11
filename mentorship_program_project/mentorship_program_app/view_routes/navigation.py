@@ -49,7 +49,7 @@ def dashboard(req):
     ## changing to use functions to ping data base for approval VVVVVV
     ##opposite_role = 'Mentee' if role == 'Mentor' else 'Mentor'
 
-    ## New method vvvv From tanner/david/andrew/adam/jordan
+    ## New method vvvv From tanner/david
     
     # TODO: 
     # now that were passing session_user data to the view,
@@ -62,9 +62,8 @@ def dashboard(req):
     # minor nitpic at best, but if people want to get it swapped over or don't mind me
     # messing with their code we could put it in
     role = session_user.get_database_role_string()
-    print(role, "gagagag")
     opposite_role = session_user.get_opposite_database_role_string()
-    print(opposite_role, "googoo")
+
     card_data = User.objects.filter(str_role=opposite_role)
 
     print(card_data)
@@ -78,8 +77,6 @@ def dashboard(req):
     for u in users:
         u.is_requested_by_session = u.has_requested_user(session_user.id)
     
-    print("aahghh")
-    print(role)
     context = {
             "recommended_users": [users.sanitize_black_properties() for users in card_data[0:4]],
             "all_users"        : users,
