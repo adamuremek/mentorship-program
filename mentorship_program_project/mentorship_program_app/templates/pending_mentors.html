@@ -28,14 +28,16 @@
     <div class="mentor-applicants-container">
         
         <!-- row for an individual mentor in the display container -->
-        <div class="mentor-applicant">
+        
+        {% for user in pending_mentors %}
+        <div class="mentor-applicant" mentor-id="{{user.id}}">
 
             <div class="profile-picture-container">
                 <img src="../static/images/ex-pfp.jpg" alt="" class="profile-picture">
             </div>
             
             <div class="mentor-name">
-                John Booth
+                {{user.str_first_name}} {{user.str_last_name}}
             </div>
 
             <form action="">
@@ -45,47 +47,46 @@
             </form>
 
             <form action="">
-                <input type="submit" value="Approve" name="status">
-            </form>
-
-            <form action="">
-                <input type="submit" value="Delete" name="status">
-            </form>
-
-        </div>
-
-
-        <div class="mentor-applicant">
-
-            <div class="profile-picture-container">
-                <img src="../static/images/my-channel.jpeg" alt="" class="profile-picture">
-            </div>
-            
-            <div class="mentor-name">
-                Mike White
-            </div>
-
-            <form action="">
-                <button>
-                    View
+                <button status="Approved">
+                    Approve
                 </button>
             </form>
 
             <form action="">
-                <input type="submit" value="Approve" name="status">
+                <button status="Delete">
+                    Delete
+                </button>
             </form>
-
-            <form action="">
-                <input type="submit" value="Delete" name="status">
-            </form>
-
         </div>
 
-        
+        {% endfor %}
     </div>
     
 
+<script src = "{% static 'js/backend_requests.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mentorForms = document.querySelectorAll('.mentor-applicant');
+        mentorForms.forEach(form => {
+            const mentorId = form.getAttribute('mentor-id');
+            form.addEventListener('click', function(event) {
+                event.preventDefault();
+                const target = event.target;
+                const status = target.getAttribute('status');
+                if (status) {
+                    admin_mentor_request(mentorId, status)
+                        .then(response => {
+                            location.reload()
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
+        });
+    });
 
+</script>
 
 
 

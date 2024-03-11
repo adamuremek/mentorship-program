@@ -333,19 +333,14 @@ def view_pending_mentors(req: HttpRequest):
     
     #TODO Verify youre an admin
 
-    # get all mentors who are still pending
+
+    template = loader.get_template('pending_mentors.html')
+    # Get all mentors who are still pending
     pending_mentors = User.objects.filter(str_role="MentorPending")
     
-    out_str = ""
+    context = {"pending_mentors" : pending_mentors}
     
-    for user in pending_mentors:
-        user_info = user.get_user_info()
-        first_name = user_info["FirstName"]
-        last_name = user_info["LastName"]
-        email = user_info["EmailAddress"]
-        out_str += f"Name: {first_name} {last_name} Email: {email} id: {user.id} ||"
-
-    return HttpResponse(str(out_str))
+    return HttpResponse(template.render(context, req))
 
 
 def change_mentor_status(req:HttpRequest):
@@ -367,7 +362,7 @@ def change_mentor_status(req:HttpRequest):
     This function is typically called via an HTTP POST request with JSON data containing the mentor's ID and the desired status change.
     
     >>> change_mentor_status(req)
-    "user {id}'s status has been changed to: {status}"
+    "user {mentor_id}'s status has been changed to: {status}"
     
     Authors
     -------
@@ -378,23 +373,24 @@ def change_mentor_status(req:HttpRequest):
 
     # Extract mentor ID and status from request data
     post_data = json.loads(req.body.decode("utf-8"))
-    id = post_data["id"] if "id" in post_data else None
+    mentor_id = post_data["mentor_id"] if "mentor_id" in post_data else None
     status = post_data["status"] if "status" in post_data else None
     
     # Retrieve user object based on ID
-    user = User.objects.get(id=id)
+    user = User.objects.get(id=mentor_id)
     
     # Update user role and activation status based on provided status
     if status == 'Approved':
         user.bln_active = True
         user.str_role = User.Role.MENTOR
+        user.save()
     else:
-        user.str_role = User.Role.DECLINED
+        user.delete()
         
     # Save changes to user object
-    user.save()
+    
         
-    return HttpResponse(f"user {id}'s status has been changed to: {status}")
+    return HttpResponse(f"user {mentor_id}'s status has been changed to: {status}")
 
 
 def disable_user(req:HttpRequest):

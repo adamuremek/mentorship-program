@@ -72,7 +72,7 @@ urlpatterns = [
     
     #ADAM + ANDREW + JORDAN TESTING
     path("view-pending", under_development.view_pending_mentors, name="view-pending"),
-    path("change-mentor-status", under_development.change_mentor_status, name="change-mentor-status"),
+    path("change_mentor_status", under_development.change_mentor_status, name="change_mentor_status"),
     path("disable-user", under_development.disable_user, name="disable-user"),
     path("enable-user", under_development.enable_user, name="enable-user"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
