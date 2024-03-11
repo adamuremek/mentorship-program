@@ -178,8 +178,6 @@ def register_mentor(req: HttpRequest):
     '''
     if req.method == "POST":
 
-        print(req.POST)
-        
         incoming_email: str = req.POST["email"]
         # check if the account is already registered
         if User.objects.filter(cls_email_address=req.POST["email"]).count() != 0:    
@@ -212,16 +210,16 @@ def register_mentor(req: HttpRequest):
             str_preferred_pronouns = req.POST["pronouns"]
         )
         mentor = User.objects.get(cls_email_address = incoming_email)
-        Mentor.objects.create(
-            account_id = mentor.id,
-            int_max_mentees = 5,
-            int_recommendations = 0,
-            str_job_title =  req.POST["jobTitle"],
-            str_experience = req.POST["experience"],
-            organization_id = organization.id
+        # Mentor.objects.create(
+        #     account_id = mentor.id,
+        #     int_max_mentees = 5,
+        #     int_recommendations = 0,
+        #     str_job_title =  req.POST["jobTitle"],
+        #     str_experience = req.POST["experience"],
+        #     organization_id = organization.id
             
             
-        )
+        # )
         
         return HttpResponse("Registration request successful! We'll get back to ya!")
         
