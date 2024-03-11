@@ -59,12 +59,12 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_phone = document.getElementById('phone');
     const input_password = document.getElementById('password')
 
-    const input_company = document.getElementById('company')
+    const input_company = document.getElementById('organization')
     // const input_company_type = document.getElementById('company-type')
     // const input_experience = document.getElementById('experience')
-    const input_job_title = document.getElementById('job-title')
+    const input_job_title = document.getElementById('jobTitle')
 
-    // const input_interests = idek what the fuck to do for that shit
+    const input_interests = document.getElementById('interests')
 
     var regex_custom = /^/
 

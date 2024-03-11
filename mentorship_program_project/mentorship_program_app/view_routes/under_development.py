@@ -13,9 +13,6 @@ from .status_codes import bad_request_400
 from utils import security
 from utils.development import print_debug
 
-from tkinter import filedialog
-
-
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
 through the mentor sign up route and update their role user entry in the DB to mentor when approved
@@ -180,6 +177,8 @@ def register_mentor(req: HttpRequest):
     Andrew P.
     '''
     if req.method == "POST":
+
+        print(req.POST)
         
         incoming_email: str = req.POST["email"]
         # check if the account is already registered
@@ -207,7 +206,7 @@ def register_mentor(req: HttpRequest):
             bln_account_disabled = False,
             str_first_name = req.POST["fname"],
             str_last_name = req.POST["lname"],
-            str_phone_number = req.POST["phone-number"],
+            str_phone_number = req.POST["phone"],
             #cls_date_of_birth = cls_date_of_birth,
             #str_gender = str_gender,
             str_preferred_pronouns = req.POST["pronouns"]
@@ -218,6 +217,7 @@ def register_mentor(req: HttpRequest):
             int_max_mentees = 5,
             int_recommendations = 0,
             str_job_title =  req.POST["jobTitle"],
+            str_experience = req.POST["experience"],
             organization_id = organization.id
             
             

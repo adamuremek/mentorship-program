@@ -1,7 +1,7 @@
 <div class="sign-in-card-content">
     <div class="sign-in-card-element">
         <p class="sign-in-card-text-normal">Company:</p>
-        <input type="text" id="company" name="company" placeholder="e.g. ABC Corp.">
+        <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp.">
     </div>
 
     <div class="sign-in-card-element-horizontal">
@@ -16,10 +16,10 @@
         </div>
         <div>
             <p class="sign-in-card-text-normal">Experience:</p>
-            <select>
-                <option></option>
+            <select name="experience">
+                <option value=""></option>
                 {% for experience in experiencelist %}
-                    <option>{{experience}}</option>
+                    <option value="{{experience}}">{{experience}}</option>
                 {% endfor %}
             </select>
         </div>
@@ -27,7 +27,7 @@
 
     <div class="sign-in-card-element">
         <p class="sign-in-card-text-normal">Job Title:</p>
-        <input type="text" id="job-title" name="jobTitle" placeholder="e.g. Software Developer">
+        <input type="text" id="jobTitle" name="jobTitle" placeholder="e.g. Software Developer">
     </div>
 
     <div class="sign-in-card-element">

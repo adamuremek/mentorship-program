@@ -995,7 +995,7 @@ class Mentor(SVSUModelData,Model):
     int_max_mentees = IntegerField(default=4)
     int_recommendations = IntegerField(default=0)
     str_job_title = CharField(max_length=100)
-
+    str_experience = CharField(max_length=50, default='')
 
 
     account = OneToOneField(
