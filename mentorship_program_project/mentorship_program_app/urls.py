@@ -65,6 +65,7 @@ urlpatterns = [
     #==================LOGICAL ROUTES=================#
     path('landing-post/'                                 , views.landingPost                 , name='landing-post'),
     path('register-test/'                                , under_development.register_mentor , name='register-test'),
+    path('register-mentee-test/'                         , under_development.register_mentee , name='register-mentee-test'),
     path('request_mentor/<int:mentee_id>/<int:mentor_id>',backend_requests.request_mentor,name='request mentor'),
     #8=============================================D~~#
 

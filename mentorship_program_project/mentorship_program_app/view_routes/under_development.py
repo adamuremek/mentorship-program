@@ -237,6 +237,71 @@ def register_mentor(req: HttpRequest):
         return HttpResponse("Bad :(")
     
 
+def register_mentee(req: HttpRequest):
+    '''
+    Description
+    -----------
+    Function that will allow people to request to be a mentee.
+    
+    Parameters
+    ----------
+    - req : HttpRequest
+    req should contain email (str), password (str), firstname (str), lastname (str), phone_number (str), pronouns (str)
+    
+    Returns
+    -------
+    - str: Email {email} already exsists!
+    - str: Registration request successful! We'll get back to ya!
+    - str: Bad :(
+    
+    Example Usage
+    -------------
+    
+    >>> reqister_mentee(req)
+    "Email {email} already exsists!"
+    
+    >>> reqister_mentee(req)
+    Registration request successful! We'll get back to ya!
+    
+    Authors
+    -------
+    Adam U. ʕ·͡ᴥ·ʔ
+    Andrew P.
+    Jordan A.
+    '''
+    if req.method == "POST":
+        incoming_email: str = req.POST["email"]
+        incoming_plain_text_password = req.POST["password"]
+
+        # create a new user in the database with the role "Pending"
+        pending_mentee_object = Mentee.create_from_plain_text_and_email(incoming_plain_text_password, incoming_email)
+
+        # check if the account is already registered
+        if pending_mentee_object == User.ErrorCode.AlreadySelectedEmail:
+            return HttpResponse(f"Email {incoming_email} already exsists!")
+            
+        pending_mentee_object.account.cls_email_address = incoming_email
+        pending_mentee_object.account.str_first_name = req.POST["fname"]
+        pending_mentee_object.account.str_last_name = req.POST["lname"]
+        pending_mentee_object.account.str_preferred_pronouns = req.POST["pronouns"]
+     
+        parsed_user_interests = [
+                                    Interest.get_or_create_interest(interest) 
+                                    for interest in req.POST["interests"].split(",")[0:-1]
+                                ]
+                                
+        for interest in parsed_user_interests:
+            pending_mentee_object.account.interests.add(interest)
+
+        
+        pending_mentee_object.account.save()
+        pending_mentee_object.save()
+        
+        return HttpResponse("Registration request successful! We'll get back to ya!")
+        
+    else:
+        return HttpResponse("Bad :(")
+
 def view_pending_mentors(req: HttpRequest):
     '''
     Description

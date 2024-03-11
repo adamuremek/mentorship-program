@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block card_content %}
-    <form class="sign-in-card-form" id="register-form-mentee" action="/register-test/" method="POST">
+    <form class="sign-in-card-form" id="register-form-mentee" action="/register-mentee-test/" method="POST">
         {% csrf_token %}
         {% include 'sign-in card/shared/account_creation_name_pronoun.html' %}
         {% include 'sign-in card/shared/account_creation_email_password.html' %}

@@ -811,7 +811,7 @@ class User(SVSUModelData,Model):
         
         """
         @staticmethod
-        def require_logged_in_mentor(alternate_view : Callable) -> Callable[HttpRequest,HttpResponse]:
+        def require_logged_in_mentor(alternate_view : Callable): # -> Callable[HttpRequest,HttpResponse]:
             """
             Description
             -----------
@@ -848,7 +848,7 @@ class User(SVSUModelData,Model):
             return security.Decorators.require_check(validator, alternate_view)
         
         @staticmethod
-        def require_logged_in_mentee(alternate_view : Callable) -> Callable[HttpRequest,HttpResponse]:
+        def require_logged_in_mentee(alternate_view : Callable): # -> Callable[HttpRequest,HttpResponse]:
             """
             Description
             -----------
