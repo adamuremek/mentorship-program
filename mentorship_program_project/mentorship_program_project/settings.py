@@ -37,6 +37,9 @@ else:
     ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', default='').split(' ')
 
 
+# We need to add any origins that the server is hosted on to this list.
+CSRF_TRUSTED_ORIGINS = ['https://mentorship-program-dev.jordananodjo.com']
+
 # Application definition
 
 INSTALLED_APPS = [
