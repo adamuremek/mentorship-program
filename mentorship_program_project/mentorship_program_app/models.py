@@ -171,8 +171,8 @@ class Interest(SVSUModelData,Model):
 
     Properties
     ----------
-    - strInterest
-    - isDefaultInterest
+    - strInterest - descriptive text regaurding what this interest is
+    - isDefaultInterest - is true only if we added the initial interest at the start of the app, false for user defined interests
 
     Instance Functions
     -------------------
@@ -195,6 +195,32 @@ class Interest(SVSUModelData,Model):
     strInterest = CharField(max_length=100, null=False,unique=True)
     isDefaultInterest = BooleanField(default=False)
 
+
+
+
+    @staticmethod
+    def get_or_create_interest(str_interest : str) -> 'Interest':
+        """
+        Description
+        -----------
+        attempts to get a given interest, if it does not exist in the db create it
+
+
+        Example Usage
+        _____________
+        my_interest = Interest.get_or_create_interest("Buffalo Breeding")
+
+
+        Authors
+        -------
+        David Kennamer )-(
+        """
+        try:
+            ret_int = Interest.objects.get(strInterest = str_interest)
+            return ret_int
+        except ObjectDoesNotExist:
+            #TODO: put in try catch to account for connection issues
+            Interest.objects.create(strInterest=str_interest).save()
 
 
     #convinence methods
@@ -229,48 +255,6 @@ class Interest(SVSUModelData,Model):
         """
         return Interest.objects.filter(isDefaultInterest=True)
 
-    #simply returns an array representing the inital default interests that we want
-    #to be populated to the database
-    @staticmethod 
-    def get_initial_default_interest_strings()-> list[str]:
-        """
-        Description
-        -----------
-        Returns a list representing the inital default interests that we want
-        to be populated to the database
-
-        Parameters
-        ----------
-        (None)
-
-        Optional Parameters
-        -------------------
-        (None)
-
-        Returns
-        -------
-        - list[str]: The set of all default interest objects
-
-        Example Usage
-        -------------
-
-        >>> Interest.get_initial_default_interest_strings()
-        '[c++, python, html, ...]'
-
-        Authors
-        -------
-        
-        """
-        return [
-                "c++",
-                "python",
-                "html",
-                "javascript",
-                "webdev",
-                "godot",
-                "calculus",
-                "AI"
-                ]
     # def __str__(self) -> str:
     #     return self.strInterest
 
@@ -356,6 +340,9 @@ class User(SVSUModelData,Model):
                 "str_password_salt",
                 "check_valid_password"
                 ]
+    
+    class ErrorCode:
+        AlreadySelectedEmail = -1
 
     class Role(TextChoices):
         """
@@ -404,9 +391,9 @@ class User(SVSUModelData,Model):
     bln_active = BooleanField(default=True)
     bln_account_disabled =  BooleanField(default=False)
 
-    str_first_name: CharField =  CharField(max_length=747,null=True)
-    str_last_name =  CharField(max_length=747, null=True) 
-    str_phone_number =  CharField(max_length=15, null=True)
+    str_first_name : CharField =  CharField(max_length=747,null=True)
+    str_last_name : CharField =  CharField(max_length=747, null=True) 
+    str_phone_number : CharField = CharField(max_length=15, null=True)
     cls_date_of_birth = DateField(default=date.today)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
@@ -511,6 +498,7 @@ class User(SVSUModelData,Model):
 
         Authors
         -------
+        David Kennamer ._.
         
         """
         return User.Role.MENTOR if self.is_mentor()  else User.Role.MENTEE
@@ -546,7 +534,7 @@ class User(SVSUModelData,Model):
         """
         try:
             self.mentor
-            return True
+            return self.str_role == User.Role.MENTOR
         except ObjectDoesNotExist:
             return False
 
@@ -579,8 +567,8 @@ class User(SVSUModelData,Model):
         
         """
         try:
-            self.mentee
-            return True
+            self.mentee 
+            return self.str_role == User.Role.MENTEE
         except ObjectDoesNotExist:
             return False
 
@@ -637,7 +625,8 @@ class User(SVSUModelData,Model):
 
         Returns
         -------
-        - User: the created user object
+        - User: the created user object on sucesful
+        - -1 if email already exists
 
         Example Usage
         -------------
@@ -649,6 +638,10 @@ class User(SVSUModelData,Model):
         -------
         
         """
+
+        if User.objects.filter(cls_email_address=email).count() != 0:    
+            return User.ErrorCode.AlreadySelectedEmail
+
         generated_user_salt = security.generate_salt()
         #TODO: emails need to be validated, send a sacrifical lamb
         #to the regex gods
@@ -956,7 +949,7 @@ class Organization(SVSUModelData,Model):
     str_org_name = CharField(max_length=100)
     str_industry_type = CharField(max_length=100)
 
-    admins = models.ManyToManyField('Mentor')
+    admins = models.ManyToManyField('Mentor',related_name='administered_organizations')
 
 class Mentor(SVSUModelData,Model):
     """
@@ -993,7 +986,14 @@ class Mentor(SVSUModelData,Model):
     """
 
     int_max_mentees = IntegerField(default=4)
-    int_recommendations = IntegerField(default=0)
+   
+    # TODO:
+    # I think theres a way to make this a read only query to the db
+    # which is what it prolly should be so our data states
+    # don't get de synced
+    # -dk
+    #int_recommendations = IntegerField(default=0)
+
     str_job_title = CharField(max_length=100)
     str_experience = CharField(max_length=50, default='')
 
@@ -1001,6 +1001,10 @@ class Mentor(SVSUModelData,Model):
     account = OneToOneField(
         User,
         on_delete = models.CASCADE
+    )
+
+    organization = ManyToManyField(
+        Organization
     )
 
     @staticmethod
@@ -1030,16 +1034,21 @@ class Mentor(SVSUModelData,Model):
         -------------
         
         >>> Mentor.create_from_plain_text_and_email("password",
-                "smartguy@email.com")
-        MentorObjectInstance1
+                "smartguy@email.com") MentorObjectInstance1
 
         Authors
         -------
         
         """
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
-        user_model.str_role = User.Role.MENTOR
-        user_model.save()
+
+        #pass the error codes through to the outside
+        if type(user_model) == int:
+            return user_model
+
+        user_model.str_role = User.Role.MENTOR_PENDING
+        
+        #user_model.save()
 
         mentor = Mentor.objects.create(account=user_model)
         mentor.save()
@@ -1111,6 +1120,11 @@ class Mentee(SVSUModelData,Model):
         
         """
         user_model = User.create_from_plain_text_and_email(password_plain_text,email)
+
+        #pass the error codes through to the outside
+        if type(user_model) == int:
+            return user_model
+
         user_model.str_role = User.Role.MENTEE
         user_model.save()
 

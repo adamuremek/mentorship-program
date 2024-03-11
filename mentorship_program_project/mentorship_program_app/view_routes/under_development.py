@@ -105,8 +105,8 @@ VALIDATE_REQ_BODY_ERR_MSSG = "The 'validate_request_body' \
 decorator is typically only used on route callback functions \
 that need one or more of its body's string values verified."
 
-def __validate_request_body(req_callback: Callable, *body_args: str) -> Callable:
-    def wrapper(*args):
+def __validate_request_body(req_callback: Callable, *body_args: str, **kwargs) -> Callable:
+    def wrapper(*args,**kwargs):
         #The calling function should have at least one argument.
         if len(args) < 1:
             raise Exception(f"Function {req_callback.__name__} has no arguments! {VALIDATE_REQ_BODY_ERR_MSSG}")
@@ -135,12 +135,12 @@ def __validate_request_body(req_callback: Callable, *body_args: str) -> Callable
                 if err_mssg != "":
                     return bad_request_400(f"{err_mssg} | problem_string: {value}")
         
-        return req_callback(*args)
+        return req_callback(*args,**kwargs)
     
     return wrapper
 
-def validate_request_body(*args: str):
-    return lambda func: __validate_request_body(func, *args)
+def validate_request_body(*args: str,**kwargs):
+    return lambda func: __validate_request_body(func, *args,**kwargs)
 
 @validate_request_body("fname", "lname", "pronouns", "email", "phone-number", "password")
 def register_mentor(req: HttpRequest):
@@ -177,49 +177,59 @@ def register_mentor(req: HttpRequest):
     Andrew P.
     '''
     if req.method == "POST":
-
         incoming_email: str = req.POST["email"]
-        # check if the account is already registered
-        if User.objects.filter(cls_email_address=req.POST["email"]).count() != 0:    
-            return HttpResponse(f"Email {incoming_email} already exsists!")
+        incoming_plain_text_password = req.POST["password"]
+
+
+        # create a new user in the database with the role "Pending"
+        pending_mentor_object = Mentor.create_from_plain_text_and_email(incoming_plain_text_password, incoming_email)
         
-        # salt to store to unhash the password
-        generated_user_salt = security.generate_salt()
+        # check if the account is already registered
+        if pending_mentor_object == User.ErrorCode.AlreadySelectedEmail:
+            return HttpResponse(f"Email {incoming_email} already exsists!")
 
         organization = None
         if(not Organization.objects.filter(str_org_name=req.POST["organization"]).exists()):
             organization = Organization.objects.create(str_org_name=req.POST["organization"])
+            #organization.save()
         else:
             organization = Organization.objects.get(str_org_name=req.POST["organization"])
             
-        # create a new user in the database with the role "Pending"
-        User.objects.create(
-            cls_email_address = incoming_email,
-            str_password_hash = security.hash_password(req.POST["password"], generated_user_salt),
-            str_password_salt = generated_user_salt,
-            str_role = User.Role.MENTOR_PENDING,
-            cls_date_joined = date.today(),
-            cls_active_changed_date = date.today(),
-            bln_active = False,
-            bln_account_disabled = False,
-            str_first_name = req.POST["fname"],
-            str_last_name = req.POST["lname"],
-            str_phone_number = req.POST["phone"],
-            #cls_date_of_birth = cls_date_of_birth,
-            #str_gender = str_gender,
-            str_preferred_pronouns = req.POST["pronouns"]
-        )
+        pending_mentor_object.account.cls_email_address = incoming_email
+        pending_mentor_object.account.str_first_name = req.POST["fname"]
+        pending_mentor_object.account.str_last_name = req.POST["lname"]
+        pending_mentor_object.account.str_phone_number = req.POST["phone"]
+
+        #were not getting the data from the incoming form
+        #if this is a thing we need to keep track of we should prolly send it
+        #idk tho do whatevs -dk
+        #cls_date_of_birth = cls_date_of_birth 
+        #str_gender = str_gender,
+
+
+        str_preferred_pronouns = req.POST["pronouns"]
         mentor = User.objects.get(cls_email_address = incoming_email)
-        # Mentor.objects.create(
-        #     account_id = mentor.id,
-        #     int_max_mentees = 5,
-        #     int_recommendations = 0,
-        #     str_job_title =  req.POST["jobTitle"],
-        #     str_experience = req.POST["experience"],
-        #     organization_id = organization.id
+        
+        pending_mentor_object.str_job_title =  req.POST["jobTitle"]
+        pending_mentor_object.str_experience = req.POST["experience"]
+        pending_mentor_object.organization.add(organization)
+
+        parsed_user_interests = [
+                                    Interest.get_or_create_interest(interest) 
+                                    for interest in req.POST["interests"].split(",")[0:-1]
+                                 ]
+
+
+        pending_mentor_object.account.save()
+        pending_mentor_object.save()
+
+        for interest in parsed_user_interests:
+            pending_mentor_object.account.interests.add(interest)
+
+
+        pending_mentor_object.save()
             
             
-        # )
         
         return HttpResponse("Registration request successful! We'll get back to ya!")
         
