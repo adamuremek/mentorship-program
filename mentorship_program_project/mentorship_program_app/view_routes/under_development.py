@@ -1,14 +1,18 @@
 import json
 import re
+import inspect
 from collections.abc import Callable
 from datetime import date
+
 from django.http import HttpResponse, HttpRequest
 from django.template import loader, Template
 from django.shortcuts import render, redirect
-from mentorship_program_app.models import *
+from django.core.exceptions import ObjectDoesNotExist
 
+from mentorship_program_app.models import *
 from .status_codes import bad_request_400
 from utils import security
+from utils.development import print_debug
 
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
@@ -102,8 +106,8 @@ VALIDATE_REQ_BODY_ERR_MSSG = "The 'validate_request_body' \
 decorator is typically only used on route callback functions \
 that need one or more of its body's string values verified."
 
-def __validate_request_body(req_callback: Callable, *body_args: str) -> Callable:
-    def wrapper(*args):
+def __validate_request_body(req_callback: Callable, *body_args: str, **kwargs) -> Callable:
+    def wrapper(*args,**kwargs):
         #The calling function should have at least one argument.
         if len(args) < 1:
             raise Exception(f"Function {req_callback.__name__} has no arguments! {VALIDATE_REQ_BODY_ERR_MSSG}")
@@ -132,12 +136,12 @@ def __validate_request_body(req_callback: Callable, *body_args: str) -> Callable
                 if err_mssg != "":
                     return bad_request_400(f"{err_mssg} | problem_string: {value}")
         
-        return req_callback(*args)
+        return req_callback(*args,**kwargs)
     
     return wrapper
 
-def validate_request_body(*args: str):
-    return lambda func: __validate_request_body(func, *args)
+def validate_request_body(*args: str,**kwargs):
+    return lambda func: __validate_request_body(func, *args,**kwargs)
 
 @validate_request_body("fname", "lname", "pronouns", "email", "phone-number", "password")
 def register_mentor(req: HttpRequest):
@@ -170,58 +174,136 @@ def register_mentor(req: HttpRequest):
     
     Authors
     -------
-    Adam U. 8==D~
+    Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     '''
     if req.method == "POST":
-        
         incoming_email: str = req.POST["email"]
-        # check if the account is already registered
-        if User.objects.filter(clsEmailAddress=req.POST["email"]).count() != 0:    
-            return HttpResponse(f"Email {incoming_email} already exsists!")
+        incoming_plain_text_password = req.POST["password"]
+
+
+        # create a new user in the database with the role "Pending"
+        pending_mentor_object = Mentor.create_from_plain_text_and_email(incoming_plain_text_password, incoming_email)
         
-        # salt to store to unhash the password
-        generated_user_salt = security.generate_salt()
+        # check if the account is already registered
+        if pending_mentor_object == User.ErrorCode.AlreadySelectedEmail:
+            return HttpResponse(f"Email {incoming_email} already exsists!")
 
         organization = None
-        if(not Organizations.objects.filter(strName=req.POST["organization"]).exists()):
-            organization = Organizations.objects.create(strName=req.POST["organization"])
+        if(not Organization.objects.filter(str_org_name=req.POST["organization"]).exists()):
+            organization = Organization.objects.create(str_org_name=req.POST["organization"])
+            #organization.save()
         else:
-            organization = Organizations.objects.get(strName=req.POST["organization"])
+            organization = Organization.objects.get(str_org_name=req.POST["organization"])
             
+        pending_mentor_object.account.cls_email_address = incoming_email
+        pending_mentor_object.account.str_first_name = req.POST["fname"]
+        pending_mentor_object.account.str_last_name = req.POST["lname"]
+        pending_mentor_object.account.str_phone_number = req.POST["phone"]
+        pending_mentor_object.account.str_preferred_pronouns = req.POST["pronouns"]
+
+        #were not getting the data from the incoming form
+        #if this is a thing we need to keep track of we should prolly send it
+        #idk tho do whatevs -dk
+        #cls_date_of_birth = cls_date_of_birth 
+        #str_gender = str_gender,
+
+
+        mentor = User.objects.get(cls_email_address = incoming_email)
+        
+        pending_mentor_object.str_job_title =  req.POST["jobTitle"]
+        pending_mentor_object.str_experience = req.POST["experience"]
+        pending_mentor_object.organization.add(organization)
+
+        parsed_user_interests = [
+                                    Interest.get_or_create_interest(interest) 
+                                    for interest in req.POST["interests"].split(",")[0:-1]
+                                 ]
+
+
+        pending_mentor_object.account.save()
+        pending_mentor_object.save()
+
+        for interest in parsed_user_interests:
+            pending_mentor_object.account.interests.add(interest)
+
+
+        pending_mentor_object.save()
+            
+            
+        template: Template = loader.get_template('successful_registration.html')
+        ctx = {}
+        
+        return HttpResponse(template.render(ctx, req))
+        
+    else:
+        return HttpResponse("Bad :(")
+    
+
+def register_mentee(req: HttpRequest):
+    '''
+    Description
+    -----------
+    Function that will allow people to request to be a mentee.
+    
+    Parameters
+    ----------
+    - req : HttpRequest
+    req should contain email (str), password (str), firstname (str), lastname (str), phone_number (str), pronouns (str)
+    
+    Returns
+    -------
+    - str: Email {email} already exsists!
+    - str: Registration request successful! We'll get back to ya!
+    - str: Bad :(
+    
+    Example Usage
+    -------------
+    
+    >>> reqister_mentee(req)
+    "Email {email} already exsists!"
+    
+    >>> reqister_mentee(req)
+    Registration request successful! We'll get back to ya!
+    
+    Authors
+    -------
+    Adam U. ʕ·͡ᴥ·ʔ
+    Andrew P.
+    Jordan A.
+    '''
+    if req.method == "POST":
+        incoming_email: str = req.POST["email"]
+        incoming_plain_text_password = req.POST["password"]
+
         # create a new user in the database with the role "Pending"
-        User.objects.create(
-            clsEmailAddress = incoming_email,
-            strPasswordHash = security.hash_password(req.POST["password"], generated_user_salt),
-            strPasswordSalt = generated_user_salt,
-            strRole = User.Role.MENTOR_PENDING,
-            clsDateJoined = date.today(),
-            clsActiveChangedDate = date.today(),
-            blnActive = False,
-            blnAccountDisabled = False,
-            strFirstName = req.POST["fname"],
-            strLastName = req.POST["lname"],
-            strPhoneNumber = req.POST["phone-number"],
-            #clsDateofBirth = clsDateOfBirth,
-            #strGender = strGender,
-            strPreferredPronouns = req.POST["pronouns"]
-        )
-        mentor = User.objects.get(clsEmailAddress = incoming_email)
-        Mentor.objects.create(
-            account_id = mentor.id,
-            intMaxMentees = 5,
-            intRecommendations = 0,
-            strJobTitle =  req.POST["jobTitle"],
-            organization_id = organization.id
+        pending_mentee_object = Mentee.create_from_plain_text_and_email(incoming_plain_text_password, incoming_email)
+
+        # check if the account is already registered
+        if pending_mentee_object == User.ErrorCode.AlreadySelectedEmail:
+            return HttpResponse(f"Email {incoming_email} already exsists!")
             
-            
-        )
+        pending_mentee_object.account.cls_email_address = incoming_email
+        pending_mentee_object.account.str_first_name = req.POST["fname"]
+        pending_mentee_object.account.str_last_name = req.POST["lname"]
+        pending_mentee_object.account.str_preferred_pronouns = req.POST["pronouns"]
+     
+        parsed_user_interests = [
+                                    Interest.get_or_create_interest(interest) 
+                                    for interest in req.POST["interests"].split(",")[0:-1]
+                                ]
+                                
+        for interest in parsed_user_interests:
+            pending_mentee_object.account.interests.add(interest)
+
+        
+        pending_mentee_object.account.save()
+        pending_mentee_object.save()
         
         return HttpResponse("Registration request successful! We'll get back to ya!")
         
     else:
         return HttpResponse("Bad :(")
-    
 
 def view_pending_mentors(req: HttpRequest):
     '''
@@ -246,28 +328,23 @@ def view_pending_mentors(req: HttpRequest):
 
     Authors
     -------
-    Adam U. 8==D~
+    Adam U. ♣
     Andrew P.
     '''
     
     #TODO Verify youre an admin
 
-    # get all mentors who are still pending
-    pending_mentors = User.objects.filter(strRole="MentorPending")
+
+    template = loader.get_template('pending_mentors.html')
+    # Get all mentors who are still pending
+    pending_mentors = User.objects.filter(str_role="MentorPending")
     
-    out_str = ""
+    context = {"pending_mentors" : pending_mentors}
     
-    for user in pending_mentors:
-        user_info = user.getUserInfo()
-        first_name = user_info["FirstName"]
-        last_name = user_info["LastName"]
-        email = user_info["EmailAddress"]
-        out_str += f"Name: {first_name} {last_name} Email: {email} id: {user.id} ||"
-
-    return HttpResponse(str(out_str))
+    return HttpResponse(template.render(context, req))
 
 
-def change_mentor_status(req:HttpRequest):
+def change_mentor_status(req: HttpRequest):
     '''
     Description
     -----------
@@ -286,34 +363,37 @@ def change_mentor_status(req:HttpRequest):
     This function is typically called via an HTTP POST request with JSON data containing the mentor's ID and the desired status change.
     
     >>> change_mentor_status(req)
-    "user {id}'s status has been changed to: {status}"
+    "user {mentor_id}'s status has been changed to: {status}"
     
     Authors
     -------
-    Adam U. 8==D~
+    Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     '''
     #TODO Verify you're an admin
 
+    if req.method != "POST":
+        HttpResponse("kill yourself")
+
     # Extract mentor ID and status from request data
-    post_data = json.loads(req.body.decode("utf-8"))
-    id = post_data["id"] if "id" in post_data else None
-    status = post_data["status"] if "status" in post_data else None
+    mentor_id = req.POST["mentor_id"]
+    status = req.POST["status"]
     
     # Retrieve user object based on ID
-    user = User.objects.get(id=id)
+    user = User.objects.get(id=mentor_id)
     
     # Update user role and activation status based on provided status
     if status == 'Approved':
-        user.blnActive = True
-        user.strRole = User.Role.MENTOR
+        user.bln_active = True
+        user.str_role = User.Role.MENTOR
+        user.save()
     else:
-        user.strRole = User.Role.DECLINED
+        user.delete()
         
     # Save changes to user object
-    user.save()
-        
-    return HttpResponse(f"user {id}'s status has been changed to: {status}")
+    
+    # Redirect back to the view_pending page
+    return redirect("/view_pending")
 
 
 def disable_user(req:HttpRequest):
@@ -339,7 +419,7 @@ def disable_user(req:HttpRequest):
     
     Authors
     -------
-    Adam U. 8==D~
+    Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     Jordan A.
     '''
@@ -353,7 +433,7 @@ def disable_user(req:HttpRequest):
     
     # Get the user and set their disabled field to True
     user = User.objects.get(id=id)
-    user.blnAccountDisabled = True
+    user.bln_account_disabled = True
     
     # Save changes to user object
     user.save()
@@ -384,7 +464,7 @@ def enable_user(req:HttpRequest):
     
     Authors
     -------
-    Adam U. 8==D~
+    Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     Jordan A.
     '''
@@ -398,7 +478,7 @@ def enable_user(req:HttpRequest):
     
     # Get the user and set their disabled field to False
     user = User.objects.get(id=id)
-    user.blnAccountDisabled = False
+    user.bln_account_disabled = False
     
     # Save changes to user object
     user.save()
@@ -406,17 +486,227 @@ def enable_user(req:HttpRequest):
     return HttpResponse(f"user {id}'s status has been changed to enabled")
 
 
-def request_mentor(req:HttpRequest):
-    post_data = json.loads(req.body.decode("utf-8"))
-    mentor_id = post_data["mentor_id"] if "mentor_id" in post_data else None
-    mentee_id = post_data["mentee_id"] if "mentee_id" in post_data else None
-    mentorObject = User.objects.get(id = mentor_id)
-    menteeObject = User.objects.get(id = mentee_id)
+@security.Decorators.require_login(bad_request_400)
+def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpResponse:
+    '''
+     Description
+     ___________
+     view that creates a mentor request between a given mentor id 
+     and mentee id
 
-    MentorshipRequest.objects.create(
-        mentor = mentorObject,
-        mentee = menteeObject
-    )
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+        mentee_id : int - mentee id from the datbase, must be valid
+        mentor_id : int - mentee id from the database, must be valid
+
+     Returns
+     _______
+        HttpResponse containing a valid json ok signature or 401 error code for invalid data
+     
+     Example Usage
+     _____________
+        >>> request_mentor(request,mentee_id,mentor_id)
+
+        /path/to/route/mentee_id/mentor_id
+
+     >>> 
+     Authors
+     _______
+     David Kennamer *^*
+    '''
+    user = User.from_session(req.session)
     
-    return HttpResponse("GOOD")
+    
+    #if you are a mentee you can only request for yourself
+    if user.is_mentee():
+        mentee_id : int = user.id
+    elif user.is_mentor() and mentee_id == None:
+        return bad_request_400("mentee id required for mentors")
+
+    ##print_debug(user.has_requested_user(mentor_id))
+    mentor_account = None
+    mentee_account = None
+    
+    try:
+        mentor_account = User.objects.get(id=mentor_id)
+        mentee_account = User.objects.get(id=mentee_id)
+    except ObjectDoesNotExist:
+        return bad_request_400("invalid id detected!")
+    
+    if mentor_account == None or mentee_account == None:
+        #we should never get here, but just in case for some reason
+        return bad_request_400("internal error occured")
+
+    mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id)
+    if mentorship_request: 
+        mentorship_request.save() 
+    else:
+        print("this request already exists, IDENTITY CRISIS ERROR 🤿  ⛰️")
+
+    ##print_debug(user.has_requested_user(mentor_id))
+    return HttpResponse(json.dumps({"result":"created request!"}));
+
+
+@security.Decorators.require_login(bad_request_400)
+def update_profile_img(req: HttpRequest)->HttpResponse:
+    '''
+    Description
+    -----------
+    Function to update a user's profile image
+
+    
+    Parameters
+    ----------
+    -   req:HttpRequest: HTTP request object should contain the image
+                         name that will be used to update the user's 
+                         profile.
+    
+                         
+    Returns
+    -------
+    HttpResponse: HTTP response confirming the modification to the user's profile
+                  image.
+
+                  
+    Example Usage
+    -------------
+    This function is typically called using a POST request, which should have retrieved
+    the name/location of an image file before it was invoked.
+
+    >>> update_profile_img(req)
+    "user {int_user_id}'s image profile has been SUCCESSFULLY modified"
+
+    
+    Authors
+    -------
+    🌟 Isaiah Galaviz 🌟
+    '''
+
+    # Get the user id from the current session
+    user = User.from_session(req.session)
+    int_user_id = user.id
+    #   Get the name of the file through an HTTP POST request with JSON data.
+    post_data = json.loads(req.body.decode("utf-8"))
+    str_img_name = post_data["image"] if "image" in post_data else None
+    
+    #   If the name of the file is not valid (wrong file extension or insufficient name length),
+    #   return an HttpResponse saying the user's profile was not modified.
+    if str_img_name == None:
+        return HttpResponse(f"User {int_user_id}'s image profile was NOT modified")
+    elif len(str_img_name) < 5:
+        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
+    elif str_img_name.endswith(".png") == False:
+        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
+    elif str_img_name.endswith(".jpg") == False:
+        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
+    
+    #   Otherwise, continue on with running the function.
+    else:
+        #   Check if a 'ProfileImg' instance exists that is associated
+        #   with the user currently logged into the system.
+        profile_img = ProfileImg.objects.get(user=user)
+        if profile_img == None:
+            #   If not, create a new instance of the ProfileImg model 
+            #   and store it in the program's database
+            bool_flag = ProfileImg.create_from_user_id(int_user_id, str_img_name)
+            #   Return a response saying the process did not go through, if so.
+            if bool_flag == False:
+                return HttpResponse(f"Something went wrong while trying to modify user {int_user_id}'s profile.")
+            #   If the process did go through, get the newly created instance.
+            profile_img = ProfileImg.objects.get(user=user)
+        else:
+            #   Otherwise, store the image name and save the image instance
+            profile_img.img_title = str_img_name
+
+        #   Take the name of the image file and store it in the user's ImageView.
+        profile_img.img_profile = str_img_name
+        profile_img.save()
+
+        return HttpResponse(f"User {int_user_id}'s image profile was SUCCESSFULLY modified")
+
+
+@security.Decorators.require_login(bad_request_400)
+def create_note (req : HttpRequest):
+    """
+    Description
+    -----------
+    This view creates and stores a note in the database 
+    given a user id, title and body.
+
+    Paramaters
+    __________
+    req (HttpRequest): Django Http request.
+
+    Returns
+    _______
+    HttpResponse for data that is valid.
+    HttpResponse for data that is invalid.
+     
+    Example Usage
+    _____________
+    >>> create_note(request)
+
+    /path/to/route/
+
+    Authors
+    -------
+    Justin Goupil
+    """
+
+    #Grab the users current session
+    user = User.from_session(req.session)
+    str_title = req.POST.get("title", None)
+    str_body = req.POST.get("body", None) 
+    bool_flag = False
+
+    #Check if the title and body are None
+    if str_title != None and str_body != None:
+        #create the note and save it to the database.
+        bool_flag = Notes.create_note(user.id, str_title, str_body)
+    else:
+        return bad_request_400("Invalid title or body")
+
+    #Check if the note was created.
+    if bool_flag:
+        return HttpResponse("Note created!")
+    else:
+        return HttpResponse("Note creation failed")
+    
+
+# @security.Decorators.require_login(bad_request_400)
+def view_mentor_by_admin(req: HttpRequest):
+    if req.method == "POST":
+        mentor_id = req.POST["mentor_id"]
+        template = loader.get_template('dashboard/profile-card/admin_viewing_pending_mentor.html')
+        user = User.objects.get(id=mentor_id)
+        print(mentor_id)
+        mentor = Mentor.objects.get(account_id=mentor_id)
+        organization = mentor.organization.get(mentor=mentor).str_org_name
+
+
+        interests = user.interests.filter(user=user)
+
+        
+        print(interests)
+        
+        user_interests = []
+        for interest in interests:
+            user_interests.append(interest.strInterest)
+
+        print(user_interests)
+        context = {"first_name": user.str_first_name,
+                   "last_name": user.str_last_name,
+                   "job_title": mentor.str_job_title,
+                   "organization": organization,
+                   "user_interests": user_interests,
+                   "experience" : mentor.str_experience
+                   }
+        return HttpResponse(template.render(context, req))
+
+  
+    return HttpResponse("eat my fat nuts!")
+    
+
+
 

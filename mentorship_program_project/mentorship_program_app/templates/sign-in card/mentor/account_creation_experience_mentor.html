@@ -1,0 +1,36 @@
+<div class="sign-in-card-content">
+    <div class="sign-in-card-element">
+        <p class="sign-in-card-text-normal">Company:</p>
+        <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp.">
+    </div>
+
+    <div class="sign-in-card-element-horizontal">
+        <div>
+            <p class="sign-in-card-text-normal">Company Type:</p>
+            <select>
+                <option></option>
+                {% for companytype in companytypelist %}
+                    <option>{{companytype}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <p class="sign-in-card-text-normal">Experience:</p>
+            <select name="experience">
+                <option value=""></option>
+                {% for experience in experiencelist %}
+                    <option value="{{experience}}">{{experience}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="sign-in-card-element">
+        <p class="sign-in-card-text-normal">Job Title:</p>
+        <input type="text" id="jobTitle" name="jobTitle" placeholder="e.g. Software Developer">
+    </div>
+
+    <div class="sign-in-card-element">
+        <button type="button" class="sign-in-card-option-button">Next</button>
+    </div>
+</div>

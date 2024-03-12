@@ -1,0 +1,51 @@
+<div class="sign-in-card-content">
+    <div class="sign-in-card-element">
+        <div class="sign-in-card-form">
+            <div class="sign-in-card-interest-container">
+
+                {% for interest in interestlist %}
+                    <label class="sign-in-card-interest">
+                        <input type="checkbox" class="chk-interest" id="{{interest}}" value="{{interest}}">
+                        <div class="sign-in-card-interest-label">{{interest}}</div>
+                    </label>
+                {% endfor %}
+
+                <label class="sign-in-card-interest">
+                    <button class="sign-in-card-interest-button">+</button>
+                </label>
+                
+            </div>
+        </div>
+    </div>
+    <div class="sign-in-card-element">
+        <button type="button" class="sign-in-card-option-button">Next</button>
+    </div>
+    <input type="hidden" id="interests" name="interests"/>
+</div>
+
+<script>
+    console.log("loading interest hooks...");
+
+    const dynamic_check_marks = document.getElementsByClassName("chk-interest");
+    const hidden_interest_input = document.getElementById("interests");
+    
+
+    // console.log("\twe found " + dynamic_check_marks.length + " check marks");
+
+    function sync_hidden_interest_input() {
+        //console.log("BEFORE THE INTEREST ROUND UP "+ hidden_interest_input.value);
+
+        hidden_interest_input.value = "";
+        for (mark of dynamic_check_marks) {
+            if (mark.checked)
+                hidden_interest_input.value += mark.value + ","
+        }
+
+        //console.log("AFTER THE INTEREST ROUND UP "+ hidden_interest_input.value);
+    }
+
+    for (mark of dynamic_check_marks) {
+        mark.onchange = sync_hidden_interest_input;
+    }
+
+</script>

@@ -10,6 +10,7 @@
 
 .card-gray-part {
     position: relative;
+    justify-items: center;
     background-color: rgb(44, 44, 44);
     width: 100%;
     height: 76%;
@@ -20,6 +21,7 @@
 
 .card-profile-image {
     position: relative;
+    display: block;
     width: 90px;
     height: 90px;
     border-radius: 50%;
@@ -102,4 +104,10 @@
 
 .card-button:active {
     background-color: #182b46;
+}
+
+/* for buttons that no longer click, div. to increase
+ * priority */
+div.card-button-disabled , div.card-button-disabled:hover , div.card-button-disabled:active {
+    background-color: #363f4d;
 }

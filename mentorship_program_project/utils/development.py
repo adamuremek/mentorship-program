@@ -6,11 +6,13 @@ additionally, functions in this
 """
 import random
 import string
-
+import traceback
 from utils.security import is_in_debug_mode
 
 from mentorship_program_app.models import User
 from mentorship_program_app.models import Interest
+from mentorship_program_app.models import Mentee
+from mentorship_program_app.models import Mentor
 
 
 
@@ -55,29 +57,56 @@ def populate_database_with_random_users(amount  : int = 10)->None:
 
     print_debug("[random user generator] generating users...")
 
+
+    mentor_threshold_amount = amount / 2
+
     for i in range(amount):
         user = f'user{i}@fakeemail{i}.com'
-
+        
+        new_user = None
 
         try:
-            new_user = User.create_from_plain_text_and_email(
+            new_user = None
+            first_name_prefix = ""
+        
+            if i < mentor_threshold_amount:
+                new_user = Mentee.create_from_plain_text_and_email(
                                                 f'password{i}',
                                                 user
                                                 )
-        except:
-            print_debug("that user already exists ya silly goose")
+                first_name_prefix = "mentee "
+                
+            else:
+                new_user = Mentor.create_from_plain_text_and_email(
+                                                f'password{i}',
+                                                user
+                                                )
+                first_name_prefix = "mentor "
+               
+            
+        #we specifically want the account from the mentor/mentee class for the following code
+            new_user = new_user.account
+                
+            new_user.str_first_name = first_name_prefix + random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+            new_user.str_last_name = random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
+        except Exception as e:
+    
+            #print_debug("that user already exists ya silly goose")
+            print("An error occurred:", str(e))
+
+            print(new_user)
+            continue #if the user already exists, move onto the next user
 
 
 
+        if new_user == None:
+            print_debug("[random user generator] WARNING, unkown error occured while generating the user")
+            continue
         user_interests = get_random_interests(5)
         new_user.interests.add(*user_interests)
 
-
-        for i in new_user.interests.all():
-            print_debug(i.strInterest)
-
         new_user.save()
-        print_debug('[random user generator] finished random user generation!\n\tenjoy the data :) '+user)
+        print_debug('[random user generator] ' + user + ' as ' + ('mentor' if new_user.is_mentor() else 'mentee'))
 
 """
 populate the database with debug generated interests
@@ -148,14 +177,14 @@ def test_database()->None:
                                                           'fakeuser1@fake.com')
     except:
         print_debug("fakeuser1 already exists")
-        fakeuser1 = User.objects.get(clsEmailAddress='fakeuser1@fake.com')
+        fakeuser1 = User.objects.get(cls_email_address='fakeuser1@fake.com')
     
     fakeuser2 = None
     try: 
         fakeuser2 = User.create_from_plain_text_and_email('fakeuser2',
                                                           'fakeuser2@fake.com')
     except:
-        fakeuser2 = User.objects.get(clsEmailAddress='fakeuser2@fake.com')
+        fakeuser2 = User.objects.get(cls_email_address='fakeuser2@fake.com')
         print_debug("fakeuser2 already exists")
     
     fakeuser3 = None
@@ -163,7 +192,7 @@ def test_database()->None:
         fakeuser3 = User.create_from_plain_text_and_email('fakeuser3',
                                                           'fakeuser3@fake.com')
     except:
-        fakeuser3 = User.objects.get(clsEmailAddress='fakeuser3@fake.com')
+        fakeuser3 = User.objects.get(cls_email_address='fakeuser3@fake.com')
         print_debug("fakeuser3 already exists")
 
     
@@ -195,7 +224,7 @@ def test_database()->None:
     print_debug("="*5)
     
     for user in all_users:
-        print_debug(user.clsEmailAddress)
+        print_debug(user.cls_email_address)
         user_interests = user.interests.all()
         print_debug(user_interests)
         

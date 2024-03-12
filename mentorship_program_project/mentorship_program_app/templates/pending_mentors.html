@@ -1,0 +1,73 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+Mentor Applicant Approval
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/pending_mentors.css' %}">
+{% endblock %}
+
+{% block main_content%}
+
+<!-- link with back-arrow, currenlty does nothing -->
+<div class="link-container">
+    <a href="/admin_dashboard" class="return-link">
+        <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
+        Admin Dashboard / Mentor Applications
+    </a>
+
+    <div class="title">
+        Mentor Application
+    </div>
+</div>
+
+<!-- container that holds all mentors under review -->
+<div class="mentor-applicants-container">
+
+    <!-- row for an individual mentor in the display container -->
+
+    {% for user in pending_mentors %}
+    <div class="mentor-applicant" mentor-id="{{user.id}}">
+
+        <div class="profile-picture-container">
+            <img src="../static/images/ex-pfp.jpg" alt="" class="profile-picture">
+        </div>
+
+        <div class="mentor-name">
+            {{user.str_first_name}} {{user.str_last_name}}
+        </div>
+
+        <form action="/view_mentor_by_admin" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="mentor_id" value="{{user.id}}" />
+            <input type="submit" value="View" />
+        </form>
+
+        <form action="/change_mentor_status" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="Approved" />
+            <input type="hidden" name="mentor_id" value="{{user.id}}" />
+            <input type="submit" value="Approve" />
+        </form>
+
+        <form action="/change_mentor_status" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="Denied" />
+            <input type="hidden" name="mentor_id" value="{{user.id}}" />
+            <input type="submit" value="Deny" />
+        </form>
+    </div>
+
+    {% endfor %}
+</div>
+
+<script src="{% static 'js/backend_requests.js' %}"></script>
+<script src="{% static 'js/pending_mentors.js' %}"></script>
+
+
+
+
+{% endblock %}

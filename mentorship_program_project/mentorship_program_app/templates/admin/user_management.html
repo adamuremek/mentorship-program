@@ -1,0 +1,59 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+    Admin Mentor Application Review
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin_user_management.css' %}">
+{% endblock %}
+
+{% block main_content %}
+    <!-- FOR PICTURES -->
+    <!-- <div class="profile-picture-container">
+        <img class="profile-picture" src="{% static 'images/my-channel.jpeg' %}">
+    </div> -->
+
+    <div class="admin_user_management_container">
+        <div>
+            <p class="admin_user_management_header_elements" id="admin_user_management_header_small_text"> <img src="{% static 'images/white-dropdown-arrow.png' %}" id="address_arrow"> Admin Dashboard / User Management</p>
+            <h1 class="admin_user_management_header_elements" id="admin_user_management_header_large_text">Mentor Applications</h1>
+        </div>
+        <div class="dual_user_board_container">
+            <div class="user_board_container">
+                <div class="user_board_title_container">
+
+                    <h2 id="admin_user_management_header_medium_text">Mentees</h2>
+                    <div class="user_board_search_container">
+                        <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                        <input type="text" class="search_bar" placeholder="Search by name"></input>
+                    </div>
+                    
+                </div>
+
+                <div class="user_board">
+
+                </div>
+            </div>
+            <div class="user_board_container">
+                <div class="user_board_title_container">
+                    <h2 id="admin_user_management_header_medium_text">Mentors</h2>
+                    <div class="user_board_search_container">
+                        <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                        <input type="text" class="search_bar" placeholder="Search by name"></input>
+                    </div>
+                </div>
+
+                <div class="user_board">
+
+                </div>
+            </div>
+        </div>
+        <button class="admin_user_management_button">Save</button>
+        <button class="admin_user_management_button">Cancel</button>
+    </div>
+
+
+{% endblock %}

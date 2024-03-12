@@ -40,31 +40,63 @@
 /* MODIFICATION HISTORY:                                             */
 /*********************************************************************/
 
-// Get all snippets being rendered
-const snippets = document.getElementsByClassName('sign-in-card-content')
-    
-// Hide all code snippets by default
-for (i of snippets) 
-    i.style = 'display: none;'
+// document.addEventListener('DOMContentLoaded', winloaded => {
+        
+//     // Get all snippets being rendered
+//     const snippets = document.getElementsByClassName('sign-in-card-content')
+        
+//     // Hide all code snippets by default
+//     for (i of snippets)
+//         i.style = 'display: none;'
 
-// Display first snippet
-let curID = 0
-snippets[0].style = 'display: flex'
+//     // Display first snippet
+//     let curID = 0
+//     snippets[0].style = 'display: flex'
 
-// Get progression buttons
-const buttons = document.getElementsByClassName('sign-in-card-option-button')
+//     // Get progression buttons
+//     const buttons = document.getElementsByClassName('sign-in-card-option-button')
 
-// Assign event listener to each button
-for(button of buttons) 
-{
-    button.addEventListener('click', e => {
-        snippets[curID].style = 'display: none;'
+//     const page_count = buttons.length
 
-        // When button is clicked, progress displayed card
-        curID += 1
-        if(curID >= snippets.length)
-            curID = 0
-        snippets[curID].style = 'display: flex;'
-        console.log(`Current ID: ${curID}`)
-    })
-}
+//     // Get Header Corner Element list
+//     const corner_guy = document.getElementsByClassName('sign_in_top_left_element')[0]
+//     console.log('corner guy')
+//     console.log(corner_guy)
+
+//     corner_guy.innerText = `<- Step ${(curID+1)} of ${page_count}`
+
+//     corner_guy.addEventListener('click', e => {
+//         snippets[curID].style = 'display: none;'
+        
+//         curID -= 1
+
+//         if(curID == -1)
+//             window.location.href = "http://localhost:8000/landing";
+//         else {
+//             snippets[curID].style = 'display: flex;'
+
+//             corner_guy.innerText = `<- Step ${(curID+1)} of ${page_count}`
+//         }
+        
+//     })
+
+//     // Assign event listener to each button
+//     for(button of buttons) 
+//     {
+//         button.addEventListener('click', e => {
+//             snippets[curID].style = 'display: none;'
+
+//             // When button is clicked, progress displayed card
+//             curID += 1
+//             if(curID >= snippets.length)
+//                 curID = 0
+//             snippets[curID].style = 'display: flex;'
+
+//             corner_guy.innerText = `<- Step ${(curID+1)} of ${page_count}`
+
+//             console.log(`Current ID: ${curID}`)
+//         })
+//     }
+
+
+// }) // DOM listener

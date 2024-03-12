@@ -1,4 +1,5 @@
 from mentorship_program_app.Database.user import *
+from mentorship_program_app.models import MentorshipRequest
 from datetime import datetime
 
 def run(): 
@@ -21,7 +22,11 @@ def run():
     # addInterests("Engineering")
     #addUserInterests(29,2)
     #print(getAllInterests())
-    print(getUserInformation(29))
+    #print(getUserInformation(3))
+
+    #mentorshipRequest.createRequest(1, 2)
+    print(MentorshipRequest.get_request_info(1))
+    #print(MentorshipRequest.removeRequest(4, 5))
 
 
     

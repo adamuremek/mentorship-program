@@ -12,9 +12,9 @@
 
     <div class="card-gray-part">
 
-		  <img class="card-profile-image" src="{{ user.imgUserProfile.url }}"/>
+		  <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/>
 
-		  <p class="card-name">{{ user.strFirstName }}</p>
+		  <p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
 
         <div class="card-line-divider-2"></div>
 
@@ -26,9 +26,24 @@
 			  {% endfor %}
 		  </div>
 
-        <div class="card-button">Request Mentee</div>
+		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
+		  {% if user.is_requested_by_session %}
+		  card-button-disabled
+		  {% endif %}
+		  ">
+		  {% if not user.is_requested_by_session %}
+			  {% if role == 'Mentee' %}
+				Request Mentor
+			  {% else %}
+				Request Mentee
+			  {% endif %}
+		  {% else %}
+		  		requested!
+		  {% endif %}
+
+			
+			</div>
     </div>
-    
 </div>
 
 {% endblock %}

@@ -29,7 +29,10 @@ body {
       
     /* stretches instead of repeats gradient on long pages */
     background-attachment: fixed;
+    position: static;
 }
+
+
 
 main {
     min-height: 90vh;
@@ -39,6 +42,11 @@ main {
     align-items: center;
     justify-content: center;
 }
+
+
+
+
+
 
 /* Red   :  #4C282C */
 /* Blue  :  #1E2E42 */
@@ -83,17 +91,14 @@ nav .logo img {
 /* -------------------    CARD STYLES    ----------------- */
 /* ------------------------------------------------------- */
 
-
 .sign-in-card {
-    /* border: 1px solid black; */
     border-radius: 5%;
     background-color: #292A2B;
-  
-    /* padding: 6em; */
-    /* margin: 2em; */
-  
-    width: 35%;
-    aspect-ratio: 1 / 1;
+
+    min-height: 40vw;
+    max-height: 50vw;
+    
+    width: 40%;
 
     box-shadow:  2px 2px 2px 2px rgba(47, 47, 47, 0.6);
 }
@@ -106,10 +111,9 @@ nav .logo img {
     justify-content: space-around;
     align-items: center;
 
-    height: 70%;
+    min-height: 30vw;
+    max-height: 40vw;
 }
-
-
 
 footer {
     padding: .5em;
@@ -129,16 +133,11 @@ footer {
 /* ALL STYLES BELOW WERE ORIGINALLY ONLY FOR SIGN-UP CARDS */
 /* ------------------------------------------------------- */
 
+.sign-in-card-element {
+    width: 70%;
 
-
-.sign-in-card-form {
-    width: 100%;
-    height: 100%;
-}
-
-/* REMOVE AFTER CHECKING FOR INSTANCES */
-.sign-in-card hr {
-    width: 100%;
+    margin-top: 1%;
+    margin-bottom: 1%;
 }
 
 .sign-in-card-element-line-container {
@@ -159,22 +158,24 @@ footer {
 }
 
 .sign-in-card-element-line {
-    height: 5%;
-    background-color: whitesmoke;
-    flex-grow: 1;
-    margin: 0 2%;
-}
+    height: 0.1vw;
 
-.sign-in-card-element {
-    width: 70%;
+    margin: 0 2%;
+
+    flex-grow: 1;
+
+    background-color: whitesmoke;
 }
 
 .sign-in-card-element-horizontal {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-between;
 
     width: 70%;
+
+    margin-top: 1%;
+    margin-bottom: 1%;
 }
 
 .sign-in-card-element-vertical {
@@ -182,7 +183,19 @@ footer {
     flex-direction: column;
     justify-content: space-evenly;
     
+    height: inherit;
     width: 70%;
+
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
+
+.sign-in-card-user-agreement-containter {
+    width: 70%;
+    height: 80%;
+
+    margin-top: 1%;
+    margin-bottom: 1%;
 }
 
 .sign-in-card-checkbox {
@@ -191,16 +204,17 @@ footer {
 
 .sign-in-card h1 {
     font-weight: 900;
-    font-size: 2.5em;
+    font-size: 2.5vw;
+
+    height: fit-content;
+    width: fit-content;
 
     padding-bottom: 0.5em;
-
     margin: 0 auto;
-    height: fit-content;
-    text-align: center;
-    border-bottom: 1px solid whitesmoke;
 
-    width: fit-content;
+    text-align: center;
+
+    border-bottom: 1px solid whitesmoke;
 }
 
 .sign-in-card p {
@@ -223,33 +237,31 @@ footer {
 
 .sign-in-card-text-scroll {
     font-size: large;
-
     text-align: left;
 
+    min-height: 15vw;
+    max-height: 20vw;
+
+    padding: 2%;
     border-radius: .5em;
     
     overflow-y: scroll;
     overflow-x: auto;
-
-    height: 80%;
-
-    padding: 2%;
+    scrollbar-width: thin;
 
     background-color: dimgrey;
-
-    scrollbar-width: thin;
 }
 
 .sign-in-card select {
     font-weight: 400;
     font-size: 1.5em;
 
+    width: 100%;
+
     padding-top: 3.5%;
     padding-bottom: 3.5%;
 
     border-radius: .5em;
-
-    width: 100%;
 
     background-color: #333842;
     border-color: #333842;
@@ -259,12 +271,12 @@ footer {
     font-weight: 400;
     font-size: 1.5em;
 
+    width: 100%;
+
     padding-top: 3.5%;
     padding-bottom: 3.5%;
 
     border-radius: .5em;
-
-    width: 100%;
 }
 
 .sign-in-card input[type=text] {
@@ -275,6 +287,24 @@ footer {
 .sign-in-card input[type=password] {
     background-color: #333842;
     border-color: #333842;
+}
+
+.password-holder {
+    position: relative;
+}
+
+#toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+   
+    cursor: pointer;
+}
+
+#toggle-password img {
+    height: auto;
+    width: 2em;
 }
 
 .sign-in-card input[type=email] {
@@ -300,6 +330,7 @@ footer {
 .sign-in-card-interest {
     height: min-content;
     width: min-content;
+
     padding: 2%;
 }
 
@@ -309,13 +340,17 @@ footer {
 
 .sign-in-card-interest-label {
     font-size: large;
-    background-color: #464B4E;
-    border-radius: .5em;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     font-weight: 300;
+
     height: fit-content;
     width: max-content;
+
     padding: 2%;
+    
+    border-radius: .5em;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+
+    background-color: #464B4E;
 }
 
 .sign-in-card-interest:hover input[type=checkbox] ~ .sign-in-card-interest-label {
@@ -328,14 +363,18 @@ footer {
 
 .sign-in-card-interest-button {
     font-size: large;
-    background-color: #464B4E;
+    font-weight: 300;
+
+    height: fit-content;
+    width: max-content;
+
+    padding: 2%;
+
     border-color: transparent;
     border-radius: .5em;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-    font-weight: 300;
-    height: fit-content;
-    width: max-content;
-    padding: 2%;
+
+    background-color: #464B4E;
 }
 
 .sign-in-card-interest-button:hover {
@@ -343,27 +382,27 @@ footer {
 }
 
 .sign-in-card-option-button {
-    font-weight: 400;
-    font-size: 1.5em;
-
-    padding-top: 2%;
-    padding-bottom: 2%;
-
-    margin-top: 1%;
-    margin-bottom: 1%;
-
-    border-radius: 2vw;
-
-    width: 100%;
-    height: 80%;
-
-    background-color: #3E4C6C;
-    border-color: #3E4C6C;
-
     justify-content: center;
     display: flex;
     justify-content: center;
     align-items: center;
+
+    font-weight: 400;
+    font-size: 1.5em;
+
+    width: 100%;
+    height: 80%;
+
+    padding-top: 2%;
+    padding-bottom: 2%;
+
+    margin-top: 2%;
+    margin-bottom: 2%;
+
+    border-radius: 2vw;
+
+    background-color: #3E4C6C;
+    border-color: #3E4C6C;
 }
 
 .sign-in-card-button-option:hover {
@@ -373,33 +412,41 @@ footer {
 
 .sign_in_top_left_element {
     position: relative;
-    margin-top: 2%;
-    margin-left: 3%;
 
     font-size: large;
+
+    width: fit-content;
+    
+    margin-top: 2%;
+    margin-left: 3%;
 
     padding: 2%;
 
     background-color: #ffffff00;
     border-color: #ffffff00;
-
-    width: fit-content;
 }
 
 #sign-in-card-google-btn {
+    height: inherit;
+
     background-color: #131314;
     border-color: #131314;
     color:#E3E3E3;
 }
 
 #sign-in-card-apple-btn {
+    font-weight: 600;
+
+    height: inherit;
+
     background-color: #E6E6E6;
     border-color: #E6E6E6;
     color:#363A3E;
-    font-weight: 600;
 }
 
 #sign-in-card-linkedin-btn {
+    height: fit-content;
+
     background-color: #0065B3;
     border-color: #0065B3;
     color:#E3E3E3;
@@ -419,18 +466,106 @@ footer {
 
 #google-logo {
     align-items: center;
-    height: 2.1em;
     vertical-align: middle;
+
+    height: 2.1em;
 }
 
 #apple-logo {
     align-items: center;
-    height: 2.1em;
     vertical-align: middle;
+
+    height: 2.1em;
 }
 
 #linkedin-logo {
     align-items: center;
-    height: 2.1em;
     vertical-align: middle;
+
+    height: 2.1em;
+}
+
+@media screen and (max-width: 1200px) {
+    .sign-in-card {
+        width: 50%;
+
+        min-height: 40vw;
+        max-height: 55vw;
+    }
+
+    .sign-in-card-content {
+        min-height: 40vw;
+        max-height: 60vw;
+    }
+
+    .sign-in-card-text-scroll {
+        min-height: 15vw;
+        max-height: 25vw;
+    }
+
+    .sign-in-card h1 {
+        font-size: 3vw;
+    }
+
+    .sign-in-card-interest {
+        padding: 1%;
+    }
+
+    .sign-in-card-interest-button {
+        padding: 1%;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .sign-in-card {
+        width: 70%;
+
+        min-height: 60vw;
+        max-height: 80vw;
+    }
+
+    .sign-in-card-content {
+        min-height: 55vw;
+        max-height: 60vw;
+    }
+
+    .sign-in-card-text-scroll {
+        min-height: 25vw;
+        max-height: 30vw;
+    }
+
+    .sign-in-card h1 {
+        font-size: 4.5vw;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .sign-in-card {
+        width: 90%;
+
+        min-height: 60vw;
+        max-height: none;
+    }
+
+    .sign-in-card-content {
+        min-height: 60vw;
+        max-height: none;
+    }
+
+    .sign-in-card-text-scroll {
+        min-height: 45vw;
+        max-height: 50vw;
+    }
+
+    .sign-in-card h1 {
+        font-size: 6vw;
+    }
+
+    .sign-in-card-interest {
+        padding: 0.5%;
+    }
+
+    .sign-in-card-interest-button {
+        padding: 0.5%;
+    }
 }

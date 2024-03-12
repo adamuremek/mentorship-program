@@ -1,0 +1,24 @@
+<div class="sign-in-card-content">
+    <div class="sign-in-card-element">
+        <p class="sign-in-card-text-normal">First Name:</p>
+        <input type="text" placeholder="e.g. John" name="fname" id="fname" maxlength="50">
+    </div>
+
+    <div class="sign-in-card-element">
+        <p class="sign-in-card-text-normal">Last Name:</p>
+        <input type="text" placeholder="e.g. Doe" name="lname" id="lname" maxlength="50">
+    </div>
+
+    <div class="sign-in-card-element">
+        <p class="sign-in-card-text-normal">Preferred Pronoun(s):</p>
+        <select name="pronouns">
+            {% for pronoun in pronounlist %}
+                <option>{{pronoun}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="sign-in-card-element">
+        <button type="button" class="sign-in-card-option-button">Next</button>
+    </div>
+</div>
