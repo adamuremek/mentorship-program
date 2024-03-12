@@ -81,10 +81,15 @@ def populate_database_with_random_users(amount  : int = 10)->None:
                                                 f'password{i}',
                                                 user
                                                 )
+
+                #make sure that they are not pending
+                new_user.account.str_role = User.Role.MENTOR
+
                 first_name_prefix = "mentor "
                
             
         #we specifically want the account from the mentor/mentee class for the following code
+            new_user.save()
             new_user = new_user.account
                 
             new_user.str_first_name = first_name_prefix + random.choice(["Doc","Happy","Grumpy","Sleepy","Dopey","Bashful","Sneezy"])
@@ -123,7 +128,7 @@ means we can point admins to this function in a url to re populate the default
 interests
 """
 def populate_database_with_interests()->None:
-    default_interests = Interest.get_initial_default_interest_strings()
+    default_interests = ["c++","python","AI","potatos","mining"]
     for interest in default_interests:
         
         try:
@@ -245,5 +250,19 @@ def test_database()->None:
 
 
     print_debug("[database test] finished running, enjoy the data :)")
+
+def test_is_accepted():
+    pass
+
+def show_database_mentorships()->None:
+    """
+    simple function that prints out all relationships in the database to the screen
+    for testing purposes
+    """
+    mentors = Mentor.objects.all()
+
+    for mentor in mentors:
+        print(mentor.account.str_first_name + " has mentees:",end=" ")
+        print([mentee.account.str_full_name for mentee in mentor.mentee_set.all()])
 
 
