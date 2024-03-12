@@ -12,7 +12,7 @@
 
     <div class="card-gray-part">
 
-		  <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/>
+		  <a href="/profile/?{{ user.id }}"><img class="card-profile-image" src="{{ user.img_user_profile.url }}"/></a>
 
 		  <p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
 

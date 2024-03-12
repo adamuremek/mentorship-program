@@ -377,7 +377,6 @@ def change_mentor_status(req: HttpRequest):
     # Extract mentor ID and status from request data
     mentor_id = req.POST["mentor_id"]
     status = req.POST["status"]
-    print(mentor_id)
     
     # Retrieve user object based on ID
     user = User.objects.get(id=mentor_id)
@@ -729,11 +728,27 @@ def view_mentor_by_admin(req: HttpRequest):
     return HttpResponse("eat my fat nuts!")
 
 
-#TODO uncomment this
-#@security.Decorators.require_login(bad_request_400)
+@security.Decorators.require_login(bad_request_400)
 def group_view(req: HttpRequest):
     template = loader.get_template('group_view/mentor_group_view.html')
-    context = {}
+    signed_in_user = User.from_session(req.session)
+    mentor_id = 6 #req.POST["mentor_id"]
+    # the user object for the page owner
+    page_owner_user = User.objects.get(id=mentor_id)
+    # the mentor object for the page owner (probably a way to do this in one object but i dont care)
+    page_owner_mentor = Mentor.objects.get(account_id=mentor_id)
+
+    # organization = mentor.organization.get(mentor=mentor).str_org_name
+    # interests = user.interests.filter(user=user)
+
+
+    is_page_owner = signed_in_user == page_owner_user
+
+
+    context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
+               "is_page_owner": is_page_owner,
+               "page_owner_user":page_owner_user,
+               "page_owner_mentor" : page_owner_mentor}
     return HttpResponse(template.render(context,req))
 
 
