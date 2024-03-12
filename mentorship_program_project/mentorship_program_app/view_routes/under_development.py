@@ -753,4 +753,27 @@ def group_view(req: HttpRequest):
     return HttpResponse(template.render(context,req))
 
 
+def create_mentorship(req : HttpRequest,mentee_account_id : int ,mentor_account_id : int )->HttpResponse:
+    """
+    creates a mentorship relation between the given mentor and mentee ids
+
+    TODO: make this care about security things, right now this has no security checks
+    for who can actualy make the mentorship
+
+    this is VERY important to get up and running ^
+
+    TODO: make this remove old mentorships if they exists
+
+    Authors
+    _______
+    David Kennamer "_" (if you can call this finsihed)
+    """
+
+    #actually add the mentorship to the db
+    mentee_account = User.objects.get(id=mentee_account_id).mentee
+    mentee_account.mentor = User.objects.get(id=mentor_account_id).mentor
+    mentee_account.save()
+
+    return HttpResponse("created request sucessfully")
+
 

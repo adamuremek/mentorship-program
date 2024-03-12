@@ -66,7 +66,12 @@ urlpatterns = [
     path('landing-post/'                                 , views.landingPost                 , name='landing-post'),
     path('register-test/'                                , under_development.register_mentor , name='register-test'),
     path('register-mentee-test/'                         , under_development.register_mentee , name='register-mentee-test'),
-    path('request_mentor/<int:mentee_id>/<int:mentor_id>', backend_requests.request_mentor,name='request mentor'),
+    path('request_mentor/<int:mentee_id>/<int:mentor_id>',
+            backend_requests.request_mentor,
+            name='request mentor'),
+    path('assign_mentee/<int:mentee_account_id>/<int:mentor_account_id>',
+            under_development.create_mentorship,
+            name='assign mentee to mentor'),
    # path('profile_pic/<int:user_id>')
     #8=============================================D~~#
 
@@ -120,7 +125,8 @@ urlpatterns = [
     path('dev/database_test'              , development_views.test_database_setup             ,name='database_test'),
     path('dev/delete_users'               , development_views.delete_users                    ,name='delete users'),
     path('dev/test_login'                 , development_views.test_login_page                 ,name='test login'),
-    path('dev/is_logged_in'               , development_views.is_logged_in_test               ,name='logged in test')
+    path('dev/is_logged_in'               , development_views.is_logged_in_test               ,name='logged in test'),
+    path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships")
 ]
 
 if settings.DEBUG:

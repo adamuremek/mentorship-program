@@ -306,6 +306,11 @@ class User(SVSUModelData,Model):
     -------
 
     """
+
+    @property 
+    def str_full_name(self):
+        return self.str_first_name + " " + self.str_last_name
+
     def get_backend_only_properties(self)-> list[str]:
         """
         Description
@@ -1005,6 +1010,7 @@ class Mentor(SVSUModelData,Model):
         on_delete = models.CASCADE
     )
 
+
     organization = ManyToManyField(
         Organization
     )
@@ -1087,6 +1093,7 @@ class Mentee(SVSUModelData,Model):
         "User",
         on_delete = models.CASCADE
     )
+    mentor = models.ForeignKey('Mentor', on_delete=models.CASCADE,null=True)
     
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
@@ -1179,6 +1186,11 @@ class MentorshipRequest(SVSUModelData,Model):
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
+
+    def is_accepted(self)->bool:
+        self.mentor.mentees.get(id=self.mentee.id)
+
+
     
     @staticmethod
     def create_request(int_mentor_user_id: int, int_mentee_user_id: int):

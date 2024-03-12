@@ -12,6 +12,10 @@ from .status_codes import bad_request_400 as invalid_request_401
 
 from mentorship_program_app.models import User
 
+@security.Decorators.require_debug(invalid_request_401)
+def show_all_relationships(req : HttpRequest)->HttpResponse:
+    development.show_database_mentorships()
+    return HttpResponse("look at the terminal ya goober >:p")
 
 @security.Decorators.require_debug(invalid_request_401)
 def display_all_user_roles(request)->HttpResponse:
@@ -35,7 +39,7 @@ def display_all_user_roles(request)->HttpResponse:
     """
     ret_val = ""
     for u  in User.objects.all(): 
-        role_string = f"{u.cls_email_address} {u.str_first_name} has a role of : {u.str_role}"
+        role_string = f"{u.cls_email_address} {u.str_first_name} id: {u.id} has a role of : {u.str_role}"
         ret_val +=  role_string  + "\n"
         print(role_string)
     return HttpResponse(role_string)
@@ -92,5 +96,4 @@ def delete_users(request):
 def test_login_page(request):
     template = loader.get_template("dev/test_login.html")
     return HttpResponse(template.render({},request))
-
 
