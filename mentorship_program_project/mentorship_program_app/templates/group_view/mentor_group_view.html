@@ -36,16 +36,21 @@ Mentor Group View
         <div class="column-right">
             <div class="row-titles">
                 <div class="top-title">
-                    <h1>John Soup's Mentorship Group</h1>
-                    <h2>He/Him</h2>
+                    <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}'s Mentorship Group</h1>
+                    {% if page_owner_user.str_preferred_pronouns != None %}
+                        <h2>{{page_owner_user.str_preferred_pronouns}}</h2>
+                    {% endif %}
                     <button class="button-edit">Edit Page</button>
                 </div>
+
+
                 
-                <h2>The Dow Chemical Company</h2>
-                <h2>Software Engineer</h2>
+                <h2>job title</h2> 
+                <h2>comanpy</h2> 
                 <div class="specialties">
-                    <p>Specializations / Areas of Expertise: </p>
-                    <button>Interest</button>
+                    <p>Specializations / Areas of Expertise:</p>
+                    <button>Interests</button>
+
                 </div>
                 
             </div>

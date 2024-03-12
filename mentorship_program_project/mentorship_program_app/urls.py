@@ -83,6 +83,7 @@ urlpatterns = [
     path("enable-user", under_development.enable_user, name="enable-user"),
     path("view_mentor_by_admin", under_development.view_mentor_by_admin, name="view_mentor_by_admin"),
     path("admin_dashboard", navigation.admin_dashboard, name="admin_dashboard"),
+    path("group_view", under_development.group_view, name="group_view"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN

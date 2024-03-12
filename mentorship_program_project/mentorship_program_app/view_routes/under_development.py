@@ -205,7 +205,6 @@ def register_mentor(req: HttpRequest):
         #were not getting the data from the incoming form
         #if this is a thing we need to keep track of we should prolly send it
         #idk tho do whatevs -dk
-        #cls_date_of_birth = cls_date_of_birth 
         #str_gender = str_gender,
 
 
@@ -373,7 +372,7 @@ def change_mentor_status(req: HttpRequest):
     #TODO Verify you're an admin
 
     if req.method != "POST":
-        HttpResponse("kill yourself")
+        HttpResponse("wtf")
 
     # Extract mentor ID and status from request data
     mentor_id = req.POST["mentor_id"]
@@ -674,39 +673,83 @@ def create_note (req : HttpRequest):
         return HttpResponse("Note creation failed")
     
 
-# @security.Decorators.require_login(bad_request_400)
+#TODO uncomment this
+#@security.Decorators.require_login(bad_request_400)
 def view_mentor_by_admin(req: HttpRequest):
+    """
+    Description
+    -----------
+    This view allows an admin to view details of a mentor, including their profile information and interests.
+
+    Parameters
+    __________
+    req (HttpRequest): Django Http request.
+
+    Returns
+    _______
+    HttpResponse with mentor details if successful.
+    HttpResponse indicating failure if mentor details cannot be retrieved.
+     
+    Example Usage
+    _____________
+    >>> view_mentor_by_admin(request)
+
+    /view_mentor_by_admin
+
+    Authors
+    -------
+    Andrew P.
+    Adam U.
+    Jordan A.
+    """
     if req.method == "POST":
         mentor_id = req.POST["mentor_id"]
         template = loader.get_template('dashboard/profile-card/admin_viewing_pending_mentor.html')
         user = User.objects.get(id=mentor_id)
-        print(mentor_id)
         mentor = Mentor.objects.get(account_id=mentor_id)
         organization = mentor.organization.get(mentor=mentor).str_org_name
-
-
         interests = user.interests.filter(user=user)
-
-        
-        print(interests)
         
         user_interests = []
         for interest in interests:
             user_interests.append(interest.strInterest)
 
-        print(user_interests)
         context = {"first_name": user.str_first_name,
                    "last_name": user.str_last_name,
                    "job_title": mentor.str_job_title,
                    "organization": organization,
                    "user_interests": user_interests,
-                   "experience" : mentor.str_experience
+                   "experience" : mentor.str_experience,
+                   "user" : user.sanitize_black_properties()
                    }
         return HttpResponse(template.render(context, req))
 
   
     return HttpResponse("eat my fat nuts!")
-    
+
+
+@security.Decorators.require_login(bad_request_400)
+def group_view(req: HttpRequest):
+    template = loader.get_template('group_view/mentor_group_view.html')
+    signed_in_user = User.from_session(req.session)
+    mentor_id = 6 #req.POST["mentor_id"]
+    # the user object for the page owner
+    page_owner_user = User.objects.get(id=mentor_id)
+    # the mentor object for the page owner (probably a way to do this in one object but i dont care)
+    page_owner_mentor = Mentor.objects.get(account_id=mentor_id)
+
+    # organization = mentor.organization.get(mentor=mentor).str_org_name
+    # interests = user.interests.filter(user=user)
+
+
+    is_page_owner = signed_in_user == page_owner_user
+
+
+    context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
+               "is_page_owner": is_page_owner,
+               "page_owner_user":page_owner_user,
+               "page_owner_mentor" : page_owner_mentor}
+    return HttpResponse(template.render(context,req))
 
 
 def create_mentorship(req : HttpRequest,mentee_account_id : int ,mentor_account_id : int )->HttpResponse:

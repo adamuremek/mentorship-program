@@ -24,14 +24,14 @@
             <p class="specialization">{{interest}}</p>
             {% endfor %}
         </div>
-        <form action="{% url 'view_pending' %}">
+        <form action="/change_mentor_status" method="POST">
             {% csrf_token %}
             <input type="hidden" name="status" value="Approved" />
             <input type="hidden" name="mentor_id" value="{{user.id}}" />
             <input class="request-button green-button" type="submit" value="Approve" />
         </form>
 
-        <form action="{% url 'view_pending' %}">
+        <form action="/change_mentor_status" method="POST">
             {% csrf_token %}
             <input type="hidden" name="status" value="Denied" />
             <input type="hidden" name="mentor_id" value="{{user.id}}" />
