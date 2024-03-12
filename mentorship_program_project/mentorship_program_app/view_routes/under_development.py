@@ -205,7 +205,6 @@ def register_mentor(req: HttpRequest):
         #were not getting the data from the incoming form
         #if this is a thing we need to keep track of we should prolly send it
         #idk tho do whatevs -dk
-        #cls_date_of_birth = cls_date_of_birth 
         #str_gender = str_gender,
 
 
@@ -378,6 +377,7 @@ def change_mentor_status(req: HttpRequest):
     # Extract mentor ID and status from request data
     mentor_id = req.POST["mentor_id"]
     status = req.POST["status"]
+    print(mentor_id)
     
     # Retrieve user object based on ID
     user = User.objects.get(id=mentor_id)
@@ -706,26 +706,21 @@ def view_mentor_by_admin(req: HttpRequest):
         mentor_id = req.POST["mentor_id"]
         template = loader.get_template('dashboard/profile-card/admin_viewing_pending_mentor.html')
         user = User.objects.get(id=mentor_id)
-        print(mentor_id)
         mentor = Mentor.objects.get(account_id=mentor_id)
         organization = mentor.organization.get(mentor=mentor).str_org_name
         interests = user.interests.filter(user=user)
-
-        
-        
-        print(interests)
         
         user_interests = []
         for interest in interests:
             user_interests.append(interest.strInterest)
 
-        print(user_interests)
         context = {"first_name": user.str_first_name,
                    "last_name": user.str_last_name,
                    "job_title": mentor.str_job_title,
                    "organization": organization,
                    "user_interests": user_interests,
-                   "experience" : mentor.str_experience
+                   "experience" : mentor.str_experience,
+                   "user" : user.sanitize_black_properties()
                    }
         return HttpResponse(template.render(context, req))
 
