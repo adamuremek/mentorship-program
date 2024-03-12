@@ -52,6 +52,11 @@ button:focus, input:focus{
     margin-top: 5rem;
     box-shadow: 4px 4px 8px rgba(0, 0, 0, .15);
     overflow-y: scroll;
+    scrollbar-width: none; /* Hide the scrollbar on Firefox */
+}
+
+.mentor-applicants-container::-webkit-scrollbar {
+    display: none; /* Hide the scrollbar on WebKit browsers (Chrome, Safari, etc.) */
 }
 
 /* mentor information and buttons */
