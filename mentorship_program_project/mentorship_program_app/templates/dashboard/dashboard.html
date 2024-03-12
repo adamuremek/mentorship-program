@@ -43,12 +43,12 @@ Dashboard
                     <p>Filter:</p>
                     <div id="popup-root" class="available-interests-filter-box popup">
                         <p>Interests</p>
-                        <img class="down-arrow" src="{% static 'images/white-dropdown-arrow.png' %}">
+                        <img class="down-arrow" src="{% static 'images/white-dropdown-arrow.png' %}"></img>
 
                         <div id='popup' class="popup-inner">
                             <div class="popup-inner-title">
                                 <p>Interests</p>
-                                <img class="down-arrow" src="{% static 'images/white-dropdown-arrow.png' %}">
+                                <img class="down-arrow" src="{% static 'images/white-dropdown-arrow.png' %}"></img>
                             </div>
 
                             <div id="inner-popup-content">
@@ -66,6 +66,31 @@ Dashboard
                                         </div>
                                     {% endfor %}
 
+
+                                    <!-- <div class="popup-checkbox-item">
+                                        <input type="checkbox" id="cb1" checked>
+                                        <label for="cb1">Artificial Intelligence (32)</label>
+                                    </div>
+
+                                    <div class="popup-checkbox-item">
+                                        <input type="checkbox" id="cb2" checked>
+                                        <label for="cb2">Machine Learning (24)</label>
+                                    </div>
+
+                                    <div class="popup-checkbox-item">
+                                        <input type="checkbox" id="cb3" checked>
+                                        <label for="cb3">Data Science (15)</label>
+                                    </div>
+
+                                    <div class="popup-checkbox-item">
+                                        <input type="checkbox" id="cb4" checked>
+                                        <label for="cb4">Cloud Computing (12)</label>
+                                    </div>
+
+                                    <div class="popup-checkbox-item">
+                                        <input type="checkbox" id="cb5" checked>
+                                        <label for="cb5">Networking (4)</label>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -73,14 +98,14 @@ Dashboard
                 </div>
 
                 <div class="available-search-name">
-                    <img class="search-icon" src="{% static 'images/search-icon.png' %}">
-                    <input type="text" placeholder="Search by Name" id="searchByNameField" oninput="filterInterests()">
+                    <img class="search-icon" src="{% static 'images/search-icon.png' %}"></img>
+                    <input type="text" placeholder="Search by Name" id="searchByNameField">
                 </div>
             </div>
 
             <div class="available-cards">
                     {% for user in all_users %}
-                    <div class="user_interests_class{% for interest in user.interests.all %} {{interest.strInterest}}{% endfor %}">
+                    <div class="goFuckYourself{% for interest in user.interests.all %} {{interest.strInterest}}{% endfor %}">
                         {% include 'dashboard/profile-card/mentee_card.html' %}
                     </div>
                     {% endfor %}
@@ -122,14 +147,14 @@ Dashboard
 
   
     filterInterests = () => {
-        const users = document.getElementsByClassName('user_interests_class')   
-
-        // -------------------- <<< SEARCH BY NAME >>> -------------------- \\
-        const search_bar = document.getElementById('searchByNameField');
-        const search_query = search_bar.value;
-
-        // -------------------- <<< INTERESTS FILTERING >>> -------------------- \\
+        console.log('fuck offf asshoole')
+        const users = document.getElementsByClassName('goFuckYourself')
         const filter_tags = document.getElementsByClassName('popup-checkbox-item')
+
+        console.log('users')
+        console.log(users)
+        console.log('filter_tags')
+        console.log(filter_tags)
 
         // Some Experimental Bullshit
         for(const user of users) {
@@ -148,18 +173,23 @@ Dashboard
         console.log(selected_filters)
         if(selected_filters.length == 0) {
             for(const user of users)
-                if(user.getElementsByClassName('card-name')[0].innerHTML.includes(search_query))
-                    user.style.display = 'block'
+                user.style.display = 'block'
             return
         }
+            
 
         for (const user of users) {
             console.log('name:' + user.classList)
-            if(Array.from(user.classList).some(className => selected_filters.includes(className))
-                && user.getElementsByClassName('card-name')[0].innerHTML.includes(search_query))
+            // if(Array.from(user.classList).some(i => selected_filters.some(j => j==i)))
+            if(Array.from(user.classList).some(className => selected_filters.includes(className))) {
+                console.log('this dude roicks')
                 user.style.display = 'block'
+            }
+                
         }
-
+        
+        
+        
     }
     
     const value = JSON.parse(document.getElementById("interests-dictionary").textContent);

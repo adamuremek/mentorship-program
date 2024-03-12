@@ -59,9 +59,7 @@ urlpatterns = [
     #================NAVIGATION ROUTES================#
     path('', navigation.landing, name='default'),     #Now landing
     # path('landing/', navigation.landing, name='landing'), 
-    path('dashboard/',    navigation.dashboard,     name='dashboard'),
-    path('group-view/', views.mentor_group_view,  name='group-view'),
-    path('profile/', views.profile,  name='profile'),
+    path('dashboard/', navigation.dashboard, name='dashboard'),
     #=================================================#
     
     #==================LOGICAL ROUTES=================#

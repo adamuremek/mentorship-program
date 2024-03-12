@@ -22,7 +22,7 @@ hr {
 }
 
 .row-titles h2 {
-    color: whitesmoke;
+    color: gray;
 }
 
 .top-title {
@@ -40,11 +40,11 @@ hr {
     font-size: 2rem;
     margin-left: 1rem;
     margin-top: 1rem;
-    color: whitesmoke;
+    color: gray;
 }
 
 .top-title button {
-    color: whitesmoke;
+    color: gray;
     font-size: 1rem;
     background-color: transparent;
     border: 2px solid;
@@ -57,22 +57,20 @@ hr {
 }
 
 .specialties button {
-    color: whitesmoke;
-    background-color: #3E4C6C;
-    border-color: #3E4C6C;
+    color: white;
+    background-color: gray;
+    border: none;
     border-radius: 1rem;
     width: 10rem;
     margin-left: 1rem;
 }
 
 .row-communication-methods p {
-    color: whitesmoke;
-    opacity: .8;
+    color: gray;
 }
 
 .row-overview p {
-    color: whitesmoke;
-    opacity: .8;
+    color: gray;
 }
 
 .profile-picture {
@@ -101,7 +99,7 @@ hr {
 }
 
 .row-notes button {
-    color: whitesmoke;
+    color: grey;
     border: solid;
     border-radius: 1rem;
     background-color: transparent;
@@ -116,7 +114,7 @@ hr {
 }
 
 .note-header p{
-    color: whitesmoke;
+    color: grey;
 }
 
 .invisible {
@@ -134,8 +132,7 @@ hr {
 
 .note {
     margin-bottom: 0.5rem;
-    background-color: #3E4C6C;
-    border-color: #3E4C6C;
+    background-color: grey;
     display: flex;
     height: 2rem;
     border-radius: 5px;
