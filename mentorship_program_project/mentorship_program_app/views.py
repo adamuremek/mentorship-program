@@ -367,6 +367,14 @@ def mentor_group_view(req):
     context = {}
     return HttpResponse(template.render(context, req))
 
+# view goes to profile page
+@security.Decorators.require_login(invalid_request_401)
+def profile(req):
+    template = loader.get_template('group_view/mentor_group_view.html')
+    # Get Current User Object
+    context = {}
+    return HttpResponse(template.render(context, req))
+
 
 # development only views, these should be removed before production
 # still if they are forgotten they should automatically redirect

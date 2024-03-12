@@ -57,9 +57,9 @@ hr {
 }
 
 .specialties button {
-    color: white;
-    background-color: whitesmoke;
-    border: none;
+    color: whitesmoke;
+    background-color: #3E4C6C;
+    border-color: #3E4C6C;
     border-radius: 1rem;
     width: 10rem;
     margin-left: 1rem;
@@ -67,10 +67,12 @@ hr {
 
 .row-communication-methods p {
     color: whitesmoke;
+    opacity: .8;
 }
 
 .row-overview p {
     color: whitesmoke;
+    opacity: .8;
 }
 
 .profile-picture {
@@ -132,7 +134,8 @@ hr {
 
 .note {
     margin-bottom: 0.5rem;
-    background-color: whitesmoke;
+    background-color: #3E4C6C;
+    border-color: #3E4C6C;
     display: flex;
     height: 2rem;
     border-radius: 5px;
