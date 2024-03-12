@@ -22,9 +22,12 @@ SVSU Mentoring
                 <img src="{% static 'images/exclamation.jpg' %}">
                 <h3>Verify Mentee Undergraduate Status</h3>
             </div>
-            <div class="card review-mentor-applications">
-                <img src="{% static 'images/mail.jpg' %}">
-                <h3>Review Mentor Applications: 2 Remaining</h3>
+            
+            <div class="card review-mentor-applications" >
+                <form action="{% url 'view_pending' %}">
+                    <img src="{% static 'images/mail.jpg' %}">
+                        <h3>Review Mentor Applications: 2 Remaining</h3>
+                </form>
             </div>
             <div class="card stats program-statistics">
                 <h2>Program Statistics</h2>

@@ -89,5 +89,8 @@ def dashboard(req):
 
 def admin_dashboard(req):
     template = loader.get_template('admin_dashboard.html')
-    context = {}
+    pending_mentor_count = User.objects.filter(str_role='MentorPending').count()
+    context = {"pending_mentor_count": pending_mentor_count,
+               
+               }
     return HttpResponse(template.render(context, req))

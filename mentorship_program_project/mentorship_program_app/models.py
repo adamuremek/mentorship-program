@@ -394,7 +394,7 @@ class User(SVSUModelData,Model):
     str_first_name : CharField =  CharField(max_length=747,null=True)
     str_last_name : CharField =  CharField(max_length=747, null=True) 
     str_phone_number : CharField = CharField(max_length=15, null=True)
-    cls_date_of_birth = DateField(default=date.today)
+    str_last_login_date = DateField(default=date.today)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
 
