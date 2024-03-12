@@ -38,8 +38,10 @@ WHO     WHEN     WHAT
 WJL   3/3/2024   Added file header comment and updating to doc standards
 """
 
+#standard python imports
 import json
 from typing import Union
+from datetime import date
 
 from django.http import HttpResponse, HttpRequest
 from django.template import loader
@@ -344,9 +346,12 @@ def login_uname_text(request):
         response.status_code = 401
         return response
  
-
     #valid login
     security.set_logged_in(request.session,User.objects.get(cls_email_address=uname).id)
+    user = User.objects.get(cls_email_address=uname)
+    user.str_last_login_date = date.today()
+    user.save()
+
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
 
