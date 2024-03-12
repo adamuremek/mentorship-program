@@ -262,6 +262,8 @@ def show_database_mentorships()->None:
     mentors = Mentor.objects.all()
 
     for mentor in mentors:
+        if mentor.account.str_first_name == None:
+            mentor.account.str_first_name = "un named"
         print(mentor.account.str_first_name + " has mentees:",end=" ")
         print([mentee.account.str_full_name for mentee in mentor.mentee_set.all()])
 
