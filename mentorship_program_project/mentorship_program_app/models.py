@@ -397,7 +397,7 @@ class User(SVSUModelData,Model):
     str_last_login_date = DateField(default=date.today)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
-
+    str_bio = CharField(max_length=5000, null=True)
     #foregn key fields
     interests = models.ManyToManyField(Interest)
         
@@ -769,11 +769,11 @@ class User(SVSUModelData,Model):
             "PhoneNumber": self.str_phone_number,
             "DateOfBirth": self.cls_date_of_birth,
             "Gender": self.str_gender,
-            "PreferredPronouns": self.str_preferred_pronouns
+            "PreferredPronouns": self.str_preferred_pronouns,
+            "str_bio" : self.str_bio
         }
 
-        if hasattr(self, 'biographies') and self.biographies:
-            user_info["Biography"] = self.biographies.str_bio
+
 
         return user_info
     
@@ -919,40 +919,7 @@ class User(SVSUModelData,Model):
                                      and User.from_session(req.session).is_mentee()
             return security.Decorators.require_check(validator, alternate_view)
 
-class Biographies(SVSUModelData,Model):
-    """
-    Description
-    -----------
-    A class to hold the user biographies. This saves space in the database.
 
-    Properties
-    ----------
-    - user (User): The user who owns the biography is about
-    - str_bio (str): The user's biography text
-
-    Instance Functions
-    -------------------
-    (None)
-
-    Static Functions
-    -------
-    (None)
-
-    Magic Functions
-    -------------
-    (None)
-
-    Authors
-    -------
-    
-    """
-    user = OneToOneField(
-        User,
-        on_delete = models.CASCADE,
-        primary_key=True
-    )
-
-    str_bio = CharField(max_length=5000, null=True)
 
 class Organization(SVSUModelData,Model):
     """

@@ -674,6 +674,7 @@ def create_note (req : HttpRequest):
         return HttpResponse("Note creation failed")
     
 
+#TODO uncomment this
 #@security.Decorators.require_login(bad_request_400)
 def view_mentor_by_admin(req: HttpRequest):
     """
@@ -726,7 +727,14 @@ def view_mentor_by_admin(req: HttpRequest):
 
   
     return HttpResponse("eat my fat nuts!")
-    
+
+
+#TODO uncomment this
+#@security.Decorators.require_login(bad_request_400)
+def group_view(req: HttpRequest):
+    template = loader.get_template('group_view/mentor_group_view.html')
+    context = {}
+    return HttpResponse(template.render(context,req))
 
 
 
