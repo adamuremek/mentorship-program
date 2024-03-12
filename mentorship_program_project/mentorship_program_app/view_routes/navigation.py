@@ -4,6 +4,7 @@ from django.template import loader, Template
 from django.shortcuts import get_object_or_404, render, redirect
 from django.conf import settings
 from utils import development
+from datetime import datetime, timedelta
 from utils.development import print_debug
 from utils import security
 from .status_codes import bad_request_400
@@ -89,8 +90,31 @@ def dashboard(req):
 
 def admin_dashboard(req):
     template = loader.get_template('admin_dashboard.html')
+    inactive_date = datetime.now() - timedelta(days=365)
+    
+    # Query to count the number of Mentees who are currently inactive
+    inactive_mentees_count = User.objects.filter(str_role='Mentee', str_last_login_date__lt=inactive_date).count()
+    # Query to count the number of Mentees who are currently active
+    active_mentees_count = User.objects.filter(str_role='Mentee', str_last_login_date__gte=inactive_date).count()
+    # Query to count the number of Mentors who are currently inactive
+    inactive_mentors_count = User.objects.filter(str_role='Mentor', str_last_login_date__lt=inactive_date).count()
+    # Query to count the number of Mentors who are currently active
+    active_mentors_count = User.objects.filter(str_role='Mentor',str_last_login_date__gte=inactive_date).count()
+    # Number of total mentees
+    total_mentees = User.objects.filter(str_role='Mentee').count()
+    # Number of total mentors
+    total_mentors = User.objects.filter(str_role='Mentor').count()
+
+    # number of pending mentors
     pending_mentor_count = User.objects.filter(str_role='MentorPending').count()
     context = {"pending_mentor_count": pending_mentor_count,
+               "active_mentees_count" : active_mentees_count,
+               "inactive_mentees_count" : inactive_mentees_count,
+               "active_mentors_count" : active_mentors_count,
+               "inactive_mentors_count" : inactive_mentors_count,
+               "mentees_per_mentor" : round(total_mentees/total_mentors,2),
+               "mentor_turnover_rate" : round((inactive_mentors_count / total_mentors) * 100),
+               "mentor_retention_rate" : round(100- ((inactive_mentors_count / total_mentors) * 100))
                
                }
     return HttpResponse(template.render(context, req))

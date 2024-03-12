@@ -277,7 +277,7 @@ class User(SVSUModelData,Model):
     - str_first_name
     - str_last_name
     - str_phone_number
-    - cls_date_of_birth
+    - str_last_login_date
     - str_gender
     - str_preferred_pronouns
     - interests

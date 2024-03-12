@@ -373,7 +373,7 @@ def change_mentor_status(req: HttpRequest):
     #TODO Verify you're an admin
 
     if req.method != "POST":
-        HttpResponse("kill yourself")
+        HttpResponse("wtf")
 
     # Extract mentor ID and status from request data
     mentor_id = req.POST["mentor_id"]
@@ -674,8 +674,34 @@ def create_note (req : HttpRequest):
         return HttpResponse("Note creation failed")
     
 
-# @security.Decorators.require_login(bad_request_400)
+#@security.Decorators.require_login(bad_request_400)
 def view_mentor_by_admin(req: HttpRequest):
+    """
+    Description
+    -----------
+    This view allows an admin to view details of a mentor, including their profile information and interests.
+
+    Parameters
+    __________
+    req (HttpRequest): Django Http request.
+
+    Returns
+    _______
+    HttpResponse with mentor details if successful.
+    HttpResponse indicating failure if mentor details cannot be retrieved.
+     
+    Example Usage
+    _____________
+    >>> view_mentor_by_admin(request)
+
+    /view_mentor_by_admin
+
+    Authors
+    -------
+    Andrew P.
+    Adam U.
+    Jordan A.
+    """
     if req.method == "POST":
         mentor_id = req.POST["mentor_id"]
         template = loader.get_template('dashboard/profile-card/admin_viewing_pending_mentor.html')
@@ -683,10 +709,9 @@ def view_mentor_by_admin(req: HttpRequest):
         print(mentor_id)
         mentor = Mentor.objects.get(account_id=mentor_id)
         organization = mentor.organization.get(mentor=mentor).str_org_name
-
-
         interests = user.interests.filter(user=user)
 
+        
         
         print(interests)
         
