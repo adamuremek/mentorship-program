@@ -777,6 +777,41 @@ class User(SVSUModelData,Model):
 
         return user_info
     
+    @property
+    def img_user_profile(self):
+        """
+        DESCRIPTION
+        ___________
+
+        convinence property to provide access to the users profile image through
+        the original user.img_user_profile api for the sake of views and ensuring images
+        still work with the older api method
+
+        see https://realpython.com/python-property/ 
+        for a reference on how python properties work
+
+        USAGE
+        _____
+        
+        in django
+
+        django_img_field = user.img_user_profile
+
+        in a view
+        
+        <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/>
+
+        AUTHORS
+        _______
+        David Kennamer ._.
+
+        """
+        try:
+            default_img = self.profileimg.img_profile
+        except ObjectDoesNotExist:
+            ProfileImg.create_from_user_id(self.id) #create an image with default profile picture if one does not exist
+        return self.profileimg.img_profile
+
     class Decorators:
         """
         Description
@@ -1758,7 +1793,7 @@ class ProfileImg(SVSUModelData,Model):
     #   Static function that creates a new instance of the class
     @staticmethod
     def create_from_user_id(int_user_id: int,
-                            str_filename: str)->'ProfileImg':
+                            str_filename: str='images/default_profile_picture.png')->'ProfileImg':
 
         try:
             user_model = User.objects.get(id=int_user_id)
