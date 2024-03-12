@@ -732,11 +732,12 @@ def view_mentor_by_admin(req: HttpRequest):
 def group_view(req: HttpRequest):
     template = loader.get_template('group_view/mentor_group_view.html')
     signed_in_user = User.from_session(req.session)
-    mentor_id = 6 #req.POST["mentor_id"]
+    mentor_id = req.POST["mentor_id"]
+    print("should behere -> ",mentor_id)
     # the user object for the page owner
     page_owner_user = User.objects.get(id=mentor_id)
     # the mentor object for the page owner (probably a way to do this in one object but i dont care)
-    page_owner_mentor = Mentor.objects.get(account_id=mentor_id)
+    page_owner_mentor = page_owner_user
 
     # organization = mentor.organization.get(mentor=mentor).str_org_name
     # interests = user.interests.filter(user=user)

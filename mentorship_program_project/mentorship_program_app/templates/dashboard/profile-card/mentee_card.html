@@ -6,13 +6,26 @@
 
 {% block main_content %}
 
+<!-- <form action="/group_view" method="POST">
+	{% csrf_token %}
+	<input type="hidden" name="mentor_id" value="{{user.id}}" />
+	<input type="submit" value="Approve" />
+</form> -->
+
+
 <div class="card">
 
 	<div class="card-line-divider-1"></div>
 
     <div class="card-gray-part">
 
-		  <a href="/profile/?{{ user.id }}"><img class="card-profile-image" src="{{ user.img_user_profile.url }}"/></a>
+		  <!-- <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/> -->
+		  <form action="/group_view" method="POST">
+			{% csrf_token %}
+			<input type="hidden" name="mentor_id" value="{{user.id}}" />
+			<!-- <input type="submit" value="View" /> -->
+			<input type="image" class="card-profile-image" alt="Login" src="{{ user.img_user_profile.url }}" />
+		</form>
 
 		  <p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
 
