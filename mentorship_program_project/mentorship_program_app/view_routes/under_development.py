@@ -1,5 +1,6 @@
 import json
 import re
+import inspect
 from collections.abc import Callable
 from datetime import date
 
@@ -199,6 +200,7 @@ def register_mentor(req: HttpRequest):
         pending_mentor_object.account.str_first_name = req.POST["fname"]
         pending_mentor_object.account.str_last_name = req.POST["lname"]
         pending_mentor_object.account.str_phone_number = req.POST["phone"]
+        pending_mentor_object.account.str_preferred_pronouns = req.POST["pronouns"]
 
         #were not getting the data from the incoming form
         #if this is a thing we need to keep track of we should prolly send it
@@ -207,7 +209,6 @@ def register_mentor(req: HttpRequest):
         #str_gender = str_gender,
 
 
-        str_preferred_pronouns = req.POST["pronouns"]
         mentor = User.objects.get(cls_email_address = incoming_email)
         
         pending_mentor_object.str_job_title =  req.POST["jobTitle"]
@@ -343,7 +344,7 @@ def view_pending_mentors(req: HttpRequest):
     return HttpResponse(template.render(context, req))
 
 
-def change_mentor_status(req:HttpRequest):
+def change_mentor_status(req: HttpRequest):
     '''
     Description
     -----------
@@ -371,10 +372,12 @@ def change_mentor_status(req:HttpRequest):
     '''
     #TODO Verify you're an admin
 
+    if req.method != "POST":
+        HttpResponse("kill yourself")
+
     # Extract mentor ID and status from request data
-    post_data = json.loads(req.body.decode("utf-8"))
-    mentor_id = post_data["mentor_id"] if "mentor_id" in post_data else None
-    status = post_data["status"] if "status" in post_data else None
+    mentor_id = req.POST["mentor_id"]
+    status = req.POST["status"]
     
     # Retrieve user object based on ID
     user = User.objects.get(id=mentor_id)
@@ -389,8 +392,8 @@ def change_mentor_status(req:HttpRequest):
         
     # Save changes to user object
     
-        
-    return HttpResponse(f"user {mentor_id}'s status has been changed to: {status}")
+    # Redirect back to the view_pending page
+    return redirect("/view_pending")
 
 
 def disable_user(req:HttpRequest):
@@ -669,7 +672,40 @@ def create_note (req : HttpRequest):
         return HttpResponse("Note created!")
     else:
         return HttpResponse("Note creation failed")
+    
 
+# @security.Decorators.require_login(bad_request_400)
+def view_mentor_by_admin(req: HttpRequest):
+    if req.method == "POST":
+        mentor_id = req.POST["mentor_id"]
+        template = loader.get_template('dashboard/profile-card/admin_viewing_pending_mentor.html')
+        user = User.objects.get(id=mentor_id)
+        print(mentor_id)
+        mentor = Mentor.objects.get(account_id=mentor_id)
+        organization = mentor.organization.get(mentor=mentor).str_org_name
+
+
+        interests = user.interests.filter(user=user)
+
+        
+        print(interests)
+        
+        user_interests = []
+        for interest in interests:
+            user_interests.append(interest.strInterest)
+
+        print(user_interests)
+        context = {"first_name": user.str_first_name,
+                   "last_name": user.str_last_name,
+                   "job_title": mentor.str_job_title,
+                   "organization": organization,
+                   "user_interests": user_interests,
+                   "experience" : mentor.str_experience
+                   }
+        return HttpResponse(template.render(context, req))
+
+  
+    return HttpResponse("eat my fat nuts!")
     
 
 

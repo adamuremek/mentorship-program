@@ -126,7 +126,7 @@ Dashboard
 
 
 	//start by giving the js script context from djangos back end
-	let session_user_id = {{ session_user.id }};
+	let session_user_id = "{{ session_user.id }}";
 	let is_mentee_str = "{{ role }}";
 
 	let is_mentee = is_mentee_str == 'Mentee';

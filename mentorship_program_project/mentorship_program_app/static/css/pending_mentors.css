@@ -51,7 +51,7 @@ button:focus, input:focus{
     border-radius: 5vh;
     margin-top: 5rem;
     box-shadow: 4px 4px 8px rgba(0, 0, 0, .15);
-    overflow: scroll;
+    overflow-y: scroll;
 }
 
 /* mentor information and buttons */

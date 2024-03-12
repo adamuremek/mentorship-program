@@ -123,25 +123,3 @@ async function attempt_mentor_report(mentor_id) {
 	return response;
 }
 
-
-
-async function admin_mentor_request(mentor_id, status) {
-	let request_url = "/change_mentor_status"
-	
-	const req = new Request(request_url,{
-							method: "POST",
-							headers: {
-									"Content-type": "application/json; charset=UTF-8",
-									'X-CSRFToken': csrftoken
-							},
-							mode: "same-origin",
-							body: JSON.stringify({
-								mentor_id: mentor_id,
-								status: status
-						})
-	});
-
-	let response = await fetch(req);
-	console.log(response)
-	return response;
-}

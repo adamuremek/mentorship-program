@@ -71,10 +71,12 @@ urlpatterns = [
 
     
     #ADAM + ANDREW + JORDAN TESTING
-    path("view-pending", under_development.view_pending_mentors, name="view-pending"),
+    path("view_pending", under_development.view_pending_mentors, name="view_pending"),
     path("change_mentor_status", under_development.change_mentor_status, name="change_mentor_status"),
     path("disable-user", under_development.disable_user, name="disable-user"),
     path("enable-user", under_development.enable_user, name="enable-user"),
+    path("view_mentor_by_admin", under_development.view_mentor_by_admin, name="view_mentor_by_admin"),
+    path("admin_dashboard", navigation.admin_dashboard, name="admin_dashboard"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN
