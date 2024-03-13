@@ -78,6 +78,7 @@ hr {
 
 .specialties {
     display: flex;
+    margin: .5em 0;
 }
 
 .specialties button {
