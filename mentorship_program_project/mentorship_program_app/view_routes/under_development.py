@@ -14,6 +14,7 @@ from .status_codes import bad_request_400
 from utils import security
 from utils.development import print_debug
 
+
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
 through the mentor sign up route and update their role user entry in the DB to mentor when approved
@@ -200,7 +201,7 @@ def register_mentor(req: HttpRequest):
         pending_mentor_object.account.str_first_name = req.POST["fname"]
         pending_mentor_object.account.str_last_name = req.POST["lname"]
         pending_mentor_object.account.str_phone_number = req.POST["phone"]
-        pending_mentor_object.account.str_preferred_pronouns = req.POST["pronouns"]
+        pending_mentor_object.account.str_preferred_pronouns = req.POST["pronouns1"] + '/' + req.POST["pronouns2"]
 
         #were not getting the data from the incoming form
         #if this is a thing we need to keep track of we should prolly send it
@@ -208,7 +209,7 @@ def register_mentor(req: HttpRequest):
         #str_gender = str_gender,
 
 
-        mentor = User.objects.get(cls_email_address = incoming_email)
+        user_mentor = User.objects.get(cls_email_address = incoming_email)
         
         pending_mentor_object.str_job_title =  req.POST["jobTitle"]
         pending_mentor_object.str_experience = req.POST["experience"]
@@ -228,7 +229,8 @@ def register_mentor(req: HttpRequest):
 
 
         pending_mentor_object.save()
-            
+
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentor.id))
             
         template: Template = loader.get_template('successful_registration.html')
         ctx = {}
@@ -277,7 +279,7 @@ def register_mentee(req: HttpRequest):
 
         # create a new user in the database with the role "Pending"
         pending_mentee_object = Mentee.create_from_plain_text_and_email(incoming_plain_text_password, incoming_email)
-
+        
         # check if the account is already registered
         if pending_mentee_object == User.ErrorCode.AlreadySelectedEmail:
             return HttpResponse(f"Email {incoming_email} already exsists!")
@@ -285,7 +287,7 @@ def register_mentee(req: HttpRequest):
         pending_mentee_object.account.cls_email_address = incoming_email
         pending_mentee_object.account.str_first_name = req.POST["fname"]
         pending_mentee_object.account.str_last_name = req.POST["lname"]
-        pending_mentee_object.account.str_preferred_pronouns = req.POST["pronouns"]
+        pending_mentee_object.account.str_preferred_pronouns = req.POST["pronouns1"] + '/' + req.POST["pronouns2"]
      
         parsed_user_interests = [
                                     Interest.get_or_create_interest(interest) 
@@ -298,7 +300,9 @@ def register_mentee(req: HttpRequest):
         
         pending_mentee_object.account.save()
         pending_mentee_object.save()
-        
+
+        user_mentee = User.objects.get(cls_email_address = incoming_email)
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentee.id))
         return HttpResponse("Registration request successful! We'll get back to ya!")
         
     else:
@@ -436,7 +440,10 @@ def disable_user(req:HttpRequest):
     
     # Save changes to user object
     user.save()
-    
+    if(user.str_role == "Mentee"):
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED, specified_user= User.objects.get(id=user.id))
+    else:
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED, specified_user= User.objects.get(id=user.id))
     return HttpResponse(f"user {id}'s status has been changed to disabled")
 
 
@@ -732,28 +739,71 @@ def view_mentor_by_admin(req: HttpRequest):
 def group_view(req: HttpRequest):
     template = loader.get_template('group_view/mentor_group_view.html')
     signed_in_user = User.from_session(req.session)
-    mentor_id = req.POST["mentor_id"]
-    print("should behere -> ",mentor_id)
+    mentor_id = req.POST["id"]
     # the user object for the page owner
     page_owner_user = User.objects.get(id=mentor_id)
-    # the mentor object for the page owner (probably a way to do this in one object but i dont care)
-    page_owner_mentor = page_owner_user
+    # the mentor object for the page owner 
+    page_owner_mentor = page_owner_user.mentor
 
-    # organization = mentor.organization.get(mentor=mentor).str_org_name
-    # interests = user.interests.filter(user=user)
+    organization = page_owner_mentor.organization.get(mentor=page_owner_mentor).str_org_name
 
+    interests = page_owner_user.interests.filter(user=page_owner_user)
 
     is_page_owner = signed_in_user == page_owner_user
+
+    user_interests = []
+    for interest in interests:
+        user_interests.append(interest.strInterest)
+
+    # had to preform a ritual to get this to work
+    # give me the big bucks
+    # honestly a christmas miracle this works, wowza
+    # DO NOT TOUCH, ITS DANGEROUS
+    mentees_for_mentor = page_owner_mentor.mentee_set.all()
+    mentees_users_accounts = [mentee.account for mentee in mentees_for_mentor]
 
 
     context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
                "is_page_owner": is_page_owner,
                "page_owner_user":page_owner_user,
-               "page_owner_mentor" : page_owner_mentor}
+               "page_owner_mentor" : page_owner_mentor,
+               "organization": organization,
+               "interests": user_interests,
+               "mentees" : mentees_users_accounts
+               }
+    return HttpResponse(template.render(context,req))
+
+def mentee_profile(req : HttpRequest):
+    template = loader.get_template('group_view/mentee_profile.html')
+    signed_in_user = User.from_session(req.session)
+    mentee_id = req.POST["id"]
+    # the user object for the page owner
+    page_owner_user = User.objects.get(id=mentee_id)
+    # the mentee object for the page owner 
+    page_owner_mentee = page_owner_user.mentee
+
+
+    interests = page_owner_user.interests.filter(user=page_owner_user)
+    is_page_owner = signed_in_user == page_owner_user
+    user_interests = []
+    for interest in interests:
+        user_interests.append(interest.strInterest)
+
+
+
+
+    context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
+               "is_page_owner": is_page_owner,
+               "page_owner_user":page_owner_user,
+               "page_owner_mentee" : page_owner_mentee,
+               "interests": user_interests,
+               "mentor" :  page_owner_mentee.mentor.account if page_owner_mentee.mentor != None else None
+               }
+
     return HttpResponse(template.render(context,req))
 
 
-def create_mentorship(req : HttpRequest,mentee_account_id : int ,mentor_account_id : int )->HttpResponse:
+def create_mentorship(req : HttpRequest, mentee_account_id : int, mentor_account_id : int )->HttpResponse:
     """
     creates a mentorship relation between the given mentor and mentee ids
 
@@ -774,6 +824,12 @@ def create_mentorship(req : HttpRequest,mentee_account_id : int ,mentor_account_
     mentee_account.mentor = User.objects.get(id=mentor_account_id).mentor
     mentee_account.save()
 
+    # record logs
+    # record the mentee since the mentor can be gathered from it later
+    SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, specified_user= User.objects.get(id=mentee_account_id))
+
     return HttpResponse("created request sucessfully")
+
+
 
 

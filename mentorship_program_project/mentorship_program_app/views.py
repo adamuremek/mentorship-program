@@ -55,6 +55,7 @@ from .models import User
 from .models import Interest
 from .models import Mentor
 from .models import MentorshipRequest
+from .models import SystemLogs
 
 
 #please make it pretty front end :)
@@ -184,11 +185,12 @@ def THEBIGMOVE(req):
             'Cybersecruity',
             'System Analysis'],
 
-        'pronounlist': ['he', 'she', 'they'],
+        'pronounlist1': ['he', 'she', 'they'],
+        'pronounlist2': ['him', 'her', 'them'],
 
         'companytypelist': [
             'Manufacturing',
-            'Comptuer Science', 
+            'Computer Science', 
             'Math?'],
             
         'experiencelist': [
@@ -226,7 +228,8 @@ def register_mentee(req):
             'Cybersecruity',
             'System Analysis'],
         
-        'pronounlist': ['he', 'she', 'they'],
+        'pronounlist1': ['he', 'she', 'they'],
+        'pronounlist2': ['him', 'her', 'them'],
         
         'useragreement': 
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
@@ -351,6 +354,9 @@ def login_uname_text(request):
     user = User.objects.get(cls_email_address=uname)
     user.str_last_login_date = date.today()
     user.save()
+
+    # record logs
+    SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
 
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response

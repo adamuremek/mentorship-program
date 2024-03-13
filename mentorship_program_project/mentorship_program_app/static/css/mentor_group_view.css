@@ -1,5 +1,7 @@
 .hero-container {
     display: flex;
+    width: 95vw;
+    padding: 10px;
 }
 
 hr {
@@ -11,10 +13,20 @@ hr {
     margin-left: 2rem;
 }
 
+.column-left h3 {
+    margin-top: 0.5rem;
+    margin-bottom: .25rem;
+}
+
 .column-right {
     padding-left: 0rem 2rem;
     margin-right: 2rem;
     margin-left: 2rem;
+    width: 100%;
+}
+
+.row-titles h2, .row-titles h3 {
+    margin-top: .5rem;
 }
 
 .row-titles h1{
@@ -22,13 +34,14 @@ hr {
 }
 
 .row-titles h2 {
-    color: gray;
+    color: whitesmoke;
+    font-size: 1.25rem;
 }
 
-.top-title {
-    display: flex;
-    align-items: center;
+.row-titles h3 {
+    font-size: 1.25rem;
 }
+
 
 .button-edit {
     margin-left: auto;
@@ -36,15 +49,26 @@ hr {
     width: 3rem;
 }
 
+.top-title {
+    display: flex;
+    align-items: center;
+}
+
+.top-title h1 {
+    font-weight: 600;
+    font-size: 2.5rem;
+}
+
 .top-title h2 {
     font-size: 2rem;
     margin-left: 1rem;
     margin-top: 1rem;
-    color: gray;
+    color: whitesmoke;
+    font-weight: 300;
 }
 
 .top-title button {
-    color: gray;
+    color: whitesmoke;
     font-size: 1rem;
     background-color: transparent;
     border: 2px solid;
@@ -53,24 +77,36 @@ hr {
 }
 
 .specialties {
-    display: inline-flex;
+    display: flex;
 }
 
 .specialties button {
     color: white;
-    background-color: gray;
-    border: none;
     border-radius: 1rem;
     width: 10rem;
     margin-left: 1rem;
+
+    border-color: transparent;
+    border-radius: .5em;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+
+    background-color: rgb(100, 100, 100);
 }
 
 .row-communication-methods p {
-    color: gray;
+    color: whitesmoke;
+}
+
+.row-communication-methods h2 {
+    margin-bottom: .5rem;
 }
 
 .row-overview p {
-    color: gray;
+    color: whitesmoke;
+}
+
+.row-overview h2 {
+    margin-bottom: .5rem;
 }
 
 .profile-picture {
@@ -99,10 +135,11 @@ hr {
 }
 
 .row-notes button {
-    color: grey;
+    color: whitesmoke;
     border: solid;
+    border-color: #27446D;
     border-radius: 1rem;
-    background-color: transparent;
+    background-color: #27446D;
     height: 2rem;
     margin-left: 1rem;
     padding-left: 1rem;
@@ -114,7 +151,7 @@ hr {
 }
 
 .note-header p{
-    color: grey;
+    color: whitesmoke;
 }
 
 .invisible {
@@ -132,7 +169,8 @@ hr {
 
 .note {
     margin-bottom: 0.5rem;
-    background-color: grey;
+    background-color: #333842;
+    border-color: #333842;
     display: flex;
     height: 2rem;
     border-radius: 5px;

@@ -14,18 +14,13 @@
 
 
 <div class="card">
-
-	<div class="card-line-divider-1"></div>
-
-    <div class="card-gray-part">
-
-		  <!-- <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/> -->
-		  <form action="/group_view" method="POST">
-			{% csrf_token %}
-			<input type="hidden" name="mentor_id" value="{{user.id}}" />
-			<!-- <input type="submit" value="View" /> -->
-			<input type="image" class="card-profile-image" alt="Login" src="{{ user.img_user_profile.url }}" />
-		</form>
+	<form action="{% if user.is_mentee %}/mentee_profile{% else %}/group_view{% endif %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="id" value="{{ user.id }}" />
+    <input type="image" class="card-profile-image" alt="Login" src="{{ user.img_user_profile.url }}" />
+</form>
+	
+    <div class="card-gray-part">		  
 
 		  <p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
 

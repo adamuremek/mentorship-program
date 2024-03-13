@@ -1,0 +1,91 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+Mentor Group View
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mentor_group_view.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<section class="hero">
+    <div class="hero-container">
+
+        <div class="column-left">
+            <img src="../../static/images/ex-pfp.jpg" class="profile-picture">
+            <!-- Insert IF statment -->
+            <!-- IF student has mentor, display them -->
+            
+            {% if mentor != None %}
+            <h3>Mentor:</h3>
+            <ul>
+                <li class="mentee-manager">
+                        <p>{{mentor.str_first_name}} {{mentor.str_last_name}}</p>
+                        {% if is_page_owner == True %}
+                            <button class="button-mentee-remove">Remove</button>
+                        {% endif %}
+                </li>
+            </ul>
+            {% endif %}
+
+            <br>
+            <hr>
+            <br>
+
+            <h3>Requests:</h3>
+            <ul>
+                <li class="mentee-manager">
+                        <p>incoming mentee</p>
+                        {% if is_page_owner == True %}
+                            <button class="button-mentee-remove">Remove</button>
+                        {% endif %}
+                </li>
+            </ul>
+        </div>
+        <div class="column-right">
+            <div class="row-titles">
+                <div class="top-title">
+                    <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}</h1>
+                    {% if is_page_owner == True %}
+                    <button class="button-edit">Edit Page</button>
+                    {% endif %}
+                </div>
+
+                {% if page_owner_user.str_preferred_pronouns != None %}
+                    <h4>{{page_owner_user.str_preferred_pronouns}}</h4>
+                {% endif %}
+
+                <h2>{{page_owner_mentee.str_job_title}}</h2> 
+                <h3>{{organization}}</h3> 
+                <h2>Specializations / Areas of Expertise:</h2>
+                <br>
+                <div class="specialties">
+                    {% for interest in interests %}
+                        <button>{{interest}}</button>
+                    {% endfor %}
+                </div>
+                
+            </div>
+            <hr>
+            <div class="row-communication-methods">
+                <h2>Communication Method:</h2>
+                <p>Email: {{page_owner_user.cls_email_address}}</p>
+            </div>
+            <hr>
+            <div class="row-overview">
+                <h2>Overview:</h2>
+                <p>
+                    {{page_owner_user.str_bio}}
+                </p>
+            </div>
+        </div>
+
+    </div>
+</section>
+    
+
+{% endblock %}

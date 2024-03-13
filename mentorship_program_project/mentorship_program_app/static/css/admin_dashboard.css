@@ -8,7 +8,7 @@
         "bl1 bl1 bl2 bl2"
         "bl3 bl3 bl3 bl3"
         "bl4 bl5 bl6 bl7"
-        "bl8 bl8 bl9 bl9"
+        "bl8 bl8 bl8 bl8" 
         "bl0 bl0 bl0 bl0";
 }
 
@@ -108,11 +108,10 @@ h3 {
 
 .generate-mentee-reports {
     grid-area: bl8;
+
 }
 
-.generate-mentor-reports {
-    grid-area: bl9;
-}
+
 
 .user-management {
     grid-area: bl0;

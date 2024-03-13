@@ -1,18 +1,28 @@
 .hero-container {
     height: 90%;
-    padding: 0 calc((100vw - 1300px) / 2);
+    /* padding: 0 calc((100vw - 1300px) / 2); */
+    width: 95vw;
 }
+
 
 h1 {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
 
+.goFuckYourself {
+    width: 100%;
+    text-align: center;
+    text-align: -webkit-center;
+}
+
 .recommended-cards,
 .available-cards {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 1em;
+    align-items: center;
+    justify-items: center;
 }
 
 .available-filters {
@@ -164,3 +174,12 @@ h1 {
 .available-filters {
     margin-bottom: 12px;
 }
+
+@media screen and (max-width: 1150px) {
+    .recommended-cards,
+    .available-cards  {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+

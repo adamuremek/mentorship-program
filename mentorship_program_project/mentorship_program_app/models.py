@@ -1706,8 +1706,51 @@ class SystemLogs(SVSUModelData,Model):
     
     """
     
-    str_event = CharField(max_length = 500)
+    class Event(TextChoices):
+        """
+        Description
+        -----------
+        An enum subclass to hold the different user roles
+
+        Properties
+        ----------
+        - LOGON_EVENT
+        - CREATE_MENTORSHIP_EVENT
+        - REQUEST_MENTORSHIP_EVENT
+        - MENTEE_REGISTER_EVENT
+        - MENTOR_REGISTER_EVENT
+        - USER_DEACTIVATED
+
+        Instance Functions
+        -------------------
+        (None)
+
+        Static Functions
+        -------
+        (None)
+
+        Magic Functions
+        -------------
+        (None)
+
+        Authors
+        -------
+        
+        """
+        LOGON_EVENT = "Logon"
+        APPROVE_MENTORSHIP_EVENT = "Create Mentorship"
+        REQUEST_MENTORSHIP_EVENT = "Request Mentorship"
+        MENTEE_REGISTER_EVENT = "Mentee signed up"
+        MENTOR_REGISTER_EVENT = "Mentor applied"
+        MENTEE_DEACTIVATED = "Mentee deactivated"
+        MENTOR_DEACTIVATED = "Mentor deactivated"
+        
+
+    str_event = CharField(max_length=500, choices=Event.choices, default='')
     cls_log_created_on = DateField(default=date.today)
+    specified_user = models.ForeignKey('User', on_delete=models.CASCADE, null=True)
+
+    
 
 
 class ProfileImg(SVSUModelData,Model):

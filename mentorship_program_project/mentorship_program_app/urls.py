@@ -58,7 +58,6 @@ urlpatterns = [
     
     #================NAVIGATION ROUTES================#
     path('', navigation.landing, name='default'),     #Now landing
-    # path('landing/', navigation.landing, name='landing'), 
     path('dashboard/', navigation.dashboard, name='dashboard'),
     #=================================================#
     
@@ -83,7 +82,9 @@ urlpatterns = [
     path("enable-user", under_development.enable_user, name="enable-user"),
     path("view_mentor_by_admin", under_development.view_mentor_by_admin, name="view_mentor_by_admin"),
     path("admin_dashboard", navigation.admin_dashboard, name="admin_dashboard"),
+    path("generate_report", navigation.generate_report, name="generate_report"),
     path("group_view", under_development.group_view, name="group_view"),
+    path("mentee_profile", under_development.mentee_profile, name="mentee_profile"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN
@@ -118,7 +119,7 @@ urlpatterns = [
 
     #development routes
     
-    path('dev/show_all_user_roles'           , development_views.display_all_user_roles            ,name='display all user roles'),
+    path('dev/show_all_user_roles'        , development_views.display_all_user_roles            ,name='display all user roles'),
     path('dev/profile_pictures'           , development_views.profile_picture_test            ,name='profile_picture_tests'),
     path('dev/generate_random_user_data/' , development_views.generate_random_user_data       ,name='generate_random_user_data'),
     path('dev/populate_default_interests/', development_views.populate_default_interest_values,name='populate_default_interest_values'),
