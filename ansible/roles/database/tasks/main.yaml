@@ -1,0 +1,16 @@
+- name: Install Postgres
+  apt:
+    name: postgresql-12
+    state: present
+
+- name: Create database
+  postgersql_db:
+    name: "{{ db_name }}"
+    state: present
+
+- name: Create postgres user
+  postgresql_user:
+    name: "{{ db_user }}"
+    password: "{{ postgres_password }}"
+    encrypted: yes
+    state: present

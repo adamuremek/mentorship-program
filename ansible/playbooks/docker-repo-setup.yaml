@@ -1,0 +1,6 @@
+- name: Set up local Docker repository
+  hosts: docker_repo_server
+  become: true
+
+  roles:
+    - docker-repo

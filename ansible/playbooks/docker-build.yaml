@@ -1,0 +1,6 @@
+- name: Bulid and push Docker images
+  hosts: docker_repo_server
+  become: true
+
+  roles:
+    - docker-build

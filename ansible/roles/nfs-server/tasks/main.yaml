@@ -1,0 +1,29 @@
+- name: Install nfs server
+  apt:
+    name: nfs-kernel-server
+    state: present
+
+- name: Create export directory for static files
+  file:
+    path: /srv/nfs/static
+    state: directory
+
+- name: Configure exports for static files
+  lineinfile:
+    path: /etc/exports
+    line: "/mnt/nfs/static *(rw,sync,no_subtree_check,no_root_squash)"
+
+- name: Create export directory for media files
+  file:
+    path: /srv/nfs/media
+    state: directory
+
+- name: Configure exports for media files
+  lineinfile:
+    path: /etc/exports
+    line: "/mnt/nfs/media *(rw,sync,no_subtree_check,no_root_squash)"
+
+- name: Restart nfs
+  service:
+    name: nfs-kernel-server
+    state: restarted

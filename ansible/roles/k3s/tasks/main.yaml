@@ -1,0 +1,44 @@
+- name: Install k3s
+  shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik" sh -
+
+- name: Apply k3s recources
+  k3s:
+    state: present
+    src: "{{ lookup('template', '{{ item }}') | from_yaml }}"
+  with_fileglob:
+    - "./kubernetes/media-pv.yaml"
+    - "./kubernetes/media-pvc.yaml"
+    - "./kubernetes/static-pv.yaml"
+    - "./kubernetes/static-pvc.yaml"
+    - "./kubernetes/mentor-configmap.yaml"
+    - "./kubernetes/mentor-deployment.yaml"
+    - "./kubernetes/mentor-secret.yaml"
+    - "./kubernetes/mentor-service.yaml"
+
+- name: Apply ingress-nginx
+  k3s:
+    state: present
+    src: https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
+  when: "ingress-nginx not in groups['ungrouped']"
+
+- name: Install cert-manager
+  k3s:
+    state: present
+    src: https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
+  when: "cert-manager not in groups['ungrouped']"
+
+- name: Wait for ingress-nginx and cert-manager ready
+  k3s: 
+    wait_for: read;
+    timeout: 300
+  when: "ingress-nginx not in groups['ungrouped'] or cert-manager not in groups['ungrouped']"
+
+#TODO: different configs depending on prod or staging
+- name: Apply configs
+  k3s:
+    state: present
+    src: "{{ lookup('template', '{{ item }}') | from_yaml }}"
+  with_fileglob:
+    - "./kubernetes/ingress-controller/mentor-ingress.yaml"
+    - "./kubernetes/ingress-controller/prod-issuer.yaml"
+    - "./kubernetes/ingress-controller/staging-issuer.yaml"

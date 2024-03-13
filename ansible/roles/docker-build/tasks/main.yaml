@@ -1,0 +1,39 @@
+- name: Build Django Docker image
+  docker_image:
+    name: project-kubernetes
+    path: ./Dockerfile
+    state: build
+    tag: latest
+  
+- name: Tag Django image for local repository
+  docker_image:
+    name: project-kubernetes
+    tag: latest
+    repository: docker_repo_server:5000/project-kubernetes
+
+- name: Push Django image to local repository
+  docker_image:
+    name: docker_repo_server:5000/project-kubernetes
+    tag: latest
+    source: pull
+    state: present
+
+- name: Build Nginx Docker image
+  docker_image:
+    name: nginx-kubernetes
+    path: ./nginx/Dockerfile
+    state: build
+    tag: latest
+  
+- name: Tag Nginx image for local repository
+  docker_image:
+    name: nginx-kubernetes
+    tag: latest
+    repository: docker_repo_server:5000/nginx-kubernetes
+
+- name: Push Nginx image to local repository
+  docker_image:
+    name: docker_repo_server:5000/nginx-kubernetes
+    tag: latest
+    source: pull
+    state: present
