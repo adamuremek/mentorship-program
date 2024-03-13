@@ -18,6 +18,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 import os
 
+
+
 def default(req: HttpRequest):
     """
     Loads the default (root /) page for now until landing page 
@@ -289,6 +291,12 @@ def generate_report(req : HttpRequest):
     file_path = os.path.join(settings.MEDIA_ROOT, "test.xlsx")
     return  FileResponse(open('test.xlsx', 'rb'), as_attachment=True, filename=file_path)
 
-
-
-
+def view_request(req: HttpRequest):
+    """
+    Loads a page to view mentorship requests
+    """
+    
+    template: Template = loader.get_template('view_request.html')
+    context: dict = {}
+    
+    return HttpResponse(template.render(context, req)) 

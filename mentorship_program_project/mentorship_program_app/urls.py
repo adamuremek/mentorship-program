@@ -127,7 +127,12 @@ urlpatterns = [
     path('dev/delete_users'               , development_views.delete_users                    ,name='delete users'),
     path('dev/test_login'                 , development_views.test_login_page                 ,name='test login'),
     path('dev/is_logged_in'               , development_views.is_logged_in_test               ,name='logged in test'),
-    path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships")
+    path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships"),
+
+    path('view_request/', navigation.view_request, name="view request"),
+    path('cancel_request/<int:mentee_id>/<int:mentor_id>',
+            backend_requests.cancel_request,
+            name='cancel request')
 ]
 
 if settings.DEBUG:
