@@ -46,8 +46,7 @@ def dashboard(req):
    
     # get the users of the opposite role to be displayed
     # mentors see mentees and mentees see mentors
-
-
+    
     ## changing to use functions to ping data base for approval VVVVVV
     ##opposite_role = 'Mentee' if role == 'Mentor' else 'Mentor'
 
