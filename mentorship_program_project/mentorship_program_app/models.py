@@ -258,6 +258,7 @@ class Interest(SVSUModelData,Model):
     # def __str__(self) -> str:
     #     return self.strInterest
 
+
 class User(SVSUModelData,Model):
     """
     Description
@@ -576,7 +577,67 @@ class User(SVSUModelData,Model):
             return self.str_role == User.Role.MENTEE
         except ObjectDoesNotExist:
             return False
+    
+    def is_super_admin(self)->bool:
+        """
+        convinece function that returns true if the given user has super admin privleges in the database
+        """
+        try:
+            self.admin_entry
+            return True
+        except ObjectDoesNotExist:
+            return False
 
+    def get_shared_organizations(self,other : 'User')->['Organization']:
+        """
+        returns a set of organizations that the two given users share
+        """
+        #only mentors have organizations
+        if not (self.is_mentor() and other.is_mentor()): return None
+
+        return self.mentor.organizations & other.mentor.organizations
+
+
+
+
+    def get_first_shared_organization(self,other : 'User')->'Organization':
+        """
+        returns the first shared organization if it exists, otherwise None
+        """
+        #mentees do not have an organization
+        if self.is_mentee() or other.is_mentee(): return None
+        
+        my_organizations =  self.mentor.organizations.all()
+        your_organizations =  [o.id for o in other.mentor.organizations.all()]
+
+        #get the intersection of the id's
+        #realistically users will only be a part of one to two organiazitons
+        for my_org in my_organizations:
+            if my_org.id in your_organizations:
+                return my_org
+        return None
+
+    def has_authority(self, other : 'User')->bool:
+        """
+        returns true if the given user account has authority over the second user account
+        """
+        if self.id == other.id: return True
+        if self.is_super_admin(): return True
+        
+        if self.is_mentor() and other.is_mentor():
+            #if we are both mentors, check if we share an organization
+
+            shared_organizations = self.mentor.get_shared_organizations(other.mentor)
+
+            for org in shared_organizations:
+                if self.mentor.is_admin_of_organization(org):
+                    return True
+        
+        return False
+
+
+
+    
     def check_valid_password(self,password_plain_text : str)->bool:
         """
         Description
@@ -926,6 +987,17 @@ class User(SVSUModelData,Model):
 
 
 
+class SuperAdminEntry(SVSUModelData,Model):
+    """
+    this class represents a list of super admin mentors in the database
+
+    if you have an entry in this table you are super admin,
+    if you do not have an entry, you are not super admin
+    """
+    bool_enabled = BooleanField(default=True) #can be used to turn off admin
+    user_account = OneToOneField(User, on_delete=models.CASCADE,related_name="admin_entry")
+
+
 class Organization(SVSUModelData,Model):
     """
     Description
@@ -992,6 +1064,23 @@ class Mentor(SVSUModelData,Model):
     
     """
 
+    def is_admin_of_organization(self,org : 'Organization')->bool:
+        """
+        returns true if the given user administers the given organization
+        """
+        try:
+            org.admins.get(id=self.id)
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    def get_shared_organizations(self,other : 'Mentor')->['Organization']:
+        """
+        returns a list of organizations shared between two mentors,
+        the list will be empty if no mentors exists
+        """
+        return self.organizations.all() & other.organizations.all()
+        
     int_max_mentees = IntegerField(default=4)
    
     # TODO:
@@ -1011,7 +1100,7 @@ class Mentor(SVSUModelData,Model):
     )
 
 
-    organization = ManyToManyField(
+    organizations = ManyToManyField(
         Organization
     )
 
