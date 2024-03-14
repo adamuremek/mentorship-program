@@ -173,7 +173,7 @@ def generate_report(req : HttpRequest):
 
   
 
-    workbook.save(f'Program Statistics{}.xlsx')
+    workbook.save(f'Program-Statistics-{date.today()}.xlsx')
     file_path = os.path.join(settings.MEDIA_ROOT, "test.xlsx")
     return FileResponse(open('test.xlsx', 'rb'), as_attachment=True, filename=file_path)
 

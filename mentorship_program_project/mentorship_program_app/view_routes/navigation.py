@@ -43,7 +43,7 @@ def landing(req):
 @security.Decorators.require_login(bad_request_400)
 def dashboard(req):
     template = loader.get_template('dashboard/dashboard.html')
-    session_user = User.from_session(req.session)
+    session_user = User.from_session(req.session).sanitize_black_properties()
    
     # get the users of the opposite role to be displayed
     # mentors see mentees and mentees see mentors
@@ -71,17 +71,15 @@ def dashboard(req):
     # Count all the interests for the opposing role
     interests_with_role_count = Interest.objects.annotate(mentor_count=Count('user', filter=Q(user__str_role=opposite_role))).values('strInterest', 'mentor_count')
 
+    # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
     #set up the django users to include a property indicateing they have been reqeusted by the current user
-    users = [users.sanitize_black_properties() for users in card_data] 
-    for u in users:
-        u.is_requested_by_session = u.has_requested_user(session_user.id)
-    
+    users = [user.sanitize_black_properties() for user in card_data]
 
     context = {
-            "recommended_users": [users.sanitize_black_properties() for users in card_data[0:4]],
-            "all_users"        : users,
+            "recommended_users": users[0:4] if len(users) >= 4 else users[0:len(users)], # Making sure that there are enough users to display
+            "all_users"        : users[4:]  if len(users) >= 4 else [],
             "interests"        : list(interests_with_role_count),
-            "session_user"     : session_user.sanitize_black_properties(),
+            "session_user"     : session_user,
             "role"             : role
     }
 
@@ -144,5 +142,5 @@ def admin_dashboard(req):
                "lifetime_deactivate_mentees"  : timespan_stats["Lifetime"][4],
                "lifetime_deactivate_mentors"  : timespan_stats["Lifetime"][5],
                
-               }
+            }
     return HttpResponse(template.render(context, req))

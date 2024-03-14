@@ -84,7 +84,9 @@ urlpatterns = [
     path("admin_dashboard", navigation.admin_dashboard, name="admin_dashboard"),
     path("generate_report", navigation.generate_report, name="generate_report"),
     path("group_view", under_development.group_view, name="group_view"),
-    path("mentee_profile", under_development.mentee_profile, name="mentee_profile"),
+    path("mentee_profile/<int:mentee_id>", under_development.mentee_profile, name="mentee_profile"),
+    path("universal_profile/<int:user_id>", under_development.universalProfile, name="universal_profile"),
+    path("save_mentee_profile_info/<int:mentee_id>", under_development.save_mentee_profile_info, name="save_mentee_profile_info"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN

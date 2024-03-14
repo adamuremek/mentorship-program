@@ -775,10 +775,10 @@ def group_view(req: HttpRequest):
                }
     return HttpResponse(template.render(context,req))
 
-def mentee_profile(req : HttpRequest):
+@security.Decorators.require_login(bad_request_400)
+def mentee_profile(req : HttpRequest, mentee_id : int):
     template = loader.get_template('group_view/mentee_profile.html')
     signed_in_user = User.from_session(req.session)
-    mentee_id = req.POST["id"]
     # the user object for the page owner
     page_owner_user = User.objects.get(id=mentee_id)
     # the mentee object for the page owner 
@@ -789,34 +789,84 @@ def mentee_profile(req : HttpRequest):
     is_page_owner = signed_in_user == page_owner_user
     user_interests = []
     for interest in interests:
-        user_interests.append(interest.strInterest)
-
+        user_interests.append(interest)
 
     all_interests = Interest.objects.all()
-    print("interests " ,interest)
-    print("all interests" , all_interests)
-    context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
-               "is_page_owner": is_page_owner,
-               "page_owner_user":page_owner_user,
-               "page_owner_mentee" : page_owner_mentee,
-               "interests": user_interests,
-               "mentor" :  page_owner_mentee.mentor.account if page_owner_mentee.mentor != None else None,
-                "all_interests" : all_interests
+    context = {
+                "signed_in_user": signed_in_user.sanitize_black_properties(),
+                "is_page_owner": is_page_owner,
+                "page_owner_user":page_owner_user,
+                "page_owner_mentee" : page_owner_mentee,
+                "interests": user_interests,
+                "mentor" :  page_owner_mentee.mentor.account if page_owner_mentee.mentor != None else None,
+                "all_interests" : all_interests,
+                "mentee_id" : mentee_id
+               }
+    return HttpResponse(template.render(context,req))
+
+@security.Decorators.require_login(bad_request_400)
+def universalProfile(req : HttpRequest, user_id : int):
+    template = loader.get_template('group_view/combined_views.html')
+    signed_in_user = User.from_session(req.session)
+    # the user object for the page owner
+    page_owner_user = User.objects.get(id=user_id)
+    
+    page_owner_go_fuck_yourself = getattr(page_owner_user, 'mentee' if page_owner_user.is_mentee else 'mentor', None)
+
+    interests = page_owner_user.interests.filter(user=page_owner_user)
+    is_page_owner = signed_in_user == page_owner_user
+    user_interests = []
+    for interest in interests:
+        user_interests.append(interest)
+
+    all_interests = Interest.objects.all()
+
+    context = {
+                "signed_in_user": signed_in_user.sanitize_black_properties(),
+                "is_page_owner": is_page_owner,
+                "page_owner_user":page_owner_user,
+                "interests": user_interests,
+                "page_owner_go_fuck_yourself": page_owner_go_fuck_yourself,
+                # "mentor" :  page_owner_go_fuck_yourself.mentor.account if page_owner_go_fuck_yourself.mentor != None else None,
+                "all_interests" : all_interests,
+                "user_id" : user_id
                }
     return HttpResponse(template.render(context,req))
 
 
-def save_mentee_profile_info(req : HttpRequest):
+def save_mentee_profile_info(req : HttpRequest, mentee_id : int):
+    """
+    Description
+    ===========
+    
+    This route applies profile edits sent in the request to the respective proifle.
+
+    Author
+    ======
+    Adam U. ( ͡° ͜ʖ ͡°) 
+
+    """
     if req.method == "POST":
-        pass
+        #Get the user being modified
+        page_owner_user = User.objects.get(id=mentee_id)
 
+        #Change profile picture
+        if "profile_image" in req.FILES:
+            new_pfp = req.FILES["profile_image"]
+            page_owner_user.profile_img.img.save(new_pfp.name, new_pfp)
 
-    template = loader.get_template('group_view/mentee_profile.html')
-    context = {}
-    return HttpResponse(template.render(context,req))
+        #Set the new interests
+        new_interests: list = req.POST.getlist("selected_interests")
+        interest_data = Interest.objects.filter(strInterest__in=new_interests)
 
+        page_owner_user.interests.clear()
+        page_owner_user.interests.add(*interest_data)
 
+        #Set the new bio
+        page_owner_user.str_bio = req.POST["bio"]
+        page_owner_user.save()
 
+    return redirect(f"/mentee_profile/{mentee_id}")
 
 
 def create_mentorship(req : HttpRequest, mentee_account_id : int, mentor_account_id : int )->HttpResponse:

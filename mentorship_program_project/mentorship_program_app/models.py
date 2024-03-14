@@ -402,7 +402,7 @@ class User(SVSUModelData,Model):
     str_last_login_date = DateField(default=date.today)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
-    str_bio = CharField(max_length=5000, null=True)
+    str_bio = CharField(max_length=5000, default='')
     #foregn key fields
     interests = models.ManyToManyField(Interest)
         
@@ -782,14 +782,49 @@ class User(SVSUModelData,Model):
 
         return user_info
     
+    # @property
+    # def img_user_profile(self):
+    #     """
+    #     DESCRIPTION
+    #     ___________
+
+    #     convinence property to provide access to the users profile image through
+    #     the original user.img_user_profile api for the sake of views and ensuring images
+    #     still work with the older api method
+
+    #     see https://realpython.com/python-property/ 
+    #     for a reference on how python properties work
+
+    #     USAGE
+    #     _____
+        
+    #     in django
+
+    #     django_img_field = user.img_user_profile
+
+    #     in a view
+        
+    #     <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/>
+
+    #     AUTHORS
+    #     _______
+    #     David Kennamer ._.
+
+    #     """
+    #     try:
+    #         default_img = self.profileimg.img_profile
+    #     except ObjectDoesNotExist:
+    #         ProfileImg.create_from_user_id(self.id) #create an image with default profile picture if one does not exist
+    #     return self.profileimg.img_profile
+    
     @property
-    def img_user_profile(self):
+    def profile_img(self):
         """
         DESCRIPTION
         ___________
 
         convinence property to provide access to the users profile image through
-        the original user.img_user_profile api for the sake of views and ensuring images
+        the original user.profile_img api for the sake of views and ensuring images
         still work with the older api method
 
         see https://realpython.com/python-property/ 
@@ -800,22 +835,45 @@ class User(SVSUModelData,Model):
         
         in django
 
-        django_img_field = user.img_user_profile
+        django_img_field = user.profile_img
 
         in a view
         
-        <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/>
+        <img class="card-profile-image" src="{{ user.profile_img.img.url }}"/>
 
         AUTHORS
         _______
         David Kennamer ._.
-
+        Adam U. <:3
         """
-        try:
-            default_img = self.profileimg.img_profile
-        except ObjectDoesNotExist:
-            ProfileImg.create_from_user_id(self.id) #create an image with default profile picture if one does not exist
-        return self.profileimg.img_profile
+
+        return getattr(self, "profile_img", None)
+
+    @property
+    def cleaned_bio(self) -> str:
+        """
+        DESCRIPTION
+        ===========
+
+        By default, the "str_bio" model property, which is a CharField, returns a string
+        padded with spaces and carriage returns. This property wrapper (getter) just returns
+        a cleaned form of that string.
+
+        USAGE
+        =====
+        
+        >>> print(user.str_bio)
+        "         This is my Bio\n\r         "
+
+        >>> print(user.cleaned_bio)
+        "This is my bio"
+        
+        Author
+        ======
+        Adam U. >:3
+        """
+        print("TESTING:", self.str_bio.strip())
+        return self.str_bio.strip()
 
     class Decorators:
         """
@@ -1800,16 +1858,17 @@ class ProfileImg(SVSUModelData,Model):
     user = OneToOneField(
         User,
         on_delete = models.CASCADE,
-        primary_key = True
+        primary_key = True,
+        related_name="profile_img"
     )
 
     #   The image, its name, and its file size.
     img_title = CharField(max_length=100)
-    img_profile = ImageField(
-                                upload_to="images/",
-                                default=
-                                    "images/default_profile_picture.png"
-                            )
+    img = ImageField(
+                    upload_to="images/",
+                    default=
+                        "images/default_profile_picture.png"
+                    )
     file_size = PositiveIntegerField(null=True, editable=False)
 
     #   Static function that creates a new instance of the class
