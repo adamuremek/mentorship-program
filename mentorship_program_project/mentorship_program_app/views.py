@@ -168,7 +168,36 @@ def request_mentor(request : HttpRequest) -> HttpResponse:
 # - Will delete later
 
 
-def BIGMOVE(req):
+def big_move(req):
+    """
+    Description
+    -----------
+    Loads the account_creation_0_mentor view with an empty context
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including items to be rendered
+        into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The rendered view template with the empty context and
+        HttpRequest information
+
+    Example Usage
+    -------------
+    
+    >>> path('request_mentor/', views.request_mentor, name='request mentor')
+    "Something Happened!"
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('sign-in card/mentor/account_creation_0_mentor.html')
     context = {}
     return HttpResponse(template.render(context, req))

@@ -30,7 +30,7 @@ from mentorship_program_app import views
 #     path('mentor_group_view/', views.mentor_group_view, name='mentor_group_view'),
     
 #     # -------------------- <<< BIG MOVE TEMPORARY >>> -------------------- #
-#     path('bigmove/', views.BIGMOVE, name='bigmove'),
+#     path('bigmove/', views.big_move, name='bigmove'),
 #     path('thebigmove/', views.THEBIGMOVE, name='thebigmove'),
 #     path('thesecondmove/', views.THESECONDMOVE, name='thesecondmove'),
     
