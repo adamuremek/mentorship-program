@@ -68,6 +68,12 @@ def dashboard(req):
 
     card_data = User.objects.filter(str_role=opposite_role)
 
+    #filter out existing mentor relationships on the dashboard
+    if session_user.is_mentor():
+        card_data = card_data.exclude(mentee__mentor = session_user.mentor)
+    elif session_user.is_mentee():
+        card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
+
     # Using the Interest's many-to-many relation with the User table
     # Count all the interests for the opposing role
     interests_with_role_count = Interest.objects.annotate(mentor_count=Count('user', filter=Q(user__str_role=opposite_role))).values('strInterest', 'mentor_count')
