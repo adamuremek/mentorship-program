@@ -846,8 +846,11 @@ class User(SVSUModelData,Model):
         David Kennamer ._.
         Adam U. <:3
         """
-
-        return getattr(self, "profile_img", None)
+        try:
+            return self.profile_img_query
+        except ObjectDoesNotExist:
+            img = ProfileImg.create_from_user_id(self.id)
+            return img
 
     @property
     def cleaned_bio(self) -> str:
@@ -1859,7 +1862,7 @@ class ProfileImg(SVSUModelData,Model):
         User,
         on_delete = models.CASCADE,
         primary_key = True,
-        related_name="profile_img"
+        related_name="profile_img_query"
     )
 
     #   The image, its name, and its file size.
@@ -1881,7 +1884,7 @@ class ProfileImg(SVSUModelData,Model):
             new_image = ProfileImg.objects.create(user=user_model, 
                                                 img_title=str_filename)
             new_image.save()
-            return True
+            return new_image
         except Exception as e:
             print(e)
             #Operation failed.
