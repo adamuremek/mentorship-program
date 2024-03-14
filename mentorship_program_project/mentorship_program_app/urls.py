@@ -91,6 +91,7 @@ urlpatterns = [
     path('role_selection/', views.role_selection, name='role_selection'),
     path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
     path('account_activation_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid'),
+
     # CURRENTLY STATIC ROUTE TO VIEW LIST OF MENTORS APPLYING FOR MENTORSHIP ROLE FROM BEN
     path('judgement', views.mentor_judgement, name='mentor_judgement'),
     
@@ -103,15 +104,14 @@ urlpatterns = [
     path('register/mentor/', views.register_mentor, name='register_mentor'),
     path('thebigmove/', views.THEBIGMOVE, name='thebigmove'),
 
-    # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
-    path('role_selection/', views.role_selection, name='role_selection'),
-
+    # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --ANTHONY PETERS
     path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
     path('account_activation_mentee_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid_mentee'),
     path('account_activation_mentee_valid/', views.account_activation_valid_mentee, name='account_activation_valid_mentee'),
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
-
     path('admin_user_management/', views.admin_user_management, name='admin_user_management'),
+    # TEMP PATH FOR TESTBACKEND PROCESSING --ANTHONY PETERS
+    # path('admin_user_management/addMentorshipRequest/', views.admin_user_managment_add_mentorship_request,  name='admin_user_management_add_mentorship_request'),
 
     #log in and out routes
     path('login/',views.login_uname_text,name='login'),

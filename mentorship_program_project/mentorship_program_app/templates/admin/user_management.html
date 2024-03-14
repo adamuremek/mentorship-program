@@ -1,3 +1,5 @@
+<!-- NEED TO SET PROFILE PAGES URLS FOR USERS -->
+
 {% extends 'index.html' %}
 
 {% load static %}
@@ -11,49 +13,67 @@
 {% endblock %}
 
 {% block main_content %}
-    <!-- FOR PICTURES -->
-    <!-- <div class="profile-picture-container">
-        <img class="profile-picture" src="{% static 'images/my-channel.jpeg' %}">
-    </div> -->
-
     <div class="admin_user_management_container">
         <div>
-            <p class="admin_user_management_header_elements" id="admin_user_management_header_small_text"> <img src="{% static 'images/white-dropdown-arrow.png' %}" id="address_arrow"> Admin Dashboard / User Management</p>
-            <h1 class="admin_user_management_header_elements" id="admin_user_management_header_large_text">Mentor Applications</h1>
+            <p class="admin_user_management_header_elements" id="admin_user_management_small_text"><img src="{% static 'images/white-dropdown-arrow.png' %}" id="address_arrow"> Admin Dashboard / User Management</p>
+            <h1 class="admin_user_management_header_elements" id="admin_user_management_large_text">Mentor Applications</h1>
         </div>
         <div class="dual_user_board_container">
             <div class="user_board_container">
                 <div class="user_board_title_container">
-
-                    <h2 id="admin_user_management_header_medium_text">Mentees</h2>
+                    <h2 id="admin_user_management_medium_text">Mentees</h2>
                     <div class="user_board_search_container">
-                        <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                        <button class="admin_user_management_button_clear_active">
+                            <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                        </button>
+
                         <input type="text" class="search_bar" placeholder="Search by name"></input>
                     </div>
-                    
                 </div>
 
                 <div class="user_board">
-
+                    <div class="user_management_bar_container">
+                        {% for mentee in mentees %}
+                            {% include 'admin/mentee_managment_bar.html' %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
             <div class="user_board_container">
                 <div class="user_board_title_container">
-                    <h2 id="admin_user_management_header_medium_text">Mentors</h2>
+                    <h2 id="admin_user_management_medium_text">Mentors</h2>
                     <div class="user_board_search_container">
-                        <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                        <button class="admin_user_management_button_clear_active">
+                            <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                        </button>
+
                         <input type="text" class="search_bar" placeholder="Search by name"></input>
                     </div>
                 </div>
 
                 <div class="user_board">
+                    <div class="user_management_bar_container">
+                        {% for mentor in unaffiliated_mentors %}
+                            {% include 'admin/mentor_management_bar.html' %}
+                        {% endfor %}
 
+                        {% for organization in organizations %}
+                            {% include 'admin/organization_management_bar.html' %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
-        <button class="admin_user_management_button">Save</button>
-        <button class="admin_user_management_button">Cancel</button>
+        <button class="admin_user_management_button" id="save_button">Save</button>
+        <button class="admin_user_management_button" id="cancel_button">Cancel</button>
     </div>
 
+<!-- <script src="{% static 'js/admin/user_management/save_queue.js' %}"></script>
+<script src="{% static 'js/admin/user_management/managment_requests.js' %}"></script>
+<script src="{% static 'js/admin/user_management/button_listeners.js' %}"></script> -->
 
+<script src = "{% static 'js/backend_requests.js' %}"></script>
+<script type="module" src="{% static 'js/admin/user_management/save_queue.js' %}"></script>
+<!-- <script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script> -->
+<script type="module" src="{% static 'js/admin/user_management/events.js' %}"></script>
 {% endblock %}
