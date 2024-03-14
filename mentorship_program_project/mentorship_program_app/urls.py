@@ -71,7 +71,8 @@ urlpatterns = [
     path('assign_mentee/<int:mentee_account_id>/<int:mentor_account_id>',
             under_development.create_mentorship,
             name='assign mentee to mentor'),
-    path("accept_mentorship_request/<int:mentee_account_id>/<int:mentor_account_id>",under_development.accept_mentorship_request,
+    path("accept_mentorship_request/<int:mentee_user_account_id>/<int:mentor_user_account_id>",
+         under_development.accept_mentorship_request,
          name="accept mentorship request"),
    # path('profile_pic/<int:user_id>')
     #8=============================================D~~#

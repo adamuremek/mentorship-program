@@ -802,24 +802,34 @@ def mentee_profile(req : HttpRequest):
 
     return HttpResponse(template.render(context,req))
 
-@User.Decorators.require_logged_in_mentee(bad_request_400)
-def accept_mentorship_request(req : HttpRequest, mentee_user_acount_id : int, mentor_user__account_id : int )->HttpResponse:
-    u = User.from_session(req.session)
+@User.Decorators.require_logged_in_mentor(bad_request_400)
+def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
+    session_user = User.from_session(req.session)
 
-    #if the id does not exist
-    mentor_account = User.objects.get(id=mentor_account_id)
+    mentor_account = None
+    try:
+        mentor_account = User.objects.get(id=mentor_user_account_id)
+    except ObjectDoesNotExist:
+        return bad_request_400("mentor id is invalid!")
 
-    if u.has_authority(mentor_account):
+    if session_user.has_authority(mentor_account):
         try:
             mentorship_request = MentorshipRequest.objects.get(
-                                        mentor_id=mentor_user_acount_id,
-                                        mentee_id=mentee_user_acount_id
+                                        mentor_id=mentor_user_account_id,
+                                        mentee_id=mentee_user_account_id
                                         )
             
             
-            if mentorship_request.is_accepted(): return bad_request_400("you already accepted this request!")
+            #we should never get here, but just in case
+            if mentorship_request.is_accepted():
+                return bad_request_400("you already accepted this request!")
 
-            return create_mentorship(req, mentee_user_account_id, mentor_user_account_id)
+            sucessfull = mentorship_request.accept_request(session_user)
+            
+            if sucessfull:
+                return HttpResponse("sucesfully created request")
+            
+            return bad_request_400("unable to create request!")
 
         except ObjectDoesNotExist:
             return bad_request_400("you do not have a request to accept!")
@@ -828,27 +838,21 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_acount_id : int, me
 
 
 
-
-def create_mentorship(req : HttpRequest, mentee_user_acount_id : int, mentor_user_account_id : int )->HttpResponse:
+@User.Decorators.require_logged_in_mentor(bad_request_400)
+def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
     """
+    Description
+    ___________
     creates a mentorship relation between the given mentor and mentee ids
-
-    TODO: make this care about security things, right now this has no security checks
-    for who can actualy make the mentorship
-
-    this is VERY important to get up and running ^
-
-    TODO: make this remove old mentorships if they exists
 
     Authors
     _______
-    David Kennamer "_" (if you can call this finsihed)
+    David Kennamer .._.. (if you can call this finsihed)
     """
-
     session_user = User.from_session(req.session)
 
     #actually add the mentorship to the db
-    session_user.create_mentorship_from_user_ids(mentee_user_account_id, mentor_user_acount_id)
+    session_user.create_mentorship_from_user_ids(mentee_user_account_id, mentor_user_account_id)
 
     return HttpResponse("created request sucessfully")
 

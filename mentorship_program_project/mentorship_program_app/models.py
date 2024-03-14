@@ -694,9 +694,18 @@ class User(SVSUModelData,Model):
         if not self.is_mentor():
             return (None,None)
 
-        mentee_account = User.objects.get(id=mentee_user_account_id).mentee
-        mentee_account.mentor = User.objects.get(id=mentor_user_acount_id).mentor
+        mentor_user_account = User.objects.get(id=mentor_user_acount_id)
+
+        if not self.has_authority(mentor_user_account):
+            return (None,None)
+
+        mentee_user_account = User.objects.get(id=mentee_user_account_id)
+        mentee_account = mentee_user_account.mentee
+        mentee_account.mentor = mentor_user_account.mentor
         mentee_account.save()
+
+        #make sure to remove all MentorShipRequests that are in the database still, since this mentee now has a mentor
+        MentorshipRequest.remove_all_from_mentee(mentee_account)
 
         # record logs
         # record the mentee since the mentor can be gathered from it later
@@ -1338,10 +1347,23 @@ class MentorshipRequest(SVSUModelData,Model):
         SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
                                   specified_user=mentee.account)
 
-        MentorshipRequest.objects.filter(mentee=self.mentee).delete()
-        
+       
+        MentorshipRequest.remove_all_from_mentee(mentee)
+
         return True
         
+
+    def remove_all_from_mentee(mentee : 'Mentee')->None:
+        """
+        Description
+        ___________
+        convinence function that removes all mentorship requests from the database that match a given mentee
+
+        Authors
+        _______
+        David Kennamer \*^*/
+        """
+        MentorshipRequest.objects.filter(mentee=mentee.account).delete()
 
     def is_accepted(self)->bool:
         """
