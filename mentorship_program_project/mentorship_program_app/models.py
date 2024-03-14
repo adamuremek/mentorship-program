@@ -882,7 +882,7 @@ class User(SVSUModelData,Model):
         A subclass containing decorators that apply to views SPECIFICALLY
         to limit the kind of user that can interact with the view. We would
         prefer these in the security file, but since that will cause a circular
-        dependency, and these have to do entierly with users it makes sense
+        dependency, and these have to do entirely with users it makes sense
         to place them here.
 
         Properties

@@ -1,57 +1,238 @@
+"""
+FILE NAME: security.py
+
+-------------------------------------------------------------------------------
+PART OF PROJECT: SVSU Mentorship Program App
+
+-------------------------------------------------------------------------------
+WRITTEN BY:
+DATE CREATED:
+
+-------------------------------------------------------------------------------
+FILE PURPOSE:
+Defines our suite of security functions used throughout the project.
+
+-------------------------------------------------------------------------------
+COMMAND LINE PARAMETER LIST (In Parameter Order):
+(NONE)
+
+-------------------------------------------------------------------------------
+ENVIRONMENTAL RETURNS:
+(NONE)
+
+-------------------------------------------------------------------------------
+SAMPLE INVOCATION:
+(NONE)
+
+-------------------------------------------------------------------------------
+GLOBAL VARIABLE LIST (Alphabetically):
+- strPepper (str): A pepper to add to passwords to increase security
+
+-------------------------------------------------------------------------------
+COMPILATION NOTES:
+
+-------------------------------------------------------------------------------
+MODIFICATION HISTORY:
+
+WHO     WHEN     WHAT
+WJL   3/14/2024  Added comments and updated everything to doc standards
+"""
+
 import bcrypt
 from django.conf import settings
 from typing import Callable
 
 from base64 import b64encode,b64decode
 
-"""
-this file is the one stop shop for security functins and things that 
-we are afraid we could mess up the math with ;)
-
-make sure any basic securty related functions goes in here so we only have
-to change things in one place to fix stuff up
-"""
-
-"""
-logs the current session out 
-
-returns true if we managed to log out 
-the user, false if the user is already logged out 
-and the operation had no effect
-"""
 def logout(session : dict)->bool:
+    """
+    Description
+    -----------
+    Logs out the current session
+
+    Parameters
+    ----------
+    - session (dict): the session to be logged out
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - bool: The success of the log out operation
+
+    Example Usage
+    -------------
+    
+    >>> logout(session)
+    true
+
+    Authors
+    -------
+    
+    """
     if is_logged_in(session):
         session["login"] = False
         return True
     return False
-"""properly sets the session variable to login"""
+
 def set_logged_in(session : dict,user_id : int)->bool:
+    """
+    Description
+    -----------
+    Sets a user's session as signed in.
+
+    Parameters
+    ----------
+    - session (dict): The session to be logged out
+    - user_id (int): The session owner's user id
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - bool: The success of the log in operation
+
+    Example Usage
+    -------------
+    
+    >>> set_logged_out(session, 53)
+    true
+
+    Authors
+    -------
+    
+    """
     session["login"] = True
     session["user_id"] = user_id
 
-"""returns true if we are currently logged in, else false"""
 def is_logged_in(session : dict)->bool:
+    """
+    Description
+    -----------
+    Returns the login status of a given session
+
+    Parameters
+    ----------
+    - session (dict): The session to check
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - bool: The login status of the session
+
+    Example Usage
+    -------------
+    
+    >>> is_logged_in(session)
+    true
+
+    Authors
+    -------
+    
+    """
     return session["login"] if "login" in session else False
 
 """
 convinence function to return the id of the current user from a given session id
 """
 def get_user_id_from_session(session : dict)->int:
+    """
+    Description
+    -----------
+    Returns the user ID associated with a given session
+
+    Parameters
+    ----------
+    - session (dict): The session to get the user ID from
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - int: The user ID associated with the session
+
+    Example Usage
+    -------------
+    
+    >>> get_user_id_from_session(session)
+    53
+
+    Authors
+    -------
+    
+    """
     return session["user_id"]
 
-"""
-nulls all objects that are inside of the black list to purge
-data for front end, this modifies in place, do not use it if 
-you inteand to use the data that gets cleared out. Once used,
-you aint' coming back!
-"""
 def black_list(data : object, black_listed_keys : [str])->None:
+    """
+    Description
+    -----------
+    A destructive function that nulls everything in the blacklist to purge data
+    for front end operations
+
+    Parameters
+    ----------
+    - data (obj): The blacklist object to delete from
+    - black_listed_keys ([str]): The set of keys to be deleted from data
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - None
+
+    Example Usage
+    -------------
+    
+    >>> black_list(a_list, [password_hashes])
+
+    Authors
+    -------
+    
+    """
     for key in data.__dict__:
         if key in black_listed_keys:
             data.__dict__[key] = None
 
-#returns true if the project is in debug mode
 def is_in_debug_mode()->bool:
+    """
+    Description
+    -----------
+    Determines whether or not the project is in debug mode
+
+    Parameters
+    ----------
+    (None)
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - bool: The debug state of the project (true if in debug)
+
+    Example Usage
+    -------------
+    
+    >>> is_in_debug_mode()
+    true
+
+    Authors
+    -------
+    
+    """
     return settings.DEBUG
 
 
@@ -79,23 +260,73 @@ the idea is if in the future we need to move from bcrypt we can do so
 since its wrapped
 """
 def generate_salt()->str:
+    """
+    Description
+    -----------
+    Generates a random salt using bcrypt, but is coded in a way that any
+    encryption can be used.
+
+    Parameters
+    ----------
+    (None)
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - str: The generated salt
+
+    Example Usage
+    -------------
+    
+    >>> generate_salt()
+    "asidfhg90q28rof7asd87923unb9"
+
+    Authors
+    -------
+    
+    """
     s = b64encode(bcrypt.gensalt())
     return s.decode("UTF-8")
 
-
-"""
-    hashes an incoming plain text password using the applications built in pepper and 
-    provided salt.
-    In order for the peppering to work this should be the one stop shop for hashing
-"""
 def hash_password(password_plain_text : str,salt : str)->str:
+    """
+    Description
+    -----------
+    Hashes a plaintext password 
+
+    Parameters
+    ----------
+    - password_plain_text (str): The plaintext password
+    - salt (str): The salt to be added
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - str: The hashed password
+
+    Example Usage
+    -------------
+    
+    >>> hash_password("abcd1234", generate_salt())
+    q849hgf8va67sdhtgvf89032etgdfc87o9dgf8o97q23f8a97g0936q2g79fg6asdb9ovfq2gb3
+
+    Authors
+    -------
+    
+    """
     salt_data = b64decode(salt)
-    pepperd_password = password_plain_text + strPepper
+    peppered_password = password_plain_text + strPepper
 
     #anything touching the random number generators needs to be b64 encoded
     #to properly be stored in the database
     ret_val = b64encode(
-            bcrypt.hashpw(pepperd_password.encode('UTF-8'),salt_data)
+            bcrypt.hashpw(peppered_password.encode('UTF-8'),salt_data)
             ).decode('UTF-8')
     return ret_val
 
@@ -104,39 +335,89 @@ pythonic "namespace" for the decorators contained in the security file
 """
 class Decorators:
     """
-    generates a decorator that will test the given function by the given choice,
-    and swap out the function for alternative if it fails that choice
+    Description
+    -----------
+    A subclass containing decorators that apply to functions to increase
+    security.
 
-    the code for this kind of thing looks nasty, but it is SO nice to use 
-    after you get pasted the cursed defs in defs
+    Properties
+    ----------
+    (None)
 
-    --------------------------------------------------------------
-    USAGE EXAMPLE:
+    Instance Functions
+    -------------------
+    - require_check: Generates a decorator that will test the given function by
+        the given choice, and swap out the function for alternative if it fails
+        that choice.
+    - require_login: Requires a user to be properly logged in before executing
+        the function it's decorating
+    - require_debug: Requires the program to be in debug mode to execute the
+        decorated function
 
-    def invalid_login_view(req):
-        ...
-        ...
+    Static Functions
+    -------
+    (None)
 
-    @require_check(lambda req : req.session[0] == 'login',invalid_login_view)
-    def some_view(req):
-        ...
-        ...
-        ...
+    Magic Functions
+    -------------
+    (None)
 
-    --------------------------------------------------------------
-
-    NOTE: 
-
-    while the example shows how to use this method for login systems,
-
-    there is another decorator in this file SPECIFICALLY for that purpose in the form
-    of require_logged_in. 
-
-    It is STRONGLY encouraged to use the require_logged_in function 
-    so that the login code is properly parsed
-
+    Authors
+    -------
+    
     """
+    
     def require_check(check : Callable[[],bool],alternate : callable)->callable:
+        """
+        Description
+        -----------
+        Generates a decorator that will test the given function by the given
+        choice and swap out the function for alternative if it fails that
+        choice.
+
+        The code for this kind of thing looks nasty, but it is SO nice to use 
+        after you get pasted the cursed defs in defs.
+
+        Parameters
+        ----------
+        - alternate_view (callable)): The view to go to if requirements are not
+            met
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - Callable: The decorated function
+
+        Example Usage
+        -------------
+        
+        >>>     def invalid_login_view(req):
+        >>>    ...
+        >>>    ...
+        >>>    ...
+
+        >>>    @require_check(lambda req : req.session[0] ==
+        >>>        'login',invalid_login_view)
+        >>>    def some_view(reqs):
+        >>>    ...
+        >>>    ...
+
+        NOTE: 
+
+        While the example shows how to use this method for login systems,
+        there is another decorator in this file SPECIFICALLY for that purpose
+        in the form of require_logged_in. 
+
+        It is STRONGLY encouraged to use the require_logged_in function 
+        so that the login code is properly parsed.
+
+        Authors
+        -------
+        
+        """
         
         #takes in a given function, and augments it
         #to return its standard value if the check is true,
@@ -160,45 +441,81 @@ class Decorators:
         return check_decorator
         #end the function that creates the decorator
 
-    """
-    decorator that makes it so that a given function will only be called if the user 
-    is logged in properly 
+    def require_login(alternate_view : Callable) -> Callable:
+        """
+        Description
+        -----------
+        Requires the user to be properly logged in to execute the decorated
+        function
 
+        Parameters
+        ----------
+        - alternate_view (callable)): The view to go to if requirements are not
+            met
 
-    ---------------------------------------------------
-    USAGE:
+        Optional Parameters
+        -------------------
+        (None)
 
-    def invalid_login_view(req):
-        ...
-        ...
-        ...
+        Returns
+        -------
+        - Callable: The decorated function
 
-    @require_login(invalid_login_view)
-    def some_view(reqs):
-        ...
-        ...
+        Example Usage
+        -------------
+        
+        >>>     def invalid_login_view(req):
+        >>>    ...
+        >>>    ...
+        >>>    ...
 
-    """
-    def require_login(alternate_view):
+        >>>    @require_login(invalid_login_view)
+        >>>    def some_view(reqs):
+        >>>    ...
+        >>>    ...
+
+        Authors
+        -------
+        
+        """
         return Decorators.require_check(lambda req : is_logged_in(req.session),
                              alternate_view)
 
-    """
-    decorator that requires the program be in debug mode in order to work properly
+    def require_debug(alternate_view : Callable) -> Callable:
+        """
+        Description
+        -----------
+        Requires the program to be in debug mode to execute the decorated
+        function
 
-    ---------------------------------------------------
-    USAGE:
+        Parameters
+        ----------
+        - alternate_view (callable)): The view to go to if requirements are not
+            met
 
-    def invalid_login_view(req):
-        ...
-        ...
-        ...
+        Optional Parameters
+        -------------------
+        (None)
 
-    @require_debug(invalid_login_view)
-    def some_view(reqs):
-        ...
-        ...
+        Returns
+        -------
+        - Callable: The decorated function
 
-    """
-    def require_debug(alternate_view):
+        Example Usage
+        -------------
+        
+        >>>     def invalid_login_view(req):
+        >>>    ...
+        >>>    ...
+        >>>    ...
+
+        >>>    @require_debug(invalid_login_view)
+        >>>    def some_view(reqs):
+        >>>    ...
+        >>>    ...
+
+        Authors
+        -------
+        
+        """
         return Decorators.require_check(lambda _ : is_in_debug_mode(),alternate_view)

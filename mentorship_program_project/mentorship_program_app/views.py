@@ -37,6 +37,7 @@ MODIFICATION HISTORY:
 WHO     WHEN     WHAT
 WJL   3/3/2024   Added file header comment and updating to doc standards
 ARVP  3/10/2024  Added ProfileImg and Organization imports
+WJL   3/14/2024  Finished adding comments and updating to standards
 """
 
 #standard python imports
