@@ -1,0 +1,61 @@
+{% load static %}
+
+<div class="mentor_management_bar" >
+    <div id="user_account">
+        {{ mentor.account }}
+    </div>
+
+    <div id="user_mentees">
+        {{ mentor.mentees }}
+    </div>
+
+    <!-- WILL NEED TO UPDATE WHEN DATABASE IS FIXED -->
+    <!-- <img class="user_management_photo" src="{{ 
+        mentee.profile_img 
+    }}"> -->
+
+    <p class="user_management_bar_name" id="admin_user_management_medium_text">
+        {{ mentor.account.str_first_name }} {{ mentor.account.str_last_name }}
+    </p>
+
+    <div class="mentee_counter_container">
+        <p id="current_mentees">{{ mentor.current_mentees }}</p>/<p id="max_mentees">{{ mentor.max_mentees }}</p>
+    </div>
+
+    <button class="admin_user_management_button_clear_active" id="eye_button">
+        <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
+    </button>
+
+    <button class="admin_user_management_button_clear_active" id="trashcan_button">
+        <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+    </button>
+    <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button">
+        <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+    </button>
+
+    {% if role == ADMIN %}
+        <button class="admin_user_management_word_button_clear_active" id="promote_super_button">
+            <p id="admin_user_management_small_text">
+                Promote Super Admin
+            </p>
+        </button>
+
+        <button class="admin_user_management_word_button_clear_active" id="promote_organization_button">
+            <p id="admin_user_management_small_text">
+                Promote Organization Admin
+            </p>
+        </button>
+
+        <button class="admin_user_management_word_button_clear_active" id="transfer_role_button">
+            <p id="admin_user_management_small_text">
+                Transfer Role
+            </p>
+        </button>
+
+        <button class="admin_user_management_word_button_clear_active" id="decouple_button">
+            <p id="admin_user_management_small_text">
+                Decouple Mentor
+            </p>
+        </button>
+    {% endif %}
+</div>

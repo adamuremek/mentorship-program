@@ -15,10 +15,10 @@
 
 <div class="card">
 	<form action="{% if user.is_mentee %}/mentee_profile{% else %}/group_view{% endif %}" method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="id" value="{{ user.id }}" />
-    <input type="image" class="card-profile-image" alt="Login" src="{{ user.img_user_profile.url }}" />
-</form>
+    	{% csrf_token %}
+    	<input type="hidden" name="id" value="{{ user.id }}" />
+    	<input type="image" class="card-profile-image" alt="Login" src="{{ user.img_user_profile.url }}" />
+	</form>
 	
     <div class="card-gray-part">		  
 

@@ -763,13 +763,15 @@ def group_view(req: HttpRequest):
     mentees_users_accounts = [mentee.account for mentee in mentees_for_mentor]
 
 
+
     context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
                "is_page_owner": is_page_owner,
                "page_owner_user":page_owner_user,
                "page_owner_mentor" : page_owner_mentor,
                "organization": organization,
                "interests": user_interests,
-               "mentees" : mentees_users_accounts
+               "mentees" : mentees_users_accounts,
+                "all_interests" : all_interests
                }
     return HttpResponse(template.render(context,req))
 
@@ -790,22 +792,22 @@ def mentee_profile(req : HttpRequest):
         user_interests.append(interest.strInterest)
 
 
-
-
+    all_interests = Interest.objects.all()
+    print("interests " ,interest)
+    print("all interests" , all_interests)
     context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
                "is_page_owner": is_page_owner,
                "page_owner_user":page_owner_user,
                "page_owner_mentee" : page_owner_mentee,
                "interests": user_interests,
-               "mentor" :  page_owner_mentee.mentor.account if page_owner_mentee.mentor != None else None
+               "mentor" :  page_owner_mentee.mentor.account if page_owner_mentee.mentor != None else None,
+                "all_interests" : all_interests
                }
-
     return HttpResponse(template.render(context,req))
 
 @User.Decorators.require_logged_in_mentor(bad_request_400)
 def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
     session_user = User.from_session(req.session)
-
     mentor_account = None
     try:
         mentor_account = User.objects.get(id=mentor_user_account_id)
@@ -833,6 +835,15 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
 
         except ObjectDoesNotExist:
             return bad_request_400("you do not have a request to accept!")
+
+def save_mentee_profile_info(req : HttpRequest):
+    if req.method == "POST":
+        pass
+
+
+    template = loader.get_template('group_view/mentee_profile.html')
+    context = {}
+    return HttpResponse(template.render(context,req))
 
 
 
