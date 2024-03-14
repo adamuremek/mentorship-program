@@ -38,6 +38,9 @@ GLOBAL VARIABLE LIST (Alphabetically):
 from utils import security
 from mentorship_program_app.view_routes.status_codes import bad_request_400
 from django.http import HttpResponse,HttpRequest
+from ..models import User
+from datetime import date
+from dateutil.relativedelta import relativedelta
 import json
 
 from mentorship_program_app.models import *
@@ -102,3 +105,10 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
 
     ##print_debug(user.has_requested_user(mentor_id))
     return HttpResponse(json.dumps({"result":"created request!"}));
+
+
+def verify_mentee_ug_status(req):
+    inactive_users = User.objects.filter((User.cls_date_joined + relativedelta(years=4) < date.today))
+    for u in inactive_users:
+        u.bln_account_disabled = True
+    print("Disabled all inactive users.")
