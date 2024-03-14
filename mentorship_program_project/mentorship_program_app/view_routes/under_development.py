@@ -770,8 +770,7 @@ def group_view(req: HttpRequest):
                "page_owner_mentor" : page_owner_mentor,
                "organization": organization,
                "interests": user_interests,
-               "mentees" : mentees_users_accounts,
-                "all_interests" : all_interests
+               "mentees" : mentees_users_accounts
                }
     return HttpResponse(template.render(context,req))
 
@@ -812,6 +811,7 @@ def universalProfile(req : HttpRequest, user_id : int):
     page_owner_user = User.objects.get(id=user_id)
     
     page_owner_go_fuck_yourself = getattr(page_owner_user, 'mentee' if page_owner_user.is_mentee else 'mentor', None)
+    print(page_owner_go_fuck_yourself)
 
     interests = page_owner_user.interests.filter(user=page_owner_user)
     is_page_owner = signed_in_user == page_owner_user
@@ -820,6 +820,13 @@ def universalProfile(req : HttpRequest, user_id : int):
         user_interests.append(interest)
 
     all_interests = Interest.objects.all()
+
+    print(page_owner_user.id)
+    if page_owner_user.is_mentee:
+        pending = MentorshipRequest.objects.filter(mentee_id=page_owner_user.id)
+        print(pending)
+
+
 
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
