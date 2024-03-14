@@ -583,8 +583,7 @@ class User(SVSUModelData,Model):
         convinece function that returns true if the given user has super admin privleges in the database
         """
         try:
-            self.admin_entry
-            return True
+            return self.admin_entry.bool_enabled
         except ObjectDoesNotExist:
             return False
 
