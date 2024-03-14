@@ -835,6 +835,7 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
 
         except ObjectDoesNotExist:
             return bad_request_400("you do not have a request to accept!")
+    return bad_request_400("permission denied!")
 
 def save_mentee_profile_info(req : HttpRequest):
     if req.method == "POST":
