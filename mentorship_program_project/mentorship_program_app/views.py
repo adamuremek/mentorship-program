@@ -168,11 +168,11 @@ def request_mentor(request : HttpRequest) -> HttpResponse:
 # - Will delete later
 
 
-def big_move(req):
+def big_move(req : HttpRequest) -> HttpResponse:
     """
     Description
     -----------
-    Loads the account_creation_0_mentor view with an empty context
+    Loads the account_creation_0_mentor HTML with an empty context
 
     Parameters
     ----------
@@ -191,8 +191,8 @@ def big_move(req):
     Example Usage
     -------------
     
-    >>> path('request_mentor/', views.request_mentor, name='request mentor')
-    "Something Happened!"
+    >>> path('big_move/', views.big_move, name='big move')
+    HttpResponse
 
     Authors
     -------
@@ -202,7 +202,37 @@ def big_move(req):
     context = {}
     return HttpResponse(template.render(context, req))
 
-def THEBIGMOVE(req):
+def the_big_move(req : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads the single_page_mentor HTML with a full hard-coded context
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including items to be rendered
+        into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The rendered view template with the context and
+        HttpRequest information
+
+    Example Usage
+    -------------
+    
+    >>> path('the_big_move/', views.the_big_move, name='the big move')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
+
     template = loader.get_template('sign-in card/single_page_mentor.html')
     context = {
         'interestlist': [
@@ -240,12 +270,71 @@ def THEBIGMOVE(req):
     }
     return HttpResponse(template.render(context, req))
 
-def THESECONDMOVE(req):
+def the_second_move(req : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads the single_page_mentee HTML with an empty context
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including items to be rendered
+        into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The rendered view template with the empty context and
+        HttpRequest information
+
+    Example Usage
+    -------------
+    
+    >>> path('the_second_move/', views.the_second_move, name='the second move')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('sign-in card/single_page_mentee.html')
     context = {}
     return HttpResponse(template.render(context, req))
 
-def register_mentee(req):
+def register_mentee(req : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads the single_page_mentee HTML with an full hard-coded context. Does not
+    actually process any information.
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including items to be rendered
+        into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The rendered view template with the context and
+        HttpRequest information
+
+    Example Usage
+    -------------
+    
+    >>> path('register_mentee/', views.register_mentee, name='Mentee Registration')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('sign-in card/single_page_mentee.html')
     context = {
         'interestlist': [
@@ -273,7 +362,36 @@ def register_mentee(req):
     }
     return HttpResponse(template.render(context, req))
 
-def register_mentor(req):
+def register_mentor(req : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads the account_creation_sign_up_choices_mentor HTML with an empty context
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including items to be rendered
+        into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The rendered view template with the empty context and
+        HttpRequest information
+
+    Example Usage
+    -------------
+    
+    >>> path('register_mentor/', views.registor_mentor, name='Mentor Registration')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('sign-in card/mentor/account_creation_sign_up_choices_mentor.html')
     context = {}
     return HttpResponse(template.render(context, req))
@@ -284,19 +402,104 @@ def register_mentor(req):
 
 
 
-def faq(req):
+def faq(req : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads the FAQ page with an empty context
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including items to be rendered
+        into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The rendered view template with the empty context and
+        HttpRequest information
+
+    Example Usage
+    -------------
+    
+    >>> path('help/faq/', views.faq, name='Frequently Asked Questions')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('faq.html')
     context = {}
     return HttpResponse(template.render(context, req))
 
 # Pho Post handler for landing-page login card
-def landingPost(req):
+def landing_post(req : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Redirects to the dashboard or landing pages depending on if the request
+    method is POST or not (respectively)
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information that has the request method
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponseRedirect: The HttpResponse for the redirected page URL
+
+    Example Usage
+    -------------
+    
+    >>> path('landing/', views.landing_post, name='Landing')
+    HttpResponseRedirect
+
+    Authors
+    -------
+    
+    """
     if req.method == 'POST':
         return redirect('dashboard')
     else:
         return redirect('landing')
 
-def profileCard(req):
+def profile_card(req : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads a profile card with a context consisting of ambiguous items
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including items to be rendered
+        into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The HTML completed with items and any request information
+
+    Example Usage
+    -------------
+    
+    >>> path('profile_card/', views.profile_card, name='Profile Card')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('dashboard/profile-card/mentor_card.html')
     
     items = range(4)
@@ -304,47 +507,279 @@ def profileCard(req):
     return HttpResponse(template.render(context, req))
 
 #please make pretty front end we love you :D
-def home(req):
+def home(req : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Returns an HttpResponse containing some plaintext
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The HTTPResponse object containing the plaintext
+
+    Example Usage
+    -------------
+    
+    >>> path('home/', views.home, name='Home')
+    'theres no place me'
+
+    Authors
+    -------
+    
+    """
     # What the hell is supposed to happen here.
     # what is front end even supposed to do with this.
     return HttpResponse('theres no place me')
 
-def role_test(req):
+def role_test(req : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads and renders an experimental page with an empty context
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including items to be rendered
+        into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The fully rendered HTML page
+
+    Example Usage
+    -------------
+    
+    >>> path('role_test/', views.role_test, name='Experimental')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('sign-in-card/experiment.html')
     context = {}
     return HttpResponse(template.render(context, req))
 
 # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --ANTHONY PETERS
-def role_selection(request):
+def role_selection(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads and renders a role selection page
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including any items to be
+        rendered into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The fully rendered HTML page
+
+    Example Usage
+    -------------
+    
+    >>> path('role_selection/', views.role_selection, name='Select Your Role')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('sign-in card/shared/role_selection.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
-def account_activation_mentee(request):
+def account_activation_mentee(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads and renders the mentee account activation page
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including any items to be
+        rendered into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The fully rendered HTML page
+
+    Example Usage
+    -------------
+    
+    >>> path('mentee_activation/', views.account_activation_mentee, name=
+            'Mentee Account Activation')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('sign-in card/mentee/account_activation_mentee.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
-def account_activation_invalid_mentee(request):
+def account_activation_invalid_mentee(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads and renders the account activation page for an invalid mentee with a
+    hard-coded email in the context
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including any items to be
+        rendered into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The fully rendered HTML page
+
+    Example Usage
+    -------------
+    
+    >>> path('mentee_activation/', views.account_activation_invalid_mentee,
+            name='Invalid Mentee Activation')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('sign-in card/mentee/account_activation_invalid_mentee.html')
     context = {
         'email':'demoemail@something.com'
     }
     return HttpResponse(template.render(context, request))
 
-def account_activation_valid_mentee(request):
+def account_activation_valid_mentee(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads and renders the account activation page for a valid mentee with a
+    hard-coded email in the context
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including any items to be
+        rendered into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The fully rendered HTML page
+
+    Example Usage
+    -------------
+    
+    >>> path('mentee_activation/', views.account_activation_valid_mentee,
+            name='Valid Mentee Activation')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('sign-in card/mentee/account_activation_valid_mentee.html')
     context = {
         'email':'demoemail@something.com'
     }
     return HttpResponse(template.render(context, request))
 
-def account_activation_mentor(request):
+def account_activation_mentor(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads and renders the account activation page for an mentor
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including any items to be
+        rendered into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The fully rendered HTML page
+
+    Example Usage
+    -------------
+    
+    >>> path('mentor_activation/', views.account_activation_mentor,
+            name='Mentor Activation')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
-def admin_user_management(request):
+def admin_user_management(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads and renders the admin user management page, filtering the users that
+    are shown to be only those within the admin's scope of authority.
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including any items to be
+        rendered into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The fully rendered HTML page populated with a filtered set
+        of users.
+
+    Example Usage
+    -------------
+    
+    >>> path('user_management/', views.admin_user_management,
+            name='Manage Users')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('admin/user_management.html')
     session_user = User.from_session(request.session)
 
@@ -496,10 +931,6 @@ def admin_user_management(request):
         'mentees': mentees,
         'unaffiliated_mentors': unaffiliated_mentors,
         'organizations': organizations,
-
-
-
-
         'role': role,
         'ADMIN': User.Role.ADMIN,
         'user_admin_flag': user_admin_flag
@@ -511,7 +942,36 @@ def admin_user_management(request):
 
 
 @security.Decorators.require_login(invalid_request_401)
-def logout(request):
+def logout(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Logs the current user out of the system, given they are already logged in
+
+    Parameters
+    ----------
+    - request (HttpRequest): The request information containing the needed
+        session information
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: A plaintext HttpResponse with a simple success or failure
+        message
+
+    Example Usage
+    -------------
+    
+    >>> path('logout/', views.logout, name='Goodbye!')
+    "logged out!"
+
+    Authors
+    -------
+    
+    """
     if security.logout(request.session):
         return HttpResponse("logged out!")
     
@@ -524,7 +984,37 @@ def logout(request):
 
 #login stuff
 
-def login_uname_text(request):
+def login_uname_text(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Logs in a user, records the sign in, and redirects to the dashboard.
+
+    Parameters
+    ----------
+    - request (HttpRequest): The request information containing the user's entered
+        credentials
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: Response containing either an error code for an invalid
+        login attempt or the redirect to the dashboard for a success.
+
+    Example Usage
+    -------------
+    
+    >>> path('login/', views.login_uname_text,
+            name='')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     login_data = json.loads(request.body.decode("utf-8"))
 
     uname    = login_data["username"] if "username" in login_data else None
@@ -553,13 +1043,71 @@ def login_uname_text(request):
     return response
 
 # view goes to currently static approve/delete mentors page
-def mentor_judgement(request):
-    context = {}
+def mentor_judgement(request : HttpRequest) -> HttpResponse:
+    
+    """
+    Description
+    -----------
+    Loads and renders the page of pending mentors
+
+    Parameters
+    ----------
+    - request (HttpRequest): The request information including any items to be
+        rendered into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The fully rendered HTML page
+
+    Example Usage
+    -------------
+    
+    >>> path('pending_mentors/', views.mentor_judgement, name='JUDGE THEM!')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('pending_mentors.html')
+    context = {}
     return HttpResponse(template.render(context,request))
 
 # view goes to mentor_group_view
-def mentor_group_view(req):
+def mentor_group_view(req : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads and renders the mentorship group page
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information including any items to be
+        rendered into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The fully rendered HTML page
+
+    Example Usage
+    -------------
+    
+    >>> path('mentorship_group/', views.mentor_group_view,
+            name='Your Mentorship Group')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template('group_view/mentor_group_view.html')
     context = {}
     return HttpResponse(template.render(context, req))
@@ -570,7 +1118,37 @@ def mentor_group_view(req):
 # when not in DEBUG mode
 
 @security.Decorators.require_debug(invalid_request_401)
-def profile_picture_test(request):
+def profile_picture_test(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads and renders the user profile pictures, given that you are in debug
+    mode. Additionally sanitized the blacklist properties for all users.
+
+    Parameters
+    ----------
+    - request (HttpRequest): The request information including any items to be
+        rendered into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The fully rendered HTML page
+
+    Example Usage
+    -------------
+    
+    >>> path('mentee_activation/', views.account_activation_invalid_mentee,
+            name='Inavlid Mentee Activation')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     context = {
                 "users":[
                     u.sanitize_black_properties() for u in User.objects.all()
@@ -583,33 +1161,179 @@ def profile_picture_test(request):
 
 @security.Decorators.require_login(invalid_request_401)
 @security.Decorators.require_debug(invalid_request_401)
-def is_logged_in_test(request):
+def is_logged_in_test(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Returns a simple message, given that the user is logged in and in debug
+    mode.
+
+    Parameters
+    ----------
+    - request (HttpRequest): Unused, but required by Django
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The object containing the plaintext message
+
+    Example Usage
+    -------------
+    
+    >>> path('logged_in_test/', views.is_logged_in_test, name='Logged In.')
+    "you are currently logged in!"
+
+    Authors
+    -------
+    
+    """
     return HttpResponse("you are currently logged in!")
 
 
 
 @security.Decorators.require_debug(invalid_request_401)
-def test_database_setup(request):
+def test_database_setup(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Calls the database test function and returns a message on success, given
+    that the user is in debug mode
+
+    Parameters
+    ----------
+    - request (HttpRequest): Unused, but required by Django
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The object containing the plaintext message
+
+    Example Usage
+    -------------
+    
+    >>> path('test_db/', views.test_database_setup, name='Test Finished')
+    "finished test successfully"
+
+    Authors
+    -------
+    
+    """
     development.test_database()
-    return HttpResponse('finished test sucesfully')
+    return HttpResponse('finished test successfully')
 
 
 
 @security.Decorators.require_debug(invalid_request_401)
-def generate_random_user_data(request):
+def generate_random_user_data(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Calls the random data generator and returns a message on success, given
+    that the user is in debug mode
+
+    Parameters
+    ----------
+    - request (HttpRequest): Unused, but required by Django
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The object containing the plaintext message
+
+    Example Usage
+    -------------
+    
+    >>> path('data_gen/', views.generate_random_user_data,
+            name='Generation Finished')
+    "finished generating user data, enjoy controlling the populus :D"
+
+    Authors
+    -------
+    
+    """
     development.print_debug('running the function')
     development.populate_database_with_random_users()
     return HttpResponse('finished generating user data, enjoy controlling the populus :D')
 
 @security.Decorators.require_debug(invalid_request_401)
-def populate_default_interest_values(request):
+def populate_default_interest_values(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Calls the database interest population function and returns a message on
+    success, given that the user is in debug mode
+
+    Parameters
+    ----------
+    - request (HttpRequest): Unused, but required by Django
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The object containing the plaintext message
+
+    Example Usage
+    -------------
+    
+    >>> path('populate_interests/', views.populate_default_interest_values,
+            name='Interests Populated')
+    "finished populating interests in the database!"
+
+    Authors
+    -------
+    
+    """
     development.print_debug("[*] generating interests in the database...")
     development.populate_database_with_interests()
     development.print_debug("[*] finished genereating interests! Enjoy the data :)")
     return HttpResponse("finished populating interests in the database!")
 
 @security.Decorators.require_debug(invalid_request_401)
-def delete_users(request):
+def delete_users(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    After confirming deletion in console, deletes all users from the database
+    and returns a message on success, given that the user is in debug mode
+
+    Parameters
+    ----------
+    - request (HttpRequest): Unused, but required by Django
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The object containing the plaintext message
+
+    Example Usage
+    -------------
+    
+    >>> path('delete_users/', views.delete_users, name='Deleted All Users')
+    N
+    "canceled action!"
+
+    NOTE: Unsure if I showed the console input correctly, or if it needs to be
+    shown at all.
+    
+    Authors
+    -------
+    
+    """
     development.print_debug("[*] are you sure you want to replace all users?")
     if input("(y/n)> ").lower() == 'y':
         User.objects.all().delete()
@@ -617,8 +1341,34 @@ def delete_users(request):
     return HttpResponse("canceled action!")
 
 @security.Decorators.require_debug(invalid_request_401)
-def test_login_page(request):
+def test_login_page(request : HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Loads and renders a demo login page, given the user is in debug mode
+
+    Parameters
+    ----------
+    - request (HttpRequest): The request information including any items to be
+        rendered into the template
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The render HTML file
+
+    Example Usage
+    -------------
+    
+    >>> path('test_login_page/', views.test_login_page, name='It Works!')
+    HttpResponse
+
+    Authors
+    -------
+    
+    """
     template = loader.get_template("dev/test_login.html")
     return HttpResponse(template.render({},request))
-
-

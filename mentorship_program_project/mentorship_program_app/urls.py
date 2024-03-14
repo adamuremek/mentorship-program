@@ -62,7 +62,7 @@ urlpatterns = [
     #=================================================#
     
     #==================LOGICAL ROUTES=================#
-    path('landing-post/'                                 , views.landingPost                 , name='landing-post'),
+    path('landing-post/'                                 , views.landing_post                 , name='landing-post'),
     path('register-test/'                                , under_development.register_mentor , name='register-test'),
     path('register-mentee-test/'                         , under_development.register_mentee , name='register-mentee-test'),
     path('request_mentor/<int:mentee_id>/<int:mentor_id>',
@@ -100,11 +100,11 @@ urlpatterns = [
     
     path('dashboard/', navigation.dashboard, name='dashboard'),
     path('faq/', views.faq, name='faq'),
-    path('profile-card/', views.profileCard, name='profile-card'),
+    path('profile-card/', views.profile_card, name='profile-card'),
     
     path('register/mentee/', views.register_mentee, name='register_mentee'),
     path('register/mentor/', views.register_mentor, name='register_mentor'),
-    path('thebigmove/', views.THEBIGMOVE, name='thebigmove'),
+    path('thebigmove/', views.the_big_move, name='thebigmove'),
 
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --ANTHONY PETERS
     path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),

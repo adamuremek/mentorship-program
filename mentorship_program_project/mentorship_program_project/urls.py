@@ -21,18 +21,18 @@ from mentorship_program_app import views
 # urlpatterns = [
 #     path('', views.default, name='default'),
 #     path('landing/', views.landing, name='landing'),
-#     path('landing-post/', views.landingPost, name='landing-post'),
+#     path('landing-post/', views.landing_post, name='landing-post'),
     
 #     path('dashboard/', views.dashboard, name='dashboard'),
 #     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
-#     path('profile-card/', views.profileCard, name='profile-card'),
+#     path('profile-card/', views.profile_card, name='profile-card'),
 
 #     path('mentor_group_view/', views.mentor_group_view, name='mentor_group_view'),
     
 #     # -------------------- <<< BIG MOVE TEMPORARY >>> -------------------- #
 #     path('bigmove/', views.big_move, name='bigmove'),
-#     path('thebigmove/', views.THEBIGMOVE, name='thebigmove'),
-#     path('thesecondmove/', views.THESECONDMOVE, name='thesecondmove'),
+#     path('thebigmove/', views.the_big_move, name='thebigmove'),
+#     path('thesecondmove/', views.the_second_move, name='thesecondmove'),
     
 #     path('register/mentee/', views.register_mentee, name='register_mentee'),
 #     path('register/mentor/', views.register_mentor, name='register_mentor'),
