@@ -24,21 +24,21 @@ SVSU Mentoring
             </div>
             <div class="card review-mentor-applications" id="mentorApplications">
                 <img src="{% static 'images/mail.jpg' %}">
-                <h3>Review Mentor Applications: {{pending_mentor_count}} Remaining</h3>
+                <h3>Review Mentor Applications: {{pending_mentor}} Remaining</h3>
             </div>
             <div class="card stats program-statistics">
                 <h2>Program Statistics</h2>
                 <div>
-                    <p>Active Mentees: {{active_mentees_count}}</p>
-                    <p>Active Mentors: {{active_mentors_count}}</p>
+                    <p>Active Mentees: {{active_mentees}}</p>
+                    <p>Active Mentors: {{active_mentors}}</p>
                     <p>Mentee per Mentor: {{mentees_per_mentor}}</p>
                     <p>Mentorships Created: {{total_approved_mentorships}}</p>
                     <p>Unassigned Mentees: {{unassigned_mentees}}</p>
                     <p>Unassigned Mentors: {{unassigned_mentors}}</p>
                     <p>Mentor Retention Rate: {{mentor_retention_rate}}</p>
                     <p>Mentorships Requested: {{total_requested_mentorships}}</p>
-                    <p>Inactive Mentees: {{inactive_mentees_count}}</p>
-                    <p>Inactive Mentors: {{inactive_mentors_count}}</p>
+                    <p>Inactive Mentees: {{inactive_mentees}}</p>
+                    <p>Inactive Mentors: {{inactive_mentors}}</p>
                     <p>Mentor Turnover Rate: {{mentor_turnover_rate}}</p>
                     <p>Successful Match Rate: {{successful_match_rate}}</p>
                 </div>
