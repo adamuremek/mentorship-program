@@ -50,7 +50,6 @@ Mentor Group View
                 <h3>{{organization}}</h3> 
 
                 <h2>Specializations / Areas of Expertise:</h2>
-                <br>
                 <div class="specialties">
                     {% for interest in interests %}
                         <button>{{interest}}</button>
@@ -75,7 +74,7 @@ Mentor Group View
             <hr>
             <div class="row-notes">
                 <h2>Note(s):</h2>
-                <button>Add Note</button>
+                <button id="btn-add-note">Add Note</button>
             </div>
             <hr class="invisible">
             <div class="note-header">
@@ -110,6 +109,9 @@ Mentor Group View
 
     </div>
 </section>
-    
+
+{% include 'group_view/note_creation_modal.html' %}
+
+<script src='{% static "js/note_modal.js" %}'></script>
 
 {% endblock %}

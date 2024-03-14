@@ -763,13 +763,15 @@ def group_view(req: HttpRequest):
     mentees_users_accounts = [mentee.account for mentee in mentees_for_mentor]
 
 
+
     context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
                "is_page_owner": is_page_owner,
                "page_owner_user":page_owner_user,
                "page_owner_mentor" : page_owner_mentor,
                "organization": organization,
                "interests": user_interests,
-               "mentees" : mentees_users_accounts
+               "mentees" : mentees_users_accounts,
+                "all_interests" : all_interests
                }
     return HttpResponse(template.render(context,req))
 
@@ -790,17 +792,31 @@ def mentee_profile(req : HttpRequest):
         user_interests.append(interest.strInterest)
 
 
-
-
+    all_interests = Interest.objects.all()
+    print("interests " ,interest)
+    print("all interests" , all_interests)
     context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
                "is_page_owner": is_page_owner,
                "page_owner_user":page_owner_user,
                "page_owner_mentee" : page_owner_mentee,
                "interests": user_interests,
-               "mentor" :  page_owner_mentee.mentor.account if page_owner_mentee.mentor != None else None
+               "mentor" :  page_owner_mentee.mentor.account if page_owner_mentee.mentor != None else None,
+                "all_interests" : all_interests
                }
-
     return HttpResponse(template.render(context,req))
+
+
+def save_mentee_profile_info(req : HttpRequest):
+    if req.method == "POST":
+        pass
+
+
+    template = loader.get_template('group_view/mentee_profile.html')
+    context = {}
+    return HttpResponse(template.render(context,req))
+
+
+
 
 
 def create_mentorship(req : HttpRequest, mentee_account_id : int, mentor_account_id : int )->HttpResponse:
