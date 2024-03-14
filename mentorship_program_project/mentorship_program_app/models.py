@@ -1004,6 +1004,8 @@ class User(SVSUModelData,Model):
             mentor from accessing certain pages
         - require_logged_in_mentee: Prevents users who aren't logged in as a
             mentee from accessing certain pages
+        - require_logged_in_super_admin: Prevents users who aren't logged in as
+            a super admin from accessing certain pages
 
         Magic Functions
         -------------
@@ -1085,6 +1087,45 @@ class User(SVSUModelData,Model):
             """
             validator = lambda req : security.is_logged_in(req.session) \
                                      and User.from_session(req.session).is_mentee()
+            return security.Decorators.require_check(validator, alternate_view)
+        
+        @staticmethod
+        def require_logged_in_super_admin(alternate_view : Callable): # -> Callable[HttpRequest,HttpResponse]:
+            """
+            Description
+            -----------
+            Prevents users who aren't logged in as a super admin from accessing
+            certain pages or performing certain operations
+
+            Parameters
+            ----------
+            - alternate_view (Any): The page to redirect to if the user logged
+                in is not a mentor
+
+            Optional Parameters
+            -------------------
+            (None)
+
+            Returns
+            -------
+            - Any: The decorated function with the redirect
+
+            Example Usage
+            -------------
+            def some_other_view(req : HttpRequest)->HttpResponse:
+                ...
+
+            @Users.require_logged_in_super_admin(some_other_view)
+            def protected_view(req : HttpRequest)->HttpResponse
+
+            Authors
+            -------
+            David Kennamer
+            William Lipscom:b
+            NOTE: I basically just ctrl c + ctrl v from above.
+            """
+            validator = lambda req : security.is_logged_in(req.session) \
+                                     and User.from_session(req.session).is_super_admin()
             return security.Decorators.require_check(validator, alternate_view)
 
 
