@@ -1,3 +1,20 @@
+/* ----- Global Variables ----- */
+:root {
+    --clr-font-primary: hsl(222, 27%, 95%);
+    --clr-font-secondary: hsl(197, 11%, 87%);
+    --clr-modal-backdrop: hsl(210, 2%, 16%);
+    --clr-btn-submit: hsl(222, 27%, 33%);
+    --clr-btn-submit-highlight: hsl(222, 27%, 35%);
+
+    --ff-primary: 'Roboto', sans-serif;
+
+    --fw-regular: 400;
+    --fw-medium: 500;
+    --fw-extrabold: 800;
+}
+
+/* ----- Component Styling ----- */
+
 .hero-container {
     display: flex;
     width: 95vw;
@@ -25,11 +42,12 @@ hr {
     width: 100%;
 }
 
-.row-titles h2, .row-titles h3 {
+.row-titles h2,
+.row-titles h3 {
     margin-top: .5rem;
 }
 
-.row-titles h1{
+.row-titles h1 {
     font-size: 3rem;
 }
 
@@ -151,7 +169,7 @@ hr {
     display: flex;
 }
 
-.note-header p{
+.note-header p {
     color: whitesmoke;
 }
 
@@ -187,4 +205,174 @@ hr {
     margin: 0 5px;
     background-color: transparent;
     border: none;
+}
+
+/* ----- Modal Component Styling ----- */
+
+.container {
+    padding-bottom: 10px;
+}
+
+.modal {
+    padding: 1em;
+    width: 60vw;
+    height: 65vh;
+    border: 0;
+    box-shadow: 0 0 1em rgb(0 0 0 / .3);
+    border-radius: 15px;
+    background-color: var(--clr-modal-backdrop);
+
+    font-family: var(--ff-primary);
+    color: var(--clr-font-primary);
+
+    /* Below allows modals to be centered in the screen */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+
+    &>* {
+        margin: 0 0 0.5rem 0;
+    }
+}
+
+.modal::backdrop {
+    backdrop-filter: blur(.25em);
+    background: rgba(125, 125, 125, 0.1);
+}
+
+.modal-container {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.modal-content-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    gap: .25em;
+}
+
+.modal-footer-container {
+    display: flex;
+    /* margin-top: 4.43em; */
+    margin-top: 5em;
+
+}
+
+.modal-exit:hover,
+.modal-exit:focus-visible {
+    transform: scale(1.15);
+    outline: none;
+}
+
+.modal-header {
+    padding-bottom: 1em;
+}
+
+.modal-line {
+    height: 1;
+    background-color: var(--clr-font-primary);
+    flex-grow: 1;
+}
+
+.modal h2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    font-weight: var(--fw-extrabold);
+}
+
+.modal h3 {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    font-size: 1.25rem;
+    font-weight: var(--fw-medium);
+}
+
+.modal p {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: var(--fw-regular);
+}
+
+.user-input {
+    font-size: 1rem;
+    font-family: var(--ff-primary);
+    line-height: 1.1em;
+    border-radius: 4px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.07);
+    box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
+}
+
+.modal input {
+    width: 100%;
+    overflow: scroll;
+}
+
+#note-title-input {
+    /* display: block; */
+    margin-top: 10px;
+    height: calc(1.5 * 1rem);
+    width: calc(100% - 16px);
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.07);
+    border-radius: 3px;
+    padding: 8px;
+}
+
+.modal textarea {
+    margin-top: 10px;
+    width: calc(100% - 16px);
+    padding: 8px;
+    font-size: 1rem;
+    color: var(--clr-font-secondary);
+    resize: none;
+    overflow-y: auto;
+}
+
+.modal-content-container p {
+    margin-top: .5em;
+    font-size: 1.15rem;
+    color: var(--clr-font-secondary);
+}
+
+.modal button {
+    width: 100%;
+}
+
+/*  May have to remove some later to clean up */
+#btn-create-note {
+    font-family: var(--ff-primary);
+    font-size: 2rem;
+    font-weight: var(--fw-medium);
+    color: var(--clr-font-primary);
+    background-color: var(--clr-btn-submit);
+
+    display: block;
+    height: 40px;
+    width: 100%;
+    padding: 0 10px;
+    border-radius: 25px;
+    outline: none;
+    font-size: 1rem;
+    font-weight: var(--fw-medium);
+    filter: drop-shadow(.6em .6em .55em rgba(58, 58, 58, 0.15));
+    cursor: pointer;
+    /* Change cursor icon to hand when hovering */
+    transition: all 0.3s ease;
+    /* Smooth transition for the hover effect */
+}
+
+#btn-create-note:hover,
+#btn-create-note:focus-visible {
+    background-color: var(--clr-btn-submit-highlight);
 }
