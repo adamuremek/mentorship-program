@@ -802,8 +802,34 @@ def mentee_profile(req : HttpRequest):
 
     return HttpResponse(template.render(context,req))
 
+@User.Decorators.require_logged_in_mentee(bad_request_400)
+def accept_mentorship_request(req : HttpRequest, mentee_user_acount_id : int, mentor_user__account_id : int )->HttpResponse:
+    u = User.from_session(req.session)
 
-def create_mentorship(req : HttpRequest, mentee_account_id : int, mentor_account_id : int )->HttpResponse:
+    #if the id does not exist
+    mentor_account = User.objects.get(id=mentor_account_id)
+
+    if u.has_authority(mentor_account):
+        try:
+            mentorship_request = MentorshipRequest.objects.get(
+                                        mentor_id=mentor_user_acount_id,
+                                        mentee_id=mentee_user_acount_id
+                                        )
+            
+            
+            if mentorship_request.is_accepted(): return bad_request_400("you already accepted this request!")
+
+            return create_mentorship(req, mentee_user_account_id, mentor_user_account_id)
+
+        except ObjectDoesNotExist:
+            return bad_request_400("you do not have a request to accept!")
+
+
+
+
+
+
+def create_mentorship(req : HttpRequest, mentee_user_acount_id : int, mentor_user_account_id : int )->HttpResponse:
     """
     creates a mentorship relation between the given mentor and mentee ids
 
@@ -819,14 +845,10 @@ def create_mentorship(req : HttpRequest, mentee_account_id : int, mentor_account
     David Kennamer "_" (if you can call this finsihed)
     """
 
-    #actually add the mentorship to the db
-    mentee_account = User.objects.get(id=mentee_account_id).mentee
-    mentee_account.mentor = User.objects.get(id=mentor_account_id).mentor
-    mentee_account.save()
+    session_user = User.from_session(req.session)
 
-    # record logs
-    # record the mentee since the mentor can be gathered from it later
-    SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, specified_user= User.objects.get(id=mentee_account_id))
+    #actually add the mentorship to the db
+    session_user.create_mentorship_from_user_ids(mentee_user_account_id, mentor_user_acount_id)
 
     return HttpResponse("created request sucessfully")
 

@@ -670,6 +670,41 @@ class User(SVSUModelData,Model):
                 self.str_password_hash
 
 
+    def create_mentorship_from_user_ids(self,mentee_user_account_id : int,mentor_user_acount_id : int)->tuple['User','User']:
+        """
+        Description
+        ___________
+        convinence function that creates a relationship between a mentor and a mentee given their account id's
+
+        returns a tuple of the accounts from the database for further processing, will fail if the user this is running from
+        does NOT have permission to interact with the database
+
+        Returns
+        _______
+        a tuple of user objects where the first object is the mentee and the second the mentor
+
+        if you do not have permission to create the request, it returns (None,None)
+
+        Authors
+        _______
+        David Kennamer <.<
+        """
+        
+        #ensure that the person creating the request is a mentor (also admin, since admin is a subset of mentor)
+        if not self.is_mentor():
+            return (None,None)
+
+        mentee_account = User.objects.get(id=mentee_user_account_id).mentee
+        mentee_account.mentor = User.objects.get(id=mentor_user_acount_id).mentor
+        mentee_account.save()
+
+        # record logs
+        # record the mentee since the mentor can be gathered from it later
+        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, 
+                                  specified_user= User.objects.get(id=mentee_user_account_id))
+
+        return (mentee_account,mentee_account.mentor)
+
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
                                          email : str)->'User':
@@ -869,7 +904,7 @@ class User(SVSUModelData,Model):
 
         AUTHORS
         _______
-        David Kennamer ._.
+        David Kennamer ._0
 
         """
         try:
@@ -1276,8 +1311,58 @@ class MentorshipRequest(SVSUModelData,Model):
         related_name = "mentee_to_mentor_set"
     )
 
+    def accept_request(self,session_user : User)->bool:
+        """
+        Description
+        ___________
+        accepts the given mentorship request
+
+
+        fails if the given session user does NOT have PERMISSION to make the request
+
+        Authors
+        _______
+        David Kennamer *_*
+        Tanner Williams 🦞
+        """
+
+        # record logs
+        # record the mentee since the mentor can be gathered from it later
+        mentor,mentee = session_user.create_mentorship_from_user_ids(
+                                                    self.mentee.id,
+                                                    self.mentor.id
+                                                    )
+        if mentor == None or mentee == None:
+            return False
+
+        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
+                                  specified_user=mentee.account)
+
+        MentorshipRequest.objects.filter(mentee=self.mentee).delete()
+        
+        return True
+        
+
     def is_accepted(self)->bool:
-        self.mentor.mentees.get(id=self.mentee.id)
+        """
+        Description
+        ___________
+        returns true if the given request is accepted in the database, ideally this should 
+        allways be false, since we delete mentorship requests when we add them to a user
+
+        this is here as an extra security check to make sure that the request is NOT accepted
+        if this ever returns true it indicates invalid data
+
+        Authors
+        _______
+        David Kennamer ).)
+        Tanner Williams 🦞
+        """
+        try:
+            self.mentor.mentees.get(id=self.mentee.id)
+            return True
+        except:
+            return False
 
 
     
