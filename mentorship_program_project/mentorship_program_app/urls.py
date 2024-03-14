@@ -75,7 +75,7 @@ urlpatterns = [
          under_development.accept_mentorship_request,
          name="accept mentorship request"),
    # path('profile_pic/<int:user_id>')
-    #8=============================================D~~#
+    #=================================================#
 
     
     #ADAM + ANDREW + JORDAN TESTING
@@ -117,6 +117,9 @@ urlpatterns = [
     path('admin_user_management/', views.admin_user_management, name='admin_user_management'),
     # TEMP PATH FOR TESTBACKEND PROCESSING --ANTHONY PETERS
     # path('admin_user_management/addMentorshipRequest/', views.admin_user_managment_add_mentorship_request,  name='admin_user_management_add_mentorship_request'),
+
+    # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --Will and Andy
+    path("verify_mentee_ug_status/", backend_requests.verify_mentee_ug_status, name='verify mentee status')
 
     #log in and out routes
     path('login/',views.login_uname_text,name='login'),

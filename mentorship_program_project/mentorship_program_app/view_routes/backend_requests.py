@@ -42,6 +42,7 @@ from ..models import User
 from datetime import date
 from dateutil.relativedelta import relativedelta
 import json
+from ..views import invalid_request_401
 
 from mentorship_program_app.models import *
 
@@ -104,9 +105,9 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
         print("this request already exists, IDENTITY CRISIS ERROR 🤿  ⛰️")
 
     ##print_debug(user.has_requested_user(mentor_id))
-    return HttpResponse(json.dumps({"result":"created request!"}));
+    return HttpResponse(json.dumps({"result":"created request!"}))
 
-
+@User.Decorators.require_logged_in_super_admin(invalid_request_401)
 def verify_mentee_ug_status(req):
     inactive_users = User.objects.filter((User.cls_date_joined + relativedelta(years=4) < date.today))
     for u in inactive_users:

@@ -19,8 +19,11 @@ SVSU Mentoring
 
         <div class="dashboard-top-section">
             <div class="card undergraduate-status">
-                <img src="{% static 'images/exclamation.jpg' %}">
-                <h3>Verify Mentee Undergraduate Status</h3>
+                <form id="verify-mentee-uq-status-form" action="/verify_mentee_ug_status" method="POST">
+                    {% csrf_token %}
+                    <img src="{% static 'images/exclamation.jpg' %}">
+                    <h3>Verify Mentee Undergraduate Status</h3>
+                </form>
             </div>
             <div class="card review-mentor-applications" id="mentorApplications">
                 <img src="{% static 'images/mail.jpg' %}">
