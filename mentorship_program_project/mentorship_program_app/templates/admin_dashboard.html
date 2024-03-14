@@ -95,7 +95,7 @@ SVSU Mentoring
                 </form>
             </div>
 
-            <div class="card user-management">
+            <div class="card user-management" id="user-management">
                 <img src="{% static 'images/person.jpg' %}">
                 <h3>User Management</h3>
             </div>
@@ -105,6 +105,10 @@ SVSU Mentoring
 <script>
     document.addEventListener('DOMContentLoaded', function() {
     const buttonDiv = document.getElementById('mentorApplications');
+    const userManagementBtn = document.getElementById('user-management');
+    userManagementBtn.addEventListener('click', () => {
+        window.location.href = './admin_user_management';
+    });
     buttonDiv.addEventListener('click', function() {
         window.location.href = './view_pending';
     });

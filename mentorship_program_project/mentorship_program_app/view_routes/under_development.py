@@ -811,8 +811,6 @@ def universalProfile(req : HttpRequest, user_id : int):
     page_owner_user = User.objects.get(id=user_id)
     
     page_owner_go_fuck_yourself = getattr(page_owner_user, 'mentee' if page_owner_user.is_mentee else 'mentor', None)
-    print(page_owner_go_fuck_yourself)
-
     interests = page_owner_user.interests.filter(user=page_owner_user)
     is_page_owner = signed_in_user == page_owner_user
     user_interests = []
@@ -821,12 +819,20 @@ def universalProfile(req : HttpRequest, user_id : int):
 
     all_interests = Interest.objects.all()
 
-    print(page_owner_user.id)
+    # get the pending mentorship requests for the page
     if page_owner_user.is_mentee:
-        pending = MentorshipRequest.objects.filter(mentee_id=page_owner_user.id)
-        print(pending)
-
-
+        pendingRequests = MentorshipRequest.objects.filter(mentee_id=page_owner_user.id)
+        pendingList = []
+        for pending in pendingRequests:
+            pendingList.append(User.objects.get(id=pending.mentor_id))
+        
+    else:
+        pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)
+        pendingList = []
+        for pending in pendingRequests:
+            pendingList.append(User.objects.get(id=pending.mentee_id))
+            
+    print(pendingList)
 
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
@@ -836,10 +842,42 @@ def universalProfile(req : HttpRequest, user_id : int):
                 "page_owner_go_fuck_yourself": page_owner_go_fuck_yourself,
                 # "mentor" :  page_owner_go_fuck_yourself.mentor.account if page_owner_go_fuck_yourself.mentor != None else None,
                 "all_interests" : all_interests,
-                "user_id" : user_id
+                "user_id" : user_id,
+                "pending" : pendingList
                }
     return HttpResponse(template.render(context,req))
 
+@User.Decorators.require_logged_in_mentor(bad_request_400)
+def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
+    session_user = User.from_session(req.session)
+    mentor_account = None
+    try:
+        mentor_account = User.objects.get(id=mentor_user_account_id)
+    except ObjectDoesNotExist:
+        return bad_request_400("mentor id is invalid!")
+
+    if session_user.has_authority(mentor_account):
+        try:
+            mentorship_request = MentorshipRequest.objects.get(
+                                        mentor_id=mentor_user_account_id,
+                                        mentee_id=mentee_user_account_id
+                                        )
+            
+            
+            #we should never get here, but just in case
+            if mentorship_request.is_accepted():
+                return bad_request_400("you already accepted this request!")
+
+            sucessfull = mentorship_request.accept_request(session_user)
+            
+            if sucessfull:
+                return HttpResponse("sucesfully created request")
+            
+            return bad_request_400("unable to create request!")
+
+        except ObjectDoesNotExist:
+            return bad_request_400("you do not have a request to accept!")
+    return bad_request_400("permission denied!")
 
 def save_mentee_profile_info(req : HttpRequest, mentee_id : int):
     """
@@ -876,30 +914,21 @@ def save_mentee_profile_info(req : HttpRequest, mentee_id : int):
     return redirect(f"/mentee_profile/{mentee_id}")
 
 
-def create_mentorship(req : HttpRequest, mentee_account_id : int, mentor_account_id : int )->HttpResponse:
+@User.Decorators.require_logged_in_mentor(bad_request_400)
+def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
     """
+    Description
+    ___________
     creates a mentorship relation between the given mentor and mentee ids
-
-    TODO: make this care about security things, right now this has no security checks
-    for who can actualy make the mentorship
-
-    this is VERY important to get up and running ^
-
-    TODO: make this remove old mentorships if they exists
 
     Authors
     _______
-    David Kennamer "_" (if you can call this finsihed)
+    David Kennamer .._.. (if you can call this finsihed)
     """
+    session_user = User.from_session(req.session)
 
     #actually add the mentorship to the db
-    mentee_account = User.objects.get(id=mentee_account_id).mentee
-    mentee_account.mentor = User.objects.get(id=mentor_account_id).mentor
-    mentee_account.save()
-
-    # record logs
-    # record the mentee since the mentor can be gathered from it later
-    SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, specified_user= User.objects.get(id=mentee_account_id))
+    session_user.create_mentorship_from_user_ids(mentee_user_account_id, mentor_user_account_id)
 
     return HttpResponse("created request sucessfully")
 
