@@ -1,0 +1,28 @@
+<dialog class="modal" id="note-creator-modal">
+    <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
+    <div class="modal-container">
+        <form action="POST" class="frm-note-creator">
+            <h2>Note Creator</h2>
+            <div class="modal-line"><hr></div>
+
+            <div class="container">
+                <h3 class="heading">Note Title:</h3>
+                <input type="text" name="Note Title" id="note-title-input" class="user-input" placeholder="">
+            </div>
+            
+            <div class="container">
+                <h3 class="heading">Public Notes:</h3>
+                <p class="subheading">Notes visible to anyone with access to group page.</p>
+                <textarea name="Public Notes" id="public-notes" rows="12" class="user-input"></textarea>
+            </div>
+
+            <div class="container">
+                <h3 class="heading">Private Notes:</h3>
+                <p class="subheading">Notes only visible to you and administrators.</p>
+                <textarea name="Private Notes" id="private-notes" rows="12" class="user-input"></textarea>
+            </div>
+            
+            <button type="submit" id="btn-create-note">Create Note</button>
+        </form>
+    </div>
+</dialog>
