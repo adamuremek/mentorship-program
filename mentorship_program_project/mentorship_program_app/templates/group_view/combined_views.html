@@ -42,6 +42,21 @@ Universal Agent
                         </li>
                     </ul>
                     {% endif %}
+                    {% if pending %}
+                        <h3>Pending Requests:</h3>
+                        <ul>
+                            {% for request in pending %}
+                                    <li class="mentee-manager">
+                                        <a href="{% url 'universal_profile' request.id %}">
+                                            <p>{{ request.str_first_name }} {{ request.str_last_name }}</p>
+                                        </a>
+                                        <button class="button-pending-action">&#10003;</button>
+                                        <button class="button-pending-action">&#10007;</button>
+                                    </li>
+                                
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 {% endif %}
 
             </ul>
