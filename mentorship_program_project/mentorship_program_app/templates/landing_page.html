@@ -20,7 +20,7 @@
         </div>
         <div class="column-right">
             <div class="portal">
-                <form action="/landing-post/" method="POST">
+                <form id="frm-login" action="/landing-post/" method="POST">
                     {% csrf_token %}
                     <div class="federated-li-container">
                         <button type="button" class="login-buttons" id="si-google-btn">
@@ -62,5 +62,15 @@
 <script src = '{% static "js/backend_requests.js" %}'></script>
 <script src = '{% static "js/landing_page/login_form.js" %}'></script>
 <script src = '{% static "js/landing_page/forgot_pass_modals.js" %}'></script>
+<script>
+    var input = document.getElementById("frm-login");
+    input.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            document.getElementById("li-btn").click();
+        }
+    });
+    
+</script>
 
 {% endblock %}

@@ -181,9 +181,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
     // Get Header Corner Element list
     const corner_guy = document.getElementsByClassName('sign_in_top_left_element')[0]
+    corner_guy.onclick = null
 
     console.log('corner guy')
-    console.log(corner_guy)
+    console.log(cur_id)
 
     corner_guy.innerText = `<- Step ${(cur_id + 1)} of ${page_count}`
 
@@ -191,9 +192,11 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         snippets[cur_id].style = 'display: none;'
 
         cur_id -= 1
+        console.log('corner guy')
+        console.log(cur_id)
 
-        if (cur_id == -1)
-            window.location.href = "/role_selection";
+        if (cur_id === -1)
+            window.location.href = is_student ? "/role_selection" : "/register/mentor";
         else {
             snippets[cur_id].style = 'display: flex;'
 
@@ -211,6 +214,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
             // When button is clicked, progress displayed card
             cur_id += 1
+            console.log('corner guy')
+            console.log(cur_id)
 
             // Submit at the end
             if (cur_id >= snippets.length) {
@@ -240,16 +245,18 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         const form_function = is_student ? is_mentee_page_valid : is_mentor_page_valid
         console.log(`Form_Index: ${form_idx}`)
         let is_valid = true
+
         switch (form_idx) {
             case 1: // Name and Pronouns
-                is_valid = input_first_name.value.length > 1 &&
-                    input_last_name.value.length > 1
+                is_valid = input_first_name.value.length > 0 &&
+                    input_last_name.value.length > 0
+                                
                 break
 
             case 2: // Email | Phone | Password
                 is_valid = regex_custom.test(input_email.value) &&
                     regex_phone.test(input_phone.value) &&
-                    input_password.value.length > 1
+                    input_password.value.length > 0
                 break
 
             default:
@@ -264,15 +271,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         // If flag becomes false, a form component failed validation
         let is_valid = true
         switch (form_idx) {
-            // case 1: // Name and Pronouns
-            //     is_valid = input_first_name.value.length > 1 && 
-            //               input_last_name.value.length > 1
-
-            // case 2: // Email | Phone | Password
-            //     is_valid = regex_custom.test(input_email.value) &&
-            //             regex_phone.test(input_phone.value)  &&
-            //             input_password.value.length > 1
-
+    
             case 3: // Interests
                 is_valid = true
                 break
@@ -292,19 +291,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         // If flag becomes false, a form component failed validation
         let is_valid = true
         switch (form_idx) {
-            // case 1: // Name and Pronouns
-            //     is_valid = input_first_name.value.length > 1 && 
-            //               input_last_name.value.length > 1
-
-            // case 2: // Email | Phone | Password
-            //     is_valid = regex_custom.test(input_email.value) &&
-            //               regex_phone.test(input_phone.value)  &&
-            //               input_password.value.length > 1
-            //     break
-
+           
             case 3: // company information
-                is_valid = input_company.value.length > 1 &&
-                    input_job_title.value.length > 1
+                is_valid = input_company.value.length > 0 &&
+                    input_job_title.value.length > 0
                 //input_company-type.value != none ??
                 //input_expeience.value != none    ??
                 break

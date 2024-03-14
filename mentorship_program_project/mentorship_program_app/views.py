@@ -276,7 +276,8 @@ def profileCard(req):
 
 #please make pretty front end we love you :D
 def home(req):
-
+    # What the hell is supposed to happen here.
+    # what is front end even supposed to do with this.
     return HttpResponse('theres no place me')
 
 def role_test(req):

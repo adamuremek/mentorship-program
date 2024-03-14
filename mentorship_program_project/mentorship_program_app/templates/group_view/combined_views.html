@@ -1,0 +1,216 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+Universal Agent
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mentor_group_view.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<section class="hero">
+    <div class="hero-container">
+
+        <div class="column-left">
+            <img src="../../static/images/ex-pfp.jpg" class="profile-picture">
+            <h3>{% if signed_in_user.is_mentee %} Mentor: {% else %}Mentees:{%endif%}</h3>
+            
+            <ul>
+                {% if signed_in_user.is_mentor %}
+                    {% for mentee in mentees %}
+                    <li class="mentee-manager">
+                        
+                        <p>{{mentee.str_first_name}} {{mentee.str_last_name}}</p>
+                        {% if is_page_owner == True %}
+                            <button class="button-mentee-remove">Remove</button>
+                        {% endif  %}
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    {% if mentor != None %}
+                    <h3>Mentor:</h3>
+                    <ul>
+                        <li class="mentee-manager">
+                                <p>{{mentor.str_first_name}} {{mentor.str_last_name}}</p>
+                                {% if is_page_owner == True %}
+                                    <button class="button-mentee-remove">Remove</button>
+                                {% endif %}
+                        </li>
+                    </ul>
+                    {% endif %}
+                {% endif %}
+
+            </ul>
+        </div>
+        <div class="column-right">
+            <div class="row-titles">
+                <div class="top-title">
+                    <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}{% if signed_in_user.is_mentor %}'s Mentorship Group{% endif %}</h1>
+                    {% if is_page_owner == True %}
+                    <span class="iHateMyself">
+                        <button type="button" class="button-edit" id="button-edit"
+                            onclick="changeEditToSave(event)">Edit Page</button>
+                        <button type="submit" class="button-save" id="button-save"
+                            style="display: none;">Save</button>
+                        <button type="button" class="button-cancel" id="button-cancel" onclick="location.reload()"
+                            style="display: none;" id="button-cancel">Cancel</button>
+                    </span>     
+                    {% endif %}
+                </div>
+
+                {% if page_owner_user.str_preferred_pronouns != None %}
+                   <h4>{{page_owner_user.str_preferred_pronouns}}</h4>
+                {% endif %}
+
+                <h2>{{page_owner_user.str_job_title}}</h2> 
+                <h3>{{organization}}</h3> 
+
+                <h2>Specializations / Areas of Expertise:</h2>
+                <div class="specialties">
+                    {% for interest in interests %}
+                            <label class="user-interest">
+                                <input type="checkbox" class="user_interests" id="{{interest.strInterest}}" name="selected_interests" value="{{interest.strInterest}}" onchange="interestClicked(event)" checked>
+                                <div class="user-interest-label">{{interest.strInterest}}</div>
+                            </label>
+                        {% endfor %}
+                        {% for interest in all_interests %}
+                        {% if interest not in interests %}
+                            <label class="user-interest hidden_interests" style="display: none;">
+                                <input type="checkbox" class="hover_interest" id="{{interest.strInterest}}" name="selected_interests" value="{{interest.strInterest}}"  onchange="interestClicked(event)">
+                                <div class="user-interest-label">{{interest.strInterest}}</div>
+                            </label>
+                        {% endif %}
+                        {% endfor %}
+
+                </div>
+                
+            </div>
+            <hr>
+            <div class="row-communication-methods">
+                <h2>Communication Method(s):</h2>
+                {% if signed_in_user.is_mentor %}
+                    <p>Phone: {{page_owner_user.str_phone_number}}</p>
+                {% endif %}
+                <p>Email: {{page_owner_user.cls_email_address}}</p>
+            </div>
+            <hr>
+            <div class="row-overview">
+                <h2>Overview:</h2>
+                    <textarea class="note"  id="bio" name="bio" rows="20" cols="200" readonly>{{page_owner_user.cleaned_bio}}</textarea>
+            </div>
+            
+            {% if signed_in_user.is_mentor %}
+            <hr>
+            <div class="row-notes">
+                <h2>Note(s):</h2>
+                <button id="btn-add-note">Add Note</button>
+            </div>
+            <hr class="invisible">
+            <div class="note-header">
+                <p class="note-title">Title</p>
+                <p>Date Created</p>
+                <p>Edit</p>
+                <p>Remove</p>
+                <p>Actions</p>
+            </div>
+            <div class="note">
+                <p class="note-title">fake note title</p>
+                <p>10-19-2023</p>
+                <button>E</button>
+                <button>X</button>
+                <button>^</button>
+            </div>
+            <div class="note">
+                <p class="note-title">fake note title</p>
+                <p>10-19-2023</p>
+                <button>E</button>
+                <button>X</button>
+                <button>^</button>
+            </div>
+            <div class="note">
+                <p class="note-title">fake note title</p>
+                <p>10-19-2023</p>
+                <button>E</button>
+                <button>X</button>
+                <button>^</button>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+
+{% include 'group_view/note_creation_modal.html' %}
+
+<script>
+
+    function changeEditToSave(event) {
+        event.preventDefault()
+
+        //Save button bullshit and shananiganz
+        let editBtn = document.getElementById("button-edit")
+        let saveBtn = document.getElementById("button-save")
+        let cancelBtn = document.getElementById("button-cancel")
+
+        //Editable field fuckshit
+        let bioTextArea = document.getElementById("bio")
+        let allInterestsButtons = document.querySelectorAll(".hidden_interests")
+        let user_interests = document.querySelectorAll(".user_interests")
+
+        //Make editable elements visible and selectable
+        bioTextArea.readOnly = false
+
+        user_interests.forEach(button => {
+            button.classList.add('hover_interest')
+        })
+
+        //This makes all available interests visible
+        allInterestsButtons.forEach(button => {
+            button.style.display = "inline-block"
+            button.getElementsByTagName('input')[0].classList.add('hover_interest')
+        })
+
+        //Make edit button invisible
+        editBtn.style.display = "none"
+        //Make save and cancel buttons visible
+        cancelBtn.style.display = "inline-block"
+        saveBtn.style.display = "inline-block"
+    }
+
+    function interestClicked(event){
+        event.preventDefault()
+
+        let saveDisplayed = document.getElementById("button-save")
+
+        //Basically, if the profile is not in edit mode, dont allow the interest selection to be changed.
+        if(saveDisplayed.style.display !== "inline-block"){
+            event.target.checked = !event.target.checked
+        }
+    }
+</script>
+
+<script>
+
+    // -------------------- <<< DO NOT DELETE >>> -------------------- \\
+    // -------------------- <<< NOT USELESS >>> -------------------- \\
+    
+    const btn_add_note = document.getElementById('btn-add-note');
+    const note_modal = document.getElementById('note-creator-modal');
+    const modal_exit = document.getElementById('modal-exit');
+
+
+    btn_add_note.addEventListener("click", () => {
+        note_modal.showModal();
+    });
+
+    modal_exit.addEventListener("click", () => {
+        note_modal.close();
+    });
+    
+</script>
+
+{% endblock %}

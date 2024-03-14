@@ -16,10 +16,16 @@ Dashboard
     <div class="hero-container">
 
         <h2 style="text-align:center;">My Account</h2>
-        <form action="{% if user.is_mentee %}/group_view{% else %}/mentee_profile{% endif %}" method="POST">
+        <form action="{% if session_user.is_mentee %}/mentee_profile/{{session_user.id}}{% else %}/poopcock{% endif %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ session_user.pk }}" />
-            <input type="image" class="card-profile-image" alt="Login" src="{{ session_user.img_user_profile.url }}" />
+            <input type="image" class="card-profile-image" alt="Login" src="{{ session_user.profile_img.img.url }}" />
+        </form>
+
+        <form action="/universal_profile/{{session_user.id}}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ session_user.pk }}" />
+            <input type="image" class="card-profile-image" alt="Login" src="{{ session_user.profile_img.img.url }}" />
         </form>
 
         <div class="section-recommended">

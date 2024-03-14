@@ -178,9 +178,31 @@ h1 {
 
 @media screen and (max-width: 1150px) {
     .recommended-cards,
-    .available-cards  {
+    .available-cards {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
+@media screen and (max-width: 420px) {
+    .recommended-cards,
+    .available-cards {
+        grid-template-columns: 1fr;
+    }
+}
 
+@media screen and (max-width: 620px) {
+    .available-filters {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .available-interests-filter {
+        flex-basis: 100%;
+        /* force wrap at this size */
+        margin-bottom: 1em;
+    }
+
+    .available-search-name {
+        margin-left: unset;
+    }
+}

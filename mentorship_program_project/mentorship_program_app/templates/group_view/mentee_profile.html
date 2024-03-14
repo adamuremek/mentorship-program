@@ -7,77 +7,98 @@ Mentor Group View
 {% endblock %}
 
 {% block style %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/mentor_group_view.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/mentor_group_view.css' %}">
 {% endblock %}
 
 {% block main_content %}
 
 <section class="hero">
     <div class="hero-container">
-        <form>
-            <div class="column-left">
-                <img src="../../static/images/ex-pfp.jpg" class="profile-picture">
-                <!-- Insert IF statment -->
-                <!-- IF student has mentor, display them -->
-                
-                {% if mentor != None %}
-                <h3>Mentor:</h3>
-                <ul>
-                    <li class="mentee-manager">
-                            <p>{{mentor.str_first_name}} {{mentor.str_last_name}}</p>
-                            {% if is_page_owner == True %}
-                                <button class="button-mentee-remove">Remove</button>
-                            {% endif %}
-                    </li>
-                </ul>
-                {% endif %}
-    
-                <br>
-                <hr>
-                <br>
-    
-                <h3>Requests:</h3>
-                <ul>
-                    <li class="mentee-manager">
-                            <h4>incoming mentee</h4>
-                            {% if is_page_owner == True %}
-                                <button class="button-mentee-remove">Remove</button>
-                            {% endif %}
-                    </li>
-                </ul>
+        <div class="column-left">
+            <div class="profile-container">
+                <img src="{{page_owner_user.profile_img.img.url}}" id="profile_pic" class="profile-picture">
+                <div id="edit_profile_overlay" class="profile-picture-edit-overlay" style="display: none;">
+                    Change Photo
+                </div>
             </div>
-            <div class="column-right">
+            
+            <!-- Insert IF statment -->
+            <!-- IF student has mentor, display them -->
+
+            {% if mentor != None %}
+            <h3>Mentor:</h3>
+            <ul>
+                <li class="mentee-manager">
+                    <p>{{mentor.str_first_name}} {{mentor.str_last_name}}</p>
+                    {% if is_page_owner == True %}
+                    <button class="button-mentee-remove">Remove</button>
+                    {% endif %}
+                </li>
+            </ul>
+            {% endif %}
+
+            <br>
+            <hr>
+            <br>
+
+            <h3>Requests:</h3>
+            <ul>
+                <li class="mentee-manager">
+                    <h4>incoming mentee</h4>
+                    {% if is_page_owner == True %}
+                    <button class="button-mentee-remove">Remove</button>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+        <div class="column-right">
+            <form action="{% url 'save_mentee_profile_info' mentee_id=mentee_id%}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" id="profile_image" name="profile_image" style="display: none;">
                 <div class="row-titles">
                     <div class="top-title">
                         <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}</h1>
                         {% if is_page_owner == True %}
-                        <span>
-                            <button class="button-edit" id="button-edit">Edit Page</button>
-                            <button class="button-cancel" id="button-cancel" style="display: none;" id="button-cancel">Cancel</button>
+                        <span class="iHateMyself">
+                            <button type="button" class="button-edit" id="button-edit"
+                                onclick="changeEditToSave(event)">Edit Page</button>
+                            <button type="submit" class="button-save" id="button-save"
+                                style="display: none;">Save</button>
+                            <button type="button" class="button-cancel" id="button-cancel" onclick="location.reload()"
+                                style="display: none;" id="button-cancel">Cancel</button>
                         </span>
-    
+
                         {% endif %}
                     </div>
-    
+
                     {% if page_owner_user.str_preferred_pronouns != None %}
-                        <h4>{{page_owner_user.str_preferred_pronouns}}</h4>
+                    <h4>{{page_owner_user.str_preferred_pronouns}}</h4>
                     {% endif %}
-    
-                    <h2>{{page_owner_mentee.str_job_title}}</h2> 
-                    <h3>{{organization}}</h3> 
+
+                    <h2>{{page_owner_mentee.str_job_title}}</h2>
+                    <h3>{{organization}}</h3>
                     <h2>Interests:</h2>
                     <div class="specialties">
                         {% for interest in interests %}
-                            <button class="user_interests" id="{{interests}}">{{interest}}</button>
+                        <label class="user-interest">
+                            <input type="checkbox" class="user_interests" id="{{interest.strInterest}}"
+                                name="selected_interests" value="{{interest.strInterest}}"
+                                onchange="interestClicked(event)" checked>
+                            <div class="user-interest-label">{{interest.strInterest}}</div>
+                        </label>
                         {% endfor %}
                         {% for interest in all_interests %}
-                            {% if interest not in interests %}
-                                <button class="hidden_interests" style="display: none;" id="interest.strInterest">{{interest.strInterest}}</button>
-                            {% endif %}
+                        {% if interest not in interests %}
+                        <label class="user-interest hidden_interests" style="display: none;">
+                            <input type="checkbox" class="hover_interest" id="{{interest.strInterest}}"
+                                name="selected_interests" value="{{interest.strInterest}}"
+                                onchange="interestClicked(event)">
+                            <div class="user-interest-label">{{interest.strInterest}}</div>
+                        </label>
+                        {% endif %}
                         {% endfor %}
-    
                     </div>
-                    
+
                 </div>
                 <hr>
                 <div class="row-communication-methods">
@@ -87,57 +108,77 @@ Mentor Group View
                 <hr>
                 <div class="row-overview">
                     <h2>Overview:</h2>
-                    <textarea class="note" id="bio" name="bio" rows="20" cols="200" readonly>
-                        {{page_owner_user.str_bio}}
-                    </textarea>
+                    <textarea class="note" id="bio" name="bio" rows="20" cols="200"
+                        readonly>{{page_owner_user.cleaned_bio}}</textarea>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </section>
-    
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-document.getElementById('button-edit').addEventListener('click', function() {
-    //Save button bullshit and shananiganz
-    let editBtn = document.getElementById("button-edit")
-    let editState = editBtn.textContent === "Edit Page"
-    let cancelBtn = document.getElementById("button-cancel")
 
-    //Editable field fuckshit
-    let bioTextArea = document.getElementById("bio")
-    let allInterestsButtons = document.querySelectorAll(".hidden_interests")
-    let user_interests = document.querySelectorAll(".user_interests")
+    function changeEditToSave(event) {
+        event.preventDefault()
 
-  
+        //Save button bullshit and shananiganz
+        let editBtn = document.getElementById("button-edit")
+        let saveBtn = document.getElementById("button-save")
+        let cancelBtn = document.getElementById("button-cancel")
+        let editPfpOverlay = document.getElementById("edit_profile_overlay")
 
-    cancelBtn.addEventListener('click', function(){
-        location.reload()
-    })
-    if(editState){
-        //Make all fields (that should be) editable and change the save button
-        editBtn.textContent = "Save"
-        allInterestsButtons.forEach(function(button) {
-            button.style.display = "inline-block";
-        });
+        //Editable field fuckshit
+        let bioTextArea = document.getElementById("bio")
+        let allInterestsButtons = document.querySelectorAll(".hidden_interests")
+        let user_interests = document.querySelectorAll(".user_interests")
 
-        cancelBtn.style.display = "inline-block"
-
-
+        //Make editable elements visible and selectable
         bioTextArea.readOnly = false
-        
-    }
-    else{
-        editBtn.textContent = "Edit Page"
-        allInterestsButtons.forEach(function(button) {
-            button.style.display = "none";
-        });
-        bioTextArea.readOnly = true
-        cancelBtn.style.display = "none"
-       
+        editPfpOverlay.style.display = "flex"
+
+        user_interests.forEach(button => {
+            button.classList.add('hover_interest')
+        })
+
+        //This makes all available interests visible
+        allInterestsButtons.forEach(button => {
+            button.style.display = "inline-block"
+            button.getElementsByTagName('input')[0].classList.add('hover_interest')
+        })
+
+        //Make edit button invisible
+        editBtn.style.display = "none"
+        //Make save and cancel buttons visible
+        cancelBtn.style.display = "inline-block"
+        saveBtn.style.display = "inline-block"
     }
 
-});
+    function interestClicked(event) {
+        event.preventDefault()
+
+        let saveDisplayed = document.getElementById("button-save")
+
+        //Basically, if the profile is not in edit mode, dont allow the interest selection to be changed.
+        if (saveDisplayed.style.display !== "inline-block") {
+            event.target.checked = !event.target.checked
+        }
+    }
+
+    $(document).ready(function () {
+        $('#edit_profile_overlay').click(function () {
+            $('#profile_image').click(); // Trigger file input click
+        })
+
+        $('#profile_image').change(function (event) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $('#profile_pic').attr('src', e.target.result) // Set preview image source to selected file
+            }
+            reader.readAsDataURL(event.target.files[0]); // Read the selected file as Data URL
+        })
+    })
+
 </script>
-
 
 {% endblock %}
