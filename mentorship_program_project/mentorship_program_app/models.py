@@ -258,7 +258,6 @@ class Interest(SVSUModelData,Model):
     # def __str__(self) -> str:
     #     return self.strInterest
 
-
 class User(SVSUModelData,Model):
     """
     Description
@@ -493,7 +492,7 @@ class User(SVSUModelData,Model):
 
         Returns
         -------
-        - str: Mentor if mentor esle MEntee
+        - str: Mentor if mentor else MEntee
         read the python :p ^
 
         Example Usage
@@ -577,67 +576,7 @@ class User(SVSUModelData,Model):
             return self.str_role == User.Role.MENTEE
         except ObjectDoesNotExist:
             return False
-    
-    def is_super_admin(self)->bool:
-        """
-        convinece function that returns true if the given user has super admin privleges in the database
-        """
-        try:
-            self.admin_entry
-            return True
-        except ObjectDoesNotExist:
-            return False
 
-    def get_shared_organizations(self,other : 'User')->['Organization']:
-        """
-        returns a set of organizations that the two given users share
-        """
-        #only mentors have organizations
-        if not (self.is_mentor() and other.is_mentor()): return None
-
-        return self.mentor.organizations & other.mentor.organizations
-
-
-
-
-    def get_first_shared_organization(self,other : 'User')->'Organization':
-        """
-        returns the first shared organization if it exists, otherwise None
-        """
-        #mentees do not have an organization
-        if self.is_mentee() or other.is_mentee(): return None
-        
-        my_organizations =  self.mentor.organizations.all()
-        your_organizations =  [o.id for o in other.mentor.organizations.all()]
-
-        #get the intersection of the id's
-        #realistically users will only be a part of one to two organiazitons
-        for my_org in my_organizations:
-            if my_org.id in your_organizations:
-                return my_org
-        return None
-
-    def has_authority(self, other : 'User')->bool:
-        """
-        returns true if the given user account has authority over the second user account
-        """
-        if self.id == other.id: return True
-        if self.is_super_admin(): return True
-        
-        if self.is_mentor() and other.is_mentor():
-            #if we are both mentors, check if we share an organization
-
-            shared_organizations = self.mentor.get_shared_organizations(other.mentor)
-
-            for org in shared_organizations:
-                if self.mentor.is_admin_of_organization(org):
-                    return True
-        
-        return False
-
-
-
-    
     def check_valid_password(self,password_plain_text : str)->bool:
         """
         Description
@@ -669,50 +608,6 @@ class User(SVSUModelData,Model):
         return security.hash_password(password_plain_text,self.str_password_hash) ==\
                 self.str_password_hash
 
-
-    def create_mentorship_from_user_ids(self,mentee_user_account_id : int,mentor_user_acount_id : int)->tuple['User','User']:
-        """
-        Description
-        ___________
-        convinence function that creates a relationship between a mentor and a mentee given their account id's
-
-        returns a tuple of the accounts from the database for further processing, will fail if the user this is running from
-        does NOT have permission to interact with the database
-
-        Returns
-        _______
-        a tuple of user objects where the first object is the mentee and the second the mentor
-
-        if you do not have permission to create the request, it returns (None,None)
-
-        Authors
-        _______
-        David Kennamer <.<
-        """
-        
-        #ensure that the person creating the request is a mentor (also admin, since admin is a subset of mentor)
-        if not self.is_mentor():
-            return (None,None)
-
-        mentor_user_account = User.objects.get(id=mentor_user_acount_id)
-
-        if not self.has_authority(mentor_user_account):
-            return (None,None)
-
-        mentee_user_account = User.objects.get(id=mentee_user_account_id)
-        mentee_account = mentee_user_account.mentee
-        mentee_account.mentor = mentor_user_account.mentor
-        mentee_account.save()
-
-        #make sure to remove all MentorShipRequests that are in the database still, since this mentee now has a mentor
-        MentorshipRequest.remove_all_from_mentee(mentee_account)
-
-        # record logs
-        # record the mentee since the mentor can be gathered from it later
-        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, 
-                                  specified_user= User.objects.get(id=mentee_user_account_id))
-
-        return (mentee_account,mentee_account.mentor)
 
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
@@ -977,7 +872,7 @@ class User(SVSUModelData,Model):
         ======
         Adam U. >:3
         """
-        print("TESTING:", self.str_bio.strip())
+        
         return self.str_bio.strip()
 
     class Decorators:
@@ -1089,17 +984,6 @@ class User(SVSUModelData,Model):
 
 
 
-class SuperAdminEntry(SVSUModelData,Model):
-    """
-    this class represents a list of super admin mentors in the database
-
-    if you have an entry in this table you are super admin,
-    if you do not have an entry, you are not super admin
-    """
-    bool_enabled = BooleanField(default=True) #can be used to turn off admin
-    user_account = OneToOneField(User, on_delete=models.CASCADE,related_name="admin_entry")
-
-
 class Organization(SVSUModelData,Model):
     """
     Description
@@ -1166,23 +1050,6 @@ class Mentor(SVSUModelData,Model):
     
     """
 
-    def is_admin_of_organization(self,org : 'Organization')->bool:
-        """
-        returns true if the given user administers the given organization
-        """
-        try:
-            org.admins.get(id=self.id)
-            return True
-        except ObjectDoesNotExist:
-            return False
-
-    def get_shared_organizations(self,other : 'Mentor')->['Organization']:
-        """
-        returns a list of organizations shared between two mentors,
-        the list will be empty if no mentors exists
-        """
-        return self.organizations.all() & other.organizations.all()
-        
     int_max_mentees = IntegerField(default=4)
    
     # TODO:
@@ -1202,7 +1069,7 @@ class Mentor(SVSUModelData,Model):
     )
 
 
-    organizations = ManyToManyField(
+    organization = ManyToManyField(
         Organization
     )
 
@@ -1377,77 +1244,17 @@ class MentorshipRequest(SVSUModelData,Model):
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
-
-    def accept_request(self,session_user : User)->bool:
-        """
-        Description
-        ___________
-        accepts the given mentorship request
+    requester = IntegerField(null=True)
 
 
-        fails if the given session user does NOT have PERMISSION to make the request
-
-        Authors
-        _______
-        David Kennamer *_*
-        Tanner Williams 🦞
-        """
-
-        # record logs
-        # record the mentee since the mentor can be gathered from it later
-        mentor,mentee = session_user.create_mentorship_from_user_ids(
-                                                    self.mentee.id,
-                                                    self.mentor.id
-                                                    )
-        if mentor == None or mentee == None:
-            return False
-
-        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
-                                  specified_user=mentee.account)
-
-       
-        MentorshipRequest.remove_all_from_mentee(mentee)
-
-        return True
-        
-
-    def remove_all_from_mentee(mentee : 'Mentee')->None:
-        """
-        Description
-        ___________
-        convinence function that removes all mentorship requests from the database that match a given mentee
-
-        Authors
-        _______
-        David Kennamer \*^*/
-        """
-        MentorshipRequest.objects.filter(mentee=mentee.account).delete()
 
     def is_accepted(self)->bool:
-        """
-        Description
-        ___________
-        returns true if the given request is accepted in the database, ideally this should 
-        allways be false, since we delete mentorship requests when we add them to a user
-
-        this is here as an extra security check to make sure that the request is NOT accepted
-        if this ever returns true it indicates invalid data
-
-        Authors
-        _______
-        David Kennamer ).)
-        Tanner Williams 🦞
-        """
-        try:
-            self.mentor.mentees.get(id=self.mentee.id)
-            return True
-        except:
-            return False
+        self.mentor.mentees.get(id=self.mentee.id)
 
 
     
     @staticmethod
-    def create_request(int_mentor_user_id: int, int_mentee_user_id: int):
+    def create_request(int_mentor_user_id: int, int_mentee_user_id: int, requester_id: int):
         """
         Description
         -----------
@@ -1486,7 +1293,8 @@ class MentorshipRequest(SVSUModelData,Model):
         try:
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,
-                mentee_id = int_mentee_user_id
+                mentee_id = int_mentee_user_id,
+                requester = requester_id
             )
             return mentor_ship_request
         except Exception as e:
@@ -1573,7 +1381,9 @@ class MentorshipRequest(SVSUModelData,Model):
         - int_mentor_id: (int):
         - int_mentee_id: (int):
 
-        Optional Parameters
+
+
+            Optional Parameters
         -------------------
         - NONE -
 
@@ -1991,13 +1801,14 @@ class SystemLogs(SVSUModelData,Model):
         -------
         
         """
-        LOGON_EVENT = "Logon"
-        APPROVE_MENTORSHIP_EVENT = "Create Mentorship"
-        REQUEST_MENTORSHIP_EVENT = "Request Mentorship"
+        LOGON_EVENT = "User logged on"
+        APPROVE_MENTORSHIP_EVENT = "Create mentorship"
+        REQUEST_MENTORSHIP_EVENT = "Request mentorship"
+        MENTORSHIP_TERMINATED_EVENT = "Mentorship terminated"
         MENTEE_REGISTER_EVENT = "Mentee signed up"
         MENTOR_REGISTER_EVENT = "Mentor applied"
-        MENTEE_DEACTIVATED = "Mentee deactivated"
-        MENTOR_DEACTIVATED = "Mentor deactivated"
+        MENTEE_DEACTIVATED_EVENT = "Mentee deactivated"
+        MENTOR_DEACTIVATED_EVENT = "Mentor deactivated"
         
 
     str_event = CharField(max_length=500, choices=Event.choices, default='')
@@ -2056,7 +1867,7 @@ class ProfileImg(SVSUModelData,Model):
         on_delete = models.CASCADE,
         primary_key = True,
         related_name="profile_img"
-    )
+    ) # :o
 
     #   The image, its name, and its file size.
     img_title = CharField(max_length=100)

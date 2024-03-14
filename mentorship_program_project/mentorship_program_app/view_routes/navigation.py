@@ -70,9 +70,8 @@ def dashboard(req):
     #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
         card_data = card_data.exclude(mentee__mentor = session_user.mentor)
-    elif session_user.is_mentee():
+    elif session_user.is_mentee() and session_user.mentee.mentor:
         card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
-
     # Using the Interest's many-to-many relation with the User table
     # Count all the interests for the opposing role
     interests_with_role_count = Interest.objects.annotate(mentor_count=Count('user', filter=Q(user__str_role=opposite_role))).values('strInterest', 'mentor_count')
@@ -102,19 +101,22 @@ def admin_dashboard(req):
     timespan_stats = get_project_time_statistics()
 
     context = {
-               "active_mentees"              : overall_stats["active_mentees"             ],
-               "unassigned_mentees"          : overall_stats["unassigned_mentees"         ],
-               "inactive_mentees"            : overall_stats["inactive_mentees"           ],
-               "active_mentors"              : overall_stats["active_mentors"             ],
-               "unassigned_mentors"          : overall_stats["unassigned_mentors"         ],
-               "inactive_mentors"            : overall_stats["inactive_mentors"           ],
-               "mentees_per_mentor"          : overall_stats["mentees_per_mentor"         ],
-               "mentor_retention_rate"       : overall_stats["mentor_retention_rate"      ],
-               "mentor_turnover_rate"        : overall_stats["mentor_turnover_rate"       ],
-               "total_approved_mentorships"  : overall_stats["total_approved_mentorships" ],
-               "total_requested_mentorships" : overall_stats["total_requested_mentorships"],
-               "successful_match_rate"       : overall_stats["successful_match_rate"      ],
-               "pending_mentor"              : overall_stats["pending_mentor"             ],
+               "active_mentees"              : overall_stats["active_mentees"              ],
+               "assigned_mentees"            : overall_stats["assigned_mentees"            ],
+               "unassigned_mentees"          : overall_stats["unassigned_mentees"          ],
+               "inactive_mentees"            : overall_stats["inactive_mentees"            ],
+               "active_mentors"              : overall_stats["active_mentors"              ],
+               "assigned_mentors"            : overall_stats["assigned_mentors"            ],
+               "unassigned_mentors"          : overall_stats["unassigned_mentors"          ],
+               "inactive_mentors"            : overall_stats["inactive_mentors"            ],
+               "mentees_per_mentor"          : overall_stats["mentees_per_mentor"          ],
+               "mentor_retention_rate"       : overall_stats["mentor_retention_rate"       ],
+               "mentor_turnover_rate"        : overall_stats["mentor_turnover_rate"        ],
+               "total_approved_mentorships"  : overall_stats["total_approved_mentorships"  ],
+               "total_requested_mentorships" : overall_stats["total_requested_mentorships" ],
+               "successful_match_rate"       : overall_stats["successful_match_rate"       ],
+               "pending_mentor"              : overall_stats["pending_mentor"              ],
+               "total_terminated_mentorships": overall_stats["total_terminated_mentorships"],
                
                # Daily
                "daily_visitors"              : timespan_stats["Daily"][0],
