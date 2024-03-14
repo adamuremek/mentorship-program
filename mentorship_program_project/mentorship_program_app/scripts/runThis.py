@@ -1,4 +1,3 @@
-from mentorship_program_app.Database.user import *
 from mentorship_program_app.models import MentorshipRequest
 from datetime import datetime
 

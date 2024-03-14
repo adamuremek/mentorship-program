@@ -1,0 +1,17 @@
+<div class="organization_management_bar_container">
+    <div class="organization_management_bar">
+        <p id="admin_user_management_small_text">
+            {{ organization.name }}
+        </p>
+        
+        <button class="admin_user_management_word_button_clear_inactive" id="remove_organization_button">
+            <p id="admin_user_management_small_text">
+                REMOVE
+            </p>
+        </button>
+    </div>
+
+    {% for mentor in admin_list %}
+        {% include 'admin/organization_management_bar.html' %}
+    {% endfor %}
+</div>

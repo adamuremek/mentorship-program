@@ -36,6 +36,7 @@ MODIFICATION HISTORY:
 
 WHO     WHEN     WHAT
 WJL   3/3/2024   Added file header comment and updating to doc standards
+ARVP  3/10/2024  Added ProfileImg and Organization imports
 """
 
 #standard python imports
@@ -54,8 +55,12 @@ from utils import security
 from .models import User
 from .models import Interest
 from .models import Mentor
+from .models import Mentee
+
 from .models import MentorshipRequest
 from .models import SystemLogs
+from .models import ProfileImg
+from .models import Organization
 
 
 #please make it pretty front end :)
@@ -280,12 +285,11 @@ def role_test(req):
     context = {}
     return HttpResponse(template.render(context, req))
 
-# TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
+# TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --ANTHONY PETERS
 def role_selection(request):
     template = loader.get_template('sign-in card/shared/role_selection.html')
     context = {}
     return HttpResponse(template.render(context, request))
-
 
 def account_activation_mentee(request):
     template = loader.get_template('sign-in card/mentee/account_activation_mentee.html')
@@ -313,10 +317,167 @@ def account_activation_mentor(request):
 
 def admin_user_management(request):
     template = loader.get_template('admin/user_management.html')
+    session_user = User.from_session(request.session)
+
+    # Create storge for list
+    unaffiliated_mentors = []
+    organizations = []
+    mentees = []
+
+    # role = session_user.get_database_role_string
+    # TESTING
+    role = User.Role.ADMIN
+
+    # Preset admin flag to false
+    user_admin_flag = False
+
+    # Check if user is a organization admin
+    for organization in Organization.objects.all():
+        for admin in organization.admins.all():
+            if (session_user == admin):
+                # Set admin flag to true
+                user_admin_flag = True
+
+                # Store organization 
+                user_organization = organization
+
+
+    # Load from database based on role
+    # Check if user is an admin
+    if (role == User.Role.ADMIN):
+        # Get all mentee and mentor data from database
+        user_management_mentee_data = Mentee.objects
+        user_management_mentor_data = Mentor.objects
+        user_management_organizations_data = Organization.objects
+
+    # Check if user is an organization admin
+    elif (user_admin_flag):
+        # Get all mentee data and mentor data from within the organization
+        user_management_mentor_data = Mentee.objects
+        user_management_mentor_data = Mentor.objects
+        user_management_organizations_data = Organization.objects.filter(user_organization == Organization)
+
+    # for org in organizations.all():
+    #     print(org.admins)
+
+    # Cycle through organizations storing organization data
+    for organization in user_management_organizations_data.all():
+        # Create admin list for organization
+        admin_list = []
+
+        # Cycle through admins of organization
+        for admin in organization.admins.all():
+            # Remove mentor from unafiiaited mentor group
+            user_management_mentor_data.remove(admin)
+
+            # Get mentorship objects if possible    
+            mentorships = MentorshipRequest.objects.filter(mentor=mentor.account)
+
+            # Set current mentor amount from mentorship object's count
+            current_mentees = mentorships.count()
+            
+            # Check if mentor has at least 1 mentorship
+            if (current_mentees > 0):
+                # Create an empty list for mentees
+                mentee_list = []
+
+                # Loop through mentorship list, adding mentees to mentee list
+                for current_mentorship in mentorships:
+                    mentee_list.append(current_mentorship.mentee)
+            else:
+                # Set mentee list to none
+                mentee_list = None
+
+            # Add needed mentee info to organization list
+            admin_list.append(
+                {
+                    'account': mentor.account,
+                    'mentees': mentee_list,
+                    'current_mentees': current_mentees,
+                    'max_mentees': mentor.int_max_mentees
+                }
+            )
+
+            # FOR TESTING
+            print()
+            print(mentor.account)
+
+        # FOR TESTING
+        print(organization.str_org_name)
+
+        organizations.append({'name': organization.str_org_name, 'admin_list': admin_list})
+
+    # Cycle through unaffiliated mentors storing mentor data
+    for mentor in user_management_mentor_data.all():
+        # Get mentorship objects if possible    
+        mentorships = MentorshipRequest.objects.filter(mentor=mentor.account)
+
+        # Set current mentor amount from mentorship object's count
+        current_mentees = mentorships.count()
+        
+        # Check if mentor has at least 1 mentorship
+        if (current_mentees > 0):
+            # Create an empty list for mentees
+            mentee_list = []
+
+            # Loop through mentorship list, adding mentees to mentee list
+            for current_mentorship in mentorships:
+                mentee_list.append(current_mentorship.mentee)
+        else:
+            # Set mentee list to none
+            mentee_list = None
+
+        # FOR TESTING
+        print()
+        print(mentor.account)
+
+        # Add needed mentee info to mentees list
+        unaffiliated_mentors.append(
+            {
+                'account': mentor.account,
+                'mentees': mentee_list,
+                'current_mentees': current_mentees,
+                'max_mentees': mentor.int_max_mentees
+            }
+        )
+
+    # Cycle through mentee storing mentee data
+    for mentee in user_management_mentee_data.all():
+        # Get mentorship object if possible    
+        mentorship = MentorshipRequest.objects.filter(mentee=mentee.account)
+        
+        # Check if mentee is include in any MentorshipReqiest objects and set has_mentor and mentor accordingly
+        if (mentorship):
+            has_mentor = True
+            mentor = mentorship[0].mentor
+        else:
+            has_mentor = False
+            mentor = None
+
+        # Add needed mentee info to mentees list
+        mentees.append(
+            {
+                'account': mentee.account,
+                'mentor': mentor,
+                'has_mentor': has_mentor
+            }
+        )
+
     context = {
-        #TODO NEED TO ADD SOME DUMMY INFO
+        'mentees': mentees,
+        'unaffiliated_mentors': unaffiliated_mentors,
+        'organizations': organizations,
+
+
+
+
+        'role': role,
+        'ADMIN': User.Role.ADMIN,
+        'user_admin_flag': user_admin_flag
     }
-    return HttpResponse(template.render(context,request))\
+
+    return HttpResponse(template.render(context,request))
+
 
 
 
