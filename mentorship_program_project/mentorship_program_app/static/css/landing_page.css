@@ -92,15 +92,13 @@ a:not([class]) {
 
 @media screen and (max-width: 768px) {
     .hero-container {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 }
 
 
 .hero-container {
-    display: grid;
-    gap: 1em;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     height: 90%;
     padding: 0 calc((100vw - 1300px) / 2);
 }
@@ -136,8 +134,8 @@ a:not([class]) {
 }
 
 form {
-    height: 550px;
-    width: 500px;
+    height: 25rem;
+    width: 40rem;
     background-color: rgba(99, 99, 99, 0.055);
     border-radius: 10px;
     backdrop-filter: blur(10px);
@@ -444,4 +442,19 @@ input:-moz-autofill:active {
     margin-top: .5em;
     font-size: 1.15rem;
     color: var(--clr-font-secondary);
+}
+
+.prompt-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.prompt-login h1 {
+    font-size: 2.5rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    color: #FFFFFF
 }
