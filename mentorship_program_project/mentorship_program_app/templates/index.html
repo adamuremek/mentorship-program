@@ -37,5 +37,14 @@
         document.getElementById('current-year').textContent = currentYear;
     });
 </script>
+
+<!-- script used to check if light mode is turned on -->
+<script>
+    theme = localStorage.getItem('theme');
+
+    if (theme) {
+        document.body.classList.add(theme);
+    }
+</script>
 </html>
 

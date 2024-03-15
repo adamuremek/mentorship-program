@@ -1,11 +1,28 @@
 /* @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500&display=swap'); */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Roboto+Slab&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+/*  */
+
+/* clr-light and light-mode utility class used to toggle light mode*/
+:root {
+    --clr-light: linear-gradient(139deg,
+    rgba(255,0,0,1) 0%, 
+    rgba(251,57,57,1) 23%, 
+    rgba(255,130,130,1) 50%, 
+    rgba(255,193,193,1) 75%, 
+    rgba(255,255,255,1) 100%);
+}
+
+.light-mode {
+    background-image: var(--clr-light);
+}
 
 * {
     color: whitesmoke;
     padding: 0;
     margin: 0;
 }
+
+
 
 body {
     font-family: 'Roboto','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
