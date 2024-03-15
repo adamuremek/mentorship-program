@@ -1,6 +1,10 @@
 /* @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500&display=swap'); */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Roboto+Slab&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
+:root {
+    --clr-font-primary: hsl(222, 27%, 95%);
+}
+
 * {
     color: whitesmoke;
     padding: 0;
@@ -8,25 +12,23 @@
 }
 
 body {
-    font-family: 'Roboto','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
-    height: 100vh;
-     /* This gradient is PRETTY DANG close to the Figma model */
+    min-height: 100vh;
+    /* This gradient is PRETTY DANG close to the Figma model */
     /* Runner-up Blue: #1E2E55*/
-    background-image: -webkit-linear-gradient(135deg, #792f38 0%,  #233667 100%);
-    background-image: -moz-linear-gradient(135deg, #792f38 0%,  #233667 100%);
-    background-image: -o-linear-gradient(135deg, #792f38 0%,  #233667 100%);
+    background-image: -webkit-linear-gradient(135deg, #792f38 0%, #233667 100%);
+    background-image: -moz-linear-gradient(135deg, #792f38 0%, #233667 100%);
+    background-image: -o-linear-gradient(135deg, #792f38 0%, #233667 100%);
     /* background-image: linear-gradient(135deg, #792f38 0%,  #233667 100%); */
-	background-image: linear-gradient(
-        315deg,
-        hsl(216deg 36% 19%) 0%,
-        hsl(216deg 45% 24%) 23%,
-        hsl(229deg 23% 32%) 41%,
-        hsl(326deg 20% 31%) 57%,
-        hsl(355deg 43% 27%) 76%,
-        hsl(354deg 33% 23%) 100%
-      );
-      
+    background-image: linear-gradient(315deg,
+            hsl(216deg 36% 19%) 0%,
+            hsl(216deg 45% 24%) 23%,
+            hsl(229deg 23% 32%) 41%,
+            hsl(326deg 20% 31%) 57%,
+            hsl(355deg 43% 27%) 76%,
+            hsl(354deg 33% 23%) 100%);
+
     /* stretches instead of repeats gradient on long pages */
     background-attachment: fixed;
     position: static;
@@ -39,13 +41,39 @@ main {
     /* max-height: 100vh; */
     max-width: 100vw;
     display: flex;
-    justify-content: center; 
+    justify-content: center;
 }
 
 
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
+/* Remove default margin */
+* {
+    margin: 0;
+    padding: 0;
+    font: inherit;
+}
 
+/* Set core root defaults */
+html:focus-within {
+    scroll-behavior: smooth;
+}
 
+/* html,
+body {
+    height: 100%;
+} */
+
+/* Set core body defaults */
+body {
+    text-rendering: optimizeSpeed;
+    line-height: 1.5;
+}
 
 /* Red   :  #4C282C */
 /* Blue  :  #1E2E42 */
@@ -77,15 +105,14 @@ h4 {
 /* -----------------    NAV BAR STYLES    ---------------- */
 /* ------------------------------------------------------- */
 
-nav {
+/* nav {
     height: 5vh;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* padding: 0rem calc((100vw - 1300px) / 2); */
     padding-top: 1vh;
-}
-
+} 
+ 
 nav a {
     text-decoration: none;
     color: lightgray;
@@ -95,9 +122,164 @@ nav a {
 nav .logo {
     padding: 10px 10px;
 }
+
 nav .logo img {
     height: 5vh;
+} */
+
+nav {
+    padding: 10px 0;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
 }
+
+nav img {
+    height: 50px;
+    width: auto;
+}
+
+nav ul {
+    width: 100%;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav li {
+    height: 50px;
+}
+
+nav svg {
+    fill: var(--clr-font-primary);
+    height: 20px;
+    width: auto;
+    padding-right: 10px;
+}
+
+.primary-navbar svg {
+    height: 30px;
+}
+
+nav a {
+    height: 100%;
+    margin: 0 20px;
+    display: flex;
+    align-items: center;
+    color: var(--clr-font-primary);
+    text-decoration: none;
+    font-size: 1.15rem;
+    font-weight: 500;
+}
+
+nav li:first-child {
+    margin-right: auto;
+}
+
+/* Styling for <hr> to be a nice looking line */
+.section-divider {
+    border: none;
+    height: 1.5px;
+    width: 90%;
+    align-items: center;
+    background-color: var(--clr-font-primary);
+    margin-left: 10px;
+}
+
+/* Refers to logo a element */
+#logo {
+    padding: 0;
+}
+
+.sidebar {
+    position: fixed;
+    top: 70px;
+    right: 0px;
+    height: calc(100vh - 70px);
+    width: 250px;
+    z-index: 999;
+    background-color: rgba(255, 255, 255, 0.073);
+    backdrop-filter: blur(10px);
+    box-shadow: -10px 0 10px rgba(0, 0, 0, 0.1);
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.sidebar li {
+    width: 100%;
+}
+
+.sidebar a {
+    width: 100%;
+    margin: 0;
+    padding: 0 20px;
+}
+
+.sidebar:last-child {
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
+.sidebar a:hover {
+    background-color: rgba(255, 255, 255, 0.134);
+}
+
+.mobile-sidebar {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    height: 100vh;
+    width: 100%;
+    z-index: 999;
+    background-color: rgba(255, 255, 255, 0.073);
+    backdrop-filter: blur(10px);
+    box-shadow: -10px 0 10px rgba(0, 0, 0, 0.1);
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.mobile-navbar {
+    display: none;
+
+}
+
+.mobile-navbar img {
+    height: 45px;
+    width: auto;
+}
+
+.mobile-navbar svg {
+    fill: var(--clr-font-primary);
+    height: 30px;
+    width: auto;
+    padding-right: 10px;
+}
+
+/* Make navigation responsive for mobile/tablet */
+@media(max-width:800px) {
+    .primary-navbar {
+        display: none;
+    }
+
+    .mobile-navbar {
+        display: flex;
+    }
+}
+
+/* Make side-bar responsive for mobile/tablet */
+@media(max-width:400px) {
+    .primary-navigation {
+        display: none;
+    }
+
+    .mobile-sidebar {
+        width: 100%;
+    }
+}
+
 
 /* ------------------------------------------------------- */
 /* -------------------    CARD STYLES    ----------------- */
@@ -109,10 +291,10 @@ nav .logo img {
 
     min-height: 40vw;
     max-height: 50vw;
-    
+
     width: 40%;
 
-    box-shadow:  2px 2px 2px 2px rgba(47, 47, 47, 0.6);
+    box-shadow: 2px 2px 2px 2px rgba(47, 47, 47, 0.6);
 }
 
 .sign-in-card-content {
@@ -198,7 +380,7 @@ footer {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    
+
     height: inherit;
     width: 70%;
 
@@ -260,7 +442,7 @@ footer {
 
     padding: 2%;
     border-radius: .5em;
-    
+
     overflow-y: scroll;
     overflow-x: auto;
     scrollbar-width: thin;
@@ -313,7 +495,7 @@ footer {
     top: 50%;
     right: 10px;
     transform: translateY(-50%);
-   
+
     cursor: pointer;
 }
 
@@ -362,18 +544,18 @@ footer {
 
     padding: 2%;
     margin: 1%;
-    
+
     border-radius: .5em;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 
     background-color: #464B4E;
 }
 
-.sign-in-card-interest:hover input[type=checkbox] ~ .sign-in-card-interest-label {
+.sign-in-card-interest:hover input[type=checkbox]~.sign-in-card-interest-label {
     background-color: lightgrey;
 }
 
-.sign-in-card-interest input[type=checkbox]:checked ~ .sign-in-card-interest-label {
+.sign-in-card-interest input[type=checkbox]:checked~.sign-in-card-interest-label {
     background-color: gray;
 }
 
@@ -432,7 +614,7 @@ footer {
     font-size: large;
 
     width: fit-content;
-    
+
     margin-top: 2%;
     margin-left: 3%;
 
@@ -447,7 +629,7 @@ footer {
 
     background-color: #131314;
     border-color: #131314;
-    color:#E3E3E3;
+    color: #E3E3E3;
 }
 
 #sign-in-card-apple-btn {
@@ -457,7 +639,7 @@ footer {
 
     background-color: #E6E6E6;
     border-color: #E6E6E6;
-    color:#363A3E;
+    color: #363A3E;
 }
 
 #sign-in-card-linkedin-btn {
@@ -465,7 +647,7 @@ footer {
 
     background-color: #0065B3;
     border-color: #0065B3;
-    color:#E3E3E3;
+    color: #E3E3E3;
 }
 
 #sign-in-card-google-btn:hover {

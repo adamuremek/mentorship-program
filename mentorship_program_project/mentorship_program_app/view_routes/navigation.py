@@ -30,6 +30,21 @@ def default(req: HttpRequest):
     
     return HttpResponse(template.render(context, req)) 
 
+def global_nav_data(req):
+    context: dict = {}
+
+    """
+    Adding key values to dict for use in the navigation bar.
+    """
+    authenticated = security.is_logged_in(req.session)
+    context['authenticated'] = authenticated
+
+    if authenticated:
+        session_user = User.from_session(req.session)
+        context['user'] = session_user
+
+    return context
+
 def landing(req):
     """
     Renders the landing page for the application.
@@ -70,8 +85,8 @@ def dashboard(req):
     #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
         card_data = card_data.exclude(mentee__mentor = session_user.mentor)
-    elif session_user.is_mentee():
-        card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
+    elif session_user.is_mentee() and session_user.mentee.mentor:
+        card_data = card_data.exclude(id=session_user.mentee.mentor.id)
 
     # Using the Interest's many-to-many relation with the User table
     # Count all the interests for the opposing role
