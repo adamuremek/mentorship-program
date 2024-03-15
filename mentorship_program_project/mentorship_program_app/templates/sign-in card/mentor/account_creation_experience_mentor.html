@@ -2,6 +2,7 @@
     <div class="sign-in-card-element">
         <p class="sign-in-card-text-normal">Company:</p>
         <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp.">
+        <p id="frm-company-warning-message" class="error-message"></p>
     </div>
 
     <div class="sign-in-card-element-horizontal">
@@ -13,6 +14,7 @@
                     <option>{{companytype}}</option>
                 {% endfor %}
             </select>
+            <p id="frm-company-type-warning-message" class="error-message"></p>
         </div>
         <div>
             <p class="sign-in-card-text-normal">Experience:</p>
@@ -22,12 +24,14 @@
                     <option value="{{experience}}">{{experience}}</option>
                 {% endfor %}
             </select>
+            <p id="frm-experience-warning-message" class="error-message"></p>
         </div>
     </div>
 
     <div class="sign-in-card-element">
         <p class="sign-in-card-text-normal">Job Title:</p>
         <input type="text" id="jobTitle" name="jobTitle" placeholder="e.g. Software Developer">
+        <p id="frm-job-title-warning-message" class="error-message"></p>
     </div>
 
     <div class="sign-in-card-element">

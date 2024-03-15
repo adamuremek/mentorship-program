@@ -25,9 +25,18 @@ def logout(session : dict)->bool:
         return True
     return False
 """properly sets the session variable to login"""
-def set_logged_in(session : dict,user_id : int)->bool:
+def set_logged_in(session : dict,user : 'User')->bool:
+    
+    #TODO: circular imports mean that we can't use the 
+    #enumerators here which is EVIL
+    #probably we want this security file moved into the 
+    #project to avoid that
+    if not user.str_role in ['Mentor','Mentee','Admin']:
+        return False
+
     session["login"] = True
-    session["user_id"] = user_id
+    session["user_id"] = user.id
+    return True
 
 """returns true if we are currently logged in, else false"""
 def is_logged_in(session : dict)->bool:

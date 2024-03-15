@@ -24,7 +24,7 @@ SVSU Mentoring
             </div>
             <div class="card review-mentor-applications" id="mentorApplications">
                 <img src="{% static 'images/mail.jpg' %}">
-                <h3>Review Mentor Applications: {{pending_mentor}} Remaining</h3>
+                <h3>Review Mentor Applications: {{pending_mentors}} Remaining</h3>
             </div>
             <div class="card stats program-statistics">
                 <h2>Program Statistics</h2>
@@ -33,6 +33,10 @@ SVSU Mentoring
                     <p>Active Mentors: {{active_mentors}}</p>
                     <p>Mentee per Mentor: {{mentees_per_mentor}}</p>
                     <p>Mentorships Created: {{total_approved_mentorships}}</p>
+                    <p>Assigned Mentees: {{assigned_mentees}}</p>
+                    <p>Assigned Mentors: {{assigned_mentors}}</p>
+                    <p>A</p>
+                    <p>Terminated Mentorships: {{total_terminated_mentorships}}</p>
                     <p>Unassigned Mentees: {{unassigned_mentees}}</p>
                     <p>Unassigned Mentors: {{unassigned_mentors}}</p>
                     <p>Mentor Retention Rate: {{mentor_retention_rate}}</p>
@@ -87,10 +91,10 @@ SVSU Mentoring
                     <li>{{lifetime_deactivate_mentees}} Deactivated Mentee Accounts</li>
                 </ul>
             </div>
-            <div class="card generate-mentee-reports" id="generate-reports-button">
+            <div class="card generate-reports" id="generate-reports-button">
                 <form id="generate-reports-form" action="/generate_report" method="POST">
                     {% csrf_token %}
-                    <h3>Generate Mentee Reports</h3>
+                    <h3>Generate Reports</h3>
                     <input type="submit" value="" style="display: none;" />
                 </form>
             </div>

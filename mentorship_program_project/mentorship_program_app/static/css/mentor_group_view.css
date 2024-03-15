@@ -93,22 +93,35 @@ hr {
     margin-left: 1em;
 }
 
-.top-title button {
-    color: whitesmoke;
-    font-size: 1rem;
-    background-color: transparent;
-    border: 2px solid;
-    border-radius: 1rem;
+.top-title button{
     width: 7rem;
 }
 
+button {    
+    color: whitesmoke;
+    font-size: 1rem;
+
+
+    background-color: #555555cc;
+    background-image: linear-gradient(#666, #555);
+    border: 2px solid rgb(0 0 0 /40%);
+    box-shadow: rgb(19 19 19) 0 1px 1px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-radius: 1rem;
+}
+
+/* 
+    color: #24292E;
+    background-color: #FAFBFC;
+    border: 1px solid rgba(27, 31, 35, 0.15);
+    box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+    box-sizing: border-box;
+    cursor: pointer;    
+*/
+
 .specialties {
     display: block;
-    /* display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: .5em; */
-    /*flex-wrap: wrap; /* Wrap flex items to the next line if needed */
-    /*flex-direction: row; /* Arrange flex items horizontally */
     margin: .5em 0;
 }
 
@@ -159,7 +172,7 @@ hr {
 
 .specialties input:checked ~ .user-interest-label {
     background-color: #464B4E;
-    border: #363b3f;
+    border: #464B4E;
     border-width: 2px;
 }
 
@@ -168,7 +181,11 @@ hr {
 } */
 
 .specialties .hover_interest:hover ~ .user-interest-label {
-    background-color:  #363b3f;
+    background-color:  #3d4247;
+}
+
+textarea {
+    resize: none;
 }
 
 textarea[readonly] {
@@ -225,18 +242,43 @@ textarea[readonly] {
     margin-bottom: 0.5rem;
 }
 
+.mentee-manager a h4 {
+    margin-left: .5em;
+}
+
 .button-pending-action {
     color: white;
-    background-color: transparent;
+    background-color: #444444cc;
+    
     border: 2px solid;
     border-radius: 25px;
     width: 2rem;
     margin: 0 .25em;
 }
 
-.button-pending-action:first-of-type {
+.button-pending-action-container {
+    text-decoration: none;
+}
+
+/* 11aa55cc */
+
+.please-fuck-off-and-die .button-pending-action-container:nth-child(1) .button-pending-action {
+    background-color: #11aa55cc;
+}
+
+/* Apply styles to the second element of the class */
+.please-fuck-off-and-die .button-pending-action-container:nth-child(2) .button-pending-action {
+    background-color: #aa1155cc;
+}
+
+.please-fuck-off-and-die {
     margin-left: auto;
-    margin-right: 0;
+    margin-right: .5em;
+}
+
+#pending-requests-container {
+    width: 90%;
+    margin: auto;
 }
 
 .row-notes {
@@ -254,10 +296,7 @@ textarea[readonly] {
 
 .row-notes button {
     color: whitesmoke;
-    border: solid;
-    border-color: #27446D;
     border-radius: 1rem;
-    background-color: #27446D;
     height: 2rem;
     margin-left: 1rem;
     padding-left: 1rem;
@@ -294,10 +333,10 @@ textarea[readonly] {
     margin-bottom: 0.5rem;
     background-color: rgba(150, 150, 150, 0.3);
     padding: 0.5rem;
-    border-color: #333842;
+    border-color: #33384200;
     display: flex;
     height: 2rem;
-    border-radius: 5px;
+    border-radius: 0.5rem;
 }
 
 .note p:not(.note-title) {
@@ -308,11 +347,37 @@ textarea[readonly] {
 .note button:not(.note-title) {
     flex: 1;
     margin: 0 5px;
-    background-color: transparent;
-    border: none;
 }
 
+/* .note button:hover, .row-notes button:hover { */
+button:hover {
+    background-color: #464B4E;
+}
 
+/* .note button:active, .row-notes button:active { */
+button:hover { 
+    background-color: #363b3f;
+}
+
+.request-separator {
+    width: 80%;
+    opacity: .8;
+    margin: 1.5em auto;
+
+}
+
+#btn_profile_request {
+    margin-top: 1em;
+
+    padding: 0.5em;
+    width: 80%;
+    margin-left: 10%;
+}
+
+.button-mentee-remove {
+    margin-left: auto;
+    margin-right: 1em;
+}
 
 /* ----- Modal Component Styling ----- */
 

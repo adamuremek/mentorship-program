@@ -258,7 +258,6 @@ class Interest(SVSUModelData,Model):
     # def __str__(self) -> str:
     #     return self.strInterest
 
-
 class User(SVSUModelData,Model):
     """
     Description
@@ -493,7 +492,7 @@ class User(SVSUModelData,Model):
 
         Returns
         -------
-        - str: Mentor if mentor esle MEntee
+        - str: Mentor if mentor else MEntee
         read the python :p ^
 
         Example Usage
@@ -583,8 +582,7 @@ class User(SVSUModelData,Model):
         convinece function that returns true if the given user has super admin privleges in the database
         """
         try:
-            self.admin_entry
-            return True
+            return self.admin_entry.bool_enabled
         except ObjectDoesNotExist:
             return False
 
@@ -691,13 +689,13 @@ class User(SVSUModelData,Model):
         """
         
         #ensure that the person creating the request is a mentor (also admin, since admin is a subset of mentor)
-        if not self.is_mentor():
-            return (None,None)
+        # if not self.is_mentor():
+        #     return (None,None)
 
         mentor_user_account = User.objects.get(id=mentor_user_acount_id)
-
-        if not self.has_authority(mentor_user_account):
-            return (None,None)
+    
+        # if not self.has_authority(mentor_user_account):
+        #     return (None,None)
 
         mentee_user_account = User.objects.get(id=mentee_user_account_id)
         mentee_account = mentee_user_account.mentee
@@ -948,11 +946,14 @@ class User(SVSUModelData,Model):
 
         AUTHORS
         _______
-        David Kennamer ._.
+        David Kennamer ._0
         Adam U. <:3
         """
-
-        return getattr(self, "profile_img", None)
+        try:
+            return self.profile_img_query
+        except ObjectDoesNotExist:
+            img = ProfileImg.create_from_user_id(self.id)
+            return img
 
     @property
     def cleaned_bio(self) -> str:
@@ -977,7 +978,7 @@ class User(SVSUModelData,Model):
         ======
         Adam U. >:3
         """
-        print("TESTING:", self.str_bio.strip())
+        
         return self.str_bio.strip()
 
     class Decorators:
@@ -1202,7 +1203,7 @@ class Mentor(SVSUModelData,Model):
     )
 
 
-    organizations = ManyToManyField(
+    organization = ManyToManyField(
         Organization
     )
 
@@ -1280,11 +1281,32 @@ class Mentee(SVSUModelData,Model):
     -------
 
     """
+
+    #limits the number of requests that any given mentee can have
+    MAXIMUM_REQUEST_COUNT = 5
+
     account = OneToOneField(
         "User",
         on_delete = models.CASCADE
     )
     mentor = models.ForeignKey('Mentor', on_delete=models.CASCADE,null=True)
+
+
+    @staticmethod
+    def mentee_has_maxed_request_count(mentee_account_id : int)->bool:
+        """
+        simple function that returns true if a given mentee has more mentors than the maximum request count
+        """
+        try:
+            return MentorshipRequest.objects.filter(mentee_id=mentee_account_id).count() >= Mentee.MAXIMUM_REQUEST_COUNT
+        except ObjectDoesNotExist:
+            return False
+
+    def has_maxed_request_count(self)->bool:
+        """
+        syntactic sugar function that returns true if the given mentee has maxed their request count
+        """
+        return Mentee.mentee_has_maxed_request_count(self.account.id)
     
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
@@ -1378,6 +1400,8 @@ class MentorshipRequest(SVSUModelData,Model):
         related_name = "mentee_to_mentor_set"
     )
 
+    requester = IntegerField(null=True)
+
     def accept_request(self,session_user : User)->bool:
         """
         Description
@@ -1399,7 +1423,9 @@ class MentorshipRequest(SVSUModelData,Model):
                                                     self.mentee.id,
                                                     self.mentor.id
                                                     )
+        print(mentor, mentee)
         if mentor == None or mentee == None:
+            
             return False
 
         SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
@@ -1407,7 +1433,7 @@ class MentorshipRequest(SVSUModelData,Model):
 
        
         MentorshipRequest.remove_all_from_mentee(mentee)
-
+        print("AHH GOOD")
         return True
         
 
@@ -1447,7 +1473,7 @@ class MentorshipRequest(SVSUModelData,Model):
 
     
     @staticmethod
-    def create_request(int_mentor_user_id: int, int_mentee_user_id: int):
+    def create_request(int_mentor_user_id: int, int_mentee_user_id: int, requester_id: int):
         """
         Description
         -----------
@@ -1484,9 +1510,15 @@ class MentorshipRequest(SVSUModelData,Model):
         """
 
         try:
+            
+            requester = User.objects.get(id=requester_id)
+            if requester.is_mentee() and requester.mentee.has_maxed_request_count():
+                return False
+
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,
-                mentee_id = int_mentee_user_id
+                mentee_id = int_mentee_user_id,
+                requester = requester_id
             )
             return mentor_ship_request
         except Exception as e:
@@ -1573,7 +1605,9 @@ class MentorshipRequest(SVSUModelData,Model):
         - int_mentor_id: (int):
         - int_mentee_id: (int):
 
-        Optional Parameters
+
+
+            Optional Parameters
         -------------------
         - NONE -
 
@@ -1991,13 +2025,14 @@ class SystemLogs(SVSUModelData,Model):
         -------
         
         """
-        LOGON_EVENT = "Logon"
-        APPROVE_MENTORSHIP_EVENT = "Create Mentorship"
-        REQUEST_MENTORSHIP_EVENT = "Request Mentorship"
+        LOGON_EVENT = "User logged on"
+        APPROVE_MENTORSHIP_EVENT = "Create mentorship"
+        REQUEST_MENTORSHIP_EVENT = "Request mentorship"
+        MENTORSHIP_TERMINATED_EVENT = "Mentorship terminated"
         MENTEE_REGISTER_EVENT = "Mentee signed up"
         MENTOR_REGISTER_EVENT = "Mentor applied"
-        MENTEE_DEACTIVATED = "Mentee deactivated"
-        MENTOR_DEACTIVATED = "Mentor deactivated"
+        MENTEE_DEACTIVATED_EVENT = "Mentee deactivated"
+        MENTOR_DEACTIVATED_EVENT = "Mentor deactivated"
         
 
     str_event = CharField(max_length=500, choices=Event.choices, default='')
@@ -2055,7 +2090,7 @@ class ProfileImg(SVSUModelData,Model):
         User,
         on_delete = models.CASCADE,
         primary_key = True,
-        related_name="profile_img"
+        related_name="profile_img_query"
     )
 
     #   The image, its name, and its file size.
@@ -2077,7 +2112,7 @@ class ProfileImg(SVSUModelData,Model):
             new_image = ProfileImg.objects.create(user=user_model, 
                                                 img_title=str_filename)
             new_image.save()
-            return True
+            return new_image
         except Exception as e:
             print(e)
             #Operation failed.

@@ -52,6 +52,8 @@ from utils import development
 from utils.development import print_debug
 from utils import security
 
+from .view_routes.status_codes import bad_request_400
+
 from .models import User
 from .models import Interest
 from .models import Mentor
@@ -61,6 +63,9 @@ from .models import MentorshipRequest
 from .models import SystemLogs
 from .models import ProfileImg
 from .models import Organization
+
+
+from .view_routes.navigation import landing
 
 
 #please make it pretty front end :)
@@ -175,20 +180,9 @@ def BIGMOVE(req):
 
 def THEBIGMOVE(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
+    
     context = {
-        'interestlist': [
-            'Artificial Intelligence', 
-            'Computer Graphics', 
-            'Data Structures & Algorithms',
-            'Networking',
-            'Operating Systems',
-            'Embedded Systems',
-            'Cloud Computing',
-            'Software Engineering',
-            'Distrubuted Systems',
-            'Game Development',
-            'Cybersecruity',
-            'System Analysis'],
+        'interestlist': Interest.objects.all(),
 
         'pronounlist1': ['he', 'she', 'they'],
         'pronounlist2': ['him', 'her', 'them'],
@@ -219,19 +213,9 @@ def THESECONDMOVE(req):
 def register_mentee(req):
     template = loader.get_template('sign-in card/single_page_mentee.html')
     context = {
-        'interestlist': [
-            'Artificial Intelligence', 
-            'Computer Graphics', 
-            'Data Structures & Algorithms',
-            'Networking',
-            'Operating Systems',
-            'Embedded Systems',
-            'Cloud Computing',
-            'Software Engineering',
-            'Distrubuted Systems',
-            'Game Development',
-            'Cybersecruity',
-            'System Analysis'],
+        'interestlist':  Interest.objects.all(),
+        
+        'menteeEmailMessage': "You MUST use your SVSU.EDU email address.",
         
         'pronounlist1': ['he', 'she', 'they'],
         'pronounlist2': ['him', 'her', 'them'],
@@ -273,12 +257,6 @@ def profileCard(req):
     items = range(4)
     context = {'items':items}
     return HttpResponse(template.render(context, req))
-
-#please make pretty front end we love you :D
-def home(req):
-    # What the hell is supposed to happen here.
-    # what is front end even supposed to do with this.
-    return HttpResponse('theres no place me')
 
 def role_test(req):
     template = loader.get_template('sign-in-card/experiment.html')
@@ -484,9 +462,8 @@ def admin_user_management(request):
 @security.Decorators.require_login(invalid_request_401)
 def logout(request):
     if security.logout(request.session):
-        return HttpResponse("logged out!")
-    
-    #TODO: redirect this to a correct form
+        return landing(request)
+    #TODO: redirect this to a correct form ||||| probably done - Tanner
     response = HttpResponse("an internal error occured, unable to log you out, STAY FOREVER")
     response.status_code = 500
     return response
@@ -505,14 +482,17 @@ def login_uname_text(request):
     #print_debug("uname " + uname)
     #print_debug("password " + password)
 
-
     if not User.check_valid_login(uname,password):
-        response = HttpResponse(json.dumps({"warning":"invalid creds"}))
+        response = HttpResponse(json.dumps({"warning":"The username/password you have entered is incorrect."}))
         response.status_code = 401
         return response
  
     #valid login
-    security.set_logged_in(request.session,User.objects.get(cls_email_address=uname).id)
+    if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
+        response = HttpResponse(json.dumps({"warning":"you are currently pending aproval"}))
+        response.status_code = 401
+        return response
+
     user = User.objects.get(cls_email_address=uname)
     user.str_last_login_date = date.today()
     user.save()

@@ -64,6 +64,7 @@ urlpatterns = [
     #==================LOGICAL ROUTES=================#
     path('landing-post/'                                 , views.landingPost                 , name='landing-post'),
     path('register-test/'                                , under_development.register_mentor , name='register-test'),
+    path("save_profile_info/<int:user_id>", under_development.save_profile_info, name="save_profile_info"),
     path('register-mentee-test/'                         , under_development.register_mentee , name='register-mentee-test'),
     path('request_mentor/<int:mentee_id>/<int:mentor_id>',
             backend_requests.request_mentor,
@@ -73,7 +74,10 @@ urlpatterns = [
             name='assign mentee to mentor'),
     path("accept_mentorship_request/<int:mentee_user_account_id>/<int:mentor_user_account_id>",
          under_development.accept_mentorship_request,
-         name="accept mentorship request"),
+         name="accept_mentorship_request"),
+    path("reject_mentorship_request/<int:mentee_user_account_id>/<int:mentor_user_account_id>",
+         under_development.reject_mentorship_request,
+         name="reject_mentorship_request"),
    # path('profile_pic/<int:user_id>')
     #8=============================================D~~#
 
@@ -87,9 +91,7 @@ urlpatterns = [
     path("admin_dashboard", navigation.admin_dashboard, name="admin_dashboard"),
     path("generate_report", navigation.generate_report, name="generate_report"),
     path("group_view", under_development.group_view, name="group_view"),
-    path("mentee_profile/<int:mentee_id>", under_development.mentee_profile, name="mentee_profile"),
     path("universal_profile/<int:user_id>", under_development.universalProfile, name="universal_profile"),
-    path("save_mentee_profile_info/<int:mentee_id>", under_development.save_mentee_profile_info, name="save_mentee_profile_info"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN

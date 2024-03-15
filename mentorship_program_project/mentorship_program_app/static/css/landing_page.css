@@ -500,3 +500,9 @@ input:-moz-autofill:active {
     margin-bottom: 2rem;
     color: #FFFFFF
 }
+
+.error-message {
+    color: yellow;
+    margin-top: .5em;
+    margin-left: .5em;
+}
