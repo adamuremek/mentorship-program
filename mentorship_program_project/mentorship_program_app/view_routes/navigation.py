@@ -19,22 +19,26 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 import os
 
-def default(req: HttpRequest):
-    """
-    Loads the default (root /) page for now until landing page 
-    become the new root route.
-    """
+# def default(req: HttpRequest):
+#     """
+#     Loads the default (root /) page for now until landing page   ##possibly delete this? think isnt being used
+#     become the new root route.
+#     """
     
-    template: Template = loader.get_template('index.html')
-    context: dict = {}
+#     template: Template = loader.get_template('index.html')
+#     context: dict = {}
     
-    return HttpResponse(template.render(context, req)) 
+#     return HttpResponse(template.render(context, req)) 
 
 def landing(req):
     """
     Renders the landing page for the application.
+
+    Now redirects to dashboard if logged in - Tanner
     """
-    
+    if security.is_logged_in(req.session): 
+        return dashboard(req)
+
     template: Template = loader.get_template('landing_page.html')
     context: dict = {}
     

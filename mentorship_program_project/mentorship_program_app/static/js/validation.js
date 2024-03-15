@@ -236,12 +236,12 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         })
     }
 
-    btn_user_agree.style.display = 'None'
+    btn_user_agree.style.visibility = 'Hidden'
     document.getElementById('useragreement').addEventListener('change', e => {
         if (e.target.checked) 
-            btn_user_agree.style.display = 'Flex'
+            btn_user_agree.style.visibility = 'Visible'
         else 
-            btn_user_agree.style.display = 'None'
+            btn_user_agree.style.visibility = 'Hidden'
     })
 
     // -------------------- <<< FORM SUBMIT >>> -------------------- \\
