@@ -1564,6 +1564,10 @@ class MentorshipRequest(SVSUModelData,Model):
             if mentor_user_account.mentor.has_maxed_mentees():
                 return False
 
+            mentee_user_account = User.objects.get(id=int_mentee_user_id)
+            if mentee_user_account.has_maxed_request_count():
+                return False
+
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,
                 mentee_id = int_mentee_user_id,

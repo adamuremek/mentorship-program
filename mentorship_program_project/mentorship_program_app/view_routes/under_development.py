@@ -954,11 +954,10 @@ def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_us
 
     Authors
     _______
-    David Kennamer .._.. (if you can call this finsihed)
+    David Kennamer .._..
     """
     session_user = User.from_session(req.session)
 
-    #actually add the mentorship to the db
     session_user.create_mentorship_from_user_ids(mentee_user_account_id, mentor_user_account_id)
 
     return HttpResponse("created request sucessfully")
@@ -1016,10 +1015,12 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
         return bad_request_400("invalid id detected!")
     
     if mentor_account == None or mentee_account == None:
-        #we should never get here, but just in case for some reason
-        return bad_request_400("internal error occured")
+        response = HttpResponse(json.dumps({"result":"unable to create request!"}))
+        response.status_code = 400
+        return response
 
     mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id)
+
     if mentorship_request: 
         mentorship_request.save() 
     else:
