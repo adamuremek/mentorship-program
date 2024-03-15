@@ -94,8 +94,8 @@ urlpatterns = [
     path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
     path('account_activation_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid'),
 
-    # CURRENTLY STATIC ROUTE TO VIEW LIST OF MENTORS APPLYING FOR MENTORSHIP ROLE FROM BEN
-    path('judgement', views.mentor_judgement, name='mentor_judgement'),
+    # CURRENTLY STATIC ROUTE TO CHANGE SETTINGS FROM BEN
+    path('settings', views.change_settings, name='change_settings'),
     
     
     path('dashboard/', navigation.dashboard, name='dashboard'),

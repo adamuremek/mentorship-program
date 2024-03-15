@@ -524,9 +524,9 @@ def login_uname_text(request):
     return response
 
 # view goes to currently static approve/delete mentors page
-def mentor_judgement(request):
+def change_settings(request):
     context = {}
-    template = loader.get_template('pending_mentors.html')
+    template = loader.get_template('settings.html')
     return HttpResponse(template.render(context,request))
 
 # view goes to mentor_group_view
