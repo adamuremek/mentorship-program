@@ -108,8 +108,45 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     return HttpResponse(json.dumps({"result":"created request!"}))
 
 @User.Decorators.require_logged_in_super_admin(invalid_request_401)
-def verify_mentee_ug_status(req):
+def verify_mentee_ug_status(req : HttpRequest) -> int:
+    """
+    Description
+    -----------
+    Sets any mentee that is not an undergrad student to inactive
+
+    NOTE: This implementation is flawed, but the best solution requires getting
+    information from IT, which isn't feasible.
+
+    Parameters
+    ----------
+    - req (HttpRequest): Unused, but required for the decorator
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - int: The count of mentee accounts set as inactive
+
+    Example Usage
+    -------------
+
+    >>> path('verify_mentees/', backend_requests.verify_mentee_ug_status,
+            name='verify mentees')
+    7
+
+    Authors
+    -------
+    Andy Do
+    William Lipscom:b
+    """
     inactive_users = User.objects.filter((User.cls_date_joined + relativedelta(years=4) < date.today))
+    int_inactive_count = 0
     for u in inactive_users:
-        u.bln_account_disabled = True
-    print("Disabled all inactive users.")
+        #u.bln_account_disabled = True
+        u.bln_active = False
+        u.cls_active_changed_date = date.today
+        int_inactive_count += 1
+    #print("Disabled all inactive users.")
+    return int_inactive_count
