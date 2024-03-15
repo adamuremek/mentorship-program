@@ -40,7 +40,7 @@
 		  card-button-disabled
 		  {% endif %}
 		  ">
-		  {% if not user.has_requested_this_user %}
+		  {% if not user.is_requested_by_session %}
 			  {% if role == 'Mentee' %}
               {% if session_user.mentee.has_maxed_request_count %}
                   Maximum Request Amount Reached
@@ -51,7 +51,7 @@
 				Request Mentee
 			  {% endif %}
 		  {% else %}
-		  		requested!
+         pending request...
 		  {% endif %}
 
 			
