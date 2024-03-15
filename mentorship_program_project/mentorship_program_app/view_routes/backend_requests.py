@@ -38,10 +38,12 @@ GLOBAL VARIABLE LIST (Alphabetically):
 from utils import security
 from mentorship_program_app.view_routes.status_codes import bad_request_400
 from django.http import HttpResponse,HttpRequest
+from django.shortcuts import redirect
 from ..models import User
 from datetime import date
 from dateutil.relativedelta import relativedelta
 import json
+from ..models import SystemLogs
 from ..views import invalid_request_401
 
 from mentorship_program_app.models import *
@@ -107,8 +109,8 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     ##print_debug(user.has_requested_user(mentor_id))
     return HttpResponse(json.dumps({"result":"created request!"}))
 
-@User.Decorators.require_logged_in_super_admin(invalid_request_401)
-def verify_mentee_ug_status(req : HttpRequest) -> int:
+#@User.Decorators.require_logged_in_super_admin(invalid_request_401)
+def verify_mentee_ug_status(req : HttpRequest):
     """
     Description
     -----------
@@ -127,7 +129,7 @@ def verify_mentee_ug_status(req : HttpRequest) -> int:
 
     Returns
     -------
-    - int: The count of mentee accounts set as inactive
+    - int: The count of mentee accounts set as inactive (NOTE: This is outdated)
 
     Example Usage
     -------------
@@ -140,13 +142,17 @@ def verify_mentee_ug_status(req : HttpRequest) -> int:
     -------
     Andy Do
     William Lipscom:b
+    Jordan Anodjo
     """
-    inactive_users = User.objects.filter((User.cls_date_joined + relativedelta(years=4) < date.today))
-    int_inactive_count = 0
-    for u in inactive_users:
-        #u.bln_account_disabled = True
-        u.bln_active = False
-        u.cls_active_changed_date = date.today
-        int_inactive_count += 1
-    #print("Disabled all inactive users.")
-    return int_inactive_count
+
+    inactive_mentees = User.objects.filter(cls_date_joined__lte=date.today() - relativedelta(years=4), str_role="Mentee", bln_account_disabled=False, bln_active=True)
+
+    for mentee in inactive_mentees:
+        #Set inactive
+        mentee.bln_active = False
+        mentee.cls_active_changed_date = date.today()
+        mentee.save()
+        # record logs
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED, specified_user=mentee)
+
+    return redirect('/admin_dashboard')

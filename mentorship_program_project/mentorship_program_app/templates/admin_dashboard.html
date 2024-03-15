@@ -18,11 +18,12 @@ SVSU Mentoring
         <h1>Administrator Dashboard</h1>
 
         <div class="dashboard-top-section">
-            <div class="card undergraduate-status">
-                <form id="verify-mentee-uq-status-form" action="/verify_mentee_ug_status" method="POST">
+            <div class="card undergraduate-status" id="verify-mentee-ug-status-button">
+                <form id="verify-mentee-ug-status-form" action="/verify-mentee-ug-status/" method="POST">
                     {% csrf_token %}
                     <img src="{% static 'images/exclamation.jpg' %}">
                     <h3>Verify Mentee Undergraduate Status</h3>
+                    <input type="submit" value="" style="display: none;" />
                 </form>
             </div>
             <div class="card review-mentor-applications" id="mentorApplications">
@@ -90,6 +91,7 @@ SVSU Mentoring
                     <li>{{lifetime_deactivate_mentees}} Deactivated Mentee Accounts</li>
                 </ul>
             </div>
+    
             <div class="card generate-mentee-reports" id="generate-reports-button">
                 <form id="generate-reports-form" action="/generate_report" method="POST">
                     {% csrf_token %}
@@ -107,20 +109,33 @@ SVSU Mentoring
 </section>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const buttonDiv = document.getElementById('mentorApplications');
     const userManagementBtn = document.getElementById('user-management');
+    const buttonDiv = document.getElementById('mentorApplications');
+    
     userManagementBtn.addEventListener('click', () => {
         window.location.href = './admin_user_management';
     });
     buttonDiv.addEventListener('click', function() {
         window.location.href = './view_pending';
     });
-    var generateButton = document.getElementById("generate-reports-button");
-        var generateForm = document.getElementById("generate-reports-form");
 
-        generateButton.addEventListener("click", function() {
-            generateForm.submit();
-        });
+    
+
+    var generateButton = document.getElementById("generate-reports-button");
+    var generateForm = document.getElementById("generate-reports-form");
+
+    generateButton.addEventListener("click", function() {
+        generateForm.submit();
+    });
+
+    var validateMenteeUGStatusButton = document.getElementById("verify-mentee-ug-status-button");
+    var validateMenteeUGStatusForm = document.getElementById("verify-mentee-ug-status-form");
+
+    validateMenteeUGStatusButton.addEventListener("click", function(){
+        validateMenteeUGStatusForm.submit();
+    });
+   
+    
 });
 
 </script>

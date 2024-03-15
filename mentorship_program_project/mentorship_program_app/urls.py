@@ -119,7 +119,7 @@ urlpatterns = [
     # path('admin_user_management/addMentorshipRequest/', views.admin_user_managment_add_mentorship_request,  name='admin_user_management_add_mentorship_request'),
 
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --Will and Andy
-    path("verify_mentee_ug_status/", backend_requests.verify_mentee_ug_status, name='verify mentee status'),
+    path("verify-mentee-ug-status/", backend_requests.verify_mentee_ug_status, name='verify_mentee_ug_status'),
 
     #log in and out routes
     path('login/',views.login_uname_text,name='login'),

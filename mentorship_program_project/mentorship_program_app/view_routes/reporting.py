@@ -64,9 +64,9 @@ def get_project_overall_statistics():
 
     inactive_date = datetime.now() - timedelta(days=365)
     # Query to count the number of Mentors who are currently inactive
-    inactive_mentors_count = User.objects.filter(str_role='Mentor', str_last_login_date__lt=inactive_date).count()
+    inactive_mentors_count = User.objects.filter(str_role='Mentor', bln_active=False).count()
     # Query to count the number of Mentors who are currently active
-    active_mentors_count = User.objects.filter(str_role='Mentor',str_last_login_date__gte=inactive_date).count()
+    active_mentors_count = User.objects.filter(str_role='Mentor', bln_active=True).count()
     # Number of total mentees
     total_mentees = User.objects.filter(str_role='Mentee').count()
     # Number of total mentors
@@ -75,8 +75,6 @@ def get_project_overall_statistics():
     total_approved_mentorships = SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT).count()
     # Total amount of requested mentorships
     total_requested_mentorships = SystemLogs.objects.filter(str_event=SystemLogs.Event.REQUEST_MENTORSHIP_EVENT).count()
-    
-    Mentor.objects.filter().count()
 
     #  user.mentor.account if page_owner_mentee.mentor != None else None
     all_mentees = User.objects.filter(str_role='Mentee')
@@ -99,9 +97,9 @@ def get_project_overall_statistics():
 
 
     return {
-        "active_mentees"              : User.objects.filter(str_role='Mentee', str_last_login_date__gte=inactive_date).count(),
+        "active_mentees"              : User.objects.filter(str_role='Mentee', bln_active=True).count(),
         "unassigned_mentees"          : unassigned_mentees,
-        "inactive_mentees"            : User.objects.filter(str_role='Mentee', str_last_login_date__lt=inactive_date).count(),
+        "inactive_mentees"            : User.objects.filter(str_role='Mentee', bln_active=False).count(),
         "active_mentors"              : active_mentors_count,
         "unassigned_mentors"          : unassigned_mentors,
         "inactive_mentors"            : inactive_mentors_count,
