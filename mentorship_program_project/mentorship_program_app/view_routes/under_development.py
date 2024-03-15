@@ -847,6 +847,30 @@ def universalProfile(req : HttpRequest, user_id : int):
     return HttpResponse(template.render(context,req))
 
 @security.Decorators.require_login(bad_request_400)
+def reject_mentorship_request(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
+    session_user = User.from_session(req.session)
+    mentor_account = None
+    try:
+        mentor_account = User.objects.get(id=mentor_user_account_id)
+    except ObjectDoesNotExist:
+        return bad_request_400("mentor id is invalid!")
+
+    if session_user.is_super_admin() or session_user.id == mentee_user_account_id or session_user.id == mentor_user_account_id:
+        try:
+            mentorship_request = MentorshipRequest.objects.get(
+                                        mentor_id=mentor_user_account_id,
+                                        mentee_id=mentee_user_account_id
+                                        )
+            try:
+                mentorship_request.delete()
+                return redirect(f"/universal_profile/{User.from_session(req.session).id}")
+            except:
+                return bad_request_400("unable to delete request!")
+        except ObjectDoesNotExist:
+            return bad_request_400("you do not have a request to accept!")
+    return bad_request_400("permission denied!")
+
+@security.Decorators.require_login(bad_request_400)
 def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
     session_user = User.from_session(req.session)
     mentor_account = None
@@ -855,12 +879,8 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
     except ObjectDoesNotExist:
         return bad_request_400("mentor id is invalid!")
 
-    #if session_user.has_authority(mentor_account):
-    print("session ", session_user.id)
-    print("mentee_user_account_id", mentee_user_account_id)
-    print()
-    #TODO add or for superadmin
-    if session_user.id == mentee_user_account_id or session_user.id == mentor_user_account_id:
+    
+    if session_user.is_super_admin() or session_user.id == mentee_user_account_id or session_user.id == mentor_user_account_id:
         try:
             mentorship_request = MentorshipRequest.objects.get(
                                         mentor_id=mentor_user_account_id,

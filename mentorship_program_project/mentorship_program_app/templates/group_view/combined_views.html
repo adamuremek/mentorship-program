@@ -68,7 +68,7 @@
                             <a class="button-pending-action-container" href="{% if signed_in_user.is_mentee %}{% url 'accept_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'accept_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
                                 <button class="button-pending-action">&#10003;</button>
                             </a>
-                            <a class="button-pending-action-container" href="{% url 'universal_profile' request.id %}">
+                            <a class="button-pending-action-container" href="{% if signed_in_user.is_mentee %}{% url 'reject_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'reject_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
                                 <button class="button-pending-action">&#10007;</button>
                             </a>
                             </div>
