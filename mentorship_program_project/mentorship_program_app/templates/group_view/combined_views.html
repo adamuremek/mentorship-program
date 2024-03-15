@@ -25,35 +25,29 @@
             <br>
 
             {% if page_owner_user.str_role != signed_in_user.str_role %}
-                <button id="btn_profile_request" style="margin-left: 25%">Request {{page_owner_user.str_role}}</button>
+                {% if signed_in_user.has_requested_this_user %} 
+                    <button id="btn_profile_request" disabled>Requested!</button>
+                {% else %}
+                    <button id="btn_profile_request">Request {{page_owner_user.str_role}}</button>
+                {% endif %}
             {% endif %}
 
-            <h3>{% if mentor %}Mentor: {% elif mentees %}Mentees:{%endif%}</h3>
-            <ul>
-                {% if page_owner_user.is_mentor %}
-                    {% for mentee in mentees %}
-                    <li class="mentee-manager">
 
-                        <p>{{mentee.str_first_name}} {{mentee.str_last_name}}</p>
+            {% if  signed_in_user.is_mentee and mentees_or_mentor %}
+                <h3>Mentor: </h3>
+            {% elif signed_in_user.is_mentor and mentees_or_mentor %}
+                <h3>Mentees: </h3>
+            {% endif %}
+            <ul>
+                    {% for mentee in mentees_or_mentor %}
+                    <li class="mentee-manager">
+                        <h4>{{mentee.str_first_name}} {{mentee.str_last_name}}</h4>
                         {% if is_page_owner %}
-                        <button class="button-mentee-remove">Remove</button>
+                        <button style="width:2em" class="button-mentee-remove">&#10007;</button>
                         {% endif %}
                     </li>
                     {% endfor %}
-                    {% else %}
-                        {% if mentor != None %}
-                        <ul>
-                            <li class="mentee-manager">
-                                <p>{{mentor.str_first_name}} {{mentor.str_last_name}}</p>
-                                {% if is_page_owner %}
-                                    <button class="button-mentee-remove">Remove</button>
-                                {% endif %}
-                            </li>
-                        </ul>
-                        {% endif %}
                     
-                {% endif %}
-
                 {% if pending and is_page_owner %}
                     <hr>
                     <h3>Pending Requests:</h3>
@@ -62,7 +56,7 @@
 
                         
                         {% for request in pending %}
-                        <li class="mentee-manager">
+                        <li id="pending-requests-container" class="mentee-manager">
                             <a href="{% url 'universal_profile' request.id %}">
                                 <h4>{{ request.str_first_name }}</h4>
                                 <h4>{{ request.str_last_name }}</h4>
@@ -70,12 +64,14 @@
                             <!-- ############################### -->
 
                             <!-- WILL (OR ANYBODY), DO NOT TOUCH -->
-                            <a href="{% if signed_in_user.is_mentee %}{% url 'accept_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'accept_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
+                            <div class="please-fuck-off-and-die">
+                            <a class="button-pending-action-container" href="{% if signed_in_user.is_mentee %}{% url 'accept_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'accept_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
                                 <button class="button-pending-action">&#10003;</button>
                             </a>
-                            <a href="{% url 'universal_profile' request.id %}">
+                            <a class="button-pending-action-container" href="{% url 'universal_profile' request.id %}">
                                 <button class="button-pending-action">&#10007;</button>
                             </a>
+                            </div>
                         </li>
                         <hr class="request-separator">
                         {% endfor %}
@@ -90,8 +86,7 @@
                 <input type="file" id="profile_image" name="profile_image" style="display: none;">
                 <div class="row-titles">
                     <div class="top-title">
-                        <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}
-                            {% if page_owner_user.is_mentor %}'s Mentorship Group{% endif %}</h1>
+                        <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}{% if page_owner_user.is_mentor%}'s Mentorship Group{% endif %}</h1>
                         {% if is_page_owner %}
                         <span class="iHateMyself">
                             <button type="button" class="button-edit" id="button-edit"
@@ -260,25 +255,26 @@
 
 </script>
 {% if is_page_owner %}   
-<script>
+    <script>
 
-    // -------------------- <<< DO NOT DELETE >>> -------------------- \\
-    // -------------------- <<< NOT USELESS >>> -------------------- \\
+        // -------------------- <<< DO NOT DELETE >>> -------------------- \\
+        // -------------------- <<< NOT USELESS >>> -------------------- \\
 
-    const btn_add_note = document.getElementById('btn-add-note');
-    const note_modal = document.getElementById('note-creator-modal');
-    const modal_exit = document.getElementById('modal-exit');
+        const btn_add_note = document.getElementById('btn-add-note');
+        const note_modal = document.getElementById('note-creator-modal');
+        const modal_exit = document.getElementById('modal-exit');
 
+        if(btn_add_note)
+            btn_add_note.addEventListener("click", () => {
+                note_modal.showModal();
+            });
 
-    btn_add_note.addEventListener("click", () => {
-        note_modal.showModal();
-    });
+        if(modal_exit)
+            modal_exit.addEventListener("click", () => {
+                note_modal.close();
+            });
 
-    modal_exit.addEventListener("click", () => {
-        note_modal.close();
-    });
-
-</script>
+    </script>
 {% endif %}
 
 {% endblock %}

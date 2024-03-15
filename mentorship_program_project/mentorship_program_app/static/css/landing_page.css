@@ -480,3 +480,9 @@ input:-moz-autofill:active {
     font-size: 1.15rem;
     color: var(--clr-font-secondary);
 }
+
+.error-message {
+    color: yellow;
+    margin-top: .5em;
+    margin-left: .5em;
+}

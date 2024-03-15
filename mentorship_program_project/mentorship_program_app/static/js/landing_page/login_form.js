@@ -11,6 +11,7 @@ btnLogin.onclick = async () => {
 		let server_response_json = await response.json();
 		console.log(server_response_json);
 		txtWarning.innerText = server_response_json.warning;
+		txtPassword.value = "";
 	} else if (response.status == 200) {
 		let server_response_json = await response.json();
 		window.location.replace(server_response_json.new_web_location);

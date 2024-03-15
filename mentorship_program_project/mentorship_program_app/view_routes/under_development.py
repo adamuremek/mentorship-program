@@ -216,8 +216,7 @@ def register_mentor(req: HttpRequest):
         pending_mentor_object.organization.add(organization)
 
         parsed_user_interests = [
-                                    Interest.get_or_create_interest(interest) 
-                                    for interest in req.POST["interests"].split(",")[0:-1]
+                                    Interest.get_or_create_interest(interest) for interest in req.POST.getlist("selected_interests")
                                  ]
 
 
@@ -277,6 +276,7 @@ def register_mentee(req: HttpRequest):
         incoming_email: str = req.POST["email"]
         incoming_plain_text_password = req.POST["password"]
 
+
         # create a new user in the database with the role "Pending"
         pending_mentee_object = Mentee.create_from_plain_text_and_email(incoming_plain_text_password, incoming_email)
         
@@ -288,12 +288,11 @@ def register_mentee(req: HttpRequest):
         pending_mentee_object.account.str_first_name = req.POST["fname"]
         pending_mentee_object.account.str_last_name = req.POST["lname"]
         pending_mentee_object.account.str_preferred_pronouns = req.POST["pronouns1"] + '/' + req.POST["pronouns2"]
-     
+
         parsed_user_interests = [
-                                    Interest.get_or_create_interest(interest) 
-                                    for interest in req.POST["interests"].split(",")[0:-1]
+                                    Interest.get_or_create_interest(interest) for interest in req.POST.getlist("selected_interests")
                                 ]
-                                
+
         for interest in parsed_user_interests:
             pending_mentee_object.account.interests.add(interest)
 
@@ -776,10 +775,24 @@ def group_view(req: HttpRequest):
 
 @security.Decorators.require_login(bad_request_400)
 def universalProfile(req : HttpRequest, user_id : int):
+    
+    profile_page_owner = None
+    try:
+        profile_page_owner = User.objects.get(id=user_id)
+    except ObjectDoesNotExist:
+        return bad_request_400("user page does not exist")
+
+
+    
+
     template = loader.get_template('group_view/combined_views.html')
     signed_in_user = User.from_session(req.session)
+    signed_in_user.has_requested_this_user = signed_in_user.has_requested_user(profile_page_owner)
+  
+
     # the user object for the page owner
     page_owner_user = User.objects.get(id=user_id)
+  
     
     page_owner_go_fuck_yourself = getattr(page_owner_user, 'mentee' if page_owner_user.is_mentee else 'mentor', None)
     interests = page_owner_user.interests.filter(user=page_owner_user)
@@ -790,33 +803,46 @@ def universalProfile(req : HttpRequest, user_id : int):
 
     all_interests = Interest.objects.all()
 
+
+
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
         pendingRequests = MentorshipRequest.objects.filter(mentee_id=page_owner_user.id)
+        try:
+            mentees_or_mentor = []
+            mentee = page_owner_go_fuck_yourself
+            mentees_or_mentor.append(User.objects.get(id=mentee.mentor.account_id))
+        except Exception:
+            mentees_or_mentor = None
+       
         pendingList = []
         for pending in pendingRequests:
             if pending.mentee_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentor_id))
         
     elif page_owner_user.is_mentor():
+        mentees_for_mentor = page_owner_user.mentor.mentee_set.all()
+        mentees_or_mentor = [mentee.account for mentee in mentees_for_mentor]
+
+        print(mentees_or_mentor)
         pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)
         pendingList = []
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentee_id))
             
-    print(pendingList)
-
+ #   print(mentees_or_mentor)
+    
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
                 "is_page_owner": is_page_owner,
                 "page_owner_user":page_owner_user,
                 "interests": user_interests,
                 "page_owner_go_fuck_yourself": page_owner_go_fuck_yourself,
-                # "mentor" :  page_owner_go_fuck_yourself.mentor.account if page_owner_go_fuck_yourself.mentor != None else None,
                 "all_interests" : all_interests,
                 "user_id" : user_id,
-                "pending" : pendingList
+                "pending" : pendingList,
+                "mentees_or_mentor" : mentees_or_mentor
                }
     return HttpResponse(template.render(context,req))
 
@@ -833,6 +859,7 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
     print("session ", session_user.id)
     print("mentee_user_account_id", mentee_user_account_id)
     print()
+    #TODO add or for superadmin
     if session_user.id == mentee_user_account_id or session_user.id == mentor_user_account_id:
         try:
             mentorship_request = MentorshipRequest.objects.get(
@@ -846,10 +873,10 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
             # if mentorship_request.is_accepted():
             #     return bad_request_400("you already accepted this request!")
 
-            sucessfull = mentorship_request.accept_request(session_user)
+            sucessful = mentorship_request.accept_request(session_user)
             
-            if sucessfull:
-                return HttpResponse("sucesfully created request")
+            if sucessful:
+                return redirect(f"/universal_profile/{User.from_session(req.session).id}")
             
             return bad_request_400("unable to create request!")
 
@@ -892,7 +919,7 @@ def save_profile_info(req : HttpRequest, user_id : int):
     return redirect(f"/universal_profile/{user_id}")
 
 
-@User.Decorators.require_logged_in_mentor(bad_request_400)
+@security.Decorators.require_login(bad_request_400)
 def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
     """
     Description

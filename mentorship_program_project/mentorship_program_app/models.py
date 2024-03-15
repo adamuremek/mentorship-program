@@ -689,13 +689,13 @@ class User(SVSUModelData,Model):
         """
         
         #ensure that the person creating the request is a mentor (also admin, since admin is a subset of mentor)
-        if not self.is_mentor():
-            return (None,None)
+        # if not self.is_mentor():
+        #     return (None,None)
 
         mentor_user_account = User.objects.get(id=mentor_user_acount_id)
-
-        if not self.has_authority(mentor_user_account):
-            return (None,None)
+    
+        # if not self.has_authority(mentor_user_account):
+        #     return (None,None)
 
         mentee_user_account = User.objects.get(id=mentee_user_account_id)
         mentee_account = mentee_user_account.mentee
@@ -1423,7 +1423,9 @@ class MentorshipRequest(SVSUModelData,Model):
                                                     self.mentee.id,
                                                     self.mentor.id
                                                     )
+        print(mentor, mentee)
         if mentor == None or mentee == None:
+            
             return False
 
         SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
@@ -1431,7 +1433,7 @@ class MentorshipRequest(SVSUModelData,Model):
 
        
         MentorshipRequest.remove_all_from_mentee(mentee)
-
+        print("AHH GOOD")
         return True
         
 
