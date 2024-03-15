@@ -52,6 +52,8 @@ from utils import development
 from utils.development import print_debug
 from utils import security
 
+from .view_routes.status_codes import bad_request_400
+
 from .models import User
 from .models import Interest
 from .models import Mentor
@@ -512,7 +514,11 @@ def login_uname_text(request):
         return response
  
     #valid login
-    security.set_logged_in(request.session,User.objects.get(cls_email_address=uname).id)
+    if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
+        response = HttpResponse(json.dumps({"warning":"you are currently pending aproval"}))
+        response.status_code = 401
+        return response
+
     user = User.objects.get(cls_email_address=uname)
     user.str_last_login_date = date.today()
     user.save()
