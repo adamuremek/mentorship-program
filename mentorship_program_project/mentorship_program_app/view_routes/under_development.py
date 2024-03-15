@@ -491,67 +491,6 @@ def enable_user(req:HttpRequest):
     return HttpResponse(f"user {id}'s status has been changed to enabled")
 
 
-@security.Decorators.require_login(bad_request_400)
-def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpResponse:
-    '''
-     Description
-     ___________
-     view that creates a mentor request between a given mentor id 
-     and mentee id
-
-     Paramaters
-     __________
-        req : HttpRequest - django http request
-        mentee_id : int - mentee id from the datbase, must be valid
-        mentor_id : int - mentee id from the database, must be valid
-
-     Returns
-     _______
-        HttpResponse containing a valid json ok signature or 401 error code for invalid data
-     
-     Example Usage
-     _____________
-        >>> request_mentor(request,mentee_id,mentor_id)
-
-        /path/to/route/mentee_id/mentor_id
-
-     >>> 
-     Authors
-     _______
-     David Kennamer *^*
-    '''
-    user = User.from_session(req.session)
-    
-    
-    #if you are a mentee you can only request for yourself
-    if user.is_mentee():
-        mentee_id : int = user.id
-    elif user.is_mentor() and mentee_id == None:
-        return bad_request_400("mentee id required for mentors")
-
-    ##print_debug(user.has_requested_user(mentor_id))
-    mentor_account = None
-    mentee_account = None
-    
-    try:
-        mentor_account = User.objects.get(id=mentor_id)
-        mentee_account = User.objects.get(id=mentee_id)
-    except ObjectDoesNotExist:
-        return bad_request_400("invalid id detected!")
-    
-    if mentor_account == None or mentee_account == None:
-        #we should never get here, but just in case for some reason
-        return bad_request_400("internal error occured")
-
-    mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id, user.id)
-    if mentorship_request: 
-        mentorship_request.save() 
-    else:
-        print("this request already exists, IDENTITY CRISIS ERROR 🤿  ⛰️")
-
-    ##print_debug(user.has_requested_user(mentor_id))
-    return HttpResponse(json.dumps({"result":"created request!"}));
-
 
 @security.Decorators.require_login(bad_request_400)
 def update_profile_img(req: HttpRequest)->HttpResponse:

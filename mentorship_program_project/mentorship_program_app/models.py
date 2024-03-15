@@ -1347,7 +1347,7 @@ class Mentee(SVSUModelData,Model):
         simple function that returns true if a given mentee has more mentors than the maximum request count
         """
         try:
-            return MentorshipRequest.objects.filter(mentee_id=mentee_account_id).count() >= Mentee.MAXIMUM_REQUEST_COUNT
+            return MentorshipRequest.objects.filter(requester=mentee_account_id).count() >= Mentee.MAXIMUM_REQUEST_COUNT
         except ObjectDoesNotExist:
             return False
 
@@ -1565,7 +1565,7 @@ class MentorshipRequest(SVSUModelData,Model):
                 return False
 
             mentee_user_account = User.objects.get(id=int_mentee_user_id)
-            if mentee_user_account.has_maxed_request_count():
+            if mentee_user_account.mentee.has_maxed_request_count():
                 return False
 
             mentor_ship_request = MentorshipRequest.objects.create(
