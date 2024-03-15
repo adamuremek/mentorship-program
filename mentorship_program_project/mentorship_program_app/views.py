@@ -215,6 +215,8 @@ def register_mentee(req):
     context = {
         'interestlist':  Interest.objects.all(),
         
+        'menteeEmailMessage': "You MUST use your SVSU.EDU email address.",
+        
         'pronounlist1': ['he', 'she', 'they'],
         'pronounlist2': ['him', 'her', 'them'],
         
