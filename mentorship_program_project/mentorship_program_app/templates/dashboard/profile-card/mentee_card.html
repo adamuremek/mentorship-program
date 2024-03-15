@@ -14,10 +14,11 @@
 
 
 <div class="card">
-	<form action="{% if user.is_mentee %}/mentee_profile{% else %}/group_view{% endif %}" method="POST">
+	<!-- <form action="{% if user.is_mentee %}/mentee_profile{% else %}/group_view{% endif %}" method="POST"> -->
+	<form action="/universal_profile/{{user.id}}" method="POST">
     	{% csrf_token %}
     	<input type="hidden" name="id" value="{{ user.id }}" />
-    	<input type="image" class="card-profile-image" alt="Login" src="{{ user.img_user_profile.url }}" />
+    	<input type="image" class="card-profile-image" alt="Login" src="{{ user.profile_img.img.url }}" />
 	</form>
 	
     <div class="card-gray-part">		  
@@ -35,11 +36,11 @@
 		  </div>
 
 		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
-		  {% if user.is_requested_by_session %}
+		  {% if user.has_requested_this_user %}
 		  card-button-disabled
 		  {% endif %}
 		  ">
-		  {% if not user.is_requested_by_session %}
+		  {% if not user.has_requested_this_user %}
 			  {% if role == 'Mentee' %}
 				Request Mentor
 			  {% else %}

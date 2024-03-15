@@ -33,6 +33,10 @@ SVSU Mentoring
                     <p>Active Mentors: {{active_mentors}}</p>
                     <p>Mentee per Mentor: {{mentees_per_mentor}}</p>
                     <p>Mentorships Created: {{total_approved_mentorships}}</p>
+                    <p>Assigned Mentees: {{assigned_mentees}}</p>
+                    <p>Assigned Mentors: {{assigned_mentors}}</p>
+                    <p>A</p>
+                    <p>Terminated Mentorships: {{total_terminated_mentorships}}</p>
                     <p>Unassigned Mentees: {{unassigned_mentees}}</p>
                     <p>Unassigned Mentors: {{unassigned_mentors}}</p>
                     <p>Mentor Retention Rate: {{mentor_retention_rate}}</p>
@@ -95,7 +99,7 @@ SVSU Mentoring
                 </form>
             </div>
 
-            <div class="card user-management">
+            <div class="card user-management" id="user-management">
                 <img src="{% static 'images/person.jpg' %}">
                 <h3>User Management</h3>
             </div>
@@ -105,6 +109,10 @@ SVSU Mentoring
 <script>
     document.addEventListener('DOMContentLoaded', function() {
     const buttonDiv = document.getElementById('mentorApplications');
+    const userManagementBtn = document.getElementById('user-management');
+    userManagementBtn.addEventListener('click', () => {
+        window.location.href = './admin_user_management';
+    });
     buttonDiv.addEventListener('click', function() {
         window.location.href = './view_pending';
     });

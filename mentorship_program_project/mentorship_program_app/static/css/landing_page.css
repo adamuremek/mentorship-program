@@ -90,13 +90,6 @@ a:not([class]) {
     }
 } */
 
-@media screen and (max-width: 768px) {
-    .hero-container {
-        grid-template-columns: 1fr;
-    }
-}
-
-
 .hero-container {
     display: grid;
     gap: 1em;
@@ -105,12 +98,10 @@ a:not([class]) {
     padding: 0 calc((100vw - 1300px) / 2);
 }
 
-.column-left {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    color: #FFFFFF;
+@media screen and (max-width: 1400px) {
+    .hero-container {
+        padding-left: 5%;
+    }
 }
 
 .column-left h1 {
@@ -128,11 +119,45 @@ a:not([class]) {
     line-height: 33.6px;
 }
 
+@media screen and (max-width: 1250px) {
+    .column-left h1 {
+        font-size: 2.5em;
+    }
+
+    .column-left p {
+        font-size: 1.25rem;
+    }
+}
+
+.column-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    color: #FFFFFF;
+}
+
 .column-right {
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0rem 2rem;
+}
+
+@media screen and (max-width: 850px) {
+    .column-left {
+        padding: 1em;
+    }
+
+    .column-right {
+        padding: 0 1em 0 1em;
+    }
+
+    .hero-container {
+        margin-top: 2em;
+        grid-template-columns: 1fr;
+        padding: 0;
+    }
 }
 
 form {
@@ -144,6 +169,16 @@ form {
     border: none;
     box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
     padding: 25px 35px;
+}
+
+@media screen and (max-width: 1400px) {
+    .portal {
+        width: 100%;
+    }
+
+    form {
+        width: 100%;
+    }
 }
 
 form * {
