@@ -172,7 +172,7 @@ def generate_report(req : HttpRequest):
         worksheet[f"A{index}"] = stat.replace("_", " ").title()
         worksheet[f"B{index}"] = overall_stats[stat]
 
-    file_name = f"Mentorship-Program-statistics-{datetime.now().strftime("%Y.%m.%d.%H.%M.%S")}.xlsx"
+    file_name = f"Mentorship-Program-statistics-{datetime.now().strftime('%Y.%m.%d.%H.%M.%S')}.xlsx"
 
     buffer = BytesIO()
     workbook.save(buffer)

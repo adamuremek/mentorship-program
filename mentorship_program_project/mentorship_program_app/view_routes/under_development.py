@@ -865,7 +865,8 @@ def reject_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
                 mentorship_request.delete()
                 return redirect(f"/universal_profile/{User.from_session(req.session).id}")
             except:
-                return bad_request_400("unable to delete request!")
+                return bad_request_400("unable to create request!")
+
         except ObjectDoesNotExist:
             return bad_request_400("you do not have a request to accept!")
     return bad_request_400("permission denied!")
@@ -893,7 +894,12 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
             # if mentorship_request.is_accepted():
             #     return bad_request_400("you already accepted this request!")
 
-            sucessful = mentorship_request.accept_request(session_user)
+            sucessful = None
+            try:
+                sucessful = mentorship_request.accept_request(session_user)
+            except ValidationError:
+                #this mentor has max mentees
+                return redirect(f"/universal_profile/{User.from_session(req.session).id}")
             
             if sucessful:
                 return redirect(f"/universal_profile/{User.from_session(req.session).id}")

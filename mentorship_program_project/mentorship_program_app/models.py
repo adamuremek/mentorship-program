@@ -47,6 +47,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import *
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse,HttpRequest # for typing
 
 #standard python imports
@@ -693,6 +694,10 @@ class User(SVSUModelData,Model):
         #     return (None,None)
 
         mentor_user_account = User.objects.get(id=mentor_user_acount_id)
+
+        if mentor_user_account.mentor.has_maxed_mentees():
+            raise ValidationError('mentor has max mentees!')
+            return (None,None)
     
         # if not self.has_authority(mentor_user_account):
         #     return (None,None)
@@ -1167,6 +1172,34 @@ class Mentor(SVSUModelData,Model):
     
     """
 
+    def has_maxed_mentees(self)->bool:
+        """
+        Description
+        ___________
+        returns true if the given mentor has maxed mentees
+        """
+        return self._mentee_set.count() >= self.int_max_mentees
+    
+    @property
+    def mentee_set(self):
+        """
+        Description
+        ___________
+        read only property that ensures mentors do not get more mentees
+        """
+        
+        def wrapper(*args,**kwargs):
+            if self.has_maxed_mentees():
+                raise ValidationError('mentor has maxed mentees!')
+            return self._mentee_set.add(*args,**kwargs)
+        
+        self._mentee_set.add = wrapper
+
+        return self._mentee_set
+
+
+
+
     def is_admin_of_organization(self,org : 'Organization')->bool:
         """
         returns true if the given user administers the given organization
@@ -1289,7 +1322,23 @@ class Mentee(SVSUModelData,Model):
         "User",
         on_delete = models.CASCADE
     )
-    mentor = models.ForeignKey('Mentor', on_delete=models.CASCADE,null=True)
+    mentor = models.ForeignKey('Mentor',
+                                on_delete=models.CASCADE,
+                                null=True,
+                                related_name='_mentee_set',
+                                db_column="mentor_id")
+
+    #TODO: figure out why the heck these don't work >.<
+    #@property
+    #def mentor(self):
+    #    print("hello from the mentor property")
+    #    return self._mentor
+    #@mentor.setter
+    #def mentor(self,val : 'Mentor'):
+    #    if val != None and val.id != self._mentor.id and val.has_maxed_mentees():
+    #        raise ValidationError('mentor has maxed mentees!')
+
+    #    self._mentor = val
 
 
     @staticmethod
@@ -1510,9 +1559,9 @@ class MentorshipRequest(SVSUModelData,Model):
         """
 
         try:
-            
-            requester = User.objects.get(id=requester_id)
-            if requester.is_mentee() and requester.mentee.has_maxed_request_count():
+            #prevent requests for mentors that have their mentee count maxed
+            mentor_user_account = User.objects.get(id=int_mentor_user_id)
+            if mentor_user_account.mentor.has_maxed_mentees():
                 return False
 
             mentor_ship_request = MentorshipRequest.objects.create(
