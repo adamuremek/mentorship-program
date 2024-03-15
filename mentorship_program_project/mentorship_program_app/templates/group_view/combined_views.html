@@ -41,7 +41,9 @@
             <ul>
                     {% for mentee in mentees_or_mentor %}
                     <li class="mentee-manager">
-                        <h4>{{mentee.str_first_name}} {{mentee.str_last_name}}</h4>
+                        <a href="{% url 'universal_profile' mentee.id %}">
+                            <h4>{{mentee.str_first_name}} {{mentee.str_last_name}}</h4>
+                         </a>
                         {% if is_page_owner %}
                         <button style="width:2em" class="button-mentee-remove">&#10007;</button>
                         {% endif %}
