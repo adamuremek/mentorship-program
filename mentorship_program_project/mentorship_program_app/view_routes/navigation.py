@@ -76,13 +76,14 @@ def dashboard(req):
         card_data = card_data.exclude(mentee__mentor = session_user.mentor)
     elif session_user.is_mentee() and session_user.mentee.mentor:
         card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
-    # Using the Interest's many-to-many relation with the User table
-    # Count all the interests for the opposing role
-    interests_with_role_count = Interest.objects.annotate(mentor_count=Count('user', filter=Q(user__str_role=opposite_role))).values('strInterest', 'mentor_count')
+    
+    interests_with_role_count = Interest.objects.annotate(
+                                    mentor_count=Count('user', filter=Q(user__str_role=opposite_role))
+                                    ).values('strInterest', 'mentor_count')
 
     # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
     #set up the django users to include a property indicateing they have been reqeusted by the current user
-    users = [user.sanitize_black_properties() for user in card_data]
+    users = [user.sanitize_black_properties() for user in card_data if user.is_mentee() or not user.mentor.has_maxed_mentees()]
 
     for user in users:
         user.is_requested_by_session = session_user.has_requested_user(user)
