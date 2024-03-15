@@ -114,6 +114,7 @@ def get_project_overall_statistics():
         "successful_match_rate"        : f"{round(total_approved_mentorships/total_requested_mentorships * 100)}%" if total_requested_mentorships != 0 else "N/A",
         "total_terminated_mentorships" : SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT).count(),
         "pending_mentors"              : User.objects.filter(str_role='MentorPending').count(),
+        "mentees_reported"             : 0
     }
 
 def generate_report(req : HttpRequest):

@@ -123,8 +123,9 @@ def admin_dashboard(req):
                "total_approved_mentorships"  : overall_stats["total_approved_mentorships"  ],
                "total_requested_mentorships" : overall_stats["total_requested_mentorships" ],
                "successful_match_rate"       : overall_stats["successful_match_rate"       ],
-               "pending_mentors"             : overall_stats["pending_mentors"              ],
+               "pending_mentors"             : overall_stats["pending_mentors"             ],
                "total_terminated_mentorships": overall_stats["total_terminated_mentorships"],
+               "mentees_reported"            : overall_stats["mentees_reported"            ],
                
                # Daily
                "daily_visitors"              : timespan_stats["Daily"][0],
