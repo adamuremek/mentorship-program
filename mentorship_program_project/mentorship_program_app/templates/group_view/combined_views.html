@@ -86,8 +86,7 @@
                 <input type="file" id="profile_image" name="profile_image" style="display: none;">
                 <div class="row-titles">
                     <div class="top-title">
-                        <h1>{{page_owner_user.str_first_name }} {{page_owner_user.str_last_name}}
-                            {% if page_owner_user.is_mentor  %}'s Mentorship Group{% endif %}</h1>
+                        <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}{% if page_owner_user.is_mentor%}'s Mentorship Group{% endif %}</h1>
                         {% if is_page_owner %}
                         <span class="iHateMyself">
                             <button type="button" class="button-edit" id="button-edit"
