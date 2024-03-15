@@ -1,4 +1,4 @@
-from django.http import HttpRequest, FileResponse
+from django.http import HttpRequest, FileResponse, HttpResponse
 from django.conf import settings
 from datetime import date, datetime, timedelta
 
@@ -8,6 +8,7 @@ from ..models import SystemLogs
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
 import os
+from io import BytesIO
 
 def get_project_time_statistics():
     """
@@ -112,7 +113,7 @@ def get_project_overall_statistics():
         "total_requested_mentorships"  : total_requested_mentorships,
         "successful_match_rate"        : f"{round(total_approved_mentorships/total_requested_mentorships * 100)}%" if total_requested_mentorships != 0 else "N/A",
         "total_terminated_mentorships" : SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT).count(),
-        "pending_mentor"               : User.objects.filter(str_role='MentorPending').count(),
+        "pending_mentors"              : User.objects.filter(str_role='MentorPending').count(),
     }
 
 def generate_report(req : HttpRequest):
@@ -122,24 +123,28 @@ def generate_report(req : HttpRequest):
     """
     workbook = Workbook()
     worksheet = workbook.active
+    worksheet.title = "Mentorship Statistics"
     timespans = get_project_time_statistics()
     overall_stats = get_project_overall_statistics()
 
-    header = ["Daily Stats", "Weekly Stats", "Monthly Stats", "Lifetime stats"]
+    header = ["Daily Stats", "Weekly Stats", "Monthly Stats", "Lifetime stats", "Program stats"]
     worksheet.merge_cells('A1:B1')
     worksheet.merge_cells('D1:E1')
     worksheet.merge_cells('G1:H1')
     worksheet.merge_cells('J1:K1')
+    worksheet.merge_cells('A9:B9')
     
     worksheet["A1"] = header[0]
     worksheet["D1"] = header[1]
     worksheet["G1"] = header[2]
     worksheet["J1"] = header[3]
+    worksheet["A9"] = header[4]
 
     worksheet["A1"].alignment = Alignment(horizontal="center")
     worksheet["D1"].alignment = Alignment(horizontal="center")
     worksheet["G1"].alignment = Alignment(horizontal="center")
     worksheet["J1"].alignment = Alignment(horizontal="center")
+    worksheet["A9"].alignment = Alignment(horizontal="center")
 
     worksheet.column_dimensions['A'].width = 40
     worksheet.column_dimensions['D'].width = 40
@@ -162,22 +167,23 @@ def generate_report(req : HttpRequest):
         worksheet[f"{column_2}6"] = timespans[timespan][4]
         worksheet[f"{column_2}7"] = timespans[timespan][5]
 
-    worksheet.merge_cells('A9:B9')
-    worksheet["A9"] = "Program Statistics"
-    worksheet["A9"].alignment = Alignment(horizontal="center")
     for index, stat in enumerate(overall_stats, start=10):
         worksheet[f"B{index}"].alignment = Alignment(horizontal="right")
-
         worksheet[f"A{index}"] = stat.replace("_", " ").title()
         worksheet[f"B{index}"] = overall_stats[stat]
-       
 
-  
+    file_name = f"Mentorship-Program-statistics-{datetime.now().strftime("%Y.%m.%d.%H.%M.%S")}.xlsx"
 
-    workbook.save(f'Program Statistics{date.today()}.xlsx')
-    file_path = os.path.join(settings.MEDIA_ROOT, "test.xlsx")
-    return FileResponse(open('test.xlsx', 'rb'), as_attachment=True, filename=file_path)
+    buffer = BytesIO()
+    workbook.save(buffer)
+    buffer.seek(0)
 
+    response = HttpResponse(
+        buffer,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+    return response
 
 
 
