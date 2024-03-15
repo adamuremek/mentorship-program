@@ -98,7 +98,13 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     if mentorship_request: 
         mentorship_request.save() 
     else:
-        print("this request already exists, IDENTITY CRISIS ERROR 🤿  ⛰️")
+        #print("this request already exists, IDENTITY CRISIS ERROR 🤿  ⛰️")
+        
+        response = HttpResponse(json.dumps({"result":"invalid request"}))
+        response.status_code = 400
+        
+        return response
+        
  
     ##print_debug(user.has_requested_user(mentor_id))
-    return HttpResponse(json.dumps({"result":"created request!"}));
+    return HttpResponse(json.dumps({"result":"created request!"}))

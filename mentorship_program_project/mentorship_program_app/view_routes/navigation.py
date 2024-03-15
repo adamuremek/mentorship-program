@@ -80,6 +80,9 @@ def dashboard(req):
     #set up the django users to include a property indicateing they have been reqeusted by the current user
     users = [user.sanitize_black_properties() for user in card_data]
 
+    for user in users:
+        user.is_requested_by_session = session_user.has_requested_user(user)
+
     context = {
             "recommended_users": users[0:4] if len(users) >= 4 else users[0:len(users)], # Making sure that there are enough users to display
             "all_users"        : users[4:]  if len(users) >= 4 else [],

@@ -1281,11 +1281,32 @@ class Mentee(SVSUModelData,Model):
     -------
 
     """
+
+    #limits the number of requests that any given mentee can have
+    MAXIMUM_REQUEST_COUNT = 5
+
     account = OneToOneField(
         "User",
         on_delete = models.CASCADE
     )
     mentor = models.ForeignKey('Mentor', on_delete=models.CASCADE,null=True)
+
+
+    @staticmethod
+    def mentee_has_maxed_request_count(mentee_account_id : int)->bool:
+        """
+        simple function that returns true if a given mentee has more mentors than the maximum request count
+        """
+        try:
+            return MentorshipRequest.objects.filter(mentee_id=mentee_account_id).count() >= Mentee.MAXIMUM_REQUEST_COUNT
+        except ObjectDoesNotExist:
+            return False
+
+    def has_maxed_request_count(self)->bool:
+        """
+        syntactic sugar function that returns true if the given mentee has maxed their request count
+        """
+        return Mentee.mentee_has_maxed_request_count(self.account.id)
     
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
@@ -1487,6 +1508,11 @@ class MentorshipRequest(SVSUModelData,Model):
         """
 
         try:
+            
+            requester = User.objects.get(id=requester_id)
+            if requester.is_mentee() and requester.mentee.has_maxed_request_count():
+                return False
+
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,
                 mentee_id = int_mentee_user_id,

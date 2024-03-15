@@ -36,13 +36,17 @@
 		  </div>
 
 		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
-		  {% if user.is_requested_by_session %}
+		  {% if user.is_requested_by_session or session_user.mentee.has_maxed_request_count %}
 		  card-button-disabled
 		  {% endif %}
 		  ">
 		  {% if not user.is_requested_by_session %}
 			  {% if role == 'Mentee' %}
-				Request Mentor
+              {% if session_user.mentee.has_maxed_request_count %}
+                  Maximum Request Amount Reached
+              {% else %}
+                  Request Mentor
+              {% endif %}
 			  {% else %}
 				Request Mentee
 			  {% endif %}
