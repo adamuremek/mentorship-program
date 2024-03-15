@@ -504,9 +504,8 @@ def login_uname_text(request):
     #print_debug("uname " + uname)
     #print_debug("password " + password)
 
-
     if not User.check_valid_login(uname,password):
-        response = HttpResponse(json.dumps({"warning":"invalid creds"}))
+        response = HttpResponse(json.dumps({"warning":"The username/password you have entered is incorrect."}))
         response.status_code = 401
         return response
  

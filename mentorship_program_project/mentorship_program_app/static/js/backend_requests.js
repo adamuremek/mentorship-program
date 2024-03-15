@@ -61,7 +61,7 @@ async function attempt_login_uname_password(username,password) {
 /*
  * requests that the server log out the current user
  *
- * status code 200 means sucesful logout
+ * status code 200 means succesful logout
  * status code 500 means that you were already logged in
  *
  * */

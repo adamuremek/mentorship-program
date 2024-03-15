@@ -501,6 +501,11 @@ footer {
     height: 2.1em;
 }
 
+.error-message {
+    color: yellow;
+    margin-top: .5em;
+}
+
 @media screen and (max-width: 1200px) {
     .sign-in-card {
         width: 50%;
