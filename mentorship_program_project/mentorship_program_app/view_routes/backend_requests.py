@@ -110,7 +110,7 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     return HttpResponse(json.dumps({"result":"created request!"}))
 
 #@User.Decorators.require_logged_in_super_admin(invalid_request_401)
-def verify_mentee_ug_status(req : HttpRequest):
+def verify_mentee_ug_status(req : HttpRequest) -> HttpResponse:
     """
     Description
     -----------
@@ -129,7 +129,7 @@ def verify_mentee_ug_status(req : HttpRequest):
 
     Returns
     -------
-    - int: The count of mentee accounts set as inactive (NOTE: This is outdated)
+    - HttpResponse: The http reponse for the redirect
 
     Example Usage
     -------------
