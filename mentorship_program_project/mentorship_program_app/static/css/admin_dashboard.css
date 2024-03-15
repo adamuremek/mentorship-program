@@ -1,15 +1,70 @@
+@media screen and (min-width: 1300px) {
+    .dashboard-top-section {
+        grid-template-areas:
+            "bl1 bl1 bl2 bl2"
+            "bl3 bl3 bl3 bl3"
+            "bl4 bl5 bl6 bl7"
+            "bl8 bl8 bl8 bl8"
+            "bl0 bl0 bl0 bl0";
+    }
+
+    .program-statistics div {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    .hero {
+        width: 90%;
+    }
+
+    .dashboard-top-section {
+        grid-template-areas:
+            "bl1 bl1"
+            "bl2 bl2"
+            "bl3 bl3"
+            "bl4 bl5"
+            "bl6 bl7"
+            "bl8 bl8"
+            "bl0 bl0";
+    }
+
+    .program-statistics div {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .program-statistics div {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 620px) {
+    .program-statistics div {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    .dashboard-top-section {
+        grid-template-areas:
+            "bl1"
+            "bl2"
+            "bl3"
+            "bl4"
+            "bl5"
+            "bl6"
+            "bl7"
+            "bl8"
+            "bl0";
+    }
+}
+
 .dashboard-top-section {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: auto;
     text-align: center;
     gap: 1em;
-    grid-template-areas:
-        "bl1 bl1 bl2 bl2"
-        "bl3 bl3 bl3 bl3"
-        "bl4 bl5 bl6 bl7"
-        "bl8 bl8 bl9 bl9"
-        "bl0 bl0 bl0 bl0";
 }
 
 h1 {
@@ -83,7 +138,6 @@ h3 {
     display: grid;
     text-align: left;
     font-size: 1.25em;
-    grid-template-columns: repeat(4, 1fr);
 }
 
 .daily-statistics {
@@ -106,12 +160,8 @@ h3 {
     text-align: left;
 }
 
-.generate-mentee-reports {
+.generate-reports {
     grid-area: bl8;
-}
-
-.generate-mentor-reports {
-    grid-area: bl9;
 }
 
 .user-management {

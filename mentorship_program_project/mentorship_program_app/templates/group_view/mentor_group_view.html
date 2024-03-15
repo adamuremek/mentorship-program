@@ -19,58 +19,62 @@ Mentor Group View
             <img src="../../static/images/ex-pfp.jpg" class="profile-picture">
             <h3>Mentees:</h3>
             <ul>
+                {% for mentee in mentees %}
                 <li class="mentee-manager">
-                    <p>Name McNamerson</p>
-                    <button class="button-mentee-remove">Remove</button>
+                    
+                    <p>{{mentee.str_first_name}} {{mentee.str_last_name}}</p>
+                    {% if is_page_owner == True %}
+                        <button class="button-mentee-remove">Remove</button>
+                    {% endif  %}
                 </li>
-                <li class="mentee-manager">
-                    <p>Nathan McNamerson</p>
-                    <button class="button-mentee-remove">Remove</button>
-                </li>
-                <li class="mentee-manager">
-                    <p>Tyreek Hill</p>
-                    <button class="button-mentee-remove">Remove</button>
-                </li>
+                {% endfor %}
             </ul>
         </div>
         <div class="column-right">
             <div class="row-titles">
                 <div class="top-title">
-                    <h1>John Soup's Mentorship Group</h1>
-                    <h2>He/Him</h2>
+                    <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}'s Mentorship Group</h1>
+                    {% if is_page_owner == True %}
+                    {% if page_owner_user.str_preferred_pronouns != None %}
+                        <h2>{{page_owner_user.str_preferred_pronouns}}</h2>
+                    {% endif %}
+
                     <button class="button-edit">Edit Page</button>
+                    {% endif %}
                 </div>
+
                 
-                <h2>The Dow Chemical Company</h2>
-                <h2>Software Engineer</h2>
+
+
+                <h2>{{page_owner_mentor.str_job_title}}</h2> 
+                <h3>{{organization}}</h3> 
+
+                <h2>Specializations / Areas of Expertise:</h2>
                 <div class="specialties">
-                    <p>Specializations / Areas of Expertise: </p>
-                    <button>Interest</button>
+                    {% for interest in interests %}
+                        <button>{{interest}}</button>
+                    {% endfor %}
+
                 </div>
                 
             </div>
             <hr>
             <div class="row-communication-methods">
                 <h2>Communication Method(s):</h2>
-                <p>Phone: (999)-999-9999</p>
-                <p>Email: johnpsoup@fake.com</p>
+                <p>Phone: {{page_owner_user.str_phone_number}}</p>
+                <p>Email: {{page_owner_user.cls_email_address}}</p>
             </div>
             <hr>
             <div class="row-overview">
                 <h2>Overview:</h2>
                 <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia necessitatibus cumque neque tenetur ipsa beatae aspernatur, voluptatem aperiam maiores magni itaque deleniti expedita! Vero delectus ratione consectetur, tenetur velit soluta?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus, eum nam nemo qui quo amet fugiat quibusdam nostrum molestiae expedita, cum nobis praesentium ipsa similique corrupti sint impedit sunt nulla?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio tempore illum quam, maiores alias aliquid recusandae. Perspiciatis dolorem reiciendis mollitia. Eligendi nostrum nam saepe consequatur ipsam impedit, perspiciatis a laborum.
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Deleniti error, tempora tempore distinctio, odio aperiam pariatur sit doloremque, deserunt quidem optio at totam sunt molestias fugiat aliquam. Labore, consequatur incidunt!
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Adipisci, distinctio eligendi odit maiores exercitationem, molestiae ex voluptate illo harum laudantium quia aspernatur quibusdam asperiores odio tempora aliquid magni earum! Illo?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis, error dignissimos voluptatibus facere, iusto eveniet, asperiores saepe a omnis unde quidem! Repellat sapiente aspernatur consequatur dolorum. Nulla facilis aspernatur error.
+                    {{page_owner_user.str_bio}}
                 </p>
             </div>
             <hr>
             <div class="row-notes">
                 <h2>Note(s):</h2>
-                <button>Add Note</button>
+                <button id="btn-add-note">Add Note</button>
             </div>
             <hr class="invisible">
             <div class="note-header">
@@ -105,6 +109,9 @@ Mentor Group View
 
     </div>
 </section>
-    
+
+{% include 'group_view/note_creation_modal.html' %}
+
+<script src='{% static "js/note_modal.js" %}'></script>
 
 {% endblock %}

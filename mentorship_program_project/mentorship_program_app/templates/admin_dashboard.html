@@ -18,96 +18,128 @@ SVSU Mentoring
         <h1>Administrator Dashboard</h1>
 
         <div class="dashboard-top-section">
-            <div class="card undergraduate-status">
-                <img src="{% static 'images/exclamation.jpg' %}">
-                <h3>Verify Mentee Undergraduate Status</h3>
+            <div class="card undergraduate-status" id="verify-mentee-ug-status-button">
+                <form id="verify-mentee-ug-status-form" action="/verify-mentee-ug-status/" method="POST">
+                    {% csrf_token %}
+                    <img src="{% static 'images/exclamation.jpg' %}">
+                    <h3>Verify Mentee Undergraduate Status</h3>
+                    <input type="submit" value="" style="display: none;" />
+                </form>
             </div>
             <div class="card review-mentor-applications" id="mentorApplications">
                 <img src="{% static 'images/mail.jpg' %}">
-                <h3>Review Mentor Applications: {{pending_mentor_count}} Remaining</h3>
+                <h3>Review Mentor Applications: {{pending_mentors}} Remaining</h3>
             </div>
             <div class="card stats program-statistics">
                 <h2>Program Statistics</h2>
                 <div>
-                    <p>Active Mentees: 135</p>
-                    <p>Active Mentors: 59</p>
-                    <p>Mentee per Mentor: 2.29</p>
-                    <p>Mentorships Created: 269</p>
-                    <p>Unassigned Mentees: 15</p>
-                    <p>Unassigned Mentors: 5</p>
-                    <p>Mentor Retention Rate: 85%</p>
-                    <p>Successful Match Rate: 80%</p>
-                    <p>Inactive Mentees: 23</p>
-                    <p>Inactive Mentors: 3</p>
-                    <p>Mentor Turnover Rate: 12%</p>
-                    <p>Mentee Satisfaction: 4.35/5</p>
+                    <p>Active Mentees: {{active_mentees}}</p>
+                    <p>Active Mentors: {{active_mentors}}</p>
+                    <p>Mentee per Mentor: {{mentees_per_mentor}}</p>
+                    <p>Mentorships Created: {{total_approved_mentorships}}</p>
+                    <p>Assigned Mentees: {{assigned_mentees}}</p>
+                    <p>Assigned Mentors: {{assigned_mentors}}</p>
+                    <p>Reported Mentees: {{mentees_reported}}!</p>
+                    <p>Terminated Mentorships: {{total_terminated_mentorships}}</p>
+                    <p>Unassigned Mentees: {{unassigned_mentees}}</p>
+                    <p>Unassigned Mentors: {{unassigned_mentors}}</p>
+                    <p>Mentor Retention Rate: {{mentor_retention_rate}}</p>
+                    <p>Mentorships Requested: {{total_requested_mentorships}}</p>
+                    <p>Inactive Mentees: {{inactive_mentees}}</p>
+                    <p>Inactive Mentors: {{inactive_mentors}}</p>
+                    <p>Mentor Turnover Rate: {{mentor_turnover_rate}}</p>
+                    <p>Successful Match Rate: {{successful_match_rate}}</p>
                 </div>
             </div>
             <div class="card stats daily-statistics">
                 <h2>Daily Statistics</h2>
                 <ul>
-                    <li>21 Site Visitors</li>
-                    <li>9 Mentee Signups</li>
-                    <li>3 Mentor Applications</li>
-                    <li>6 Assigned Mentees</li>
-                    <li>3 Unassigned Mentees</li>
-                    <li>0 Deactivated Mentor Accounts</li>
+                    <li>{{daily_visitors}} Site Visitors</li>
+                    <li>{{daily_mentee_signup}} Mentee Signups</li>
+                    <li>{{daily_mentor_signup}} Mentor Applications</li>
+                    <li>{{daily_assigned_mentees}} Assigned Mentees</li>
+                    <li>{{daily_deactivate_mentors}} Deactivated Mentor Accounts</li>
+                    <li>{{daily_deactivate_mentees}} Deactivated Mentee Accounts</li>
                 </ul>
             </div>
             <div class="card stats weekly-statistics">
                 <h2>Weekly Statistics</h2>
                 <ul>
-                    <li>24 Average Daily Visitors</li>
-                    <li>18 Mentee Signups</li>
-                    <li>9 Mentor Applications</li>
-                    <li>23 Assigned Mentees</li>
-                    <li>2 Deactivated Mentor Accounts</li>
-                    <li>1.2% Mentor Turnover Rate</li>
+                    <li>{{weekly_visitors}} Site Visitors</li>
+                    <li>{{weekly_mentee_signup}} Mentee Signups</li>
+                    <li>{{weekly_mentor_signup}} Mentor Applications</li>
+                    <li>{{weekly_assigned_mentees}} Assigned Mentees</li>
+                    <li>{{weekly_deactivate_mentors}} Deactivated Mentor Accounts</li>
+                    <li>{{weekly_deactivate_mentees}} Deactivated Mentee Accounts</li>
                 </ul>
             </div>
             <div class="card stats monthly-statistics">
                 <h2>Monthly Statistics</h2>
                 <ul>
-                    <li>27 Average Daily Visitors</li>
-                    <li>27 Mentee Signups</li>
-                    <li>15 Mentor Applications</li>
-                    <li>33 Assigned Mentees</li>
-                    <li>4 Deactivated Mentor Accounts</li>
-                    <li>0.6% Mentor Turnover Rate</li>
+                    <li>{{monthly_visitors}} Site Visitors</li>
+                    <li>{{monthly_mentee_signup}} Mentee Signups</li>
+                    <li>{{monthly_mentor_signup}} Mentor Applications</li>
+                    <li>{{monthly_assigned_mentees}} Assigned Mentees</li>
+                    <li>{{monthly_deactivate_mentors}} Deactivated Mentor Accounts</li>
+                    <li>{{monthly_deactivate_mentees}} Deactivated Mentee Accounts</li>
                 </ul>
             </div>
             <div class="card stats lifetime-statistics">
                 <h2>Lifetime Statistics</h2>
                 <ul>
-                    <li>21 Average Daily Visitors</li>
-                    <li>237 Mentee Signups</li>
-                    <li>189 Mentors Approved</li>
-                    <li>269 Assigned Mentees</li>
-                    <li>6 Deactivated Mentor Accounts</li>
-                    <li>0.2% Mentor Turnover Rate</li>
+                    <li>{{lifetime_visitors}} Site Visitors</li>
+                    <li>{{lifetime_mentee_signup}} Mentee Signups</li>
+                    <li>{{lifetime_mentor_signup}} Mentor Applications</li>
+                    <li>{{lifetime_assigned_mentees}} Assigned Mentees</li>
+                    <li>{{lifetime_deactivate_mentors}} Deactivated Mentor Accounts</li>
+                    <li>{{lifetime_deactivate_mentees}} Deactivated Mentee Accounts</li>
                 </ul>
             </div>
-            <div class="card generate-mentee-reports">
-                <h3>Generate Mentee Reports</h3>
+    
+            <div class="card generate-reports" id="generate-reports-button">
+                <form id="generate-reports-form" action="/generate_report" method="POST">
+                    {% csrf_token %}
+                    <h3>Generate Reports</h3>
+                    <input type="submit" value="" style="display: none;" />
+                </form>
             </div>
-            <div class="card generate-mentor-reports">
-                <h3>Generate Mentor Reports</h3>
-            </div>
-            <div class="card user-management">
+
+            <div class="card user-management" id="user-management">
                 <img src="{% static 'images/person.jpg' %}">
                 <h3>User Management</h3>
             </div>
         </div>
-
     </div>
 </section>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('jr')
+    const userManagementBtn = document.getElementById('user-management');
     const buttonDiv = document.getElementById('mentorApplications');
+    
+    userManagementBtn.addEventListener('click', () => {
+        window.location.href = './admin_user_management';
+    });
     buttonDiv.addEventListener('click', function() {
         window.location.href = './view_pending';
     });
+
+    
+
+    var generateButton = document.getElementById("generate-reports-button");
+    var generateForm = document.getElementById("generate-reports-form");
+
+    generateButton.addEventListener("click", function() {
+        generateForm.submit();
+    });
+
+    var validateMenteeUGStatusButton = document.getElementById("verify-mentee-ug-status-button");
+    var validateMenteeUGStatusForm = document.getElementById("verify-mentee-ug-status-form");
+
+    validateMenteeUGStatusButton.addEventListener("click", function(){
+        validateMenteeUGStatusForm.submit();
+    });
+   
+    
 });
 
 </script>

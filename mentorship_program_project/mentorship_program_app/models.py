@@ -47,6 +47,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import *
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse,HttpRequest # for typing
 
 #standard python imports
@@ -277,7 +278,7 @@ class User(SVSUModelData,Model):
     - str_first_name
     - str_last_name
     - str_phone_number
-    - cls_date_of_birth
+    - str_last_login_date
     - str_gender
     - str_preferred_pronouns
     - interests
@@ -306,6 +307,11 @@ class User(SVSUModelData,Model):
     -------
 
     """
+
+    @property 
+    def str_full_name(self):
+        return self.str_first_name + " " + self.str_last_name
+
     def get_backend_only_properties(self)-> list[str]:
         """
         Description
@@ -397,7 +403,7 @@ class User(SVSUModelData,Model):
     str_last_login_date = DateField(default=date.today)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
-
+    str_bio = CharField(max_length=5000, default='')
     #foregn key fields
     interests = models.ManyToManyField(Interest)
         
@@ -487,7 +493,7 @@ class User(SVSUModelData,Model):
 
         Returns
         -------
-        - str: Mentor if mentor esle MEntee
+        - str: Mentor if mentor else MEntee
         read the python :p ^
 
         Example Usage
@@ -571,7 +577,66 @@ class User(SVSUModelData,Model):
             return self.str_role == User.Role.MENTEE
         except ObjectDoesNotExist:
             return False
+    
+    def is_super_admin(self)->bool:
+        """
+        convinece function that returns true if the given user has super admin privleges in the database
+        """
+        try:
+            return self.admin_entry.bool_enabled
+        except ObjectDoesNotExist:
+            return False
 
+    def get_shared_organizations(self,other : 'User')->['Organization']:
+        """
+        returns a set of organizations that the two given users share
+        """
+        #only mentors have organizations
+        if not (self.is_mentor() and other.is_mentor()): return None
+
+        return self.mentor.organizations & other.mentor.organizations
+
+
+
+
+    def get_first_shared_organization(self,other : 'User')->'Organization':
+        """
+        returns the first shared organization if it exists, otherwise None
+        """
+        #mentees do not have an organization
+        if self.is_mentee() or other.is_mentee(): return None
+        
+        my_organizations =  self.mentor.organizations.all()
+        your_organizations =  [o.id for o in other.mentor.organizations.all()]
+
+        #get the intersection of the id's
+        #realistically users will only be a part of one to two organiazitons
+        for my_org in my_organizations:
+            if my_org.id in your_organizations:
+                return my_org
+        return None
+
+    def has_authority(self, other : 'User')->bool:
+        """
+        returns true if the given user account has authority over the second user account
+        """
+        if self.id == other.id: return True
+        if self.is_super_admin(): return True
+        
+        if self.is_mentor() and other.is_mentor():
+            #if we are both mentors, check if we share an organization
+
+            shared_organizations = self.mentor.get_shared_organizations(other.mentor)
+
+            for org in shared_organizations:
+                if self.mentor.is_admin_of_organization(org):
+                    return True
+        
+        return False
+
+
+
+    
     def check_valid_password(self,password_plain_text : str)->bool:
         """
         Description
@@ -603,6 +668,54 @@ class User(SVSUModelData,Model):
         return security.hash_password(password_plain_text,self.str_password_hash) ==\
                 self.str_password_hash
 
+
+    def create_mentorship_from_user_ids(self,mentee_user_account_id : int,mentor_user_acount_id : int)->tuple['User','User']:
+        """
+        Description
+        ___________
+        convinence function that creates a relationship between a mentor and a mentee given their account id's
+
+        returns a tuple of the accounts from the database for further processing, will fail if the user this is running from
+        does NOT have permission to interact with the database
+
+        Returns
+        _______
+        a tuple of user objects where the first object is the mentee and the second the mentor
+
+        if you do not have permission to create the request, it returns (None,None)
+
+        Authors
+        _______
+        David Kennamer <.<
+        """
+        
+        #ensure that the person creating the request is a mentor (also admin, since admin is a subset of mentor)
+        # if not self.is_mentor():
+        #     return (None,None)
+
+        mentor_user_account = User.objects.get(id=mentor_user_acount_id)
+
+        if mentor_user_account.mentor.has_maxed_mentees():
+            raise ValidationError('mentor has max mentees!')
+            return (None,None)
+    
+        # if not self.has_authority(mentor_user_account):
+        #     return (None,None)
+
+        mentee_user_account = User.objects.get(id=mentee_user_account_id)
+        mentee_account = mentee_user_account.mentee
+        mentee_account.mentor = mentor_user_account.mentor
+        mentee_account.save()
+
+        #make sure to remove all MentorShipRequests that are in the database still, since this mentee now has a mentor
+        MentorshipRequest.remove_all_from_mentee(mentee_account)
+
+        # record logs
+        # record the mentee since the mentor can be gathered from it later
+        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, 
+                                  specified_user= User.objects.get(id=mentee_user_account_id))
+
+        return (mentee_account,mentee_account.mentor)
 
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
@@ -769,14 +882,110 @@ class User(SVSUModelData,Model):
             "PhoneNumber": self.str_phone_number,
             "DateOfBirth": self.cls_date_of_birth,
             "Gender": self.str_gender,
-            "PreferredPronouns": self.str_preferred_pronouns
+            "PreferredPronouns": self.str_preferred_pronouns,
+            "str_bio" : self.str_bio
         }
 
-        if hasattr(self, 'biographies') and self.biographies:
-            user_info["Biography"] = self.biographies.str_bio
+
 
         return user_info
     
+    # @property
+    # def img_user_profile(self):
+    #     """
+    #     DESCRIPTION
+    #     ___________
+
+    #     convinence property to provide access to the users profile image through
+    #     the original user.img_user_profile api for the sake of views and ensuring images
+    #     still work with the older api method
+
+    #     see https://realpython.com/python-property/ 
+    #     for a reference on how python properties work
+
+    #     USAGE
+    #     _____
+        
+    #     in django
+
+    #     django_img_field = user.img_user_profile
+
+    #     in a view
+        
+    #     <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/>
+
+    #     AUTHORS
+    #     _______
+    #     David Kennamer ._.
+
+    #     """
+    #     try:
+    #         default_img = self.profileimg.img_profile
+    #     except ObjectDoesNotExist:
+    #         ProfileImg.create_from_user_id(self.id) #create an image with default profile picture if one does not exist
+    #     return self.profileimg.img_profile
+    
+    @property
+    def profile_img(self):
+        """
+        DESCRIPTION
+        ___________
+
+        convinence property to provide access to the users profile image through
+        the original user.profile_img api for the sake of views and ensuring images
+        still work with the older api method
+
+        see https://realpython.com/python-property/ 
+        for a reference on how python properties work
+
+        USAGE
+        _____
+        
+        in django
+
+        django_img_field = user.profile_img
+
+        in a view
+        
+        <img class="card-profile-image" src="{{ user.profile_img.img.url }}"/>
+
+        AUTHORS
+        _______
+        David Kennamer ._0
+        Adam U. <:3
+        """
+        try:
+            return self.profile_img_query
+        except ObjectDoesNotExist:
+            img = ProfileImg.create_from_user_id(self.id)
+            return img
+
+    @property
+    def cleaned_bio(self) -> str:
+        """
+        DESCRIPTION
+        ===========
+
+        By default, the "str_bio" model property, which is a CharField, returns a string
+        padded with spaces and carriage returns. This property wrapper (getter) just returns
+        a cleaned form of that string.
+
+        USAGE
+        =====
+        
+        >>> print(user.str_bio)
+        "         This is my Bio\n\r         "
+
+        >>> print(user.cleaned_bio)
+        "This is my bio"
+        
+        Author
+        ======
+        Adam U. >:3
+        """
+        
+        return self.str_bio.strip()
+
     class Decorators:
         """
         Description
@@ -801,6 +1010,8 @@ class User(SVSUModelData,Model):
             mentor from accessing certain pages
         - require_logged_in_mentee: Prevents users who aren't logged in as a
             mentee from accessing certain pages
+        - require_logged_in_super_admin: Prevents users who aren't logged in as
+            a super admin from accessing certain pages
 
         Magic Functions
         -------------
@@ -883,41 +1094,58 @@ class User(SVSUModelData,Model):
             validator = lambda req : security.is_logged_in(req.session) \
                                      and User.from_session(req.session).is_mentee()
             return security.Decorators.require_check(validator, alternate_view)
+        
+        @staticmethod
+        def require_logged_in_super_admin(alternate_view : Callable): # -> Callable[HttpRequest,HttpResponse]:
+            """
+            Description
+            -----------
+            Prevents users who aren't logged in as a super admin from accessing
+            certain pages or performing certain operations
 
-class Biographies(SVSUModelData,Model):
+            Parameters
+            ----------
+            - alternate_view (Any): The page to redirect to if the user logged
+                in is not a mentor
+
+            Optional Parameters
+            -------------------
+            (None)
+
+            Returns
+            -------
+            - Any: The decorated function with the redirect
+
+            Example Usage
+            -------------
+            def some_other_view(req : HttpRequest)->HttpResponse:
+                ...
+
+            @Users.require_logged_in_super_admin(some_other_view)
+            def protected_view(req : HttpRequest)->HttpResponse
+
+            Authors
+            -------
+            David Kennamer
+            William Lipscom:b
+            NOTE: I basically just ctrl c + ctrl v from above.
+            """
+            validator = lambda req : security.is_logged_in(req.session) \
+                                     and User.from_session(req.session).is_super_admin()
+            return security.Decorators.require_check(validator, alternate_view)
+
+
+
+class SuperAdminEntry(SVSUModelData,Model):
     """
-    Description
-    -----------
-    A class to hold the user biographies. This saves space in the database.
+    this class represents a list of super admin mentors in the database
 
-    Properties
-    ----------
-    - user (User): The user who owns the biography is about
-    - str_bio (str): The user's biography text
-
-    Instance Functions
-    -------------------
-    (None)
-
-    Static Functions
-    -------
-    (None)
-
-    Magic Functions
-    -------------
-    (None)
-
-    Authors
-    -------
-    
+    if you have an entry in this table you are super admin,
+    if you do not have an entry, you are not super admin
     """
-    user = OneToOneField(
-        User,
-        on_delete = models.CASCADE,
-        primary_key=True
-    )
+    bool_enabled = BooleanField(default=True) #can be used to turn off admin
+    user_account = OneToOneField(User, on_delete=models.CASCADE,related_name="admin_entry")
 
-    str_bio = CharField(max_length=5000, null=True)
 
 class Organization(SVSUModelData,Model):
     """
@@ -985,6 +1213,51 @@ class Mentor(SVSUModelData,Model):
     
     """
 
+    def has_maxed_mentees(self)->bool:
+        """
+        Description
+        ___________
+        returns true if the given mentor has maxed mentees
+        """
+        return self._mentee_set.count() >= self.int_max_mentees
+    
+    @property
+    def mentee_set(self):
+        """
+        Description
+        ___________
+        read only property that ensures mentors do not get more mentees
+        """
+        
+        def wrapper(*args,**kwargs):
+            if self.has_maxed_mentees():
+                raise ValidationError('mentor has maxed mentees!')
+            return self._mentee_set.add(*args,**kwargs)
+        
+        self._mentee_set.add = wrapper
+
+        return self._mentee_set
+
+
+
+
+    def is_admin_of_organization(self,org : 'Organization')->bool:
+        """
+        returns true if the given user administers the given organization
+        """
+        try:
+            org.admins.get(id=self.id)
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    def get_shared_organizations(self,other : 'Mentor')->['Organization']:
+        """
+        returns a list of organizations shared between two mentors,
+        the list will be empty if no mentors exists
+        """
+        return self.organizations.all() & other.organizations.all()
+        
     int_max_mentees = IntegerField(default=4)
    
     # TODO:
@@ -1002,6 +1275,7 @@ class Mentor(SVSUModelData,Model):
         User,
         on_delete = models.CASCADE
     )
+
 
     organization = ManyToManyField(
         Organization
@@ -1081,10 +1355,48 @@ class Mentee(SVSUModelData,Model):
     -------
 
     """
+
+    #limits the number of requests that any given mentee can have
+    MAXIMUM_REQUEST_COUNT = 5
+
     account = OneToOneField(
         "User",
         on_delete = models.CASCADE
     )
+    mentor = models.ForeignKey('Mentor',
+                                on_delete=models.CASCADE,
+                                null=True,
+                                related_name='_mentee_set',
+                                db_column="mentor_id")
+
+    #TODO: figure out why the heck these don't work >.<
+    #@property
+    #def mentor(self):
+    #    print("hello from the mentor property")
+    #    return self._mentor
+    #@mentor.setter
+    #def mentor(self,val : 'Mentor'):
+    #    if val != None and val.id != self._mentor.id and val.has_maxed_mentees():
+    #        raise ValidationError('mentor has maxed mentees!')
+
+    #    self._mentor = val
+
+
+    @staticmethod
+    def mentee_has_maxed_request_count(mentee_account_id : int)->bool:
+        """
+        simple function that returns true if a given mentee has more mentors than the maximum request count
+        """
+        try:
+            return MentorshipRequest.objects.filter(requester=mentee_account_id).count() >= Mentee.MAXIMUM_REQUEST_COUNT
+        except ObjectDoesNotExist:
+            return False
+
+    def has_maxed_request_count(self)->bool:
+        """
+        syntactic sugar function that returns true if the given mentee has maxed their request count
+        """
+        return Mentee.mentee_has_maxed_request_count(self.account.id)
     
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
@@ -1177,9 +1489,81 @@ class MentorshipRequest(SVSUModelData,Model):
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
+
+    requester = IntegerField(null=True)
+
+    def accept_request(self,session_user : User)->bool:
+        """
+        Description
+        ___________
+        accepts the given mentorship request
+
+
+        fails if the given session user does NOT have PERMISSION to make the request
+
+        Authors
+        _______
+        David Kennamer *_*
+        Tanner Williams 🦞
+        """
+
+        # record logs
+        # record the mentee since the mentor can be gathered from it later
+        mentor,mentee = session_user.create_mentorship_from_user_ids(
+                                                    self.mentee.id,
+                                                    self.mentor.id
+                                                    )
+        print(mentor, mentee)
+        if mentor == None or mentee == None:
+            
+            return False
+
+        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
+                                  specified_user=mentee.account)
+
+       
+        MentorshipRequest.remove_all_from_mentee(mentee)
+        print("AHH GOOD")
+        return True
+        
+
+    def remove_all_from_mentee(mentee : 'Mentee')->None:
+        """
+        Description
+        ___________
+        convinence function that removes all mentorship requests from the database that match a given mentee
+
+        Authors
+        _______
+        David Kennamer \*^*/
+        """
+        MentorshipRequest.objects.filter(mentee=mentee.account).delete()
+
+    def is_accepted(self)->bool:
+        """
+        Description
+        ___________
+        returns true if the given request is accepted in the database, ideally this should 
+        allways be false, since we delete mentorship requests when we add them to a user
+
+        this is here as an extra security check to make sure that the request is NOT accepted
+        if this ever returns true it indicates invalid data
+
+        Authors
+        _______
+        David Kennamer ).)
+        Tanner Williams 🦞
+        """
+        try:
+            self.mentor.mentees.get(id=self.mentee.id)
+            return True
+        except:
+            return False
+
+
     
     @staticmethod
-    def create_request(int_mentor_user_id: int, int_mentee_user_id: int):
+    def create_request(int_mentor_user_id: int, int_mentee_user_id: int, requester_id: int):
         """
         Description
         -----------
@@ -1216,9 +1600,19 @@ class MentorshipRequest(SVSUModelData,Model):
         """
 
         try:
+            #prevent requests for mentors that have their mentee count maxed
+            mentor_user_account = User.objects.get(id=int_mentor_user_id)
+            if mentor_user_account.mentor.has_maxed_mentees():
+                return False
+
+            mentee_user_account = User.objects.get(id=int_mentee_user_id)
+            if mentee_user_account.mentee.has_maxed_request_count():
+                return False
+
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,
-                mentee_id = int_mentee_user_id
+                mentee_id = int_mentee_user_id,
+                requester = requester_id
             )
             return mentor_ship_request
         except Exception as e:
@@ -1305,7 +1699,9 @@ class MentorshipRequest(SVSUModelData,Model):
         - int_mentor_id: (int):
         - int_mentee_id: (int):
 
-        Optional Parameters
+
+
+            Optional Parameters
         -------------------
         - NONE -
 
@@ -1692,8 +2088,52 @@ class SystemLogs(SVSUModelData,Model):
     
     """
     
-    str_event = CharField(max_length = 500)
+    class Event(TextChoices):
+        """
+        Description
+        -----------
+        An enum subclass to hold the different user roles
+
+        Properties
+        ----------
+        - LOGON_EVENT
+        - CREATE_MENTORSHIP_EVENT
+        - REQUEST_MENTORSHIP_EVENT
+        - MENTEE_REGISTER_EVENT
+        - MENTOR_REGISTER_EVENT
+        - USER_DEACTIVATED
+
+        Instance Functions
+        -------------------
+        (None)
+
+        Static Functions
+        -------
+        (None)
+
+        Magic Functions
+        -------------
+        (None)
+
+        Authors
+        -------
+        
+        """
+        LOGON_EVENT = "User logged on"
+        APPROVE_MENTORSHIP_EVENT = "Create mentorship"
+        REQUEST_MENTORSHIP_EVENT = "Request mentorship"
+        MENTORSHIP_TERMINATED_EVENT = "Mentorship terminated"
+        MENTEE_REGISTER_EVENT = "Mentee signed up"
+        MENTOR_REGISTER_EVENT = "Mentor applied"
+        MENTEE_DEACTIVATED_EVENT = "Mentee deactivated"
+        MENTOR_DEACTIVATED_EVENT = "Mentor deactivated"
+        
+
+    str_event = CharField(max_length=500, choices=Event.choices, default='')
     cls_log_created_on = DateField(default=date.today)
+    specified_user = models.ForeignKey('User', on_delete=models.CASCADE, null=True)
+
+    
 
 
 class ProfileImg(SVSUModelData,Model):
@@ -1743,29 +2183,30 @@ class ProfileImg(SVSUModelData,Model):
     user = OneToOneField(
         User,
         on_delete = models.CASCADE,
-        primary_key = True
+        primary_key = True,
+        related_name="profile_img_query"
     )
 
     #   The image, its name, and its file size.
     img_title = CharField(max_length=100)
-    img_profile = ImageField(
-                                upload_to="images/",
-                                default=
-                                    "images/default_profile_picture.png"
-                            )
+    img = ImageField(
+                    upload_to="images/",
+                    default=
+                        "images/default_profile_picture.png"
+                    )
     file_size = PositiveIntegerField(null=True, editable=False)
 
     #   Static function that creates a new instance of the class
     @staticmethod
     def create_from_user_id(int_user_id: int,
-                            str_filename: str)->'ProfileImg':
+                            str_filename: str='images/default_profile_picture.png')->'ProfileImg':
 
         try:
             user_model = User.objects.get(id=int_user_id)
             new_image = ProfileImg.objects.create(user=user_model, 
                                                 img_title=str_filename)
             new_image.save()
-            return True
+            return new_image
         except Exception as e:
             print(e)
             #Operation failed.

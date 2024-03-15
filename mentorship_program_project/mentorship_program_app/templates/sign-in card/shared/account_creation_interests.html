@@ -5,22 +5,17 @@
 
                 {% for interest in interestlist %}
                     <label class="sign-in-card-interest">
-                        <input type="checkbox" class="chk-interest" id="{{interest}}" value="{{interest}}">
-                        <div class="sign-in-card-interest-label">{{interest}}</div>
+                        <input type="checkbox" class="chk-interest" name ="selected_interests" id="{{interest.strInterest}}" value="{{interest.strInterest}}">
+                        <div class="sign-in-card-interest-label">{{interest.strInterest}}</div>
                     </label>
-                {% endfor %}
-
-                <label class="sign-in-card-interest">
-                    <button class="sign-in-card-interest-button">+</button>
-                </label>
-                
+                {% endfor %}                
             </div>
         </div>
     </div>
     <div class="sign-in-card-element">
         <button type="button" class="sign-in-card-option-button">Next</button>
     </div>
-    <input type="hidden" id="interests" name="interests"/>
+    <!-- <input type="hidden" id="interests" name="interests"/> -->
 </div>
 
 <script>

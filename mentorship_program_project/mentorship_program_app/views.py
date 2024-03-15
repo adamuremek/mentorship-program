@@ -36,6 +36,7 @@ MODIFICATION HISTORY:
 
 WHO     WHEN     WHAT
 WJL   3/3/2024   Added file header comment and updating to doc standards
+ARVP  3/10/2024  Added ProfileImg and Organization imports
 """
 
 #standard python imports
@@ -51,10 +52,20 @@ from utils import development
 from utils.development import print_debug
 from utils import security
 
+from .view_routes.status_codes import bad_request_400
+
 from .models import User
 from .models import Interest
 from .models import Mentor
+from .models import Mentee
+
 from .models import MentorshipRequest
+from .models import SystemLogs
+from .models import ProfileImg
+from .models import Organization
+
+
+from .view_routes.navigation import landing
 
 
 #please make it pretty front end :)
@@ -169,26 +180,16 @@ def BIGMOVE(req):
 
 def THEBIGMOVE(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
+    
     context = {
-        'interestlist': [
-            'Artificial Intelligence', 
-            'Computer Graphics', 
-            'Data Structures & Algorithms',
-            'Networking',
-            'Operating Systems',
-            'Embedded Systems',
-            'Cloud Computing',
-            'Software Engineering',
-            'Distrubuted Systems',
-            'Game Development',
-            'Cybersecruity',
-            'System Analysis'],
+        'interestlist': Interest.objects.all(),
 
-        'pronounlist': ['he', 'she', 'they'],
+        'pronounlist1': ['he', 'she', 'they'],
+        'pronounlist2': ['him', 'her', 'them'],
 
         'companytypelist': [
             'Manufacturing',
-            'Comptuer Science', 
+            'Computer Science', 
             'Math?'],
             
         'experiencelist': [
@@ -212,21 +213,12 @@ def THESECONDMOVE(req):
 def register_mentee(req):
     template = loader.get_template('sign-in card/single_page_mentee.html')
     context = {
-        'interestlist': [
-            'Artificial Intelligence', 
-            'Computer Graphics', 
-            'Data Structures & Algorithms',
-            'Networking',
-            'Operating Systems',
-            'Embedded Systems',
-            'Cloud Computing',
-            'Software Engineering',
-            'Distrubuted Systems',
-            'Game Development',
-            'Cybersecruity',
-            'System Analysis'],
+        'interestlist':  Interest.objects.all(),
         
-        'pronounlist': ['he', 'she', 'they'],
+        'menteeEmailMessage': "You MUST use your SVSU.EDU email address.",
+        
+        'pronounlist1': ['he', 'she', 'they'],
+        'pronounlist2': ['him', 'her', 'them'],
         
         'useragreement': 
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
@@ -266,22 +258,16 @@ def profileCard(req):
     context = {'items':items}
     return HttpResponse(template.render(context, req))
 
-#please make pretty front end we love you :D
-def home(req):
-
-    return HttpResponse('theres no place me')
-
 def role_test(req):
     template = loader.get_template('sign-in-card/experiment.html')
     context = {}
     return HttpResponse(template.render(context, req))
 
-# TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
+# TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --ANTHONY PETERS
 def role_selection(request):
     template = loader.get_template('sign-in card/shared/role_selection.html')
     context = {}
     return HttpResponse(template.render(context, request))
-
 
 def account_activation_mentee(request):
     template = loader.get_template('sign-in card/mentee/account_activation_mentee.html')
@@ -309,19 +295,175 @@ def account_activation_mentor(request):
 
 def admin_user_management(request):
     template = loader.get_template('admin/user_management.html')
+    session_user = User.from_session(request.session)
+
+    # Create storge for list
+    unaffiliated_mentors = []
+    organizations = []
+    mentees = []
+
+    # role = session_user.get_database_role_string
+    # TESTING
+    role = User.Role.ADMIN
+
+    # Preset admin flag to false
+    user_admin_flag = False
+
+    # Check if user is a organization admin
+    for organization in Organization.objects.all():
+        for admin in organization.admins.all():
+            if (session_user == admin):
+                # Set admin flag to true
+                user_admin_flag = True
+
+                # Store organization 
+                user_organization = organization
+
+
+    # Load from database based on role
+    # Check if user is an admin
+    if (role == User.Role.ADMIN):
+        # Get all mentee and mentor data from database
+        user_management_mentee_data = Mentee.objects
+        user_management_mentor_data = Mentor.objects
+        user_management_organizations_data = Organization.objects
+
+    # Check if user is an organization admin
+    elif (user_admin_flag):
+        # Get all mentee data and mentor data from within the organization
+        user_management_mentor_data = Mentee.objects
+        user_management_mentor_data = Mentor.objects
+        user_management_organizations_data = Organization.objects.filter(user_organization == Organization)
+
+    # for org in organizations.all():
+    #     print(org.admins)
+
+    # Cycle through organizations storing organization data
+    for organization in user_management_organizations_data.all():
+        # Create admin list for organization
+        admin_list = []
+
+        # Cycle through admins of organization
+        for admin in organization.admins.all():
+            # Remove mentor from unafiiaited mentor group
+            user_management_mentor_data.remove(admin)
+
+            # Get mentorship objects if possible    
+            mentorships = MentorshipRequest.objects.filter(mentor=mentor.account)
+
+            # Set current mentor amount from mentorship object's count
+            current_mentees = mentorships.count()
+            
+            # Check if mentor has at least 1 mentorship
+            if (current_mentees > 0):
+                # Create an empty list for mentees
+                mentee_list = []
+
+                # Loop through mentorship list, adding mentees to mentee list
+                for current_mentorship in mentorships:
+                    mentee_list.append(current_mentorship.mentee)
+            else:
+                # Set mentee list to none
+                mentee_list = None
+
+            # Add needed mentee info to organization list
+            admin_list.append(
+                {
+                    'account': mentor.account,
+                    'mentees': mentee_list,
+                    'current_mentees': current_mentees,
+                    'max_mentees': mentor.int_max_mentees
+                }
+            )
+
+            # FOR TESTING
+            print()
+            print(mentor.account)
+
+        # FOR TESTING
+        print(organization.str_org_name)
+
+        organizations.append({'name': organization.str_org_name, 'admin_list': admin_list})
+
+    # Cycle through unaffiliated mentors storing mentor data
+    for mentor in user_management_mentor_data.all():
+        # Get mentorship objects if possible    
+        mentorships = MentorshipRequest.objects.filter(mentor=mentor.account)
+
+        # Set current mentor amount from mentorship object's count
+        current_mentees = mentorships.count()
+        
+        # Check if mentor has at least 1 mentorship
+        if (current_mentees > 0):
+            # Create an empty list for mentees
+            mentee_list = []
+
+            # Loop through mentorship list, adding mentees to mentee list
+            for current_mentorship in mentorships:
+                mentee_list.append(current_mentorship.mentee)
+        else:
+            # Set mentee list to none
+            mentee_list = None
+
+        # FOR TESTING
+        print()
+        print(mentor.account)
+
+        # Add needed mentee info to mentees list
+        unaffiliated_mentors.append(
+            {
+                'account': mentor.account,
+                'mentees': mentee_list,
+                'current_mentees': current_mentees,
+                'max_mentees': mentor.int_max_mentees
+            }
+        )
+
+    # Cycle through mentee storing mentee data
+    for mentee in user_management_mentee_data.all():
+        # Get mentorship object if possible    
+        mentorship = MentorshipRequest.objects.filter(mentee=mentee.account)
+        
+        # Check if mentee is include in any MentorshipReqiest objects and set has_mentor and mentor accordingly
+        if (mentorship):
+            has_mentor = True
+            mentor = mentorship[0].mentor
+        else:
+            has_mentor = False
+            mentor = None
+
+        # Add needed mentee info to mentees list
+        mentees.append(
+            {
+                'account': mentee.account,
+                'mentor': mentor,
+                'has_mentor': has_mentor
+            }
+        )
+
     context = {
-        #TODO NEED TO ADD SOME DUMMY INFO
+        'mentees': mentees,
+        'unaffiliated_mentors': unaffiliated_mentors,
+        'organizations': organizations,
+
+
+
+
+        'role': role,
+        'ADMIN': User.Role.ADMIN,
+        'user_admin_flag': user_admin_flag
     }
-    return HttpResponse(template.render(context,request))\
+
+    return HttpResponse(template.render(context,request))
+
 
 
 
 @security.Decorators.require_login(invalid_request_401)
 def logout(request):
     if security.logout(request.session):
-        return HttpResponse("logged out!")
-    
-    #TODO: redirect this to a correct form
+        return landing(request)
+    #TODO: redirect this to a correct form ||||| probably done - Tanner
     response = HttpResponse("an internal error occured, unable to log you out, STAY FOREVER")
     response.status_code = 500
     return response
@@ -340,25 +482,31 @@ def login_uname_text(request):
     #print_debug("uname " + uname)
     #print_debug("password " + password)
 
-
     if not User.check_valid_login(uname,password):
-        response = HttpResponse(json.dumps({"warning":"invalid creds"}))
+        response = HttpResponse(json.dumps({"warning":"The username/password you have entered is incorrect."}))
         response.status_code = 401
         return response
  
     #valid login
-    security.set_logged_in(request.session,User.objects.get(cls_email_address=uname).id)
+    if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
+        response = HttpResponse(json.dumps({"warning":"you are currently pending aproval"}))
+        response.status_code = 401
+        return response
+
     user = User.objects.get(cls_email_address=uname)
     user.str_last_login_date = date.today()
     user.save()
+
+    # record logs
+    SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
 
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
 
 # view goes to currently static approve/delete mentors page
-def mentor_judgement(request):
+def change_settings(request):
     context = {}
-    template = loader.get_template('pending_mentors.html')
+    template = loader.get_template('settings.html')
     return HttpResponse(template.render(context,request))
 
 # view goes to mentor_group_view
