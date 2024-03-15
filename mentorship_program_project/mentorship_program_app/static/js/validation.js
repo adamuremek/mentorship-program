@@ -66,6 +66,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
     const input_interests = document.getElementById('interests')
 
+    const btn_user_agree = document.getElementById('btnUserAgree')
+
     var regex_custom = /^/
 
     // ID of current 'page'
@@ -164,6 +166,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         }
     });
 
+    
+
     // Get all snippets being rendered
     const snippets = document.getElementsByClassName('sign-in-card-content')
 
@@ -232,7 +236,13 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         })
     }
 
-
+    btn_user_agree.style.display = 'None'
+    document.getElementById('useragreement').addEventListener('change', e => {
+        if (e.target.checked) 
+            btn_user_agree.style.display = 'Flex'
+        else 
+            btn_user_agree.style.display = 'None'
+    })
 
     // -------------------- <<< FORM SUBMIT >>> -------------------- \\
 

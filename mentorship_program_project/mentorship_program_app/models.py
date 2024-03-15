@@ -1203,7 +1203,7 @@ class Mentor(SVSUModelData,Model):
     )
 
 
-    organizations = ManyToManyField(
+    organization = ManyToManyField(
         Organization
     )
 
