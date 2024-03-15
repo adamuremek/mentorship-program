@@ -493,7 +493,7 @@ def enable_user(req:HttpRequest):
 
 
 @security.Decorators.require_login(bad_request_400)
-def update_profile_img(req: HttpRequest)->HttpResponse:
+def update_profile_img(user_id, new_pfp):
     '''
     Description
     -----------
@@ -526,48 +526,40 @@ def update_profile_img(req: HttpRequest)->HttpResponse:
     -------
     🌟 Isaiah Galaviz 🌟
     '''
+    page_owner_user = User.objects.get(id=user_id)
 
-    # Get the user id from the current session
-    user = User.from_session(req.session)
-    int_user_id = user.id
-    #   Get the name of the file through an HTTP POST request with JSON data.
-    post_data = json.loads(req.body.decode("utf-8"))
-    str_img_name = post_data["image"] if "image" in post_data else None
-    
     #   If the name of the file is not valid (wrong file extension or insufficient name length),
     #   return an HttpResponse saying the user's profile was not modified.
-    if str_img_name == None:
-        return HttpResponse(f"User {int_user_id}'s image profile was NOT modified")
-    elif len(str_img_name) < 5:
-        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
-    elif str_img_name.endswith(".png") == False:
-        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
-    elif str_img_name.endswith(".jpg") == False:
-        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
+    if new_pfp == None:
+        return bad_request_400(f"User {user_id}'s image profile was NOT modified")
+    elif len(new_pfp.name) < 5:
+        return bad_request_400(f"File name was invalid. User {user_id}'s profile was NOT modified.")
+    elif new_pfp.name.endswith(".png") == False:
+        return bad_request_400(f"File name was invalid. User {user_id}'s profile was NOT modified.")
+    elif new_pfp.name.endswith(".jpg") == False:
+        return bad_request_400(f"File name was invalid. User {user_id}'s profile was NOT modified.")
     
     #   Otherwise, continue on with running the function.
     else:
         #   Check if a 'ProfileImg' instance exists that is associated
         #   with the user currently logged into the system.
-        profile_img = ProfileImg.objects.get(user=user)
+        profile_img = ProfileImg.objects.get(user=page_owner_user)
         if profile_img == None:
             #   If not, create a new instance of the ProfileImg model 
             #   and store it in the program's database
-            bool_flag = ProfileImg.create_from_user_id(int_user_id, str_img_name)
+            bool_flag = ProfileImg.create_from_user_id(int_user_id=user_id)
             #   Return a response saying the process did not go through, if so.
             if bool_flag == False:
-                return HttpResponse(f"Something went wrong while trying to modify user {int_user_id}'s profile.")
+                return bad_request_400(f"Something went wrong while trying to modify user {user_id}'s profile.")
             #   If the process did go through, get the newly created instance.
-            profile_img = ProfileImg.objects.get(user=user)
-        else:
-            #   Otherwise, store the image name and save the image instance
-            profile_img.img_title = str_img_name
+            profile_img = ProfileImg.objects.get(user=page_owner_user)
+
+        #   Store the image name and save the image instance
+        profile_img.img_title = new_pfp
 
         #   Take the name of the image file and store it in the user's ImageView.
-        profile_img.img_profile = str_img_name
+        profile_img.img_profile = new_pfp
         profile_img.save()
-
-        return HttpResponse(f"User {int_user_id}'s image profile was SUCCESSFULLY modified")
 
 
 @security.Decorators.require_login(bad_request_400)
@@ -868,6 +860,9 @@ def save_profile_info(req : HttpRequest, user_id : int):
         #Change profile picture
         if "profile_image" in req.FILES:
             new_pfp = req.FILES["profile_image"]
+
+            # update_profile_img(user_id, new_pfp)
+            
             page_owner_user.profile_img.img.save(new_pfp.name, new_pfp)
 
         #Set the new interests
