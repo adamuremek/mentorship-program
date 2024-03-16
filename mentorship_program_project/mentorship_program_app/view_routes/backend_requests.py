@@ -41,7 +41,7 @@ from django.http import HttpResponse,HttpRequest
 from django.shortcuts import redirect
 from ..models import User
 from datetime import date
-from dateutil import relativedelta
+#from dateutil import relativedelta
 import json
 from ..models import SystemLogs
 from ..views import invalid_request_401
@@ -102,7 +102,7 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
 
     mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id, user.id)
     if mentorship_request: 
-        mentorship_request.save() 
+        mentorship_request.save()
     else:
         #print("this request already exists, IDENTITY CRISIS ERROR 🤿  ⛰️")
         
@@ -162,3 +162,40 @@ def verify_mentee_ug_status(req : HttpRequest) -> HttpResponse:
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED, specified_user=mentee)
 
     return redirect('/admin_dashboard')
+
+@security.Decorators.require_login(bad_request_400)
+def create_new_interest(req : HttpRequest, admin_id : int, str_interest : str, bool_is_default : bool)->HttpResponse:
+        
+        admin = User.from_session(req.session)
+        bool_error = False
+        str_error_message = "The following error(s) occured: \n"
+        new_interest : 'Interest' = None
+
+        #Check if the user is an admin.
+        if admin.Role != User.Role.ADMIN :
+            str_error_message.join("Not an administrator. \n")
+            bool_error = True
+        
+        #Check if the str_interest is empty.
+        if len(str_interest) == 0 :
+            str_error_message.join("Interest cannot be empty. \n")
+            bool_error = True
+        #Check if the str_interest exists.
+        elif  Interest.get_interest(str_interest) == None :
+            str_error_message.join("Interest already exists. \n")
+            bool_error = True
+
+        #Create the interest.
+        if not(bool_error) : 
+            new_interest = Interest.create_interest(str_interest, bool_is_default)
+        
+        #Check if the interest was created.
+        if new_interest == None or bool_error:
+            str_error_message.join("Interest creation failed. \n")
+            bool_error = True
+
+        if bool_error :
+            bad_request_400(str_error_message)
+        else:
+            #All is good.
+            return HttpRequest("Interest Added.")

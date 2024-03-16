@@ -23,7 +23,7 @@ def run():
     #print(getAllInterests())
     #print(getUserInformation(3))
 
-    #mentorshipRequest.createRequest(1, 2)
+    MentorshipRequest.create_request(1, 2, 1)
     print(MentorshipRequest.get_request_info(1))
     #print(MentorshipRequest.removeRequest(4, 5))
 
