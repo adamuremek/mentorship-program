@@ -87,7 +87,7 @@ Dashboard
 
             <div class="available-cards">
                     {% for user in all_users %}
-                    <div class="card {% for interest in user.interests.all %} {{interest.strInterest}}{% endfor %}">
+                    <div class="card available-card {% for interest in user.interests.all %} {{interest.strInterest}}{% endfor %}">
                         {% include 'dashboard/profile-card/mentee_card.html' %}
                     </div>
                     {% endfor %}
@@ -129,7 +129,7 @@ Dashboard
 
   
     filterInterests = () => {
-        const users = document.getElementsByClassName('goFuckYourself')
+        const users = document.getElementsByClassName('available-card')
         const filter_tags = document.getElementsByClassName('popup-checkbox-item')
 
         const search_bar = document.getElementById('searchByNameField')
