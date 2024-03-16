@@ -4,20 +4,18 @@
 
 /* clr-light and light-mode utility class used to toggle light mode*/
 :root {
+    --clr-font-primary: hsl(222, 27%, 95%);
+
     --clr-light: linear-gradient(139deg,
-    rgba(255,0,0,1) 0%, 
-    rgba(251,57,57,1) 23%, 
-    rgba(255,130,130,1) 50%, 
-    rgba(255,193,193,1) 75%, 
-    rgba(255,255,255,1) 100%);
+            rgba(255, 0, 0, 1) 0%,
+            rgba(251, 57, 57, 1) 23%,
+            rgba(255, 130, 130, 1) 50%,
+            rgba(255, 193, 193, 1) 75%,
+            rgba(255, 255, 255, 1) 100%);
 }
 
 .light-mode {
     background-image: var(--clr-light);
-}
-
-:root {
-    --clr-font-primary: hsl(222, 27%, 95%);
 }
 
 * {
@@ -45,13 +43,12 @@ body {
             hsl(326deg 20% 31%) 57%,
             hsl(355deg 43% 27%) 76%,
             hsl(354deg 33% 23%) 100%);
+    ;
 
     /* stretches instead of repeats gradient on long pages */
     background-attachment: fixed;
     position: static;
 }
-
-
 
 main {
     min-height: 90vh;
@@ -151,6 +148,7 @@ nav {
 
 nav img {
     height: 50px;
+    /* padding: 0 20px; */
     width: auto;
 }
 
@@ -168,12 +166,12 @@ nav li {
 
 nav svg {
     fill: var(--clr-font-primary);
-    height: 20px;
+    height: 15px;
     width: auto;
     padding-right: 10px;
 }
 
-.primary-navbar svg {
+nav svg {
     height: 30px;
 }
 
@@ -207,11 +205,18 @@ nav li:first-child {
     padding: 0;
 }
 
+/* Refers to anchor tags w/o links */
+.disabled-link {
+    /* Prevents clicking */
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
 .sidebar {
-    position: fixed;
+    position: absolute;
     top: 70px;
     right: 0px;
-    height: calc(100vh - 70px);
+    /* height: calc(100vh - 70px); */
     width: 250px;
     z-index: 999;
     background-color: rgba(255, 255, 255, 0.073);
@@ -281,7 +286,7 @@ nav li:first-child {
         display: none;
     }
 
-    .mobile-navbar {
+    nav .mobile-navbar {
         display: flex;
     }
 }
@@ -292,7 +297,7 @@ nav li:first-child {
         display: none;
     }
 
-    .mobile-sidebar {
+    nav .mobile-sidebar {
         width: 100%;
     }
 }
