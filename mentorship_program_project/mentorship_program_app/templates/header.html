@@ -29,7 +29,7 @@
                     {% elif user.is_mentee %}
                         <li><a href="{% url 'universal_profile' user_id=user.id %}">Profile</a></li>
                         {% if user.mentee.mentor %}
-                        <li><a href="{% url 'universal_profile' user_id=user.mentee.mentor.id %}}">Group</a></li>
+                        <li><a href="{% url 'universal_profile' user_id=user.mentee.mentor.account.id %}">Group</a></li>
                         {% endif %}
                     {% endif %}
                     <hr class="section-divider">
@@ -47,7 +47,7 @@
                         <li><a href="{% url 'universal_profile' user_id=user.id %}">Group</a></li>
                     {% elif user.is_mentee %}
                         {% if user.mentee.mentor %}
-                        <li><a href="{% url 'universal_profile' user_id=user.mentee.mentor.id %}">Group</a></li>
+                        <li><a href="{% url 'universal_profile' user_id=user.mentee.mentor.account.id %}">Group</a></li>
                         {% endif %}
                     {% endif %}
                     <!-- user-icon with click event to control sidebar -->
