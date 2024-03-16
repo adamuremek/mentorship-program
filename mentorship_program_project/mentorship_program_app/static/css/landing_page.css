@@ -494,11 +494,12 @@ input:-moz-autofill:active {
 }
 
 .prompt-login h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     display: flex;
     align-items: center;
     margin-bottom: 2rem;
-    color: #FFFFFF
+    color: #FFFFFF;
+    font-family: 'Montserrat';
 }
 
 .error-message {

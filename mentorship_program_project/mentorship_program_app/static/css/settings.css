@@ -13,7 +13,6 @@
 /* back arrow and title */
 .link-container {
     align-self: center;
-    justify-self: center;
 }
 
 .left-arrow {
@@ -27,6 +26,7 @@
     position: inherit;
     left: -2rem;
     width: 100%;
+    padding-bottom: 0.5em;
 }
 
 .return-link {
@@ -51,6 +51,15 @@
 .theme-toggle-container, .deactivate-account-container {
     text-align: center;
     align-self: center;
+}
+
+.theme-toggle-container {
+    border-bottom: 1px solid white;
+    margin: 1em 2em;
+    padding-bottom: 1em;
+}
+.theme-toggle-container h1 {
+    border-bottom: none;
 }
 
 /* background of lightmode toggle */
@@ -177,6 +186,10 @@ input[type=submit] {
 input[type=submit]:active{
     background-color: rgba(255, 255, 255, .1);
     transition: .05s;
+}
+
+.btn-deactivate-account {
+    background-color: rgb(255, 25, 25, 60%);
 }
 
 .btn-deactivate-account:hover {

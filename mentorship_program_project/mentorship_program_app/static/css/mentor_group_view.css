@@ -102,7 +102,7 @@ button {
     font-size: 1rem;
 
 
-    background-color: #555c;
+    background-color: #5554;
     /* background-image: linear-gradient(#666, #555); */
     border: 2px solid rgb(0 0 0 /70%);
     box-shadow: rgb(19 19 19) 0 1px 1px;
@@ -133,7 +133,7 @@ button {
     /* margin-left: 1rem; */
     /* margin-bottom: .5em; */
 
-    height: 1.25rem;
+    height: 1.5rem;
     overflow: hidden;
 
     display: inline-block;
@@ -327,6 +327,7 @@ textarea[readonly] {
 #bio {
     width: 100%;
     height: 100%;
+    scrollbar-width: thin;
 }
 
 .note {
@@ -347,6 +348,7 @@ textarea[readonly] {
 .note button:not(.note-title) {
     flex: 1;
     margin: 0 5px;
+    align-self: center;
 }
 
 /* .note button:hover, .row-notes button:hover { */
@@ -548,4 +550,40 @@ button:hover {
 #btn-create-note:hover,
 #btn-create-note:focus-visible {
     background-color: var(--clr-btn-submit-highlight);
+}
+
+@media screen and (max-width: 1000px) {
+    .hero-container {
+        display: block;
+        text-align: center;
+        margin: auto;
+    }
+
+    .mentee-manager {
+        margin-left: 5%;
+        justify-content: center;
+    }
+
+    .button-mentee-remove {
+        margin-left: 5%;
+    }
+
+    .top-title {
+        justify-content: center;
+        margin-bottom: 1em;
+        border-top: 1px solid white;
+    }
+
+    .iHateMyself {
+        margin-left: 5%;
+    }
+
+    .column-left, .column-right {
+        margin-left: 0;
+    }
+
+    #bio {
+        scrollbar-width: none;
+    }
+
 }
