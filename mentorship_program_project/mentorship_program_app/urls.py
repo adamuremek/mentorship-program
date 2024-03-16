@@ -102,7 +102,9 @@ urlpatterns = [
     # CURRENTLY STATIC ROUTE TO CHANGE SETTINGS FROM BEN
     path('settings', views.change_settings, name='change_settings'),
     
-    
+    # CURRENTLY STATIC ROUTE -JASON
+    path('admin_reported_users/', views.admin_reported_users, name='admin_reported_users'),
+
     path('dashboard/', navigation.dashboard, name='dashboard'),
     path('faq/', views.faq, name='faq'),
     path('profile-card/', views.profileCard, name='profile-card'),

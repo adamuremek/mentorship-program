@@ -509,6 +509,12 @@ def change_settings(request):
     template = loader.get_template('settings.html')
     return HttpResponse(template.render(context,request))
 
+# view goes to currently static view reported users page
+def admin_reported_users(request):
+    context = {}
+    template = loader.get_template('admin/admin_reported_users.html')
+    return HttpResponse(template.render(context,request))
+
 # view goes to mentor_group_view
 def mentor_group_view(req):
     template = loader.get_template('group_view/mentor_group_view.html')
