@@ -199,6 +199,22 @@ class Interest(SVSUModelData,Model):
 
     @staticmethod
     def create_interest(str_interest : str, bool_default : bool = False) -> 'Interest' :
+        """
+        Description
+        -----------
+        Creates an interest given a name and boolean value to determine 
+        if the interest is a default interest.
+
+
+        Example Usage
+        _____________
+        >>> my_interest = create_interest("Computer Science")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
         #Create the interest and save it to the database in one line.
         try:
             return Interest.objects.create(
@@ -211,6 +227,21 @@ class Interest(SVSUModelData,Model):
     
     @staticmethod
     def get_interest(str_interest_name : str ) -> 'Interest' :
+        """
+        Description
+        -----------
+        Gets an interest by name.
+
+
+        Example Usage
+        _____________
+        >>> my_interest = get_interest("Computer Science")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
         
         try:
             #Find the first instance of the interest in the database and return the object.
@@ -220,6 +251,21 @@ class Interest(SVSUModelData,Model):
     
     @staticmethod
     def update_interest(str_interest_name : str, bool_default : bool, str_new_interest_name : str = None) -> 'Interest' :
+        """
+        Description
+        -----------
+        Updates an interest with a new default value or interest name.
+
+
+        Example Usage
+        _____________
+        >>> my_interest = update_interest("Netwoking", True, "Networking")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
         try:
             #Find the first instance of the interest in the database and return the object.
             interest : 'Interest' = Interest.objects.filter(str_interest = str_interest_name)
@@ -238,6 +284,21 @@ class Interest(SVSUModelData,Model):
     
     @staticmethod
     def delete_interest(str_interest_name : str) -> 'Interest' :
+        """
+        Description
+        -----------
+        Removes an interest from the database.
+
+
+        Example Usage
+        _____________
+        >>> my_interest = delete_interest("Compter Science")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
         try:
             #Find the first instance of the interest in the database and return the object.
             interest : 'Interest' = Interest.objects.filter(str_interest = str_interest_name)
