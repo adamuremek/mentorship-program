@@ -49,6 +49,11 @@
                         <button style="width:2em" class="button-mentee-remove">&#10007;</button>
                     </a>
                         {% endif %}
+                        {% if is_page_owner and signed_in_user.is_mentor %}
+                        <a href="{% url 'delete_mentorship' mentee.id %}">
+                            <button style="width:2em" class="button-mentee-remove">&#10007;</button>
+                        </a>
+                            {% endif %}
                     </li>
                     {% endfor %}
                     
