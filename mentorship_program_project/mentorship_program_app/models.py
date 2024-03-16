@@ -312,6 +312,54 @@ class User(SVSUModelData,Model):
     def str_full_name(self):
         return self.str_first_name + " " + self.str_last_name
 
+    def get_recomended_users(self):
+        """
+        Description
+        ___________
+        query that returns opposite users in the database that are ordered base on their 
+        interest similarity to the current user
+
+        Notes
+        _____
+        the idea here is to keep the number crunching as much on the databse side of things as possible
+        so the query first computes your likely score to the current user on the db in a subquery, 
+        and then uses that to order on after the sub query finishes
+
+        Authors
+        _______
+        David Kennamer >.>
+        """
+
+        return User.objects.raw(
+                    f"""
+                    SELECT DISTINCT t1.user_id AS id,str_first_name,str_last_name,COUNT(*) as likeness
+                       FROM mentorship_program_app_user_interests AS t1, mentorship_program_app_user_interests AS t2,mentorship_program_app_user AS tu
+                       WHERE t2.user_id={self.id} AND t1.interest_id = t2.interest_id AND t1.user_id = tu.id
+                             AND tu.str_role = '{self.get_opposite_database_role_string()}'
+                       GROUP BY t1.user_id,tu.str_first_name,tu.str_last_name
+                       ORDER BY likeness DESC;
+                    """
+                    )
+
+        
+        #quick and dirty method
+        #pings the database a lil' more than I would like
+        #this method fails to work properly since it does not accout for every item in the database
+        #due to pagination from django, we need this query to run on the server
+        
+        #q_obj = User.objects.filter(str_role=self.get_opposite_database_role_string())
+        #ret_val =  []
+        #for u in q_obj:
+        #    u.likeness = float((u.interests.all() & self.interests.all()).count())
+        #    ret_val.append(u)
+        #ret_val.sort(key = lambda x : x.likeness,reverse=True)
+
+        #ret_val = ret_val
+
+
+        #return ret_val
+
+
     def get_backend_only_properties(self)-> list[str]:
         """
         Description

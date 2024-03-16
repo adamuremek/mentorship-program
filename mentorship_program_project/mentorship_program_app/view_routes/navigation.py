@@ -69,7 +69,17 @@ def dashboard(req):
     # messing with their code we could put it in
     role = session_user.get_database_role_string()
     opposite_role = session_user.get_opposite_database_role_string()
-    card_data = User.objects.filter(str_role=opposite_role)
+    card_data : QuerySet = User.objects.filter(str_role=opposite_role)
+
+    #print("starting recomendation algorithm")
+    #recommended_users = session_user.get_recomended_users()
+    #print("ending recomendation algorithm")
+    #for p in recommended_users:
+    #    print((p.str_first_name,p.str_last_name,p.likeness))
+
+    recommended = session_user.get_recomended_users()
+    for p in recommended:
+        print((p.str_first_name,p.str_last_name,p.likeness))
 
     #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
@@ -77,6 +87,7 @@ def dashboard(req):
     elif session_user.is_mentee() and session_user.mentee.mentor:
         card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
     
+
     interests_with_role_count = Interest.objects.annotate(
                                     mentor_count=Count('user', filter=Q(user__str_role=opposite_role))
                                     ).values('strInterest', 'mentor_count')
@@ -89,8 +100,9 @@ def dashboard(req):
         user.is_requested_by_session = session_user.has_requested_user(user)
 
     context = {
-            "recommended_users": users[0:4] if len(users) >= 4 else users[0:len(users)], # Making sure that there are enough users to display
-            "all_users"        : users[4:]  if len(users) >= 4 else [],
+                                # Making sure that there are enough users to display
+            "recommended_users": recommended[0:4] if len(recommended) >= 4 else recommended[0:len(recommended)], 
+            "all_users"        : users if len(users) >= 4 else [],
             "interests"        : list(interests_with_role_count),
             "session_user"     : session_user,
             "role"             : role
