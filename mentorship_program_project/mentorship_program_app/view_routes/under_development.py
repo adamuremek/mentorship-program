@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.template import loader, Template
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.http import JsonResponse
 from mentorship_program_app.models import *
 from .status_codes import bad_request_400
 from utils import security
@@ -1023,4 +1023,26 @@ def cancel_request(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     
     MentorshipRequest.remove_request(mentee_id, mentor_id)
     print("Request has been removed. Guess ya didn't like 'em huh :(")
+
+def change_password(req : HttpRequest):
+    old_password = req.POST["old-password"]
+    new_password = req.POST["new-password"]
+    user = User.from_session(req.session)
+    if not user.check_valid_password(old_password): 
+           return render(req, 'settings.html', {'message':"Invalid Password"})
+    
+    generated_user_salt = security.generate_salt()
+    user.str_password_hash = security.hash_password(new_password, generated_user_salt)
+    user.str_password_salt = generated_user_salt
+    user.save()
+
+    # redirect to the page the request came from
+    return render(req, 'settings.html', {'message':"Password Updated"})
+
+
+
+
+
+
+   
 

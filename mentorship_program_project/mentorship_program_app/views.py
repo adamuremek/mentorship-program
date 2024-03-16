@@ -445,10 +445,6 @@ def admin_user_management(request):
         'mentees': mentees,
         'unaffiliated_mentors': unaffiliated_mentors,
         'organizations': organizations,
-
-
-
-
         'role': role,
         'ADMIN': User.Role.ADMIN,
         'user_admin_flag': user_admin_flag
