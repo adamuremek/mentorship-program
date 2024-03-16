@@ -44,8 +44,10 @@
                         <a href="{% url 'universal_profile' mentee.id %}">
                             <h4>{{mentee.str_first_name}} {{mentee.str_last_name}}</h4>
                          </a>
-                        {% if is_page_owner %}
+                        {% if is_page_owner and signed_in_user.is_mentee %}
+                    <a href="{% url 'delete_mentorship' page_owner_user.id %}">
                         <button style="width:2em" class="button-mentee-remove">&#10007;</button>
+                    </a>
                         {% endif %}
                     </li>
                     {% endfor %}

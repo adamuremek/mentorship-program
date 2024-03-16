@@ -4,7 +4,7 @@ import inspect
 from collections.abc import Callable
 from datetime import date
 
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.template import loader, Template
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
@@ -713,9 +713,6 @@ def universalProfile(req : HttpRequest, user_id : int):
     except ObjectDoesNotExist:
         return bad_request_400("user page does not exist")
 
-
-    
-
     template = loader.get_template('group_view/combined_views.html')
     signed_in_user = User.from_session(req.session)
     signed_in_user.has_requested_this_user = signed_in_user.has_requested_user(profile_page_owner)
@@ -733,8 +730,6 @@ def universalProfile(req : HttpRequest, user_id : int):
         user_interests.append(interest)
 
     all_interests = Interest.objects.all()
-
-
 
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
@@ -896,6 +891,14 @@ def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_us
 
     return HttpResponse("created request sucessfully")
 
+@security.Decorators.require_login(bad_request_400)
+def delete_mentorship(req: HttpRequest, mentee_user_account_id):
+    print(mentee_user_account_id)
+    mentee = Mentee.objects.get(account_id=mentee_user_account_id)
+    mentee.mentor_id = None
+    mentee.save()
+    # redirect to the page the request came from
+    return HttpResponseRedirect(req.META.get('HTTP_REFERER', '/'))
 
 
 

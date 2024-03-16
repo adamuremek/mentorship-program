@@ -92,6 +92,7 @@ urlpatterns = [
     path("generate_report", navigation.generate_report, name="generate_report"),
     path("group_view", under_development.group_view, name="group_view"),
     path("universal_profile/<int:user_id>", under_development.universalProfile, name="universal_profile"),
+    path("delete_mentorship/<int:mentee_user_account_id>", under_development.delete_mentorship, name="delete_mentorship"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN

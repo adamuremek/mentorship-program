@@ -489,7 +489,7 @@ def login_uname_text(request):
  
     #valid login
     if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
-        response = HttpResponse(json.dumps({"warning":"you are currently pending aproval"}))
+        response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
         response.status_code = 401
         return response
 
