@@ -21,19 +21,19 @@
     {% if mentee.has_mentor %}
 
         <button class="admin_user_management_button_clear_active" id="plus_button">
-            <img class="user_management_icon" src="{% static 'images/icons/plus-icon.png' %}">
+            <img class="user_management_icon" src="{% static 'images/icons/add-icon.png' %}">
         </button>
-        <button class="admin_user_management_button_clear_inactive" id="edit_button">
-            <img class="user_management_icon" src="{% static 'images/icons/cross-icon.png' %}">
+        <button class="admin_user_management_button_clear_inactive" id="remove_button">
+            <img class="user_management_icon" src="{% static 'images/icons/remove-icon.png' %}">
         </button>
 
     {% else %}
 
         <button class="admin_user_management_button_clear_inactive" id="plus_button">
-            <img class="user_management_icon" src="{% static 'images/icons/plus-icon.png' %}">
+            <img class="user_management_icon" src="{% static 'images/icons/add-icon.png' %}">
         </button>
-        <button class="admin_user_management_button_clear_active" id="edit_button">
-            <img class="user_management_icon" src="{% static 'images/icons/cross-icon.png' %}">
+        <button class="admin_user_management_button_clear_active" id="remove_button">
+            <img class="user_management_icon" src="{% static 'images/icons/remove-icon.png' %}">
         </button>
 
     {% endif %}
@@ -42,11 +42,21 @@
         <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
     </button>
 
-    <button class="admin_user_management_button_clear_active" id="trashcan_button">
-        <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
-    </button>
-    <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button">
-        <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
-    </button>
-    
+    {% if user_super_admin_flag or user_admin_flag %}
+        {% if not mentee.deactivated %}
+            <button class="admin_user_management_button_clear_active" id="trashcan_button">
+                <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+            </button>
+            <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button">
+                <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+            </button>
+        {% else %}
+            <button class="admin_user_management_button_clear_inactive" id="trashcan_button">
+                <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+            </button>
+            <button class="admin_user_management_button_clear_active" id="trashcan_off_button">
+                <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+            </button>
+        {% endif %}
+    {% endif %}
 </div>

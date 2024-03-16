@@ -1,14 +1,20 @@
 <div class="organization_management_bar_container">
     <div class="organization_management_bar">
+        <div id="organization_account">
+            {{ organizations.organizations }}
+        </div>
+
         <p id="admin_user_management_small_text">
             {{ organization.name }}
         </p>
         
-        <button class="admin_user_management_word_button_clear_inactive" id="remove_organization_button">
-            <p id="admin_user_management_small_text">
-                REMOVE
-            </p>
-        </button>
+        {% if user_super_admin_flag or user_admin_flag %}
+            <button class="admin_user_management_word_button_active" id="remove_organization_button">
+                <p id="admin_user_management_small_text">
+                    REMOVE
+                </p>
+            </button>
+        {% endif %}
     </div>
 
     {% for mentor in admin_list %}
