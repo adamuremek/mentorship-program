@@ -98,7 +98,8 @@ a:not([class]) {
 
 
 .hero-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     height: 90%;
     padding: 0 calc((100vw - 1300px) / 2);
 }
@@ -166,7 +167,6 @@ a:not([class]) {
 }
 
 form {
-    height: 25rem;
     width: 40rem;
     background-color: rgba(99, 99, 99, 0.055);
     border-radius: 10px;
