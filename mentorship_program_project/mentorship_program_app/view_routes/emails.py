@@ -66,7 +66,13 @@ def mentor_accepted_email(recipient : str):
 	send_mail(subject, message, from_email, [recipient])
 
 
-
+def reset_token_email(recipient : str, token : str):
+	subject = "WINGS Password Reset Token"
+	message = f"""
+	Heres your token bitch {token}
+	Please go to www.MADEUPLINK.com and enter your token to reset your password
+	"""
+	send_mail(subject, message, from_email, [recipient])
 
 
 

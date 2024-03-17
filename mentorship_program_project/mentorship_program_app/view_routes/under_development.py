@@ -17,6 +17,7 @@ from .emails import *
 from ..views import login_uname_text
 
 
+
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
 through the mentor sign up route and update their role user entry in the DB to mentor when approved
@@ -1057,6 +1058,36 @@ def change_password(req : HttpRequest):
     return render(req, 'settings.html', {'message':"Password Updated"})
 
 
+
+def reset_request(req: HttpRequest):
+    user = User.from_session(req.session)
+    valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
+    message = PasswordResetToken.see_token(user_id=user.id)
+    reset_token_email(recipient=user.cls_email_address, token=token)
+    return HttpResponse(message + f" email: {user.cls_email_address}")
+
+
+
+
+def reset_password(req : HttpRequest):
+    new_password = req.POST["new-password"]
+    token = req.POST["token"]
+    user = User.from_session(req.session)
+    
+    valid, message = PasswordResetToken.validate_to_reset_password(user_id=user.id,token=token)
+
+    if(not valid):
+        return HttpResponse(message)
+
+
+    generated_user_salt = security.generate_salt()
+    user.str_password_hash = security.hash_password(new_password, generated_user_salt)
+    user.str_password_salt = generated_user_salt
+    user.save()
+    security.logout(req.session)
+        
+    # redirect to the page the request came from
+    return redirect("/")
 
 
 
