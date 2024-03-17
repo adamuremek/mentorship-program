@@ -45,13 +45,13 @@
                             <h4>{{mentee.str_first_name}} {{mentee.str_last_name}}</h4>
                          </a>
                         {% if is_page_owner and signed_in_user.is_mentee %}
-                    <a href="{% url 'delete_mentorship' page_owner_user.id %}">
-                        <button style="width:2em" class="button-mentee-remove">&#10007;</button>
+                    <a class="a-user-remove" href="{% url 'delete_mentorship' page_owner_user.id %}">
+                        <button style="width:2em" class="button-user-remove">&#10007;</button>
                     </a>
                         {% endif %}
                         {% if is_page_owner and signed_in_user.is_mentor %}
-                        <a href="{% url 'delete_mentorship' mentee.id %}">
-                            <button style="width:2em" class="button-mentee-remove">&#10007;</button>
+                        <a class="a-user-remove" href="{% url 'delete_mentorship' mentee.id %}">
+                            <button style="width:2em" class="button-user-remove">&#10007;</button>
                         </a>
                             {% endif %}
                     </li>
@@ -171,9 +171,9 @@
                         <p class="note-title">Title</p>
                         <p>Date Created</p>
                         {% if is_page_owner %}
+                            <p>View</p>
                             <p>Edit</p>
                             <p>Remove</p>
-                            <p>Actions</p>
                         {% else %}
                             <p>View Note</p>
                         {% endif %}
@@ -182,11 +182,11 @@
                         <p class="note-title">Matt, You're Expelled</p>
                         <p>2-19-2024</p>
                         {% if is_page_owner %}
-                            <button>E</button>
-                            <button>X</button>
-                            <button>^</button>
+                            <button>&#128065;</button>
+                            <button id="btn-note-edit">&#9998;</button>
+                            <button>&#10007;</button>
                         {% else %}
-                            <button>View</button>
+                            <button>&#128065;</button>
                         {% endif %}
                     </div>
             {% endif %}
@@ -197,6 +197,7 @@
 </section>
 
 {% include 'group_view/note_creation_modal.html' %}
+{% include 'group_view/note_viewing_modal.html' %}
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -270,17 +271,24 @@
         // -------------------- <<< NOT USELESS >>> -------------------- \\
 
         const btn_add_note = document.getElementById('btn-add-note');
-        const note_modal = document.getElementById('note-creator-modal');
+        const btn_view_note = document.getElementById('btn-view-note');
+        const note_modal_create = document.getElementById('note-creator-modal');
+        const note_modal_view = document.getElementById('note-viewing-modal');
         const modal_exit = document.getElementById('modal-exit');
 
         if(btn_add_note)
             btn_add_note.addEventListener("click", () => {
-                note_modal.showModal();
+                note_modal_create.showModal();
             });
+
+        if(btn_view_note)
+            btn_view_note.addEventListener("click", () => {
+                note_modal_view.showModal();
+            })
 
         if(modal_exit)
             modal_exit.addEventListener("click", () => {
-                note_modal.close();
+                note_modal_create.close();
             });
 
     </script>

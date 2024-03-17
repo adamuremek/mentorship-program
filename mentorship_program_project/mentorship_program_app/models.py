@@ -631,8 +631,9 @@ class User(SVSUModelData,Model):
         convinece function that returns true if the given user has super admin privleges in the database
         """
         try:
-            return self.admin_entry.bool_enabled
+            return  self.str_role == "Admin" or self.admin_entry.bool_enabled
         except ObjectDoesNotExist:
+            
             return False
 
     def get_shared_organizations(self,other : 'User')->['Organization']:
@@ -2053,16 +2054,14 @@ class Notes(SVSUModelData,Model):
     """
 
     str_title = CharField(max_length=100)
-    str_body = CharField(max_length=7000)
+    str_public_body = CharField(max_length=7000, null=True, blank=True)
+    str_private_body = CharField(max_length=7000, null=True, blank=True)
     cls_created_on = DateField(default=date.today)
 
 
-    user = ForeignKey(
-        User,
-        on_delete = models.CASCADE
-    )
+    user = ForeignKey(User, on_delete = models.CASCADE)
 
-    def create_note(int_user_id: int, str_title_: str, str_body_: str):
+    def create_note(user_id: int, str_title: str, str_public_body: str, str_private_body: str):
         """
         Description
         -----------
@@ -2089,25 +2088,49 @@ class Notes(SVSUModelData,Model):
         Authors
         -------
         Justin G.
+        Adam U.
 
         Changes
         -------
         """
-        try:
-            #create and save the entry in the database.
-            Notes.objects.create(
-                str_title = str_title_,
-                str_body = str_body_,
-                cls_created_on = date.now(),
-                user = int_user_id
-            )
-            #Operation was a success.
-            return True
-        except Exception as e:
-            print(e)
-            #Operation failed.
-            return False
+        str_title = None if str_title == "" else str_title
+        str_public_body = None if str_public_body == "" else str_public_body
+        str_private_body = None if str_private_body == "" else str_private_body
+        user = User.objects.get(id=user_id)
 
+        if not str_title:
+            return False
+        elif str_public_body or str_private_body:
+            Notes.objects.create(
+                str_title = str_title,
+                str_public_body = str_public_body,
+                str_private_body = str_private_body,
+                cls_created_on = date.today(),
+                user = user
+            )
+            print("Note created")
+            return True
+        else:
+            return False
+        
+    @staticmethod
+    def get_public_mentor_notes(mentor_id: int):
+        pub_notes = Notes.objects.filter(user=mentor_id, str_public_body__isnull=False)
+        return [{
+            "title" : note.str_title,
+            "note" : note.str_public_body
+        } for note in pub_notes]
+
+    @staticmethod
+    def get_private_mentor_notes(mentor_id: int):
+         pvt_notes = Notes.objects.filter(user=mentor_id, str_private_body__isnull=False)
+         return [{
+            "title" : note.str_title,
+            "note" : note.str_private_body
+        } for note in pvt_notes]
+            
+
+        
 class SystemLogs(SVSUModelData,Model):
     """
     Description

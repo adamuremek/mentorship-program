@@ -65,6 +65,7 @@ from .models import ProfileImg
 from .models import Organization
 
 
+
 from .view_routes.navigation import landing
 
 
@@ -495,6 +496,8 @@ def login_uname_text(request):
 
     # record logs
     SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
+
+
 
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
