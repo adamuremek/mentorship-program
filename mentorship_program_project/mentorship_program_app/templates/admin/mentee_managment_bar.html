@@ -12,12 +12,13 @@
     <!-- WILL NEED TO UPDATE WHEN DATABASE IS FIXED -->
     <!-- <img class="user_management_photo" src="{{ mentee.img_user_profile }}"/> -->
     <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/>
-    
 
-    <p class="user_management_bar_name" id="admin_user_management_medium_text">
-        {{ mentee.account.str_first_name }} {{ mentee.account.str_last_name }}
-    </p>
-    
+        <p class="user_management_bar_name" id="admin_user_management_medium_text">  
+            <a href="{% url 'universal_profile' mentee.account.id %}">
+                {{ mentee.account.str_first_name }} {{ mentee.account.str_last_name }}
+            </a>
+        </p>
+
     {% if mentee.has_mentor %}
 
         <button class="admin_user_management_button_clear_active" id="plus_button">

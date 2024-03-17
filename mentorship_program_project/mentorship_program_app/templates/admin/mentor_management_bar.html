@@ -9,14 +9,16 @@
         <div id="user_mentees">
             {{ mentor.mentees }}
         </div>
-
+       
         <!-- WILL NEED TO UPDATE WHEN DATABASE IS FIXED -->
         <!-- <img class="user_management_photo" src="{{ 
-            mentee.profile_img 
+            mentor.account.profile_img.img.url 
         }}"> -->
 
         <p class="user_management_bar_name" id="admin_user_management_medium_text">
-            {{ mentor.account.str_first_name }} {{ mentor.account.str_last_name }}
+            <a href="{% url 'universal_profile' mentor.account.id %}">
+                {{ mentor.account.str_first_name }} {{ mentor.account.str_last_name }}
+            </a>
         </p>
 
         <div class="mentee_counter_container">

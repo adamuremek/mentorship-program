@@ -21,26 +21,6 @@
         <div class="dual_user_board_container">
             <div class="user_board_container">
                 <div class="user_board_title_container">
-                    <h2 id="admin_user_management_medium_text">Mentees</h2>
-                    <div class="user_board_search_container">
-                        <button class="admin_user_management_button_clear_active">
-                            <img src="{% static 'images/search-icon.png' %}" id="search_icon">
-                        </button>
-
-                        <input type="text" class="search_bar" placeholder="Search by name"></input>
-                    </div>
-                </div>
-
-                <div class="user_board">
-                    <div class="user_management_bar_container">
-                        {% for mentee in mentees %}
-                            {% include 'admin/mentee_managment_bar.html' %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="user_board_container">
-                <div class="user_board_title_container">
                     <h2 id="admin_user_management_medium_text">Mentors</h2>
                     <div class="user_board_search_container">
                         <button class="admin_user_management_button_clear_active">
@@ -50,7 +30,6 @@
                         <input type="text" class="search_bar" placeholder="Search by name"></input>
                     </div>
                 </div>
-
                 <div class="user_board">
                     <div class="user_management_bar_container">
                         {% for mentor in unaffiliated_mentors %}
@@ -62,6 +41,27 @@
                         {% endfor %}
                     </div>
                 </div>
+
+            </div>
+            <div class="user_board_container">
+                <div class="user_board_title_container">
+                    <h2 id="admin_user_management_medium_text">Mentees</h2>
+                    <div class="user_board_search_container">
+                        <button class="admin_user_management_button_clear_active">
+                            <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                        </button>
+
+                        <input type="text" class="search_bar" placeholder="Search by name"></input>
+                    </div>
+                </div>
+                <div class="user_board">
+                    <div class="user_management_bar_container">
+                        {% for mentee in mentees %}
+                            {% include 'admin/mentee_managment_bar.html' %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
             </div>
         </div>
         <button class="admin_user_management_button" id="save_button">Save</button>
