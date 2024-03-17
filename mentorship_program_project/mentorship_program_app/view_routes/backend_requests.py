@@ -165,37 +165,63 @@ def verify_mentee_ug_status(req : HttpRequest) -> HttpResponse:
 
 @security.Decorators.require_login(bad_request_400)
 def create_new_interest(req : HttpRequest, admin_id : int, str_interest : str, bool_is_default : bool)->HttpResponse:
-        
-        admin = User.from_session(req.session)
-        bool_error = False
-        str_error_message = "The following error(s) occured: \n"
-        new_interest : 'Interest' = None
+    '''
+     Description
+     ___________
+     view that creates a mentor request between a given mentor id 
+     and mentee id
 
-        #Check if the user is an admin.
-        if admin.Role != User.Role.ADMIN :
-            str_error_message.join("Not an administrator. \n")
-            bool_error = True
-        
-        #Check if the str_interest is empty.
-        if len(str_interest) == 0 :
-            str_error_message.join("Interest cannot be empty. \n")
-            bool_error = True
-        #Check if the str_interest exists.
-        elif  Interest.get_interest(str_interest) == None :
-            str_error_message.join("Interest already exists. \n")
-            bool_error = True
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+        admin_id : int - admin id from the datbase, must be valid.
+        str_interest : str - The name of an interest.
+        bool_is_default : bool - Used to set it interest is a default option or not.
 
-        #Create the interest.
-        if not(bool_error) : 
-            new_interest = Interest.create_interest(str_interest, bool_is_default)
-        
-        #Check if the interest was created.
-        if new_interest == None or bool_error:
-            str_error_message.join("Interest creation failed. \n")
-            bool_error = True
+     Returns
+     _______
+        HttpResponse containing a 400 response for invalid information or a response for valid information.
+     
+     Example Usage
+     _____________
+        >>> create_new_interest(/create_interest, 12, "Computer Science", True)
 
-        if bool_error :
-            bad_request_400(str_error_message)
-        else:
-            #All is good.
-            return HttpRequest("Interest Added.")
+ 
+     Authors
+     _______
+     Justin Goupil
+    '''
+        
+    admin = User.from_session(req.session)
+    bool_error = False
+    str_error_message = "The following error(s) occured: \n"
+    new_interest : 'Interest' = None
+
+    #Check if the user is an admin.
+    if admin.Role != User.Role.ADMIN :
+        str_error_message.join("Not an administrator. \n")
+        bool_error = True
+        
+    #Check if the str_interest is empty.
+    if len(str_interest) == 0 :
+        str_error_message.join("Interest cannot be empty. \n")
+        bool_error = True
+    #Check if the str_interest exists.
+    elif  Interest.get_interest(str_interest) == None :
+        str_error_message.join("Interest already exists. \n")
+        bool_error = True
+
+    #Create the interest.
+    if not(bool_error) : 
+        new_interest = Interest.create_interest(str_interest, bool_is_default)
+        
+    #Check if the interest was created.
+    if new_interest == None or bool_error:
+        str_error_message.join("Interest creation failed. \n")
+        bool_error = True
+
+    if bool_error :
+        bad_request_400(str_error_message)
+    else:
+        #All is good.
+        return HttpRequest("Interest Added.")

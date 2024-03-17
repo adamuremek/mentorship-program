@@ -79,13 +79,18 @@
     width: 8%;
 }
 
-.admin_user_management_word_button_clear_active {
-    background: none;
+.admin_user_management_word_button_active {
+    /* background: none; */
     border: none;
-    width: fit-content;
+    width: 25%;
+
+    background-color: rgba(128, 128, 128, 0.25);
+    border-radius: 15px;
+    padding: 0.5%;
+    margin: 0.5%;
 }
 
-.admin_user_management_word_button_clear_inactive {
+.admin_user_management_word_button_inactive {
     /* background: none;
     border: none;
     width: fit-content; */
@@ -133,10 +138,15 @@
     justify-content: center;
 }
 
-.user_management_bar_container{
+.user_management_bar_container {
     height: inherit;
 
     overflow-y: scroll;
+}
+
+.mentor_management_bar_container {
+    display: flex;
+    flex-direction: column;
 }
 
 .mentee_management_bar, .mentor_management_bar {
@@ -148,6 +158,8 @@
     margin-bottom: 1%;
     margin-top: 1%;
     margin-right: 5%;
+
+    border-color: aliceblue;
 }
 
 .organization_management_bar_container {
@@ -173,6 +185,8 @@
     border-radius: 15px;
 
     background: rgba(128, 128, 128, 0.25);
+
+    border-color: aliceblue;
 }
 
 /* .organization_management_button_clear_active {
@@ -197,7 +211,7 @@
 
 }
 
-#user_account, #user_mentor, #user_mentees {
+#user_account, #user_mentor, #user_mentees, #organization_account {
     display: none;
 }
 
@@ -233,7 +247,7 @@
     /* display: none; */
 }
 
-#edit_button {
+#remove_button {
     /* display: none; */
 }
 
