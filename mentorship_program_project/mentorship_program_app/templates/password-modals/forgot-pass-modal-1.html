@@ -1,6 +1,7 @@
 <dialog class="modal" id="forgot-pass-modal-1">
     <header class="modal-header"><img src='../static/images/x-16.png' alt="exit" class="modal-exit" id="modal-exit" tabindex="0"></header>
-    <div class="modal-container">
+
+    <div class="modal-container">        
         <div class="modal-content-container">
             <h2>Recover Account</h2>
             <div class="modal-line"><hr></div>
@@ -9,7 +10,11 @@
             <input type="email" id="recover-email" class="user-input" placeholder="e.g. john.doe@svsu.edu" />
         </div>
         <div class="modal-footer-container">
-            <button class="li-buttons submit-buttons" id="pass-reset" type="button">Send Confirmation Code</button>
+            <form id="frm-reset-password" action="/landing-post/" method="POST">
+                {% csrf_token %}
+                <button class="li-buttons submit-buttons" id="pass-reset" type="button">Send Confirmation Code</button>
+            </form>
         </div>
     </div>
+
 </dialog>
