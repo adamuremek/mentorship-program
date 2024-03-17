@@ -94,6 +94,7 @@ urlpatterns = [
     path("universal_profile/<int:user_id>", under_development.universalProfile, name="universal_profile"),
     path("delete_mentorship/<int:mentee_user_account_id>", under_development.delete_mentorship, name="delete_mentorship"),
     path("change_password", under_development.change_password, name="change_password"),
+    path("create_note", under_development.create_note, name="create_note"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN

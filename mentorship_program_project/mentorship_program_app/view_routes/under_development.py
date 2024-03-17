@@ -13,6 +13,7 @@ from mentorship_program_app.models import *
 from .status_codes import bad_request_400
 from utils import security
 from utils.development import print_debug
+from .emails import *
 from ..views import login_uname_text
 
 
@@ -231,7 +232,7 @@ def register_mentor(req: HttpRequest):
         pending_mentor_object.save()
 
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentor.id))
-            
+        mentor_signup_email(pending_mentor_object.account.cls_email_address)
         template: Template = loader.get_template('successful_registration.html')
         ctx = {}
         
@@ -404,8 +405,11 @@ def change_mentor_status(req: HttpRequest):
         user.bln_active = True
         user.str_role = User.Role.MENTOR
         user.save()
+        mentor_denied_email(user.cls_email_address)
     else:
+        mentor_accepted_email(user.cls_email_address)
         user.delete()
+        
         
     # Save changes to user object
     
@@ -603,26 +607,19 @@ def create_note (req : HttpRequest):
     Authors
     -------
     Justin Goupil
+    Adam U.
     """
 
     #Grab the users current session
     user = User.from_session(req.session)
-    str_title = req.POST.get("title", None)
-    str_body = req.POST.get("body", None) 
-    bool_flag = False
+    # Get data
+    str_title = req.POST["note-title"]
+    str_public_body = req.POST["public-notes"]
+    str_private_body = req.POST["private-notes"]
+    # Make note
+    Notes.create_note(user.id, str_title, str_public_body, str_private_body)
 
-    #Check if the title and body are None
-    if str_title != None and str_body != None:
-        #create the note and save it to the database.
-        bool_flag = Notes.create_note(user.id, str_title, str_body)
-    else:
-        return bad_request_400("Invalid title or body")
-
-    #Check if the note was created.
-    if bool_flag:
-        return HttpResponse("Note created!")
-    else:
-        return HttpResponse("Note creation failed")
+    return redirect(f"/universal_profile/{user.id}")
     
 
 #TODO uncomment this
@@ -764,6 +761,11 @@ def universalProfile(req : HttpRequest, user_id : int):
     elif page_owner_user.is_mentor():
         mentees_for_mentor = page_owner_user.mentor.mentee_set.all()
         mentees_or_mentor = [mentee.account for mentee in mentees_for_mentor]
+        
+        print(page_owner_user.id)
+        notes = Notes.get_public_mentor_notes(page_owner_user.id)
+        for el in notes:
+            print(el)
 
         print(mentees_or_mentor)
         pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)

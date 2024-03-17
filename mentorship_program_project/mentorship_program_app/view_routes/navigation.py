@@ -19,6 +19,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 import os
 
+
 # def default(req: HttpRequest):
 #     """
 #     Loads the default (root /) page for now until landing page   ##possibly delete this? think isnt being used
@@ -63,7 +64,7 @@ def landing(req):
 def dashboard(req):
     template = loader.get_template('dashboard/dashboard.html')
     session_user = User.from_session(req.session).sanitize_black_properties()
-   
+
     # get the users of the opposite role to be displayed
     # mentors see mentees and mentees see mentors
     
@@ -111,7 +112,12 @@ def dashboard(req):
             "role"             : role
     }
 
+    if session_user.is_super_admin():
+        return admin_dashboard(req)
+    
     return HttpResponse(template.render(context, req))
+
+
 
 def admin_dashboard(req):
     """

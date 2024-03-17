@@ -316,7 +316,7 @@ textarea[readonly] {
 }
 
 .note-title {
-    flex: 1 1 50%;
+    flex: 1 1 35%;
 }
 
 .note-header p:not(.note-title) {
@@ -327,7 +327,7 @@ textarea[readonly] {
 #bio {
     width: 100%;
     height: 100%;
-    scrollbar-width: thin;
+    /* scrollbar-width: thin; */
 }
 
 .note {
@@ -376,10 +376,17 @@ button:hover {
     margin-left: 10%;
 }
 
-.button-mentee-remove {
-    margin-left: auto;
-    margin-right: 1em;
+.button-user-remove {
     background-color: #911c;
+}
+
+.a-user-remove {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+#btn-note-edit {
+    transform: scaleX(-1);
 }
 
 /* ----- Modal Component Styling ----- */
@@ -564,7 +571,7 @@ button:hover {
         justify-content: center;
     }
 
-    .button-mentee-remove {
+    .a-user-remove {
         margin-left: 5%;
     }
 
