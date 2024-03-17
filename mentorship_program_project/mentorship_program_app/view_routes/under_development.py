@@ -13,6 +13,7 @@ from mentorship_program_app.models import *
 from .status_codes import bad_request_400
 from utils import security
 from utils.development import print_debug
+from ..views import login_uname_text
 
 
 """
@@ -254,7 +255,7 @@ def register_mentee(req: HttpRequest):
     Returns
     -------
     - str: Email {email} already exsists!
-    - str: Registration request successful! We'll get back to ya!
+    - HttpResponseRedirect:  ̶R̶e̶g̶i̶s̶t̶r̶a̶t̶i̶o̶n̶ ̶r̶e̶q̶u̶e̶s̶t̶ ̶s̶u̶c̶c̶e̶s̶s̶f̶u̶l̶!̶ ̶W̶e̶'̶l̶l̶ ̶g̶e̶t̶ ̶b̶a̶c̶k̶ ̶t̶o̶ ̶y̶a̶! now redirects the new user to their dashboard
     - str: Bad :(
     
     Example Usage
@@ -266,11 +267,16 @@ def register_mentee(req: HttpRequest):
     >>> reqister_mentee(req)
     Registration request successful! We'll get back to ya!
     
+     Edits
+    -------------
+    -changed the response from plain text html to a login and redirect
+
     Authors
     -------
     Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     Jordan A.
+    Tanner W. 🦞
     '''
     if req.method == "POST":
         incoming_email: str = req.POST["email"]
@@ -302,8 +308,17 @@ def register_mentee(req: HttpRequest):
 
         user_mentee = User.objects.get(cls_email_address = incoming_email)
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentee.id))
-        return HttpResponse("Registration request successful! We'll get back to ya!")
-        
+
+
+
+        ##adds info to req with correct data names for the login function to work
+        req._body = json.dumps({"username": incoming_email, "password": incoming_plain_text_password}).encode("utf-8")
+        ##logins in the user
+        login_uname_text(req)
+        ##redirects to the dashboard
+        redirect_url = "/dashboard"
+        redirect_response = HttpResponseRedirect(redirect_url)
+        return redirect_response
     else:
         return HttpResponse("Bad :(")
 

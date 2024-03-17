@@ -48,6 +48,7 @@ from django.http import HttpResponse, HttpRequest
 from django.template import loader
 from django.shortcuts import render, redirect
 
+
 from utils import development
 from utils.development import print_debug
 from utils import security
@@ -562,6 +563,7 @@ def login_uname_text(request):
 
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
+    
 
 # view goes to currently static approve/delete mentors page
 def change_settings(request):
