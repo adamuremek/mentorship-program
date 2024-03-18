@@ -1704,7 +1704,7 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Authors
         _______
-        David Kennamer \*^*/
+        David Kennamer 
         """
         MentorshipRequest.objects.filter(mentee=mentee.account).delete()
 
