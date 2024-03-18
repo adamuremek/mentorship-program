@@ -38,7 +38,7 @@ WHO     WHEN     WHAT
 WJL   3/3/2024   Added file header comment
 """
 
-from django.urls import path
+from django.urls import include,path
 from django.conf import settings
 from django.conf.urls.static import static
 from mentorship_program_app import views
@@ -51,6 +51,10 @@ from .view_routes import development as development_views
 
 ##All created urls need to go here
 urlpatterns = [
+
+
+    path("__debug__/", include("debug_toolbar.urls")),
+
     #path('home/', views.home, name='home'),
     #path('login/', views.login, name='login'),
     #path('login/success', views.success, name='success'),  ## some urls dont currently have html to go with them

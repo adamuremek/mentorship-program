@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DEBUG', default=0))
+DEBUG = bool(os.environ.get('DEBUG', default=True))
 
 if(DEBUG):
     ALLOWED_HOSTS = ['*']
@@ -53,6 +53,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'mentorship_program_app',
+
+    # debug tool to help with query stuff
+    # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
+    'debug_toolbar' 
 ]
 
 MIDDLEWARE = [
@@ -63,6 +67,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+]
+
+INTERNAL_IPS = [
+    "127.0.0.1"
 ]
 
 ROOT_URLCONF = 'mentorship_program_project.urls'
