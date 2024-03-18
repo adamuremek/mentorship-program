@@ -24,7 +24,7 @@ Dashboard
         </form> -->
 
         <div class="section-recommended">
-            {% if role == 'Mentee' %}
+             {% if session_user.is_mentee %} <!--  role.value == 'Mentee' -->
                 <h1>Recommended Mentors</h1>
             {% else %}
                 <h1>Recommended Mentees</h1>
@@ -40,7 +40,7 @@ Dashboard
 
         <div class="section-available">
 
-            {% if role == 'Mentee' %}
+            {% if session_user.is_mentee %}
                 <h1>Available Mentors</h1>
             {% else %}
                 <h1>Available Mentees</h1>

@@ -158,8 +158,6 @@
     margin-bottom: 1%;
     margin-top: 1%;
     margin-right: 5%;
-
-    border-color: aliceblue;
 }
 
 .organization_management_bar_container {
@@ -211,7 +209,7 @@
 
 }
 
-#user_account, #user_mentor, #user_mentees, #organization_account {
+#user_account, #user_mentor, #user_mentees, #user_account_disabled, #organization_account {
     display: none;
 }
 

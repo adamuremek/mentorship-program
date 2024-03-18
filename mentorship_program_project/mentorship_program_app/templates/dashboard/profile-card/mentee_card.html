@@ -41,7 +41,7 @@
 		  {% endif %}
 		  ">
 		  {% if not user.is_requested_by_session %}
-			  {% if role == 'Mentee' %}
+			  {% if role.value == 'Mentee' %}
               {% if session_user.mentee.has_maxed_request_count %}
                   Maximum Request Amount Reached
               {% else %}

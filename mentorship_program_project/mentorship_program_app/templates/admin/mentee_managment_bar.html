@@ -9,14 +9,10 @@
         {{ mentee.mentor }}
     </div>
 
-    <!-- WILL NEED TO UPDATE WHEN DATABASE IS FIXED -->
-    <!-- <img class="user_management_photo" src="{{ mentee.img_user_profile }}"/> -->
     <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/>
 
         <p class="user_management_bar_name" id="admin_user_management_medium_text">  
-            <a href="{% url 'universal_profile' mentee.account.id %}">
                 {{ mentee.account.str_first_name }} {{ mentee.account.str_last_name }}
-            </a>
         </p>
 
     {% if mentee.has_mentor %}
@@ -39,15 +35,27 @@
 
     {% endif %}
     
-    <button class="admin_user_management_button_clear_active" id="eye_button">
+    <button class="admin_user_management_button_clear_active" id="{{mentee.account.id}}">
         <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
     </button>
 
-    {% if user_super_admin_flag or user_admin_flag %}
+    {% if user_admin_flag %}
+
+        {% if mentee.account.bln_account_disabled %}
+            <div id="user_account_disabled">
+                1
+            </div>
+        {% else %}
+            <div id="user_account_disabled">
+                0
+            </div>
+        {% endif %}
+
         {% if not mentee.deactivated %}
             <button class="admin_user_management_button_clear_active" id="trashcan_button">
                 <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
             </button>
+
             <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button">
                 <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
             </button>
@@ -55,9 +63,15 @@
             <button class="admin_user_management_button_clear_inactive" id="trashcan_button">
                 <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
             </button>
+
             <button class="admin_user_management_button_clear_active" id="trashcan_off_button">
                 <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
             </button>
         {% endif %}
     {% endif %}
 </div>
+<script>
+    document.getElementById("{{ mentee.account.id }}").addEventListener("click", function() {
+      window.location.href = "{% url 'universal_profile' mentee.account.id %}";
+    });
+</script>

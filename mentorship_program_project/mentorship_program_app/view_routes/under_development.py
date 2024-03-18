@@ -185,7 +185,6 @@ def register_mentor(req: HttpRequest):
         incoming_email: str = req.POST["email"]
         incoming_plain_text_password = req.POST["password"]
 
-
         # create a new user in the database with the role "Pending"
         pending_mentor_object = Mentor.create_from_plain_text_and_email(incoming_plain_text_password, incoming_email)
         
@@ -196,7 +195,9 @@ def register_mentor(req: HttpRequest):
         organization = None
         if(not Organization.objects.filter(str_org_name=req.POST["organization"]).exists()):
             organization = Organization.objects.create(str_org_name=req.POST["organization"])
-            #organization.save()
+            organization.admins.add(pending_mentor_object)
+            organization.save()
+
         else:
             organization = Organization.objects.get(str_org_name=req.POST["organization"])
             
@@ -621,7 +622,33 @@ def create_note (req : HttpRequest):
     Notes.create_note(user.id, str_title, str_public_body, str_private_body)
 
     return redirect(f"/universal_profile/{user.id}")
-    
+
+@security.Decorators.require_login(bad_request_400)
+def update_note(req: HttpRequest):
+    if req.method == "POST":
+        #Grab current session user
+        user = User.from_session(req.session)
+
+        note_id = req.POST["note-id"]
+        new_title = req.POST["note-title"]
+        new_pub_body = req.POST["public-notes"]
+        new_pvt_body = req.POST["private-notes"]
+
+        Notes.update_note(note_id, new_title, new_pub_body, new_pvt_body)
+
+    return redirect(f"/universal_profile/{user.id}")
+
+@security.Decorators.require_login(bad_request_400)
+def remove_note(req: HttpRequest):
+    if req.method == "POST":
+
+        #Grab current session user
+        user = User.from_session(req.session)
+        note_id = int(json.loads(req.body)["note-id"])
+
+        Notes.remove_note(note_id)
+
+    return redirect(f"/universal_profile/{user.id}")
 
 #TODO uncomment this
 #@security.Decorators.require_login(bad_request_400)
@@ -730,11 +757,10 @@ def universalProfile(req : HttpRequest, user_id : int):
     signed_in_user = User.from_session(req.session)
     signed_in_user.has_requested_this_user = signed_in_user.has_requested_user(profile_page_owner)
   
-
+    
     # the user object for the page owner
     page_owner_user = User.objects.get(id=user_id)
-  
-    
+
     page_owner_go_fuck_yourself = getattr(page_owner_user, 'mentee' if page_owner_user.is_mentee else 'mentor', None)
     interests = page_owner_user.interests.filter(user=page_owner_user)
     is_page_owner = signed_in_user == page_owner_user
@@ -743,7 +769,8 @@ def universalProfile(req : HttpRequest, user_id : int):
         user_interests.append(interest)
 
     all_interests = Interest.objects.all()
-
+    pendingList = []
+    notes = None
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
         pendingRequests = MentorshipRequest.objects.filter(mentee_id=page_owner_user.id)
@@ -754,7 +781,6 @@ def universalProfile(req : HttpRequest, user_id : int):
         except Exception:
             mentees_or_mentor = None
        
-        pendingList = []
         for pending in pendingRequests:
             if pending.mentee_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentor_id))
@@ -762,21 +788,14 @@ def universalProfile(req : HttpRequest, user_id : int):
     elif page_owner_user.is_mentor():
         mentees_for_mentor = page_owner_user.mentor.mentee_set.all()
         mentees_or_mentor = [mentee.account for mentee in mentees_for_mentor]
-        
-        print(page_owner_user.id)
-        notes = Notes.get_public_mentor_notes(page_owner_user.id)
-        for el in notes:
-            print(el)
-
-        print(mentees_or_mentor)
+    
+        notes = Notes.get_all_mentor_notes(page_owner_user)
         pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)
-        pendingList = []
+        
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentee_id))
             
- #   print(mentees_or_mentor)
-    
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
                 "is_page_owner": is_page_owner,
@@ -786,6 +805,7 @@ def universalProfile(req : HttpRequest, user_id : int):
                 "all_interests" : all_interests,
                 "user_id" : user_id,
                 "pending" : pendingList,
+                "notes" : notes,
                 "mentees_or_mentor" : mentees_or_mentor
                }
     return HttpResponse(template.render(context,req))
@@ -1090,7 +1110,10 @@ def reset_password(req : HttpRequest):
     return redirect("/")
 
 
+def view_all_organizations(req: HttpRequest):
+    
+    context = {"organization" : Organization.objects.all()}
+    print(context)
 
-
-   
-
+    return HttpResponse(template.render(context, req))
+    

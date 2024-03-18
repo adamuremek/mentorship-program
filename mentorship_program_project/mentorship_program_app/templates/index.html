@@ -16,6 +16,10 @@
 <body>
     {% include 'header.html' %}
 
+    <div id="loading-overlay">
+        <div class="loading"></div>
+    </div>
+
 	<main>
         {% block main_content %}{% endblock %}
     </main>

@@ -1,7 +1,7 @@
 // Import classes from event_queue file 
 import { save_event, cancel_event, 
     mentee_clicked_event, view_event, add_mentor_mentee_event, remove_mentor_mentee_event, deactivate_event, reactivate_event,
-    mentor_clicked_event, select_mentee_mentor_event, promote_super_mentor_event, promote_organization_mentor_event, transfer_role_mentor_event, decouple_mentor_event,
+    mentor_clicked_event, select_mentee_mentor_event, promote_organization_mentor_event, transfer_role_mentor_event, edit_organization_mentor_event, decouple_mentor_event,
     organization_clicked_event, remove_organization_event } from './event_queue.js';
 
 // Select and store bar elements
@@ -28,8 +28,8 @@ for (let mentee_bar of mentee_bars)
     // Set button listener for mentee clicked
     mentee_bar.addEventListener('click', function() { mentee_clicked_event(mentee_bar); });
 
-    // Set button listener for view
-    mentee_bar.querySelector("#eye_button").addEventListener('click', function() { view_event(mentee_bar); });
+    // // Set button listener for view
+    // mentee_bar.querySelector("#eye_button").addEventListener('click', function() { view_event(mentee_bar); });
 
     // Set button listener for add
     mentee_bar.querySelector("#plus_button").addEventListener('click', function() { add_mentor_mentee_event(mentee_bar) });
@@ -63,9 +63,9 @@ for (let mentor_bar of mentor_bars)
 
     // Set button listener for selecting mentees
     mentor_bar.querySelector(".mentee_counter_container").addEventListener('click', function() { select_mentee_mentor_event(mentor_bar) });
-
-    // Set button listener for view button
-    mentor_bar.querySelector("#eye_button").addEventListener('click', function() { view_event(mentor_bar); });
+    
+    // // Set button listener for view button
+    // mentor_bar.querySelector("#eye_button").addEventListener('click', function() { view_event(mentor_bar); });
     
     // Check if there deactivate button 
     if (mentor_bar.querySelector("#trashcan_button") != null)

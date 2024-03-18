@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block style %}
+<meta name="csrf-token" content="{{ csrf_token }}">
 <link rel="stylesheet" type="text/css" href="{% static 'css/mentor_group_view.css' %}">
 {% endblock %}
 
@@ -24,7 +25,7 @@
             </div>
             <br>
 
-            {% if page_owner_user.str_role != signed_in_user.str_role %}
+            {% if page_owner_user.str_role != signed_in_user.str_role and not signed_in_user.mentee.mentor.account.id == page_owner_user.id %}
                 {% if signed_in_user.has_requested_this_user %} 
                     <button id="btn_profile_request" disabled>Requested!</button>
                 {% else %}
@@ -33,9 +34,9 @@
             {% endif %}
 
 
-            {% if  signed_in_user.is_mentee and mentees_or_mentor %}
+            {% if  page_owner_user.is_mentee and mentees_or_mentor %}
                 <h3>Mentor: </h3>
-            {% elif signed_in_user.is_mentor and mentees_or_mentor %}
+            {% elif page_owner_user.is_mentor and mentees_or_mentor %}
                 <h3>Mentees: </h3>
             {% endif %}
             <ul>
@@ -157,7 +158,6 @@
             </form>
             
             {% if page_owner_user.is_mentor %}
-            {% if is_page_owner or signed_in_user.mentor == page_owner_user %}
                 <hr>
                 <div class="row-notes">
                     <h2>Note(s):</h2>
@@ -165,30 +165,38 @@
                         <button id="btn-add-note">Add Note</button>
                     {% endif %}
                 </div>
-                
+            {%endif%}
+
+            {% if page_owner_user.is_mentor %}
+            {% if is_page_owner or signed_in_user.mentee.mentor.account.id == page_owner_user.id %} 
                 <hr class="invisible" style="visibility: hidden;">
                     <div class="note-header">
                         <p class="note-title">Title</p>
                         <p>Date Created</p>
                         {% if is_page_owner %}
-                            <p>View</p>
-                            <p>Edit</p>
+                            <p>View/Edit</p>
+                            <!-- <p>Edit</p> -->
                             <p>Remove</p>
                         {% else %}
                             <p>View Note</p>
                         {% endif %}
                     </div>
-                    <div class="note">
-                        <p class="note-title">Matt, You're Expelled</p>
-                        <p>2-19-2024</p>
-                        {% if is_page_owner %}
-                            <button>&#128065;</button>
-                            <button id="btn-note-edit">&#9998;</button>
-                            <button>&#10007;</button>
-                        {% else %}
-                            <button>&#128065;</button>
-                        {% endif %}
-                    </div>
+                    {% if notes %}
+                        {% for note in notes %}
+                            <div class="note">
+                                <p class="note-title">{{note.title}}</p>
+                                <p>{{note.date_created}}</p>
+                                {% if is_page_owner %}
+                                    <button class="btn-note-edit">&#9998;</button>
+                                    <!-- <button class="btn-note-edit">&#9998;</button> -->
+                                    <button class="btn-note-remove" onclick="remove_note('{{note.id}}')">&#10007;</button> <!-- X -->
+                                {% else %}
+                                    <button class="btn-note-view">&#128065;</button>
+                                {% endif %}
+                            </div>
+                            {% include 'group_view/note_modal.html' with note=note %}
+                            {% endfor %}
+                    {% endif %}
             {% endif %}
             {% endif %}
         </div>
@@ -196,8 +204,7 @@
     </div>
 </section>
 
-{% include 'group_view/note_creation_modal.html' %}
-{% include 'group_view/note_viewing_modal.html' %}
+{% include 'group_view/note_modal.html' %}
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -264,34 +271,67 @@
     })
 
 </script>
-{% if is_page_owner %}   
+
     <script>
 
         // -------------------- <<< DO NOT DELETE >>> -------------------- \\
         // -------------------- <<< NOT USELESS >>> -------------------- \\
 
         const btn_add_note = document.getElementById('btn-add-note');
-        const btn_view_note = document.getElementById('btn-view-note');
-        const note_modal_create = document.getElementById('note-creator-modal');
-        const note_modal_view = document.getElementById('note-viewing-modal');
-        const modal_exit = document.getElementById('modal-exit');
 
+        const lst_btn_edit_note = document.getElementsByClassName('btn-note-edit');
+        const lst_btn_view_note = document.getElementsByClassName('btn-note-view');
+        
+        const lst_btn_remove_note = document.getElementsByClassName('btn-note-remove');
+        const lst_note_modal = document.getElementsByClassName('modal');
+        const lst_modal_exit = document.getElementsByClassName('modal-exit');
+        
+        const add_modal = Array.from(lst_note_modal).pop()
+
+        // Don't worry about this for a second ;)
         if(btn_add_note)
-            btn_add_note.addEventListener("click", () => {
-                note_modal_create.showModal();
-            });
+            btn_add_note.addEventListener('click', () => add_modal.showModal())
 
-        if(btn_view_note)
-            btn_view_note.addEventListener("click", () => {
-                note_modal_view.showModal();
+        console.log('what the hell')
+        console.log(lst_btn_view_note)
+        if(lst_btn_view_note.length > 0)
+            for(let i = 0; i < lst_btn_view_note.length; i++) 
+                lst_btn_view_note[i].addEventListener('click', () => lst_note_modal[i].showModal())
+        
+        if(lst_btn_edit_note.length > 0)
+            for(let i = 0; i < lst_btn_edit_note.length; i++) 
+                lst_btn_edit_note[i].addEventListener('click', () => lst_note_modal[i].showModal())
+        
+        if(lst_modal_exit.length > 0)
+            for(let i = 0; i < lst_modal_exit.length; i++)
+                lst_modal_exit[i].addEventListener("click", () => lst_note_modal[i].close());
+
+
+        // Haha this is stinky I hate my life because of this
+        // Actually its a far deeper rooted issue than just this function
+        remove_note = note_id => {
+            document.getElementById('loading-overlay').style.display = 'block';
+
+            fetch("/remove_note", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+                body: JSON.stringify({
+                    'note-id': Number(note_id)
+                })
+            }).then(response => {
+                if (!response.ok) 
+                    throw new Error('Network response was shit');
+                if(response.redirected)
+                    window.location.href = response.url
+                
             })
-
-        if(modal_exit)
-            modal_exit.addEventListener("click", () => {
-                note_modal_create.close();
+            .catch(error => {
+                console.error('Error:', error);
             });
-
+        }
     </script>
-{% endif %}
 
 {% endblock %}

@@ -190,7 +190,11 @@ textarea {
 
 textarea[readonly] {
     outline: none; /* Remove default focus outline */
-  }
+}
+
+input:read-only {
+    outline: none; /* Remove default focus outline */
+}
 
 .row-communication-methods p {
     color: whitesmoke;
@@ -303,6 +307,10 @@ textarea[readonly] {
     padding-right: 1rem;
 }
 
+.row-notes h2 {
+    font-weight: 300;
+}
+
 .note-header {
     display: flex;
 }
@@ -319,9 +327,14 @@ textarea[readonly] {
     flex: 1 1 35%;
 }
 
+.note-header p {
+    font-weight: 100;
+}
+
 .note-header p:not(.note-title) {
     flex: 1;
     margin: 0 5px;
+    text-align: center;
 }
 
 #bio {
@@ -336,13 +349,14 @@ textarea[readonly] {
     padding: 0.5rem;
     border-color: #33384200;
     display: flex;
-    height: 2rem;
+    height: 2.5rem;
     border-radius: 0.5rem;
 }
 
 .note p:not(.note-title) {
     flex: 1;
     margin: 0 5px;
+    text-align: center;
 }
 
 .note button:not(.note-title) {
@@ -385,7 +399,7 @@ button:hover {
     margin-right: 0;
 }
 
-#btn-note-edit {
+.btn-note-edit {
     transform: scaleX(-1);
 }
 

@@ -46,6 +46,7 @@ from datetime import date
 
 from django.http import HttpResponse, HttpRequest
 from django.template import loader
+from django.db.models import Count, Q
 from django.shortcuts import render, redirect
 
 
@@ -294,6 +295,8 @@ def account_activation_mentor(request):
     template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
     context = {}
     return HttpResponse(template.render(context, request))
+    
+from django.shortcuts import get_object_or_404
 
 def admin_user_management(request):
     template = loader.get_template('admin/user_management.html')
@@ -305,13 +308,14 @@ def admin_user_management(request):
     mentees = []
 
     ## NEED TO DETETECT AND INCLUDE DEACTIVATED MAYBE STYLING TOO 
+    ## TODO ADD SECURITY SO YOU CANNOT VISIT THIS ROUTE IF NOT LOGGED IN
 
-    # role = session_user.get_database_role_string
+    role = session_user.str_role
     # TESTING
-    role = User.Role.ADMIN
+    # role = User.Role.ADMIN
+    
 
     # Preset flags to false
-    user_super_admin_flag = False
     user_admin_flag = False
     user_organization_admin_flag = False
 
@@ -320,43 +324,35 @@ def admin_user_management(request):
     # if (session_user.is_super_admin()):
     #     user_super_admin_flag = True
 
-    # Check if user is a admin
-    if (role == User.Role.ADMIN):
-        user_admin_flag = True
 
-    # Check if user is a organization admin
-    for organization in Organization.objects.all():
-        for admin in organization.admins.all():
-            if (session_user == admin):
-                # Store organization infomation
-                user_organization_admin_flag = True
-                user_organization = organization
+
 
     # Load from database based on role
     # Check if user is an super admin or admin
-    if (user_super_admin_flag | user_admin_flag):
+    if (role == "Admin"):
         # Get all mentee, mentor, and organization data from database
         user_management_mentee_data = Mentee.objects
         user_management_mentor_data = Mentor.objects
         user_management_organizations_data = Organization.objects
-
-    # TODO NEED TO CHECK THROUGH ORG ADMIN LIST FOR MENTORS (CHECK BELOW))
-
+        # Mentee.objects.all().mentor
+    
     # Check if user is an organization admin
-    elif (user_organization_admin_flag):
+    elif (session_user.is_mentor() and Organization.objects.filter(admins=session_user.mentor).exists()):
         # Get all mentee data, only the admin's organization, and mentor data from within the organization
         user_management_mentee_data = Mentee.objects
         user_management_mentor_data = Mentor.objects
 
-
-        # TODO NEED TO FIX USER MANAGEMENT ORG DATA
-        user_management_organizations_data = user_organization
+        organization = Organization.objects.get(admins=session_user.mentor)
+        mentees_with_mentors_in_organization = Mentee.objects.filter(mentor__organization=organization)
+        
+        return HttpResponse(organization, mentees_with_mentors_in_organization)
 
     else:
-        user_management_mentee_data = []
-        user_management_mentor_data = []
-        user_management_organizations_data = []
-        
+        return HttpResponse("Access Denied")
+    
+
+    
+
     # Check if there is organization data to cycle through
     if not (user_management_organizations_data == []):
         # Cycle through organizations storing organization data
@@ -395,28 +391,23 @@ def admin_user_management(request):
                     # Set mentee list to none
                     mentee_list = None
 
-                # TODO WILL NEED TO SET UP FOR NOW ASSUMING ALL ARE ACTIVE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                # Check if mentee is deactivated
-                deactivated = False
-
                 # Add needed mentee info to organization list
                 admin_list.append(
                     {
                         'account': mentor.account,
                         'mentees': mentee_list,
                         'current_mentees': current_mentees,
-                        'max_mentees': mentor.int_max_mentees,
-                        # 'mentor_super_admin_flag': mentor_super_admin_flag,
-                        'deactivated': deactivated
+                        'max_mentees': mentor.int_max_mentees
+                        # 'mentor_super_admin_flag': mentor_super_admin_flag
                     }
                 )
 
                 # FOR TESTING
-                print()
-                print(mentor.account)
+                # print()
+                # print(mentor.account)
 
             # FOR TESTING
-            print(organization.str_org_name)
+            # print(organization.str_org_name)
 
             organizations.append(
                 {
@@ -493,17 +484,13 @@ def admin_user_management(request):
                 has_mentor = False
                 mentor = None
 
-            # TODO WILL NEED TO SET UP FOR NOW ASSUMING ALL ARE ACTIVE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            # Check if mentee is deactivated
-            deactivated = False
-
             # Add needed mentee info to mentees list
             mentees.append(
                 {
                     'account': mentee.account,
                     'mentor': mentor,
                     'has_mentor': has_mentor,
-                    'deactivated': deactivated
+
                 }
             )
 
@@ -512,7 +499,7 @@ def admin_user_management(request):
         'unaffiliated_mentors': unaffiliated_mentors,
         'organizations': organizations,
         'role': role,
-        'user_super_admin_flag': user_super_admin_flag,
+        # 'user_super_admin_flag': user_super_admin_flag,
         'user_admin_flag': user_admin_flag,
         'user_organization_admin_flag': user_organization_admin_flag
     }
@@ -524,7 +511,7 @@ def admin_user_management(request):
 @security.Decorators.require_login(invalid_request_401)
 def logout(request):
     if security.logout(request.session):
-        return landing(request)
+        return redirect("/")
     #TODO: redirect this to a correct form ||||| probably done - Tanner
     response = HttpResponse("an internal error occured, unable to log you out, STAY FOREVER")
     response.status_code = 500

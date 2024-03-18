@@ -58,6 +58,7 @@ import os
 from typing import Callable
 import random
 import string
+from enum import Enum
 
 
 #project imports
@@ -588,6 +589,7 @@ class User(SVSUModelData,Model):
         -------
         
         """
+
         return User.Role.MENTEE if  self.is_mentor()  else User.Role.MENTOR
 
     def get_database_role_string(self)->str:
@@ -621,8 +623,10 @@ class User(SVSUModelData,Model):
         Authors
         -------
         David Kennamer ._.
+        Jordan Anodjo
         
         """
+        
         return User.Role.MENTOR if self.is_mentor()  else User.Role.MENTEE
 
 
@@ -1294,7 +1298,7 @@ class Organization(SVSUModelData,Model):
     str_org_name = CharField(max_length=100)
     str_industry_type = CharField(max_length=100)
 
-    admins = models.ManyToManyField('Mentor',related_name='administered_organizations')
+    admins = models.ManyToManyField('Mentor',related_name='administered_organizations') 
 
 class Mentor(SVSUModelData,Model):
     """
@@ -2129,6 +2133,7 @@ class Notes(SVSUModelData,Model):
 
     user = ForeignKey(User, on_delete = models.CASCADE)
 
+    @staticmethod
     def create_note(user_id: int, str_title: str, str_public_body: str, str_private_body: str):
         """
         Description
@@ -2180,21 +2185,39 @@ class Notes(SVSUModelData,Model):
             return True
         else:
             return False
+    
+    @staticmethod
+    def update_note(note_id: int, new_title: str, new_pub_body: str, new_pvt_body: str) -> None:
+        note = Notes.objects.get(id=note_id)
+
+        note.str_title = new_title
+        note.str_public_body = new_pub_body
+        note.str_private_body = new_pvt_body
+        note.save()
+
+    @staticmethod
+    def remove_note(note_id: int):
+        note = Notes.objects.get(id=note_id)
+        note.delete()
         
     @staticmethod
-    def get_public_mentor_notes(mentor_id: int):
-        pub_notes = Notes.objects.filter(user=mentor_id, str_public_body__isnull=False)
+    def get_all_mentor_notes(mentor: Mentor):
+        pub_notes = Notes.objects.filter(user=mentor)
         return [{
+            "id" : note.id,
             "title" : note.str_title,
-            "note" : note.str_public_body
+            "date_created" : note.cls_created_on,
+            "public_note" : note.str_public_body,
+            "private_note" : note.str_private_body
         } for note in pub_notes]
 
     @staticmethod
-    def get_private_mentor_notes(mentor_id: int):
+    def get_public_mentor_notes(mentor_id: int):
          pvt_notes = Notes.objects.filter(user=mentor_id, str_private_body__isnull=False)
          return [{
             "title" : note.str_title,
-            "note" : note.str_private_body
+            "date_created" : note.cls_created_on,
+            "public_note" : note.str_public_body
         } for note in pvt_notes]
             
 

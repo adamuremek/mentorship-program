@@ -10,30 +10,36 @@
             {{ mentor.mentees }}
         </div>
        
-        <!-- WILL NEED TO UPDATE WHEN DATABASE IS FIXED -->
-        <!-- <img class="user_management_photo" src="{{ 
-            mentor.account.profile_img.img.url 
-        }}"> -->
 
         <p class="user_management_bar_name" id="admin_user_management_medium_text">
-            <a href="{% url 'universal_profile' mentor.account.id %}">
-                {{ mentor.account.str_first_name }} {{ mentor.account.str_last_name }}
-            </a>
+            {{ mentor.account.str_first_name }} {{ mentor.account.str_last_name }}
         </p>
 
         <div class="mentee_counter_container">
             <p id="current_mentees">{{ mentor.current_mentees }}</p>/<p id="max_mentees">{{ mentor.max_mentees }}</p>
         </div>
 
-        <button class="admin_user_management_button_clear_active" id="eye_button">
+        <button class="admin_user_management_button_clear_active" id="{{mentor.account.id}}">
             <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
         </button>
 
-        {% if user_super_admin_flag or user_admin_flag %}
+        {% if user_admin_flag %}
+
+            {% if mentor.account.bln_account_disabled %}
+                <div id="user_account_disabled">
+                    1
+                </div>
+            {% else %}
+                <div id="user_account_disabled">
+                    0
+                </div>
+            {% endif %}
+
             {% if not mentor.deactivated %}
                 <button class="admin_user_management_button_clear_active" id="trashcan_button">
                     <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
                 </button>
+
                 <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button">
                     <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
                 </button>
@@ -41,6 +47,7 @@
                 <button class="admin_user_management_button_clear_inactive" id="trashcan_button">
                     <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
                 </button>
+
                 <button class="admin_user_management_button_clear_active" id="trashcan_off_button">
                     <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
                 </button>
@@ -49,17 +56,15 @@
     </div>
 
     <div class="mentor_management_bar">
-        {% if user_super_admin_flag or user_admin_flag %}
-            <button class="admin_user_management_word_button_active" id="super_promote_button">
-                <p id="admin_user_management_small_text">
-                    Promote Super Admin
-                </p>
-            </button>
-        {% endif %}
-
         <button class="admin_user_management_word_button_active" id="organization_promote_button">
             <p id="admin_user_management_small_text">
                 Promote Organization Admin
+            </p>
+        </button>
+
+        <button class="admin_user_management_word_button_active" id="edit_organization_button">
+            <p id="admin_user_management_small_text">
+                Edit Organization
             </p>
         </button>
 
@@ -77,3 +82,8 @@
     </div>
 
 </div>
+<script>
+document.getElementById("{{ mentor.account.id }}").addEventListener("click", function() {
+    window.location.href = "{% url 'universal_profile' mentor.account.id %}"
+});
+</script>

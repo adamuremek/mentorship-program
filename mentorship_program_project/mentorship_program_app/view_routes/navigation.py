@@ -53,7 +53,7 @@ def landing(req):
     Now redirects to dashboard if logged in - Tanner
     """
     if security.is_logged_in(req.session): 
-        return dashboard(req)
+        return redirect("/dashboard")
 
     template: Template = loader.get_template('landing_page.html')
     context: dict = {}
