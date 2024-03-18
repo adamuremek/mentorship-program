@@ -1984,7 +1984,8 @@ class MentorReports(SVSUModelData,Model):
 
     Static Functions
     ----------------
-    - NONE -
+    - get_unresolved_reports_grouped_by_mentor: Returns a dictionary of all mentors with unresolved reports.
+    - resolve_report: Resolves a report in the database.
 
     Magic Functions
     ---------------
@@ -2020,7 +2021,7 @@ class MentorReports(SVSUModelData,Model):
         -------
         Adam C.
         """
-        BEHAVIOR : 'Behavior'
+        BEHAVIOR = 'Behavior'
 
     mentor = ForeignKey(
         Mentor,
@@ -2028,6 +2029,7 @@ class MentorReports(SVSUModelData,Model):
     )
     str_report_type = CharField(max_length=10, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
+    bln_resolved = BooleanField(default=False)
 
     def create_mentor_report(str_provided_report_type: str, str_provided_report_body: str, int_mentor_id: int) -> bool:
         """
@@ -2065,8 +2067,9 @@ class MentorReports(SVSUModelData,Model):
             MentorReports.objects.create(
                 str_report_type = str_provided_report_type,
                 str_report_body = str_provided_report_body,
-                mentor = int_mentor_id
-            )
+                mentor = int_mentor_id,
+                bln_resolved = False
+            ).save()
             return True
         except Exception as e:
             return False
@@ -2108,7 +2111,7 @@ class MentorReports(SVSUModelData,Model):
         Description
         -----------
         - Gets a specified MentorReport by it's ID.
-        - Returns a dictionary containing the report type, body, and mentor's ID.
+        - Returns a dictionary containing the report type, body, mentor's ID, and resolved status.
 
         Parameters
         ----------
@@ -2121,12 +2124,12 @@ class MentorReports(SVSUModelData,Model):
 
         Returns
         -------
-        - dict_Report (Dictionary, String): containing the report type, body, and mentorID.
+        - dict_Report (Dictionary, String): containing the report type, body, mentorID and resolved status.
 
         Example Usage
         -------------
         >>> dict_Report = get_report_id(2)
-        dict_Report = {'reportType': 'Incident', 'reportBody': 'Mentor was rude', 'mentorID': 4}
+        dict_Report = {'reportType': 'Incident', 'reportBody': 'Mentor was rude', 'mentorID': 4, 'is_resolved': False}
 
         Authors
         -------
@@ -2137,10 +2140,83 @@ class MentorReports(SVSUModelData,Model):
         dict_Report = {
             "report_type" : cls_Report.str_report_type,
             "report_body" : cls_Report.str_report_body,
-            "mentor_id" : cls_Report.mentor_id
+            "mentor_id" : cls_Report.mentor_id,
+            "is_resolved" : cls_Report.bln_resolved
         }
 
         return dict_Report
+    
+    @staticmethod
+    def get_unresolved_reports_grouped_by_mentor() -> dict[Mentor, list]:
+        """
+        Description
+        -----------
+        - Gets a list of all MentorReports
+        - Returns a dictionary of mentor: list[reports].
+
+        Parameters
+        ----------
+        - NONE -
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+         - dict[Mentor, list[MentorReports]]
+            A dictionary where the keys are Mentors and the values are lists of MentorReports.
+
+        Example Usage
+        -------------
+        >>> mentor_reports_dict = get_reports_grouped_by_mentor()
+        mentor_reports_dict = {
+            <Mentor object>: [<MentorReports object (1)>, <MentorReports object (2)>],
+            <Mentor object>: [<MentorReports object (3)>, <MentorReports object (4)>],
+            ...
+        }
+
+        Authors
+        -------
+        Quinn F.
+        """
+
+        # TODO: make this less cursed
+        mentors_with_reports = Mentor.objects.annotate(report_count=Count('mentorreports', filter=Q(mentorreports__bln_resolved=False))).filter(report_count__gt=0).prefetch_related('mentorreports_set')
+        mentor_reports_dict: dict[Mentor, list[MentorReports]] = {mentor: list(mentor.mentorreports_set.all().filter(bln_resolved=False)) for mentor in mentors_with_reports}
+        return mentor_reports_dict
+    
+    @staticmethod
+    def resolve_report(int_report_id: int):
+        """
+        Description
+        -----------
+        - Resolves a report in the database.
+
+        Parameters
+        ----------
+        - int_report_id (int): The ID of the report to be resolved.
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - NONE -
+
+        Example Usage
+        -------------
+        >>> resolve_report(2)
+
+        Authors
+        -------
+        Quinn F.
+        """
+
+        report = MentorReports.get_report_id(int_report_id)
+        report.bln_resolved = True
+        report.save()
 
 
 class Notes(SVSUModelData,Model):
