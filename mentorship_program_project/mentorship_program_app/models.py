@@ -67,6 +67,7 @@ from django.utils import timezone
 from datetime import timedelta
 from typing import Tuple
 
+
 # Create your models here.
 
 """
@@ -425,6 +426,14 @@ class User(SVSUModelData,Model):
 
     """
 
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs) #let django cook
+
+        #TODO: we could probably make a function cache decorator, but this works 
+        #for the time bieng
+        self.cached_is_mentee : bool = None
+        self.cached_is_mentor : bool = None
+
     @property 
     def str_full_name(self):
         first_name = self.str_first_name if self.str_first_name != None else " "
@@ -709,8 +718,10 @@ class User(SVSUModelData,Model):
         
         """
         try:
-            self.mentor
-            return self.str_role == User.Role.MENTOR
+            if not self.cached_is_mentor:
+                self.mentor
+            self.cached_is_mentor = self.str_role == User.Role.MENTOR
+            return self.cached_is_mentor
         except ObjectDoesNotExist:
             return False
 
@@ -743,8 +754,10 @@ class User(SVSUModelData,Model):
         
         """
         try:
-            self.mentee 
-            return self.str_role == User.Role.MENTEE
+            if self.cached_is_mentee != None:
+                self.mentee
+            self.cached_is_mentee = self.str_role == User.Role.MENTEE
+            return self.cached_is_mentee
         except ObjectDoesNotExist:
             return False
     

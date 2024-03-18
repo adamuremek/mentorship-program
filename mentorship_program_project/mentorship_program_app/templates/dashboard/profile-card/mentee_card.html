@@ -36,7 +36,7 @@
 		  </div>
 
 		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
-		  {% if user.is_requested_by_session or session_user.mentee.has_maxed_request_count %}
+		  {% if user.is_requested_by_session or session_user.has_maxed_requests_as_mentee %}
 		  card-button-disabled
 		  {% endif %}
 		  ">
