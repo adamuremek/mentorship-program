@@ -15,8 +15,10 @@ from ..models import Mentor
 from ..models import Mentee
 from ..models import Interest
 from ..models import SystemLogs
+
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
+from timeit import default_timer as get_runtime
 import os
 
 
@@ -62,6 +64,7 @@ def landing(req):
 
 @security.Decorators.require_login(bad_request_400)
 def dashboard(req):
+    start = get_runtime()
     template = loader.get_template('dashboard/dashboard.html')
     session_user = User.from_session(req.session).sanitize_black_properties()
 
@@ -85,7 +88,10 @@ def dashboard(req):
     # messing with their code we could put it in
     role = session_user.get_database_role_string()
     opposite_role = session_user.get_opposite_database_role_string()
-    card_data : QuerySet = User.objects.filter(str_role=opposite_role)
+    card_data = User.objects.filter(str_role=opposite_role
+                                    ).prefetch_related("interests"
+                                    ).select_related("mentee"
+                                    ).select_related("mentor")
 
     #print("starting recomendation algorithm")
     #recommended_users = session_user.get_recomended_users()
@@ -94,14 +100,12 @@ def dashboard(req):
     #    print((p.str_first_name,p.str_last_name,p.likeness))
 
     recommended = session_user.get_recomended_users()
-    for p in recommended:
-        print((p.str_first_name,p.str_last_name,p.likeness))
 
-    #filter out existing mentor relationships on the dashboard
-    if session_user.is_mentor():
-        card_data = card_data.exclude(mentee__mentor = session_user.mentor)
-    elif session_user.is_mentee() and session_user.mentee.mentor:
-        card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
+    ##filter out existing mentor relationships on the dashboard
+    #if session_user.is_mentor():
+    #    card_data = card_data.exclude(mentee__mentor = session_user.mentor)
+    #elif session_user.is_mentee() and session_user.mentee.mentor:
+    #    card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
     
 
     interests_with_role_count = Interest.objects.annotate(
@@ -110,15 +114,17 @@ def dashboard(req):
 
     # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
     #set up the django users to include a property indicateing they have been reqeusted by the current user
-    users = [user.sanitize_black_properties() for user in card_data if user.is_mentee() or not user.mentor.has_maxed_mentees()]
+    #users = [user.sanitize_black_properties() for user in card_data if user.is_mentee() or not user.mentor.has_maxed_mentees()]
 
+    users = card_data
     for user in users:
-        user.is_requested_by_session = session_user.has_requested_user(user)
+        print(user.cls_email_address)
+        user.is_requested_by_session = False#session_user.has_requested_user(user)
 
     context = {
                                 # Making sure that there are enough users to display
             "recommended_users": recommended[0:4] if len(recommended) >= 4 else recommended[0:len(recommended)], 
-            "all_users"        : users if len(users) >= 4 else [],
+            "all_users"        : card_data,
             "interests"        : list(interests_with_role_count),
             "session_user"     : session_user,
             "role"             : role
@@ -126,8 +132,10 @@ def dashboard(req):
 
     if session_user.is_super_admin():
         return admin_dashboard(req)
-    
-    return HttpResponse(template.render(context, req))
+    print(f"starting render @ time = {get_runtime()-start}")
+    render = template.render(context, req)
+    print(f"render finished @ time = {get_runtime()-start}")
+    return HttpResponse(render)
 
 
 

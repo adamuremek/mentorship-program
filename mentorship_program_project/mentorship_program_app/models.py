@@ -427,7 +427,9 @@ class User(SVSUModelData,Model):
 
     @property 
     def str_full_name(self):
-        return self.str_first_name + " " + self.str_last_name
+        first_name = self.str_first_name if self.str_first_name != None else " "
+        last_name =  self.str_last_name if self.str_last_name != None else " "
+        return first_name + " " + last_name
 
     def get_recomended_users(self):
         """
@@ -2436,6 +2438,17 @@ class ProfileImg(SVSUModelData,Model):
         return self.file_size
 
 
+
+class FastUser(models.Model):
+    """
+    like the user table, but it goes through a view that pre populates stuff and includes extra fields
+    to do the joining on the database and make us operate (hopefully) faster
+    """
+    class Meta:
+        db_table = 'view_speed_test'
+        managed = False
+
+    int_max_mentees = IntegerField(default=4)
 
 class PasswordResetToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
