@@ -140,6 +140,9 @@ urlpatterns = [
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --Will and Andy
     path("verify-mentee-ug-status/", backend_requests.verify_mentee_ug_status, name='verify_mentee_ug_status'),
 
+    # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --Andy
+    path("deactivate_account/", under_development.deactivate_account, name='deactivate_account'),
+
     #log in and out routes
     path('login/',views.login_uname_text,name='login'),
     path('logout/',views.logout,name='logout'),

@@ -1179,4 +1179,40 @@ def request_reset_page(req):
     return HttpResponse(template.render())
 
     
-    
+
+def deactivate_account(req : HttpRequest):
+    '''
+     Description
+     ___________
+     view that deactivates the logged in account
+
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+
+     Returns
+     _______
+        HttpResponse: The http reponse for the redirect
+     
+     Example Usage
+     _____________
+        >>> deactivate_account/
+
+     >>> 
+     Authors
+     _______
+     Andy Nguyen Do *^*
+    '''
+
+    # Retrieve user from session
+    user = User.from_session(req.session)
+
+    # Disable account
+    if (user.bln_account_disabled):
+        print('Account already disabled')
+    else:
+        user.bln_account_disabled = True
+        user.save()
+        print('Deactivated account. Until next time')
+
+    return redirect('/settings')
