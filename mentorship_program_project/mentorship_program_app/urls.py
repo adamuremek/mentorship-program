@@ -85,6 +85,8 @@ urlpatterns = [
     ##RESETTING PASSWORD ROUTE feel free to move to better spot in file - Tanner 🦞
     path("request_reset", under_development.reset_request, name="request_reset"),
     path("reset_password", under_development.reset_password, name="reset_password"),
+    path("request_reset_page", under_development.request_reset_page, name="request_reset_page"),
+
 
     #ADAM + ANDREW + JORDAN TESTING
     path("view_pending", under_development.view_pending_mentors, name="view_pending"),

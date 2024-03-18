@@ -1,0 +1,41 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+Reset Password
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/settings.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<div class="sign-in-card">
+    <div class="grid-container">
+        <!-- container for home icon -->
+        <div class="link-container" style="margin: 2em; border-bottom: 2px solid white;">
+            <a href="/" class="home-link">                           <!-- vvvvvv keep all of this on same line or less weird spacing issue 🦞 -->
+                <img src="{% static 'images/icons/house_with_door.svg' %}" alt="Home" class="home-icon" style="width: 18px; height: 18px; filter: brightness(0) invert(1);"><span class="home-text" style="font-size: 18px; font-weight: bold; margin-left: 10px; ">Back to home!</span>
+            </a>
+        
+            <div class="title">
+                Request Password Reset
+            </div>
+        </div>
+
+         <!-- container for input email -->
+         <div class="input-email-container">
+            <form action="/your-submit-url/" method="post">
+                {% csrf_token %}
+                <input type="email" class="email-field" placeholder="Enter your email" id="email" name="email" required>
+                <input type="submit" value="Submit" class="btn-submit">
+            </form>
+        </div>
+        
+    </div>
+</div>
+
+{% endblock %}
+

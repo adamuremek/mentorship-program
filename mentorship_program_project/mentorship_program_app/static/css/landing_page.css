@@ -452,8 +452,16 @@ input:-moz-autofill:active {
 .modal-footer-container {
     display: flex;
     /* margin-top: 4.43em; */
-    margin-top: 5em;
+    margin-top: 3em;
 
+}
+
+.modal-footer-container form {
+    padding: 0.5rem;
+}
+
+.modal-footer-container button {
+    background-color: transparent;
 }
 
 .modal-exit:hover,

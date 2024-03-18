@@ -1080,7 +1080,40 @@ def change_password(req : HttpRequest):
 
 
 def reset_request(req: HttpRequest):
-    user = User.from_session(req.session)
+    '''
+     Description
+     ___________
+     a route that creates a token and emails it the given email,
+     the token can be used to reset the email on another view
+
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+
+     Returns
+     _______
+        HttpResponse containing a descriptive message of what happened
+     
+     Example Usage
+     _____________
+        >>> reset_request(req)
+
+        
+
+     >>> 
+     Authors
+     _______
+     Tanner Williams 🦞
+    '''
+
+
+    email = req.POST["email"]
+    
+    try:
+        user = User.objects.get(cls_email_address=email)
+    except ObjectDoesNotExist:
+        return HttpResponse("An account is not assoicated with that email")
+    
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
     message = PasswordResetToken.see_token(user_id=user.id)
     reset_token_email(recipient=user.cls_email_address, token=token)
@@ -1090,30 +1123,60 @@ def reset_request(req: HttpRequest):
 
 
 def reset_password(req : HttpRequest):
+    '''
+     Description
+     ___________
+     route takes in a new password and previously sent token and verifys said token,
+     then replaces the password for the user
+
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+
+     Returns
+     _______
+        HttpResponse containing a descriptive message of what happened
+     
+     Example Usage
+     _____________
+        >>> reset_password(req)
+
+        
+
+     >>> 
+     Authors
+     _______
+     Tanner Williams 🦞
+    '''
     new_password = req.POST["new-password"]
     token = req.POST["token"]
-    user = User.from_session(req.session)
-    
-    valid, message = PasswordResetToken.validate_to_reset_password(user_id=user.id,token=token)
+
+
+    valid, message = PasswordResetToken.validate_and_reset_password(token=token,new_password=new_password)
 
     if(not valid):
         return HttpResponse(message)
 
 
-    generated_user_salt = security.generate_salt()
-    user.str_password_hash = security.hash_password(new_password, generated_user_salt)
-    user.str_password_salt = generated_user_salt
-    user.save()
+    #if they are logged in for some reason
     security.logout(req.session)
-        
     # redirect to the page the request came from
     return redirect("/")
 
 
-def view_all_organizations(req: HttpRequest):
+
     
+def request_reset_page(req):
+    template = loader.get_template('reset_page.html')
+    return HttpResponse(template.render())
     context = {"organization" : Organization.objects.all()}
     print(context)
 
     return HttpResponse(template.render(context, req))
+    
+def request_reset_page(req):
+    template = loader.get_template('reset_page.html')
+    return HttpResponse(template.render())
+
+    
     

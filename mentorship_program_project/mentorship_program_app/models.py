@@ -2470,12 +2470,12 @@ class PasswordResetToken(models.Model):
                 print(f"Token is still valid: {token_record}")
 
     @staticmethod
-    def validate_to_reset_password(user_id: int, token: str) -> Tuple[bool, str]:
+    def validate_and_reset_password(token: str, new_password: str) -> Tuple[bool, str]:
         try:
             # Retrieve the token instance based on user ID and token
 
           
-            token_instance = PasswordResetToken.objects.get(user=user_id, token=token)
+            token_instance = PasswordResetToken.objects.get(token=token)
             
             
             valid, message = token_instance.is_valid_token()
@@ -2487,6 +2487,14 @@ class PasswordResetToken(models.Model):
                     return False, "An error occoured checking your token."
             # Delete the token since it was correct and is no longer needed
             token_instance.delete()
+
+            user = User.objects.get(id=token_instance.user)
+            generated_user_salt = security.generate_salt()
+            user.str_password_hash = security.hash_password(new_password, generated_user_salt)
+            user.str_password_salt = generated_user_salt
+            user.save()
+
+
             
             return True, "Password successfully reset, Rerouting you to home page."  # Password reset successful
         except PasswordResetToken.DoesNotExist:
