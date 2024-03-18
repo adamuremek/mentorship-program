@@ -41,7 +41,7 @@
         <div class="modal-footer-container">
             <form id="frm-reset-password" action="/request_reset" method="POST">
                 {% csrf_token %}
-                <input type="email" id="email" class="user-input" name="email" placeholder="e.g. john.doe@svsu.edu" />
+                <input type="email" id="reset-email" class="user-input" name="email" placeholder="e.g. john.doe@svsu.edu" />
                 <button class="li-buttons submit-buttons" id="pass-reset" type="submit">Send Confirmation Code</button>
             </form>
         </div>
@@ -50,3 +50,31 @@
 
 </body>
 </html>
+
+<script>
+    const input_email = document.getElementById('reset-email')
+    const regex_svsu = /^[^\s@]+@svsu[.]edu$/ 
+    const regex_svsu_domain = /@svsu\.edu$/
+    const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    let is_student = true //placeholder, try using django stuff later
+
+    input_email.addEventListener("input", e => {
+
+        //determine is email is student's email based on if it is an SVSU domain, if email is any other domain that must mean they are a mentor
+        is_student = regex_svsu_domain.test(e.target.value)
+
+        let regex_custom
+        if(is_student)
+            regex_custom = regex_svsu
+        else
+            regex_custom = regex_email
+
+        const regex_result = regex_custom.test(e.target.value)
+
+        //change background color green if correct email format, red if incorrect email format
+        if(regex_result)
+            input_email.style.backgroundColor = 'forestgreen'
+        else
+            input_email.style.backgroundColor = 'firebrick'
+    })
+</script>
