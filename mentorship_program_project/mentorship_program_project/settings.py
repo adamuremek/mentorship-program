@@ -72,7 +72,7 @@ MIDDLEWARE = [
 ]
 
 INTERNAL_IPS = [
-    "127.0.0.1"
+    "0.0.0.0"
 ]
 
 ROOT_URLCONF = 'mentorship_program_project.urls'
