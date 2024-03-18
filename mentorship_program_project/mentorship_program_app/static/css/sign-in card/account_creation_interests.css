@@ -1,0 +1,84 @@
+/* a lot of redundant css because idk if I can 
+delete stuff in main.css without ruining other pages
+and I needed to override some of the media queries */
+.sign-in-card-interest-container {
+    gap: .1rem;
+    overflow-y: scroll;
+}
+
+.sign-in-card {
+    height: fit-content;
+    max-height: fit-content;
+    min-height: fit-content;
+}
+
+.sign-in-card-interest-label {
+    padding: 0 .3rem;
+}
+
+.sign-in-card-content, .sign-in-card-form {
+    max-height: none;
+    min-height: fit-content;
+    overflow-y: scroll
+}
+
+.sign-in-card-form {
+    max-height: fit-content;
+}
+
+@media screen and (max-width: 1200px) {
+
+    .sign-in-card-content, .sign-in-card-form, .sign-in-card {
+        max-height: fit-content;
+    }
+
+}
+
+@media screen and (max-width: 900px) {
+
+    .sign-in-card {
+        height: fit-content;
+        max-height: fit-content;
+        min-height: fit-content;
+    }
+
+    .sign-in-card-content, .sign-in-card-form {
+        min-height: fit-content;
+        max-height: 100%;
+    }
+
+}
+
+@media screen and (max-width: 700px) {
+
+    .sign-in-card {
+        height: fit-content;
+        max-height: fit-content;
+        min-height: fit-content;
+    }
+
+    .sign-in-card-content, .sign-in-card-form {
+        min-height: fit-content;
+        max-height: 100svh;
+    }
+
+}
+
+@media screen and (max-width: 400px) {
+
+    .sign-in-card {
+        height: fit-content;
+        max-height: fit-content;
+        min-height: fit-content;
+    }
+
+    .sign-in-card-content, .sign-in-card-form {
+        min-height: fit-content;
+        max-height: 100svh;
+    }
+
+    .sign-in-card-interest-label {
+        font-size: .9rem;
+    }
+}
+
