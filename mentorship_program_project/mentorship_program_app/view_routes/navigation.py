@@ -19,6 +19,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 import os
 
+from timeit import default_timer as get_runtime
+
 
 # def default(req: HttpRequest):
 #     """
@@ -62,6 +64,8 @@ def landing(req):
 
 @security.Decorators.require_login(bad_request_400)
 def dashboard(req):
+
+    start = get_runtime()
     template = loader.get_template('dashboard/dashboard.html')
     session_user = User.from_session(req.session).sanitize_black_properties()
 
@@ -85,7 +89,30 @@ def dashboard(req):
     # messing with their code we could put it in
     role = session_user.get_database_role_string()
     opposite_role = session_user.get_opposite_database_role_string()
-    card_data : QuerySet = User.objects.filter(str_role=opposite_role)
+    
+    card_data : QuerySet = User.objects.filter(str_role=opposite_role).\
+            select_related(opposite_role.lower()).\
+            select_related("profile_img_query").\
+            prefetch_related("interests").\
+            defer(
+                    "cls_email_address" ,
+                    "str_password_hash" ,
+                    "str_password_salt" ,
+                    "str_role" ,
+                    "cls_date_joined" ,
+                    "cls_active_changed_date" ,
+                    "bln_active" ,
+                    "bln_account_disabled" ,
+                    "str_phone_number" ,
+                    "str_last_login_date" ,
+                    "str_gender" ,
+                    "str_preferred_pronouns" ,
+                    "str_bio" ,
+                    "interests"
+                  )
+
+            #select_related("mentor").\
+             
 
     #print("starting recomendation algorithm")
     #recommended_users = session_user.get_recomended_users()
@@ -110,7 +137,7 @@ def dashboard(req):
 
     # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
     #set up the django users to include a property indicateing they have been reqeusted by the current user
-    users = [user.sanitize_black_properties() for user in card_data if user.is_mentee() or not user.mentor.has_maxed_mentees()]
+    users = [user.sanitize_black_properties() for user in card_data]
 
     for user in users:
         user.is_requested_by_session = session_user.has_requested_user(user)
@@ -126,8 +153,11 @@ def dashboard(req):
 
     if session_user.is_super_admin():
         return admin_dashboard(req)
-    
-    return HttpResponse(template.render(context, req))
+
+    print(f"[*] starting render {get_runtime() - start}")
+    redner = template.render(context, req)
+    print(f"[*] finished render {get_runtime() - start}")
+    return HttpResponse(render)
 
 
 
