@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta
 from utils.development import print_debug
 from utils import security
 from .status_codes import bad_request_400
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from .reporting import *
 
 from ..models import User
@@ -90,28 +90,67 @@ def dashboard(req):
     role = session_user.get_database_role_string()
     opposite_role = session_user.get_opposite_database_role_string()
     
-    card_data : QuerySet = User.objects.filter(str_role=opposite_role).\
-            select_related(opposite_role.lower()).\
-            select_related("profile_img_query").\
-            prefetch_related("interests").\
-            defer(
-                    "cls_email_address" ,
-                    "str_password_hash" ,
-                    "str_password_salt" ,
-                    "str_role" ,
-                    "cls_date_joined" ,
-                    "cls_active_changed_date" ,
-                    "bln_active" ,
-                    "bln_account_disabled" ,
-                    "str_phone_number" ,
-                    "str_last_login_date" ,
-                    "str_gender" ,
-                    "str_preferred_pronouns" ,
-                    "str_bio" ,
-                    "interests"
-                  )
+    #card_data : QuerySet = User.objects.filter(str_role=opposite_role).\
+    #        select_related(opposite_role.lower()).\
+    #        select_related("profile_img_query").\
+    #        prefetch_related("interests").\
+    #        defer(
+    #        #please don't touch, limiting displayed feild
+    #                "cls_email_address" ,
+    #                "str_password_hash" ,
+    #                "str_password_salt" ,
+    #                "str_role" ,
+    #                "cls_date_joined" ,
+    #                "cls_active_changed_date" ,
+    #                "bln_active" ,
+    #                "bln_account_disabled" ,
+    #                "str_phone_number" ,
+    #                "str_last_login_date" ,
+    #                "str_gender" ,
+    #                "str_preferred_pronouns" ,
+    #                "str_bio" ,
+    #                "interests"
+    #              ).filter(_mentee_set__count__gte=F("int_max_mentees"))
 
+    #card_data = User.objects.filter(str_role=opposite_role). \
+    #        select_related(opposite_role.lower()). \
+    #        select_related("profile_img_query"). \
+    #        prefetch_related("interests"). \
+    #        defer(
+    #            "cls_email_address",
+    #            "str_password_hash",
+    #            "str_password_salt",
+    #            "str_role",
+    #            "cls_date_joined",
+    #            "cls_active_changed_date",
+    #            "bln_active",
+    #            "bln_account_disabled",
+    #            "str_phone_number",
+    #            "str_last_login_date",
+    #            "str_gender",
+    #            "str_preferred_pronouns",
+    #            "str_bio",
+    #        ).annotate(_mentee_setcount=F("mentee_set")).filter(_mentee_setcount__gte=F("int_max_mentees"))
             #select_related("mentor").\
+    card_data = User.objects.filter(str_role=opposite_role). \
+            select_related(opposite_role.lower()).\
+            select_related("profile_img_query"). \
+            prefetch_related("interests"). \
+            defer(
+                "cls_email_address",
+                "str_password_hash",
+                "str_password_salt",
+                "str_role",
+                "cls_date_joined",
+                "cls_active_changed_date",
+                "bln_active",
+                "bln_account_disabled",
+                "str_phone_number",
+                "str_last_login_date",
+                "str_gender",
+                "str_preferred_pronouns",
+                "str_bio",
+            ).annotate(blah=F("_mentee_set__count") >= F("int_max_mentees"))
              
 
     #print("starting recomendation algorithm")
@@ -137,6 +176,7 @@ def dashboard(req):
 
     # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
     #set up the django users to include a property indicateing they have been reqeusted by the current user
+    #if user.str_role == User.Role.MENTEE or not user.mentor.has_maxed_mentees()
     users = [user.sanitize_black_properties() for user in card_data]
 
     for user in users:
