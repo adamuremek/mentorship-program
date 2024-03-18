@@ -428,11 +428,16 @@ class User(SVSUModelData,Model):
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs) #let django cook
+        
+        #mark cached functions so we don't over query the database
+        self.cache = security.Decorators.FunctionCache()
+        
+        #decorate cachable functions on the init level so python understands when to remove
+        #the cached data
+        self.is_mentee = self.cache.create_cached_function(self.is_mentee)
+        self.is_mentor = self.cache.create_cached_function(self.is_mentor)
 
-        #TODO: we could probably make a function cache decorator, but this works 
-        #for the time bieng
-        self.cached_is_mentee : bool = None
-        self.cached_is_mentor : bool = None
+
 
     @property 
     def str_full_name(self):
@@ -718,10 +723,8 @@ class User(SVSUModelData,Model):
         
         """
         try:
-            if not self.cached_is_mentor:
-                self.mentor
-            self.cached_is_mentor = self.str_role == User.Role.MENTOR
-            return self.cached_is_mentor
+            self.mentor
+            return self.str_role == User.Role.MENTOR
         except ObjectDoesNotExist:
             return False
 
@@ -754,10 +757,8 @@ class User(SVSUModelData,Model):
         
         """
         try:
-            if self.cached_is_mentee != None:
-                self.mentee
-            self.cached_is_mentee = self.str_role == User.Role.MENTEE
-            return self.cached_is_mentee
+            self.mentee
+            return self.str_role == User.Role.MENTEE
         except ObjectDoesNotExist:
             return False
     
@@ -1539,6 +1540,13 @@ class Mentee(SVSUModelData,Model):
     -------
 
     """
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+
+        self.function_cache = security.Decorators.FunctionCache()
+        self.has_maxed_request_count = self.function_cache.create_cached_function(self.has_maxed_request_count)
+
 
     #limits the number of requests that any given mentee can have
     MAXIMUM_REQUEST_COUNT = 5
@@ -2451,17 +2459,6 @@ class ProfileImg(SVSUModelData,Model):
         return self.file_size
 
 
-
-class FastUser(models.Model):
-    """
-    like the user table, but it goes through a view that pre populates stuff and includes extra fields
-    to do the joining on the database and make us operate (hopefully) faster
-    """
-    class Meta:
-        db_table = 'view_speed_test'
-        managed = False
-
-    int_max_mentees = IntegerField(default=4)
 
 class PasswordResetToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

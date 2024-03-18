@@ -122,28 +122,39 @@ def dashboard(req):
         )
 
         users = [user.sanitize_black_properties() for user in card_data]
+        session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
 
 
 
     if opposite_role == "Mentee":
-        card_data = User.objects.filter(str_role=opposite_role). \
-        prefetch_related('interests'). \
-        prefetch_related('profile_img_query'). \
-        defer(
-            "cls_email_address",
-            "str_password_hash",
-            "str_password_salt",
-            "str_role",
-            "cls_date_joined",
-            "cls_active_changed_date",
-            "bln_active",
-            "bln_account_disabled",
-            "str_phone_number",
-            "str_last_login_date",
-            "str_gender",
-            "str_preferred_pronouns",
-            "str_bio",
+        
+        card_data = User.objects.filter(
+            str_role='Mentee',
+            mentee__mentor=None
+        ).prefetch_related(
+            'interests'  # Prefetch the interests of the associated User
+        ).prefetch_related(
+            'profile_img_query'
         )
+
+        #card_data = User.objects.filter(str_role=opposite_role). \
+        #prefetch_related('interests'). \
+        #prefetch_related('profile_img_query'). \
+        #defer(
+        #    "cls_email_address",
+        #    "str_password_hash",
+        #    "str_password_salt",
+        #    "str_role",
+        #    "cls_date_joined",
+        #    "cls_active_changed_date",
+        #    "bln_active",
+        #    "bln_account_disabled",
+        #    "str_phone_number",
+        #    "str_last_login_date",
+        #    "str_gender",
+        #    "str_preferred_pronouns",
+        #    "str_bio",
+        #)
         users = [user.sanitize_black_properties() for user in card_data]
     
     #print("starting recomendation algorithm")
@@ -172,7 +183,6 @@ def dashboard(req):
         user.is_requested_by_session = False
 
     #cache the result of this query so we are not using it in the rendered view
-    session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
     context = {
                                 # Making sure that there are enough users to display
             "recommended_users": recommended[0:4] if len(recommended) >= 4 else recommended[0:len(recommended)], 
