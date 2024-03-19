@@ -7,90 +7,11 @@ Reset Password
 {% endblock %}
 
 {% block style %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/settings.css' %}">
-<style>
-    .sign-in-card {
-        margin: 2em;
-        padding: 1em;
-        border: none;
-        border-radius: 10px;
-        
-    }
-
-    .grid-container {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1em;
-    }
-
-    .link-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: none;
-        padding-bottom: 1em;
-    }
-
-    .home-link {
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: #333;
-    }
-
-    .home-icon {
-        width: 18px;
-        height: 18px;
-        filter: brightness(0) invert(1);
-    }
-
-    .title {
-        font-size: 24px;
-        font-weight: bold;
-        margin-top: 1em;
-    }
-
-    .input-email-container {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .email-field,
-    .token-field {
-        width: 100%;
-        margin-bottom: 1em;
-        padding: 0.5em;
-        border-radius: 10px;
-        border: none;
-        
-    }
-
-    .login-buttons {
-    display: block;
-    height: 55px;
-    width: 100%;
-    padding: 0 10px;
-    margin-top: 10px;
-    border-radius: 25px;
-    outline: none;
-    font-size: 1rem;
-    font-weight: 500;
-    font-family: var(--ff-roboto);
-    filter: drop-shadow(.6em .6em .55em rgba(58, 58, 58, 0.276));
-    cursor: pointer;
-    /* Change cursor icon to hand when hovering */
-    transition: all 0.3s ease;
-    /* Smooth transition for the hover effect */
-}
-
-
-
-
-</style>
+<link rel="stylesheet" type="text/css" href="{% static 'css/password_reset.css' %}">
 {% endblock %}
 
 {% block main_content %}
-<div class="sign-in-card">
+<div class="reset-card">
     <div class="grid-container">
         <div class="link-container">
             <a href="/" class="home-link">
@@ -106,7 +27,7 @@ Reset Password
                 {% csrf_token %}
                 <input type="email" class="email-field" placeholder="Enter your email" id="email" name="email" required>
                 <input type="text" class="token-field" placeholder="Enter token" id="token" name="token" required>
-                <input type="submit" value="Submit" class="login-buttons">
+                <input type="submit" value="Submit" class="submit-button">
 
             </form>
         </div>
