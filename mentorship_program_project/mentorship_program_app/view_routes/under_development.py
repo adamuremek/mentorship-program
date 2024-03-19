@@ -16,7 +16,7 @@ from utils.development import print_debug
 from .emails import *
 from ..views import login_uname_text
 from django.views.decorators.csrf import csrf_exempt
-
+from django.http import JsonResponse
 
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
@@ -1107,7 +1107,7 @@ def reset_request(req: HttpRequest):
     '''
 
 
-    email = req.POST["email"]
+    email = req.GET.get('email', None)
     
     try:
         user = User.objects.get(cls_email_address=email)
@@ -1117,7 +1117,10 @@ def reset_request(req: HttpRequest):
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
     message = PasswordResetToken.see_token(user_id=user.id)
     reset_token_email(recipient=user.cls_email_address, token=token)
-    return HttpResponse(message + f" email: {user.cls_email_address}")
+    return JsonResponse({"message": message, "email": user.cls_email_address})
+
+
+
 
 
 
@@ -1172,5 +1175,10 @@ def request_reset_page(req):
     template = loader.get_template('reset_page.html')
     return HttpResponse(template.render())
 
-    
-    
+
+def check_email(request):
+    email = request.GET.get('email', None)
+    data = {
+        'exists': User.objects.filter(cls_email_address=email).exists()
+    }
+    return JsonResponse(data) 

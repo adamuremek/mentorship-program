@@ -39,7 +39,7 @@
             
         </div>
         <div class="modal-footer-container">
-            <form id="frm-reset-password" action="/request_reset" method="POST">
+            <form id="frm-reset-password">
                 {% csrf_token %}
                 <input type="email" id="reset-email" class="user-input" name="email" placeholder="e.g. john.doe@svsu.edu" />
                 <button class="li-buttons submit-buttons" id="pass-reset" type="submit">Send Confirmation Code</button>
@@ -79,3 +79,43 @@
             input_email.style.backgroundColor = 'firebrick'
     })
 </script>
+
+
+
+
+<script>
+    function checkEmail() {
+        var email = document.getElementById("reset-email").value;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                if (response.exists) {
+                    document.getElementById("email-status").innerText = "Email exists!";
+                    sendEmail(email);
+                } else {
+                    document.getElementById("email-status").innerText = "Email does not exist.";
+                }
+            }
+        };
+        xhttp.open("GET", "/check_email?email=" + email, true);
+        xhttp.send();
+    }
+
+
+    function sendEmail(email) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // Handle the response of the POST request if needed
+            console.log("POST request successful");
+        }
+    };
+    xhttp.open("POST", "/reset_request", true); // Change endpoint to your reset_request URL
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    var params = "email=" + email; // Constructing POST parameters
+    xhttp.send(params);
+}
+
+
+    </script>
