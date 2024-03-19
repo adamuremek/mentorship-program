@@ -67,6 +67,7 @@ from django.utils import timezone
 from datetime import timedelta
 from typing import Tuple
 
+
 # Create your models here.
 
 """
@@ -425,9 +426,24 @@ class User(SVSUModelData,Model):
 
     """
 
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs) #let django cook
+        
+        #mark cached functions so we don't over query the database
+        self.cache = security.Decorators.FunctionCache()
+        
+        #decorate cachable functions on the init level so python understands when to remove
+        #the cached data
+        self.is_mentee = self.cache.create_cached_function(self.is_mentee)
+        self.is_mentor = self.cache.create_cached_function(self.is_mentor)
+
+
+
     @property 
     def str_full_name(self):
-        return self.str_first_name + " " + self.str_last_name
+        first_name = self.str_first_name if self.str_first_name != None else " "
+        last_name =  self.str_last_name if self.str_last_name != None else " "
+        return first_name + " " + last_name
 
     def get_recomended_users(self):
         """
@@ -741,7 +757,7 @@ class User(SVSUModelData,Model):
         
         """
         try:
-            self.mentee 
+            self.mentee
             return self.str_role == User.Role.MENTEE
         except ObjectDoesNotExist:
             return False
@@ -1524,6 +1540,13 @@ class Mentee(SVSUModelData,Model):
     -------
 
     """
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+
+        self.function_cache = security.Decorators.FunctionCache()
+        self.has_maxed_request_count = self.function_cache.create_cached_function(self.has_maxed_request_count)
+
 
     #limits the number of requests that any given mentee can have
     MAXIMUM_REQUEST_COUNT = 5

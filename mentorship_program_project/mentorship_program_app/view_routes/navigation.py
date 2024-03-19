@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta
 from utils.development import print_debug
 from utils import security
 from .status_codes import bad_request_400
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Value,Case,BooleanField,When,F
 from .reporting import *
 
 from ..models import User
@@ -15,9 +15,12 @@ from ..models import Mentor
 from ..models import Mentee
 from ..models import Interest
 from ..models import SystemLogs
+
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
+from timeit import default_timer as get_runtime
 import os
+import time
 
 
 # def default(req: HttpRequest):
@@ -62,6 +65,7 @@ def landing(req):
 
 @security.Decorators.require_login(bad_request_400)
 def dashboard(req):
+    start_time = get_runtime()
     template = loader.get_template('dashboard/dashboard.html')
     session_user = User.from_session(req.session).sanitize_black_properties()
 
@@ -85,8 +89,74 @@ def dashboard(req):
     # messing with their code we could put it in
     role = session_user.get_database_role_string()
     opposite_role = session_user.get_opposite_database_role_string()
-    card_data : QuerySet = User.objects.filter(str_role=opposite_role)
 
+
+    if session_user.is_super_admin():
+        return admin_dashboard(req)
+
+        
+
+    if opposite_role == "Mentor":
+        card_data = User.objects.annotate(
+        num_mentees=Count('mentor___mentee_set', distinct=True)
+        ).annotate(
+            has_maxed_mentees=Case(
+                When(num_mentees__gte=F('mentor__int_max_mentees'), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        ).filter(
+            has_maxed_mentees=False,  # Exclude mentors who have maxed out their mentee slots
+        ).filter(
+            str_role='Mentor'
+        ).select_related(
+            'mentor'  # Link each Mentor to the corresponding User account
+        ).prefetch_related(
+            'interests'  # Prefetch the interests of the associated User
+        ).prefetch_related(
+            'profile_img_query'
+        ).prefetch_related(
+            'mentor___mentee_set'
+        ).select_related(
+                'mentee'
+        )
+
+        users = [user.sanitize_black_properties() for user in card_data]
+        session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
+
+
+
+    if opposite_role == "Mentee":
+        
+        card_data = User.objects.filter(
+            str_role='Mentee',
+            mentee__mentor=None
+        ).prefetch_related(
+            'interests'  # Prefetch the interests of the associated User
+        ).prefetch_related(
+            'profile_img_query'
+        )
+
+        #card_data = User.objects.filter(str_role=opposite_role). \
+        #prefetch_related('interests'). \
+        #prefetch_related('profile_img_query'). \
+        #defer(
+        #    "cls_email_address",
+        #    "str_password_hash",
+        #    "str_password_salt",
+        #    "str_role",
+        #    "cls_date_joined",
+        #    "cls_active_changed_date",
+        #    "bln_active",
+        #    "bln_account_disabled",
+        #    "str_phone_number",
+        #    "str_last_login_date",
+        #    "str_gender",
+        #    "str_preferred_pronouns",
+        #    "str_bio",
+        #)
+        users = [user.sanitize_black_properties() for user in card_data]
+    
     #print("starting recomendation algorithm")
     #recommended_users = session_user.get_recomended_users()
     #print("ending recomendation algorithm")
@@ -94,8 +164,6 @@ def dashboard(req):
     #    print((p.str_first_name,p.str_last_name,p.likeness))
 
     recommended = session_user.get_recomended_users()
-    for p in recommended:
-        print((p.str_first_name,p.str_last_name,p.likeness))
 
     #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
@@ -110,11 +178,11 @@ def dashboard(req):
 
     # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
     #set up the django users to include a property indicateing they have been reqeusted by the current user
-    users = [user.sanitize_black_properties() for user in card_data if user.is_mentee() or not user.mentor.has_maxed_mentees()]
 
     for user in users:
-        user.is_requested_by_session = session_user.has_requested_user(user)
+        user.is_requested_by_session = False
 
+    #cache the result of this query so we are not using it in the rendered view
     context = {
                                 # Making sure that there are enough users to display
             "recommended_users": recommended[0:4] if len(recommended) >= 4 else recommended[0:len(recommended)], 
@@ -124,10 +192,12 @@ def dashboard(req):
             "role"             : role
     }
 
-    if session_user.is_super_admin():
-        return admin_dashboard(req)
     
-    return HttpResponse(template.render(context, req))
+    print("Time for query: ", get_runtime()-start_time )
+    render = template.render(context, req)
+
+    print("Time: " ,get_runtime()-start_time)
+    return HttpResponse(render)
 
 
 

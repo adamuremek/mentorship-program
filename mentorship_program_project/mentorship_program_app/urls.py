@@ -53,6 +53,7 @@ from .view_routes import development as development_views
 urlpatterns = [
 
 
+    
     path("__debug__/", include("debug_toolbar.urls")),
 
     #path('home/', views.home, name='home'),
@@ -156,7 +157,8 @@ urlpatterns = [
     path('dev/delete_users'               , development_views.delete_users                    ,name='delete users'),
     path('dev/test_login'                 , development_views.test_login_page                 ,name='test login'),
     path('dev/is_logged_in'               , development_views.is_logged_in_test               ,name='logged in test'),
-    path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships")
+    path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships"),
+    path('dev/test_database_join'         , development_views.test_database_speed, name='test database joins' )
 ]
 
 if settings.DEBUG:

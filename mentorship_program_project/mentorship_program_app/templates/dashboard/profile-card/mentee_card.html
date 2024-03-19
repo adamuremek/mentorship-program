@@ -14,7 +14,6 @@
 
 
 <div class="card">
-	<!-- <form action="{% if user.is_mentee %}/mentee_profile{% else %}/group_view{% endif %}" method="POST"> -->
 	<form action="/universal_profile/{{user.id}}" method="POST">
     	{% csrf_token %}
     	<input type="hidden" name="id" value="{{ user.id }}" />
@@ -36,7 +35,7 @@
 		  </div>
 
 		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
-		  {% if user.is_requested_by_session or session_user.mentee.has_maxed_request_count %}
+		  {% if user.is_requested_by_session or session_user.has_maxed_requests_as_mentee %}
 		  card-button-disabled
 		  {% endif %}
 		  ">
