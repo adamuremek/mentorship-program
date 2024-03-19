@@ -69,8 +69,8 @@ Dashboard
 
                                     {% for interest in interests %}
                                         <div class="popup-checkbox-item {{ interest.strInterest }}">
-                                            <input type="checkbox" id="cb1" name="{{ interest.strInterest }}" onchange="filterInterests()">
-                                            <label for="cb1">{{interest.strInterest}} ({{interest.mentor_count}})</label>
+                                            <input type="checkbox" id="cb{{forloop.counter}}" name="{{ interest.strInterest }}" onchange="filterInterests()">
+                                            <label for="cb{{forloop.counter}}">{{interest.strInterest}} ({{interest.mentor_count}})</label>
                                         </div>
                                     {% endfor %}
 

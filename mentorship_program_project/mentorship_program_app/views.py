@@ -498,6 +498,7 @@ def login_uname_text(request):
     
 
 # view goes to currently static approve/delete mentors page
+@security.Decorators.require_login(invalid_request_401)
 def change_settings(request):
     context = {}
     template = loader.get_template('settings.html')

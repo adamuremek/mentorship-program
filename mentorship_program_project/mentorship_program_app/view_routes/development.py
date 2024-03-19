@@ -13,6 +13,16 @@ from .status_codes import bad_request_400 as invalid_request_401
 from mentorship_program_app.models import User
 
 @security.Decorators.require_debug(invalid_request_401)
+def test_database_speed(req : HttpRequest):
+    #try uncommenting the select_related for a demonstration of speed up
+    users = User.objects.all().prefetch_related("interests").select_related("mentee").select_related("mentor")
+    for u in users:
+        print(u.str_full_name + " : " + str([i.strInterest for i in u.interests.all()]))
+        print(u.is_mentee())
+        print(u.is_mentor())
+    #return HttpResponse("test concluded")
+
+@security.Decorators.require_debug(invalid_request_401)
 def show_all_relationships(req : HttpRequest)->HttpResponse:
     development.show_database_mentorships()
     return HttpResponse("look at the terminal ya goober >:p")
