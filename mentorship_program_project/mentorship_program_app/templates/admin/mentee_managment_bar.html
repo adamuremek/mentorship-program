@@ -2,7 +2,7 @@
 
 <div class="mentee_management_bar" >
     <div id="user_account">
-        {{ mentee.account }}
+        {{ mentee.id }}
     </div>
 
     <div id="user_mentor">
@@ -15,42 +15,39 @@
                 {{ mentee.account.str_first_name }} {{ mentee.account.str_last_name }}
         </p>
 
-    {% if mentee.has_mentor %}
-
+    {% if not mentee.mentor %}
         <button class="admin_user_management_button_clear_active" id="plus_button">
             <img class="user_management_icon" src="{% static 'images/icons/add-icon.png' %}">
         </button>
+        
         <button class="admin_user_management_button_clear_inactive" id="remove_button">
             <img class="user_management_icon" src="{% static 'images/icons/remove-icon.png' %}">
         </button>
-
     {% else %}
-
         <button class="admin_user_management_button_clear_inactive" id="plus_button">
             <img class="user_management_icon" src="{% static 'images/icons/add-icon.png' %}">
         </button>
+
         <button class="admin_user_management_button_clear_active" id="remove_button">
             <img class="user_management_icon" src="{% static 'images/icons/remove-icon.png' %}">
         </button>
-
     {% endif %}
     
     <button class="admin_user_management_button_clear_active" id="{{mentee.account.id}}">
         <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
     </button>
 
+    {% if mentee.account.bln_account_disabled %}
+        <div id="user_account_disabled">
+            1
+        </div>
+    {% else %}
+        <div id="user_account_disabled">
+            0
+        </div>
+    {% endif %}
+
     {% if user_admin_flag %}
-
-        {% if mentee.account.bln_account_disabled %}
-            <div id="user_account_disabled">
-                1
-            </div>
-        {% else %}
-            <div id="user_account_disabled">
-                0
-            </div>
-        {% endif %}
-
         {% if not mentee.deactivated %}
             <button class="admin_user_management_button_clear_active" id="trashcan_button">
                 <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">

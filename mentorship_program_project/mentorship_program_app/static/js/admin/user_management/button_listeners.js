@@ -1,6 +1,6 @@
 // Import classes from event_queue file 
 import { save_event, cancel_event, 
-    mentee_clicked_event, view_event, add_mentor_mentee_event, remove_mentor_mentee_event, deactivate_event, reactivate_event,
+    mentee_clicked_event, view_event, add_mentor_mentee_event, remove_mentor_mentee_event, disable_event, reable_event,
     mentor_clicked_event, select_mentee_mentor_event, promote_organization_mentor_event, transfer_role_mentor_event, edit_organization_mentor_event, decouple_mentor_event,
     organization_clicked_event, remove_organization_event } from './event_queue.js';
 

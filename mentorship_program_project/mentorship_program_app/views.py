@@ -307,199 +307,141 @@ def admin_user_management(request):
     organizations = []
     mentees = []
 
-    ## NEED TO DETETECT AND INCLUDE DEACTIVATED MAYBE STYLING TOO 
-    ## TODO ADD SECURITY SO YOU CANNOT VISIT THIS ROUTE IF NOT LOGGED IN
-
-    role = session_user.str_role
-    # TESTING
-    # role = User.Role.ADMIN
-    
+    # Determine role of session user
+    role = session_user.str_role    
 
     # Preset flags to false
     user_admin_flag = False
     user_organization_admin_flag = False
 
-    # TODO COMMENTED OUT TILL TESTING SIGNED IN
-    # # Check if user is a suoer admin
-    # if (session_user.is_super_admin()):
-    #     user_super_admin_flag = True
-
-
-
-
     # Load from database based on role
-    # Check if user is an super admin or admin
+    # Check if user is an admin
     if (role == "Admin"):
         # Get all mentee, mentor, and organization data from database
         user_management_mentee_data = Mentee.objects
         user_management_mentor_data = Mentor.objects
         user_management_organizations_data = Organization.objects
-        # Mentee.objects.all().mentor
+        
+        # Set role flag
+        user_admin_flag = True
     
     # Check if user is an organization admin
     elif (session_user.is_mentor() and Organization.objects.filter(admins=session_user.mentor).exists()):
+        # TODO NEED TO SET UP TO GET ONLY DATA THAT IS NEEDED FOR THAT ORG, ONLY MENTORS WITHIN ORG AND METEES REALTED TO THEM
+        # MAYBE FILTER MENTORS BY ORG AND METEES BY MENTORS WITHIN ORG
+
         # Get all mentee data, only the admin's organization, and mentor data from within the organization
         user_management_mentee_data = Mentee.objects
         user_management_mentor_data = Mentor.objects
 
         organization = Organization.objects.get(admins=session_user.mentor)
         mentees_with_mentors_in_organization = Mentee.objects.filter(mentor__organization=organization)
+
+        user_management_organizations_data = organization
+
+        # Set role flag
+        user_organization_admin_flag = True
         
         return HttpResponse(organization, mentees_with_mentors_in_organization)
 
     else:
         return HttpResponse("Access Denied")
-    
 
-    
+    # Cycle through organizations
+    for organization in user_management_organizations_data.all():
+        # Inizilize empty list for mentors and admins
+        admin_list = []
+        mentor_list = []
 
-    # Check if there is organization data to cycle through
-    if not (user_management_organizations_data == []):
-        # Cycle through organizations storing organization data
-        for organization in user_management_organizations_data.all():
-            # Create admin list for organization
-            admin_list = []
+        organizations.append(
+            {
+                'organization': organization,
+                'id': str(organization),
+                'name': organization.str_org_name,
+                'admin_list': admin_list,
+                'mentor_list': mentor_list
+            }
+        )
 
-            # Cycle through admins of organization
-            for organization_admin in organization.admins.all():
-                # Remove mentor from unafiiaited mentor group
-                user_management_mentor_data.remove(organization_admin)
+    # Cycle through mentors
+    for mentor in user_management_mentor_data.all():
+        # Inizlize empty list 
+        mentee_list = ""
 
-                # TODO WILL NEED TO TEST UNSURE IF WORKING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                # Get mentorship objects if possible    
-                mentorships = MentorshipRequest.objects.filter(mentor=mentor.account)
+        # Get mentees set from mentor object
+        mentee_set = mentor.mentee_set.all()
 
-                # TODO NEED TO TEST 
-                # # Determine if organization admin is a super admin and set flag
-                # if (organization_admin.is_super_admin()):
-                #     mentor_super_admin_flag = True
-                # else:
-                #     mentor_super_admin_flag = False
+        # Check if mentee set is not empty then create a string that is comma seperated from queryset
+        if (mentee_set.count() > 0):
+            for mentee in mentee_set:
+                mentee_list = mentee_list + str(mentee.account) + ","
 
-                # Set current mentor amount from mentorship object's count
-                current_mentees = mentorships.count()
-                
-                # Check if mentor has at least 1 mentorship
-                if (current_mentees > 0):
-                    # Create an empty list for mentees
-                    mentee_list = []
+        # Determine if mentor is a admin and set flag
+        if (role == User.Role.ADMIN):
+            mentor_admin_flag = True
+        else:
+            mentor_admin_flag = False
 
-                    # Loop through mentorship list, adding mentees to mentee list
-                    for current_mentorship in mentorships:
-                        mentee_list.append(current_mentorship.mentee)
-                else:
-                    # Set mentee list to none
-                    mentee_list = None
+        # Create mentor data
+        mentor_data = {
+            'account': mentor.account,
+            'id': str(mentor.account),
+            'mentees': mentee_list,
+            'current_mentees': mentee_set.count(),
+            'max_mentees': mentor.int_max_mentees,
+            'mentor_admin_flag': mentor_admin_flag
+        }
 
-                # Add needed mentee info to organization list
-                admin_list.append(
-                    {
-                        'account': mentor.account,
-                        'mentees': mentee_list,
-                        'current_mentees': current_mentees,
-                        'max_mentees': mentor.int_max_mentees
-                        # 'mentor_super_admin_flag': mentor_super_admin_flag
-                    }
-                )
+        # Check if mentor is a part of any organizations
+        if (mentor.organization.count() > 0):
+            # Cycle and attach mentor to organizations they are part of
+            for mentor_organization in mentor.organization.all():
+                # Cycle thorugh organization list searching for organization that matches mentor's
+                for organization in organizations:
+                    # Check if mentor organization matches organization
+                    if (mentor_organization == organization["organization"]):
+                        # Check if organization admin
+                        if (mentor.is_admin_of_organization(mentor_organization)):
+                            # Attach mentor to admin list
+                            organization["admin_list"].append(mentor_data)
 
-                # FOR TESTING
-                # print()
-                # print(mentor.account)
+                        else: 
+                            # Attach mentor to mentor list
+                            organization["mentor_list"].append(mentor_data)
 
-            # FOR TESTING
-            # print(organization.str_org_name)
+                        break
+        else:
+            # Attach mentor to unaffiliated list
+            unaffiliated_mentors.append(mentor_data)
 
-            organizations.append(
-                {
-                    'organizations': organizations,
-                    'name': organization.str_org_name,
-                    'admin_list': admin_list
-                }
-            )
+    # Cycle through mentees
+    for mentee in user_management_mentee_data.all():
+        # Add needed mentee info to mentees list
+        mentees.append({
+            'account': mentee.account,
+            'id': str(mentee.account),
+            'mentor': mentee.mentor
+        })
 
-    # Check if there is mentor data to cycle through
-    if not (user_management_mentor_data == []):
-        # Cycle through unaffiliated mentors storing mentor data
-        for mentor in user_management_mentor_data.all():
-            # Get mentorship objects if possible    
-            mentorships = MentorshipRequest.objects.filter(mentor=mentor.account)
 
-            # TODO NEED TO TEST 
-            # # Determine if mentor is a super admin and set flag
-            # if (mentor.account.is_super_admin()):
-            #     mentor_super_admin_flag = True
-            # else:
-            #     mentor_super_admin_flag = False
 
-            # Determine if mentor is a admin and set flag
-            if (mentor.account.str_role == User.Role.ADMIN):
-                mentor_admin_flag = True
-            else:
-                mentor_admin_flag = False            
 
-            # Set current mentor amount from mentorship object's count
-            current_mentees = mentorships.count()
-            
-            # Check if mentor has at least 1 mentorship
-            if (current_mentees > 0):
-                # Create an empty list for mentees
-                mentee_list = []
+    # for org in organizations:
+    #     print(org)
 
-                # Loop through mentorship list, adding mentees to mentee list
-                for current_mentorship in mentorships:
-                    mentee_list.append(current_mentorship.mentee)
-            else:
-                # Set mentee list to none
-                mentee_list = None
+    # for mentor in unaffiliated_mentors:
+    #     print(mentor)
 
-            # TODO WILL NEED TO SET UP FOR NOW ASSUMING ALL ARE ACTIVE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            # Check if mentee is deactivated
-            deactivated = False
+    # for mentee in mentees:
+    #     print(mentee)
 
-            # Add needed mentee info to mentees list
-            unaffiliated_mentors.append(
-                {
-                    'account': mentor.account,
-                    'mentees': mentee_list,
-                    'current_mentees': current_mentees,
-                    'max_mentees': mentor.int_max_mentees,
-                    # 'mentor_super_admin_flag': mentor_super_admin_flag,
-                    'mentor_admin_flag': mentor_admin_flag,
-                    'deactivated': deactivated
-                }
-            )
 
-    # Check if there is mentee data to cycle through
-    if not (user_management_mentee_data == []):
-        # Cycle through mentee storing mentee data
-        for mentee in user_management_mentee_data.all():
-            # Get mentorship object if possible    
-            mentorship = MentorshipRequest.objects.filter(mentee=mentee.account)
-            
-            # Check if mentee is include in any MentorshipReqiest objects and set has_mentor and mentor accordingly
-            if (mentorship):
-                has_mentor = True
-                mentor = mentorship[0].mentor
-            else:
-                has_mentor = False
-                mentor = None
-
-            # Add needed mentee info to mentees list
-            mentees.append(
-                {
-                    'account': mentee.account,
-                    'mentor': mentor,
-                    'has_mentor': has_mentor,
-
-                }
-            )
 
     context = {
         'mentees': mentees,
         'unaffiliated_mentors': unaffiliated_mentors,
         'organizations': organizations,
         'role': role,
-        # 'user_super_admin_flag': user_super_admin_flag,
         'user_admin_flag': user_admin_flag,
         'user_organization_admin_flag': user_organization_admin_flag
     }

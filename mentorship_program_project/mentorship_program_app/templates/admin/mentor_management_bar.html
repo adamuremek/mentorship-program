@@ -3,7 +3,7 @@
 <div class="mentor_management_bar_container">
     <div class="mentor_management_bar">
         <div id="user_account">
-            {{ mentor.account }}
+            {{ mentor.id }}
         </div>
 
         <div id="user_mentees">
@@ -23,18 +23,17 @@
             <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
         </button>
 
+        {% if mentor.account.bln_account_disabled %}
+            <div id="user_account_disabled">
+                1
+            </div>
+        {% else %}
+            <div id="user_account_disabled">
+                0
+            </div>
+        {% endif %}
+
         {% if user_admin_flag %}
-
-            {% if mentor.account.bln_account_disabled %}
-                <div id="user_account_disabled">
-                    1
-                </div>
-            {% else %}
-                <div id="user_account_disabled">
-                    0
-                </div>
-            {% endif %}
-
             {% if not mentor.deactivated %}
                 <button class="admin_user_management_button_clear_active" id="trashcan_button">
                     <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">

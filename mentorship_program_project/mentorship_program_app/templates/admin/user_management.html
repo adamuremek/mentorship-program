@@ -33,7 +33,7 @@
                     </div>
                 </div>
                 <div class="user_board">
-                    <div class="user_management_bar_container">
+                    <div class="user_management_bar_container" id="mentor_bar_container">
                         {% for mentor in unaffiliated_mentors %}
                             {% include 'admin/mentor_management_bar.html' %}
                             <hr>
@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 <div class="user_board">
-                    <div class="user_management_bar_container">
+                    <div class="user_management_bar_container" id="mentee_bar_container">
                         {% for mentee in mentees %}
                             {% include 'admin/mentee_managment_bar.html' %}
                             <hr>
@@ -80,8 +80,8 @@
 </dialog> -->
 
 <script src = "{% static 'js/backend_requests.js' %}"></script>
-<!-- <script type="module" src="{% static 'js/admin/user_management/event_queue.js' %}"></script>
-<script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script> -->
+<script type="module" src="{% static 'js/admin/user_management/event_queue.js' %}"></script>
+<script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script>
 
 <!-- Move to separate file later?? -->
 <!-- Loads profile inside of modal -->
