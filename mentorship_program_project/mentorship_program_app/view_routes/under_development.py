@@ -15,7 +15,7 @@ from utils import security
 from utils.development import print_debug
 from .emails import *
 from ..views import login_uname_text
-
+from django.views.decorators.csrf import csrf_exempt
 
 
 """
@@ -1121,7 +1121,7 @@ def reset_request(req: HttpRequest):
 
 
 
-
+@csrf_exempt
 def reset_password(req : HttpRequest):
     '''
      Description
@@ -1166,13 +1166,7 @@ def reset_password(req : HttpRequest):
 
 
     
-def request_reset_page(req):
-    template = loader.get_template('reset_page.html')
-    return HttpResponse(template.render())
-    context = {"organization" : Organization.objects.all()}
-    print(context)
 
-    return HttpResponse(template.render(context, req))
     
 def request_reset_page(req):
     template = loader.get_template('reset_page.html')

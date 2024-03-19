@@ -23,12 +23,11 @@ Reset Password
             Request Password Reset
         </div>
         <div class="input-email-container">
-            <form action="/reset_password/" method="post">
+            <form action="/reset_password" method="post">
                 {% csrf_token %}
-                <input type="email" class="email-field" placeholder="Enter your email" id="email" name="email" required>
+                <input type="text" class="email-field" placeholder="Enter New Password" id="new-password" name="new-password" required>
                 <input type="text" class="token-field" placeholder="Enter token" id="token" name="token" required>
                 <input type="submit" value="Submit" class="submit-button">
-
             </form>
         </div>
     </div>
