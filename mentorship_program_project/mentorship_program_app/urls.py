@@ -120,6 +120,7 @@ urlpatterns = [
     # CURRENTLY STATIC ROUTE -JASON
     path('admin_reported_users/', views.admin_reported_users, name='admin_reported_users'),
     path('admin_reported_users/resolve_report/', backend_requests.resolve_report, name='admin_resolve_report'),
+    path('report_user/', backend_requests.report_user, name='report_user'),
 
     path('dashboard/', navigation.dashboard, name='dashboard'),
     path('faq/', views.faq, name='faq'),

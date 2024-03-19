@@ -283,4 +283,59 @@ def resolve_report(req: HttpRequest) -> HttpResponse:
         MentorReports.resolve_report(report_id)
         return redirect('/admin_reported_users')
 
+@security.Decorators.require_login(bad_request_400)
+def report_user(req: HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Creates a new user report
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request object
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The http response for the redirect
+
+    Example Usage
+    -------------
+    >>> path('report_user/', backend_requests.report_user, name='report user')
+
+    Authors
+    -------
+    Quinn F. 
+    """
+
+    user = User.from_session(req.session)
+    str_error_message = "The following error(s) occured:"
+    errors =  []
+    errors.append(str_error_message)
+    bool_error = False
+
+    try:
+        User.objects.get(id=req.POST.get("reported_user_id", None))
+    except ObjectDoesNotExist:
+        errors.append("Invalid reported user ID.")
+        bool_error = True
+
+    if not req.POST.get("report_type", None):
+        errors.append("Report type is required.")
+        bool_error = True
     
+    if not req.POST.get("report_reason", None):
+        errors.append("Report reason is required.")
+        bool_error = True    
+    
+    if bool_error:
+        return bad_request_400("\n".join(errors))
+    else:
+        reported_user_id = req.POST['reported_user_id']
+        report_type = req.POST['report_type']
+        report_reason = req.POST['report_reason']
+        MentorReports.create_mentor_report(report_type, report_reason, reported_user_id)
+        return redirect('/universal_profile/' + reported_user_id)

@@ -2064,10 +2064,11 @@ class MentorReports(SVSUModelData,Model):
         Adam C.
         """
         try:
+            mentor = User.objects.get(id=int_mentor_id).mentor
             MentorReports.objects.create(
                 str_report_type = str_provided_report_type,
                 str_report_body = str_provided_report_body,
-                mentor = int_mentor_id,
+                mentor = mentor,
                 bln_resolved = False
             ).save()
             return True
