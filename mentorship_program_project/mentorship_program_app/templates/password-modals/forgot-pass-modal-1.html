@@ -74,7 +74,9 @@
 
     const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+
     input_email.addEventListener("input", e => {
+
         if (e.target.value === "") {
             input_email.style.backgroundColor = 'rgba(255, 255, 255, 0.07)';
             return;

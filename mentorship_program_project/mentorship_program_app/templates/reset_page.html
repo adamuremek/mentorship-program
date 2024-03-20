@@ -132,6 +132,11 @@ Reset Password
                 // Resize the reset card to fit just the title
                 var resetCardElement = document.querySelector('.reset-card');
                 resetCardElement.style.height = document.querySelector('.title').offsetHeight + 'px';
+
+                setTimeout(function() {
+                    window.location.href = '/'; // Replace '/' with the URL of your home page
+                }, 3000);
+
                 } else {
                     // Token is invalid
                     document.getElementById('status').innerText = response.message;
