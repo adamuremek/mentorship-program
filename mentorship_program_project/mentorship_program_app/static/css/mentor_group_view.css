@@ -620,7 +620,7 @@ button:hover {
     }
 
     #bio {
-        scrollbar-width: none;
+        scrollbar-width: thin;
     }
 
 }
