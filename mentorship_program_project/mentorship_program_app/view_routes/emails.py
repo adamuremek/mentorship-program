@@ -69,8 +69,8 @@ def mentor_accepted_email(recipient : str):
 def reset_token_email(recipient : str, token : str):
 	subject = "WINGS Password Reset Token"
 	message = f"""
-	Heres your token bitch {token}
-	Please go to http://localhost:8000/request_reset_page and enter your token to reset your password
+	Heres your token biaaaatch {token}
+	Please go to http://localhost:8000/request_reset_page/{token} and enter your token to reset your password
 	"""
 	send_mail(subject, message, from_email, [recipient])
 
