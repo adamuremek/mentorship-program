@@ -179,6 +179,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
     // Display first snippet
     snippets[0].style = 'display: flex'
+    snippets[cur_id].getElementsByTagName('input')[0].focus()
 
     // Get progression buttons
     const buttons = document.getElementsByClassName('sign-in-card-option-button')
@@ -188,9 +189,6 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     // Get Header Corner Element list
     const corner_guy = document.getElementsByClassName('sign_in_top_left_element')[0]
     corner_guy.onclick = null
-
-    console.log('corner guy')
-    console.log(cur_id)
 
     corner_guy.innerText = `<- Step ${(cur_id + 1)} of ${page_count}`
 
@@ -202,9 +200,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         console.log(cur_id)
 
         if (cur_id === -1)
-            window.location.href = is_student ? "/role_selection" : "/register/mentor";
+            window.location.href = "/role_selection";
         else {
             snippets[cur_id].style = 'display: flex;'
+            snippets[cur_id].getElementsByTagName('input')[0].focus()
 
             corner_guy.innerText = `<- Step ${(cur_id + 1)} of ${page_count}`
         }
@@ -230,6 +229,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             }
             else {
                 snippets[cur_id].style = 'display: flex;'
+                snippets[cur_id].getElementsByTagName('input')[0].focus()
+                console.log(snippets[cur_id].getElementsByTagName('input'))
 
                 corner_guy.innerText = `<- Step ${(cur_id + 1)} of ${page_count}`
 

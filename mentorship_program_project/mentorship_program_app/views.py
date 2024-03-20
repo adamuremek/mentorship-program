@@ -183,31 +183,8 @@ def BIGMOVE(req):
     return HttpResponse(template.render(context, req))
 
 def THEBIGMOVE(req):
-    template = loader.get_template('sign-in card/single_page_mentor.html')
-    
-    context = {
-        'interestlist': Interest.objects.all(),
-
-        'pronounlist1': ['he', 'she', 'they'],
-        'pronounlist2': ['him', 'her', 'them'],
-
-        'companytypelist': [
-            'Manufacturing',
-            'Computer Science', 
-            'Math?'],
-            
-        'experiencelist': [
-            '0 years',
-            '0-2 years', 
-            '2-5 years',
-            '+5 years'],
-
-        'useragreement': 
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-
-    }
+    template = loader.get_template('sign-in card/mentor/account_creation_sign_up_choices_mentor.html')
+    context = {}
     return HttpResponse(template.render(context, req))
 
 def THESECONDMOVE(req):
@@ -233,9 +210,37 @@ def register_mentee(req):
     }
     return HttpResponse(template.render(context, req))
 
+# def register_mentor(req):
+#     template = loader.get_template('sign-in card/mentor/account_creation_sign_up_choices_mentor.html')
+#     context = {}
+#     return HttpResponse(template.render(context, req))
+
 def register_mentor(req):
-    template = loader.get_template('sign-in card/mentor/account_creation_sign_up_choices_mentor.html')
-    context = {}
+    template = loader.get_template('sign-in card/single_page_mentor.html')
+    
+    context = {
+        'interestlist': Interest.objects.all(),
+
+        'pronounlist1': ['he', 'she', 'they'],
+        'pronounlist2': ['him', 'her', 'them'],
+
+        'companytypelist': [
+            'Manufacturing',
+            'Computer Science', 
+            'Math?'],
+            
+        'experiencelist': [
+            '0 years',
+            '0-2 years', 
+            '2-5 years',
+            '+5 years'],
+
+        'useragreement': 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+
+    }
     return HttpResponse(template.render(context, req))
 
 # --- #
