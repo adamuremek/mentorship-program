@@ -2016,6 +2016,7 @@ class MentorReports(SVSUModelData,Model):
     Authors
     -------
     Adam C.
+    Jordan A.
     """
     class ReportType(TextChoices):
         """
@@ -2043,16 +2044,27 @@ class MentorReports(SVSUModelData,Model):
         -------
         Adam C.
         """
-        BEHAVIOR : 'Behavior'
+        CONDUCT: 'Conduct'
+        PROFILE: 'Profile'
+        RESPONSIVENESS: 'Responsiveness'
+        OTHER: 'Other'
+
+
+        # TODO: Add different issue
 
     mentor = ForeignKey(
         Mentor,
         on_delete = models.CASCADE
     )
+
+    mentee = ForeignKey(
+        Mentee,
+        on_delete = models.CASCADE
+    )
     str_report_type = CharField(max_length=10, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
 
-    def create_mentor_report(str_provided_report_type: str, str_provided_report_body: str, int_mentor_id: int) -> bool:
+    def create_mentor_report(str_provided_report_type: str, str_provided_report_body: str, int_mentor_id: int, int_mentee_id: int) -> bool:
         """
         Description
         -----------
@@ -2088,7 +2100,8 @@ class MentorReports(SVSUModelData,Model):
             MentorReports.objects.create(
                 str_report_type = str_provided_report_type,
                 str_report_body = str_provided_report_body,
-                mentor = int_mentor_id
+                mentor = int_mentor_id,
+                mentee = int_mentee_id
             )
             return True
         except Exception as e:

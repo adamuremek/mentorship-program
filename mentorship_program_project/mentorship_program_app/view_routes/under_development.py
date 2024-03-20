@@ -235,7 +235,7 @@ def register_mentor(req: HttpRequest):
 
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentor.id))
         mentor_signup_email(pending_mentor_object.account.cls_email_address)
-        template: Template = loader.get_template('successful_registration.html')
+        template: Template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
         ctx = {}
         
         return HttpResponse(template.render(ctx, req))
@@ -771,6 +771,9 @@ def universalProfile(req : HttpRequest, user_id : int):
     all_interests = Interest.objects.all()
     pendingList = []
     notes = None
+    max_mentees = None
+    num_mentees = None
+    
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
         pendingRequests = MentorshipRequest.objects.filter(mentee_id=page_owner_user.id)
@@ -792,9 +795,13 @@ def universalProfile(req : HttpRequest, user_id : int):
         notes = Notes.get_all_mentor_notes(page_owner_user)
         pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)
         
+        max_mentees = page_owner_user.mentor.int_max_mentees
+        num_mentees = range(9, len(mentees_for_mentor), -1)
+        
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentee_id))
+             
             
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
@@ -806,6 +813,8 @@ def universalProfile(req : HttpRequest, user_id : int):
                 "user_id" : user_id,
                 "pending" : pendingList,
                 "notes" : notes,
+                "max_mentees" : max_mentees,
+                "num_mentees" : num_mentees,
                 "mentees_or_mentor" : mentees_or_mentor
                }
     return HttpResponse(template.render(context,req))
@@ -905,9 +914,14 @@ def save_profile_info(req : HttpRequest, user_id : int):
         page_owner_user.interests.clear()
         page_owner_user.interests.add(*interest_data)
 
+        # Set Max Mentees
+        page_owner_user.mentor.int_max_mentees = req.POST["max_mentees"]
+        page_owner_user.mentor.save()
+
         #Set the new bio
         page_owner_user.str_bio = req.POST["bio"]
         page_owner_user.save()
+        
 
     return redirect(f"/universal_profile/{user_id}")
 

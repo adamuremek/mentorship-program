@@ -308,7 +308,7 @@ nav li:first-child {
 }
 
 /* Make navigation responsive for mobile/tablet */
-@media(max-width:800px) {
+@media(max-width:1000px) {
     .primary-navbar {
         display: none;
     }
@@ -319,13 +319,17 @@ nav li:first-child {
 }
 
 /* Make side-bar responsive for mobile/tablet */
-@media(max-width:400px) {
+@media(max-width:500px) {
     .primary-navigation {
         display: none;
     }
 
     nav .mobile-sidebar {
         width: 100%;
+    }
+
+    .sidebar {
+        background-color: rgba(5, 5, 5, 0.53);
     }
 }
 
@@ -499,7 +503,7 @@ footer {
     background-color: dimgrey;
 }
 
-.sign-in-card select {
+select {
     font-weight: 400;
     font-size: 1.5em;
 

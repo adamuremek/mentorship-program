@@ -169,7 +169,7 @@ h1 {
     margin-bottom: 12px;
 }
 
-@media screen and (max-width: 1150px) {
+@media screen and (max-width: 1000px) {
 
     .recommended-cards,
     .available-cards {

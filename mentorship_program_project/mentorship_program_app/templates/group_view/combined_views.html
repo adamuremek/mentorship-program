@@ -13,6 +13,7 @@
 
 {% block main_content %}
 
+<form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data">
 <section class="hero">
     <div class="hero-container">
 
@@ -38,12 +39,19 @@
                 <h3>Mentor: </h3>
             {% elif page_owner_user.is_mentor and mentees_or_mentor %}
                 <h3>Mentees: </h3>
+                <select disabled name="max_mentees" id="select-max-mentees">
+                    {% for i in num_mentees %}
+                        <option {%if i == max_mentees%}selected{%endif%} value="{{i}}">{{i}}</option>
+                    {% endfor %}
+                </select>
             {% endif %}
+            
             <ul>
                     {% for mentee in mentees_or_mentor %}
                     <li class="mentee-manager">
                         <a href="{% url 'universal_profile' mentee.id %}">
-                            <h4>{{mentee.str_first_name}} {{mentee.str_last_name}}</h4>
+                            <h4>{{mentee.str_first_name}}</h4>
+                            <h4>{{mentee.str_last_name}}</h4>
                          </a>
                         {% if is_page_owner and signed_in_user.is_mentee %}
                     <a class="a-user-remove" href="{% url 'delete_mentorship' page_owner_user.id %}">
@@ -91,7 +99,8 @@
             </ul>
         </div>
         <div class="column-right">
-            <form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data">
+            
+            <!-- <form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data"> -->
                 {% csrf_token %}
                 <input type="file" id="profile_image" name="profile_image" style="display: none;">
                 <div class="row-titles">
@@ -155,7 +164,7 @@
                 <textarea class="note" id="bio" name="bio" rows="20" cols="200"
                     readonly>{{page_owner_user.cleaned_bio}}</textarea>
             </div>
-            </form>
+            <!-- </form> -->
             
             {% if page_owner_user.is_mentor %}
                 <hr>
@@ -200,9 +209,10 @@
             {% endif %}
             {% endif %}
         </div>
-
+        
     </div>
 </section>
+</form>
 
 {% include 'group_view/note_modal.html' %}
 
@@ -222,10 +232,12 @@
         let bioTextArea = document.getElementById("bio")
         let allInterestsButtons = document.querySelectorAll(".hidden_interests")
         let user_interests = document.querySelectorAll(".user_interests")
+        let max_mentees = document.getElementById('select-max-mentees')
 
         //Make editable elements visible and selectable
         bioTextArea.readOnly = false
         editPfpOverlay.style.display = "flex"
+        max_mentees.disabled = false
 
         user_interests.forEach(button => {
             button.classList.add('hover_interest')

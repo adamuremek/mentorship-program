@@ -168,46 +168,37 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         }
     });
 
+    // -------------------- --------------------------------------- -------------------- \\
+    // -------------------- <<< VISUAL CARD PROGRESSION SECTION >>> -------------------- \\
+    // -------------------- --------------------------------------- -------------------- \\
     
-
     // Get all snippets being rendered
     const snippets = document.getElementsByClassName('sign-in-card-content')
 
-    // Hide all code snippets by default
-    for (i of snippets)
-        i.style = 'display: none;'
-
-    // Display first snippet
-    snippets[0].style = 'display: flex'
-
     // Get progression buttons
     const buttons = document.getElementsByClassName('sign-in-card-option-button')
-
     const page_count = buttons.length
 
     // Get Header Corner Element list
     const corner_guy = document.getElementsByClassName('sign_in_top_left_element')[0]
     corner_guy.onclick = null
 
-    console.log('corner guy')
-    console.log(cur_id)
+    // Hide all code snippets by default
+    for (i of snippets)
+        i.style = 'display: none;'
 
-    corner_guy.innerText = `<- Step ${(cur_id + 1)} of ${page_count}`
+    // Display first snippet
+    display_snippets_at_idx(cur_id)
 
     corner_guy.addEventListener('click', e => {
         snippets[cur_id].style = 'display: none;'
 
         cur_id -= 1
-        console.log('corner guy')
-        console.log(cur_id)
 
         if (cur_id === -1)
-            window.location.href = is_student ? "/role_selection" : "/register/mentor";
-        else {
-            snippets[cur_id].style = 'display: flex;'
-
-            corner_guy.innerText = `<- Step ${(cur_id + 1)} of ${page_count}`
-        }
+            window.location.href = "/role_selection";
+        else 
+            display_snippets_at_idx(cur_id)
 
     })
 
@@ -220,21 +211,14 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
             // When button is clicked, progress displayed card
             cur_id += 1
-            console.log('corner guy')
-            console.log(cur_id)
 
             // Submit at the end
             if (cur_id >= snippets.length) {
                 // Do nothing?
                 // form_submit()
             }
-            else {
-                snippets[cur_id].style = 'display: flex;'
-
-                corner_guy.innerText = `<- Step ${(cur_id + 1)} of ${page_count}`
-
-                console.log(`Current ID: ${cur_id}`)
-            }
+            else 
+                display_snippets_at_idx(cur_id)
         })
     }
 
@@ -246,7 +230,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             btn_user_agree.style.visibility = 'Hidden'
     })
 
+    // -------------------- ------------------- -------------------- \\
     // -------------------- <<< FORM SUBMIT >>> -------------------- \\
+    // -------------------- ------------------- -------------------- \\
+
 
     /**
      * @param {int} form_idx Index of current page of registration form
@@ -255,7 +242,6 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     function is_page_valid(form_idx) {
         // Use form validation for ? mentee | mentor
         const form_function = is_student ? is_mentee_page_valid : is_mentor_page_valid
-        console.log(`Form_Index: ${form_idx}`)
         let is_valid = true
 
         switch (form_idx) {
@@ -263,8 +249,6 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                 is_valid = input_first_name.value.length > 0 &&
                     input_last_name.value.length > 0
                                 
-                is_valid = input_first_name.value.length > 1 &&
-                    input_last_name.value.length > 1
                 if(!is_valid)
                     display_error_message_for_name()
                 break
@@ -342,6 +326,14 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         }
 
         return is_valid
+    }
+
+    // This is not good but at least removes some redundancy :)
+    function display_snippets_at_idx(id) {
+        snippets[id].style = 'display: flex;'
+        snippets[id].getElementsByTagName('input')[0].focus()
+
+        corner_guy.innerText = `<- Step ${(id + 1)} of ${page_count}`
     }
 
     function display_error_message_for_name(){
