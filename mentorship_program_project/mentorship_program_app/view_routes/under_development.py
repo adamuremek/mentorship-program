@@ -93,7 +93,7 @@ def contains_sql_injection_risk(input_string: str) -> str:
     
     # List of patterns to check for
     patterns = [
-        r"(--|\#|\\*|;|=)",
+        r"(--|\#|\*|;|=)",
         r"(SELECT\s|INSERT\s|DELETE\s|UPDATE\s|DROP\s|EXEC\s|UNION\s|ALTER\s|CREATE\s|INDEX\s|REPLACE\s)",
         r"('|\")"
     ]
@@ -235,7 +235,7 @@ def register_mentor(req: HttpRequest):
 
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentor.id))
         mentor_signup_email(pending_mentor_object.account.cls_email_address)
-        template: Template = loader.get_template('successful_registration.html')
+        template: Template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
         ctx = {}
         
         return HttpResponse(template.render(ctx, req))
