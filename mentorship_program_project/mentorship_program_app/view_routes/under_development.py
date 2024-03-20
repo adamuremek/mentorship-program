@@ -1115,7 +1115,7 @@ def reset_request(req: HttpRequest):
         return HttpResponse(False)
     
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
-    message = PasswordResetToken.see_token(user_id=user.id)
+    
     reset_token_email(recipient=user.cls_email_address, token=token)
     print("email sent to: "+email)
     return HttpResponse(True)

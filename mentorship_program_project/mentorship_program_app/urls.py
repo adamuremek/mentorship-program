@@ -91,7 +91,7 @@ urlpatterns = [
     ##RESETTING PASSWORD ROUTE feel free to move to better spot in file - Tanner 🦞
     path("reset_request", under_development.reset_request, name="reset_request"),
     path("reset_password", under_development.reset_password, name="reset_password"),
-    re_path(r'^request_reset_page(?:/(?P<token>\w{6}))?/$', under_development.request_reset_page, name="request_reset_page"),
+    re_path(r'^request_reset_page(?:/(?P<token>\w{30}))?/$', under_development.request_reset_page, name="request_reset_page"),
     path('check_email_for_password_reset', under_development.check_email_for_password_reset, name='check_email_for_password_reset'),
 
 

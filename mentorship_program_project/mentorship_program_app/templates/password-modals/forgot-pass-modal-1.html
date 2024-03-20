@@ -57,7 +57,7 @@
             <form id="frm-reset-password">
                 {% csrf_token %}
                 <input type="email" id="reset-email" class="user-input" name="email" placeholder="e.g. john.doe@svsu.edu" />
-                <button onclick="checkEmail(event)" class="li-buttons submit-buttons" id="pass-reset" style="font-size: 16px;">Send Password Reset Token</button>
+                <button onclick="checkEmail(event)" class="li-buttons submit-buttons" id="pass-reset" style="font-size: 16px;">Send Password Reset Link</button>
                 <h2 id="email-status-good" class="good_email"></h2>
                 <p id="email-status-bad" class="bad_email" ></p>
 

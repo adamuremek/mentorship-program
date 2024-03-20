@@ -2462,7 +2462,7 @@ class ProfileImg(SVSUModelData,Model):
 
 class PasswordResetToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    token = models.CharField(max_length=6, unique=True)  
+    token = models.CharField(max_length=30, unique=True)  
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
@@ -2477,7 +2477,7 @@ class PasswordResetToken(models.Model):
                 existing_token.delete()
             except ObjectDoesNotExist:
                 # No existing token for the user, proceed with creating a new one
-                print("Existing token deleted")
+                print("Existing link deleted")
                 pass
 
 
@@ -2491,7 +2491,7 @@ class PasswordResetToken(models.Model):
                 characters = string.ascii_uppercase + string.digits
 
                 # Generate a random string of length 6
-                token = ''.join(random.choice(characters) for _ in range(6))
+                token = ''.join(random.choice(characters) for _ in range(30))
 
                 #checks to see if token exist already
                 duplicate = PasswordResetToken.objects.filter(token=token).exists()
@@ -2500,10 +2500,10 @@ class PasswordResetToken(models.Model):
             # Save the new instance of PasswordResetToken model
             reset_token_instance.save()
 
-            return True, "Reset token created successfully", token
+            return True, "Reset link created successfully", token
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-            return False, f"An error occurred creating your token", token
+            return False, f"An error occurred creating your link", token
         
 
     
@@ -2553,9 +2553,9 @@ class PasswordResetToken(models.Model):
             # Check if the token is valid
             if not valid:
                 if message == "expired":
-                    return False,  "Token expired, attempt reset again!"
+                    return False,  "Link expired, attempt reset again!"
                 if message == "ex":
-                    return False, "An error occoured checking your token."
+                    return False, "An error occoured verifying your link."
             # Delete the token since it was correct and is no longer needed
             
 
@@ -2569,12 +2569,8 @@ class PasswordResetToken(models.Model):
             
             return True, "Password successfully reset, Rerouting you to home page."  # Password reset successful
         except PasswordResetToken.DoesNotExist:
-            return False,  "Invalid Token"
+            return False,  "Invalid Link"
 
 
 
-    @staticmethod
-    def see_token(user_id):
-        existing_token = PasswordResetToken.objects.get(user=user_id)
-      
-        return f"Reset token created successfully for user: {existing_token.user}, token: {existing_token.token}, timestamp: {existing_token.timestamp}"
+   

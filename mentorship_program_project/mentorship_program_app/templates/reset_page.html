@@ -78,7 +78,7 @@ Reset Password
             <form>
                 {% csrf_token %}
                 <input type="text" class="email-field" placeholder="Enter New Password" id="new-password" name="new-password" required>
-                <input type="text" class="token-field" placeholder="Enter token" id="token" name="token" required>
+                <input type="text" class="email-field" placeholder="Renter Password" id="re-new-password" name="re-new-password" required>
                 <button onclick="reset_password_attempt(event)"  id="token-button" class="token_button submit-button" style="text-align: center;">Submit New Password</button>
                 
                 <p id="status" class="status"></p>
@@ -87,13 +87,17 @@ Reset Password
     </div>
 </div>
 <script>
+
+
+    var token
+
     window.onload = function() {
         var url = window.location.href;
         var parts = url.split('/');
-        var token = parts[parts.length - 2]; // Get the second-to-last part, which is the token
+        var link = parts[parts.length - 2]; // Get the second-to-last part, which is the token
         // Check if the URL consists of at least four parts and the token is not an empty string
-        if (token !== ''&&token !== 'request_reset_page') {
-            document.getElementById('token').value = token;
+        if (link !== ''&&link !== 'request_reset_page') {
+            token = link;
         }
     };
 
@@ -104,9 +108,24 @@ Reset Password
     function reset_password_attempt(event) {
         event.preventDefault(); // Prevent the default form submission behavior
 
-        // Get the token from the token input field
-        var token = document.getElementById('token').value;
+        // Get the token from when the website loads
         var newpassword = document.getElementById('new-password').value;
+    var renewpassword = document.getElementById('re-new-password').value;
+
+       
+        if(newpassword<2){
+             // Token is invalid
+            document.getElementById('status').innerText = "Password must be atleast two characters";
+            document.getElementById('status').style.color = 'firebrick'
+            return true;
+        }
+
+        if(newpassword !== renewpassword){
+            document.getElementById('status').innerText = "Passwords dont match";
+            document.getElementById('status').style.color = 'firebrick'
+            return true;
+        }
+
         // Create a new XMLHttpRequest object
         var xhttp = new XMLHttpRequest();
 
@@ -124,7 +143,7 @@ Reset Password
 
                 // Remove the elements instead of hiding them
                 document.getElementById("new-password").remove(); // Remove the new password input field
-                document.getElementById("token").remove(); // Remove the token input field
+                document.getElementById("re-new-password").remove(); // Remove the re new password input field
                 document.getElementById("token-button").remove(); // Remove the submit button
                 document.querySelector(".home-link").remove(); // Remove the home link
                 document.getElementById('status').remove(); // Remove the status paragraph
