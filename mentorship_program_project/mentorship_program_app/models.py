@@ -2570,14 +2570,14 @@ class PasswordResetToken(models.Model):
                 if message == "ex":
                     return False, "An error occoured checking your token."
             # Delete the token since it was correct and is no longer needed
-            token_instance.delete()
+            
 
             user = User.objects.get(id=token_instance.user.id)
             generated_user_salt = security.generate_salt()
             user.str_password_hash = security.hash_password(new_password, generated_user_salt)
             user.str_password_salt = generated_user_salt
             user.save()
-
+            token_instance.delete()
 
             
             return True, "Password successfully reset, Rerouting you to home page."  # Password reset successful

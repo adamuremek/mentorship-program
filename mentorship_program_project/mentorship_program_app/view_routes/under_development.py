@@ -402,14 +402,14 @@ def change_mentor_status(req: HttpRequest):
     # Retrieve user object based on ID
     user = User.objects.get(id=mentor_id)
     
-    # Update user role and activation status based on provided status
+    # Update user role and activation status based on provided status                                           
     if status == 'Approved':
         user.bln_active = True
         user.str_role = User.Role.MENTOR
         user.save()
-        mentor_denied_email(user.cls_email_address)
+        mentor_accepted_email(user.cls_email_address)      
     else:
-        mentor_accepted_email(user.cls_email_address)
+        mentor_denied_email(user.cls_email_address)
         user.delete()
         
         
@@ -1092,7 +1092,7 @@ def change_password(req : HttpRequest):
     return render(req, 'settings.html', {'message':"Password Updated"})
 
 
-
+@csrf_exempt
 def reset_request(req: HttpRequest):
     '''
      Description
@@ -1121,17 +1121,18 @@ def reset_request(req: HttpRequest):
     '''
 
 
-    email = req.GET.get('email', None)
+    email = req.POST.get('email', None)
     
     try:
         user = User.objects.get(cls_email_address=email)
     except ObjectDoesNotExist:
-        return HttpResponse("An account is not assoicated with that email")
+        return HttpResponse(False)
     
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
     message = PasswordResetToken.see_token(user_id=user.id)
     reset_token_email(recipient=user.cls_email_address, token=token)
-    return JsonResponse({"message": message, "email": user.cls_email_address})
+    print("email sent to: "+email)
+    return HttpResponse(True)
 
 
 
@@ -1165,34 +1166,59 @@ def reset_password(req : HttpRequest):
      _______
      Tanner Williams 🦞
     '''
-    new_password = req.POST["new-password"]
-    token = req.POST["token"]
+
+    new_password = req.POST.get('new-password', None)
+    token = req.POST.get('token', None)
+   
 
 
     valid, message = PasswordResetToken.validate_and_reset_password(token=token,new_password=new_password)
 
-    if(not valid):
-        return HttpResponse(message)
-
-
-    #if they are logged in for some reason
-    security.logout(req.session)
     # redirect to the page the request came from
-    return redirect("/")
+    return JsonResponse({'valid': valid, 'message': message})
 
 
 
     
 
     
-def request_reset_page(req):
+def request_reset_page(req, token=None):
     template = loader.get_template('reset_page.html')
     return HttpResponse(template.render())
 
+@csrf_exempt
+def check_email_for_password_reset(request):
+    '''
+     Description
+     ___________
+     a route called from the password reset modal
+     that checks to see if an account exist with a certain email 
 
-def check_email(request):
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+
+     Returns
+     _______
+        JsonResponse if account exist
+     
+     Example Usage
+     _____________
+        >>> check_email_for_password_reset(request)
+         
+        JsonResponse({'exists': User.objects.filter(cls_email_address=email).exists()})
+
+        
+
+     >>> 
+     Authors
+     _______
+     Tanner Williams 🦞
+    '''
     email = request.GET.get('email', None)
+
     data = {
-        'exists': User.objects.filter(cls_email_address=email).exists()
+        'exists': User.objects.filter(cls_email_address=email).exists() #                                          🦞
     }
+
     return JsonResponse(data) 
