@@ -5,7 +5,7 @@ from datetime import date, datetime, timedelta
 from ..models import User
 from ..models import Mentor
 from ..models import SystemLogs
-from ..models import MentorReports
+from ..models import UserReport
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
 import os
@@ -99,9 +99,10 @@ def get_project_overall_statistics():
     active_mentors_count = User.objects.filter(str_role='Mentor',str_last_login_date__gte=inactive_date).count()
 
     # count number of reports with unique mentor 
-    mentors_reported = MentorReports.objects.values("mentor").distinct().count()
+    mentors_reported = UserReport.objects.filter(user__str_role=User.Role.MENTOR).values("user").distinct().count()
+    mentees_reported = UserReport.objects.filter(user__str_role=User.Role.MENTEE).values("user").distinct().count()
     # count number of unresolved reports
-    unresolved_reports = MentorReports.objects.filter(bln_resolved = False).count()
+    unresolved_reports = UserReport.objects.filter(bln_resolved = False).count()
 
     return {
         "active_mentees"               : User.objects.filter(str_role='Mentee', bln_active=True).count(),
@@ -120,7 +121,7 @@ def get_project_overall_statistics():
         "successful_match_rate"        : f"{round(total_approved_mentorships/total_requested_mentorships * 100)}%" if total_requested_mentorships != 0 else "N/A",
         "total_terminated_mentorships" : SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT).count(),
         "pending_mentors"              : User.objects.filter(str_role='MentorPending').count(),
-        "mentees_reported"             : 0,
+        "mentees_reported"             : mentees_reported,
         "mentors_reported"             : mentors_reported,
         "unresolved_reports"           : unresolved_reports,
     }

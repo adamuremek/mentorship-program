@@ -59,7 +59,7 @@ from .view_routes.status_codes import bad_request_400
 from .models import User
 from .models import Interest
 from .models import Mentor
-from .models import MentorReports
+from .models import UserReport
 from .models import Mentee
 
 from .models import MentorshipRequest
@@ -566,8 +566,8 @@ def change_settings(request):
 def admin_reported_users(request):
     template = loader.get_template('admin/admin_reported_users.html')
 
-    mentor_reports_dict = MentorReports.get_unresolved_reports_grouped_by_mentor()
-    context = {"mentor_reports_dict": mentor_reports_dict}
+    user_reports_dict = UserReport.get_unresolved_reports_grouped_by_user()
+    context = {"user_reports_dict": user_reports_dict}
     return HttpResponse(template.render(context,request))
 
 # view goes to mentor_group_view
