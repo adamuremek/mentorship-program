@@ -1,7 +1,7 @@
 <dialog class="modal" id="note-modal">
     <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
     <div class="modal-container">
-        <form action="{%if note%}{% url 'update_note' %}{%else%}{% url 'create_note' %}{%endif%}" class="frm-note-creator" method="post">
+        <form id="note-form" action="{% if note %}{% url 'update_note' %}{%else%}{% url 'create_note' %}{%endif%}" class="frm-note-creator" method="post">
             {% csrf_token %}
 
             {% if is_page_owner %}
@@ -32,11 +32,16 @@
             {% if is_page_owner %}
                 {% if note %}
                     <input style="display: none" name="note-id" value="{{note.id}}">
-                    <button type="submit" id="btn-create-note">Apply Changes</button>
+                    <button type="submit" form="note-form" id="btn-create-note">Apply Changes</button>
                 {% else %}
-                    <button type="submit" id="btn-create-note">Create Note</button>
+                    <button type="submit" form="note-form" id="btn-create-note">Create Note</button>
                 {% endif %}
             {% endif %}
         </form>
     </div>
 </dialog>
+
+<script>
+    console.log("HERE IS NOTE: {{note}}")
+    console.log("{% if note %}NOTE EXITST {% else %}DOES NOT EXIST{% endif %}")
+</script>
