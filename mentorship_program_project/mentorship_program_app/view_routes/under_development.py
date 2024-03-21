@@ -771,7 +771,7 @@ def universalProfile(req : HttpRequest, user_id : int):
     all_interests = Interest.objects.all()
     pendingList = []
     notes = None
-    report_types = MentorReports.ReportType.values
+    report_types = UserReport.ReportType.values
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
         pendingRequests = MentorshipRequest.objects.filter(mentee_id=page_owner_user.id)

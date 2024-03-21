@@ -27,11 +27,11 @@ SVSU Mentoring
         </div>
 
         <div class="reported-users-area">
-            <h2 class="no-reports-message" {% if mentor_reports_dict %}style="display: none;"{% endif %}>No reported users</h2>
+            <h2 class="no-reports-message" {% if user_reports_dict %}style="display: none;"{% endif %}>No reported users</h2>
 
-            {% for mentor, reports in mentor_reports_dict.items %}
+            {% for user, reports in user_reports_dict.items %}
             <div class="reported-user card">
-                <h2 class="reported-user-name">{{mentor.account.str_first_name}} {{mentor.account.str_last_name}}</h2>
+                <h2 class="reported-user-name">{{user.str_first_name}} {{user.str_last_name}}</h2>
                 <h3>Reports:</h3>
                 <div class="report-subcard">
                     <ul>

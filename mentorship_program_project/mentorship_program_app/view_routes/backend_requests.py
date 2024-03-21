@@ -271,7 +271,7 @@ def resolve_report(req: HttpRequest) -> HttpResponse:
         bool_error = True
     
     try:
-        MentorReports.get_report_id(report_id)
+        UserReport.get_report_id(report_id)
     except ObjectDoesNotExist:
         errors.append("Invalid report ID.")
         bool_error = True
@@ -280,7 +280,7 @@ def resolve_report(req: HttpRequest) -> HttpResponse:
         return bad_request_400("\n".join(errors))
     else:
         report_id = req.POST['report_id']
-        MentorReports.resolve_report(report_id)
+        UserReport.resolve_report(report_id)
         return redirect('/admin_reported_users')
 
 @security.Decorators.require_login(bad_request_400)
@@ -337,5 +337,5 @@ def report_user(req: HttpRequest) -> HttpResponse:
         reported_user_id = req.POST['reported_user_id']
         report_type = req.POST['report_type']
         report_reason = req.POST['report_reason']
-        MentorReports.create_mentor_report(report_type, report_reason, reported_user_id)
+        UserReport.create_user_report(report_type, report_reason, reported_user_id)
         return redirect('/universal_profile/' + reported_user_id)

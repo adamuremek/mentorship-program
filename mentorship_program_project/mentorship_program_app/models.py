@@ -1988,27 +1988,27 @@ class MentorshipReferral(SVSUModelData,Model):
         on_delete = models.CASCADE
     )
 
-class MentorReports(SVSUModelData,Model):
+class UserReport(SVSUModelData,Model):
     """
     Description
     -----------
-    MentorshipReports is a database access object.
-    This class represents a report for a mentor.
+    UserReport is a database access object.
+    This class represents a report for a user.
 
     Properties
     ----------
-    - mentor (ForeignKey): Represents a user who is a mentor.
+    - user (ForeignKey): Represents a user being reported.
 
     Instance Functions
     ------------------
-    - create_mentor_report: Creates a report in the database using the report type, body,and mentor's ID.
+    - create_user_report: Creates a report in the database using the report type, body,and user's ID.
     - get_report_id: Returns a specified report using an ID.
     - get_reoort_info: Returns a dictionary containing the fields of the report.
 
     Static Functions
     ----------------
-    - get_unresolved_reports_grouped_by_mentor: Returns a dictionary of all mentors with unresolved reports.
-    - resolve_report: Resolves a report in the database.
+    - get_unresolved_reports_grouped_by_user: Returns a dictionary of all users with unresolved reports.
+    - resolve_report: Marks a report as resolved in the database.
 
     Magic Functions
     ---------------
@@ -2046,25 +2046,25 @@ class MentorReports(SVSUModelData,Model):
         """
         BEHAVIOR = 'Behavior'
 
-    mentor = ForeignKey(
-        Mentor,
+    user = ForeignKey(
+        User,
         on_delete = models.CASCADE
     )
     str_report_type = CharField(max_length=10, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
     bln_resolved = BooleanField(default=False)
 
-    def create_mentor_report(str_provided_report_type: str, str_provided_report_body: str, int_mentor_id: int) -> bool:
+    def create_user_report(str_provided_report_type: str, str_provided_report_body: str, int_user_id: int) -> bool:
         """
         Description
         -----------
-        Creates a mentor report using the report type, body, and mentor's ID.
+        Creates a user report using the report type, body, and user's ID.
 
         Parameters
         ----------
         - str_provided_report_type (str): The type of report.
         - str_provided_report_body (str): The body of the report.
-        - int_mentor_id (int): User ID that is the mentor.
+        - int_user_id (int): ID of user being reported.
 
         Optional Parameters
         -------------------
@@ -2072,14 +2072,14 @@ class MentorReports(SVSUModelData,Model):
 
         Returns
         -------
-        - True (boolean): IF the mentor report was sucessfully created.
-        - False (boolean): IF the mentor report was NOT created.
+        - True (boolean): IF the user report was sucessfully created.
+        - False (boolean): IF the user report was NOT created.
 
         Example Usage
         -------------
-        >>> boolFlag = create_mentor_report('Accidentally', '', 24)
+        >>> boolFlag = create_user_report('Accidentally', '', 24)
         boolFlag = False
-        >>> boolFlag = create_mentor_report('Incident', 'Mentor was rude', 4)
+        >>> boolFlag = create_user_report('Incident', 'Mentor was rude', 4)
         boolFlag = True
 
         Authors
@@ -2087,22 +2087,22 @@ class MentorReports(SVSUModelData,Model):
         Adam C.
         """
         try:
-            mentor = User.objects.get(id=int_mentor_id).mentor
-            MentorReports.objects.create(
+            user = User.objects.get(id=int_user_id)
+            UserReport.objects.create(
                 str_report_type = str_provided_report_type,
                 str_report_body = str_provided_report_body,
-                mentor = mentor,
+                user = user,
                 bln_resolved = False
             ).save()
             return True
         except Exception as e:
             return False
         
-    def get_report_id(int_report_id: int) -> 'MentorReports':
+    def get_report_id(int_report_id: int) -> 'UserReport':
         """
         Description
         -----------
-        - Gets a MentorReport object specified by it's ID.
+        - Gets a UserReport object specified by it's ID.
 
         Parameters
         ----------
@@ -2114,32 +2114,32 @@ class MentorReports(SVSUModelData,Model):
 
         Returns
         -------
-        - A MentorReport object.
-        - Nothing if the requested MentorReport object does not exist.
+        - A UserReport object.
+        - Nothing if the requested UserReport object does not exist.
 
         Example Usage
         -------------
         >>> cls_Report = get_report_id(2)
         cls_Report.str_report_type = 'Incident'
         cls_Report.str_report_body = 'Mentor was rude'
-        cls_Report.mentor_id = 4
+        cls_Report.user_id = 4
 
         Authors
         -------
         Adam C.
         """
-        return MentorReports.objects.get(id = int_report_id)
+        return UserReport.objects.get(id = int_report_id)
     
-    def get_mentor_report_info(int_report_id: int) -> dict:
+    def get_user_report_info(int_report_id: int) -> dict:
         """
         Description
         -----------
-        - Gets a specified MentorReport by it's ID.
-        - Returns a dictionary containing the report type, body, mentor's ID, and resolved status.
+        - Gets a specified UserReport by it's ID.
+        - Returns a dictionary containing the report type, body, user's ID, and resolved status.
 
         Parameters
         ----------
-        - int_report_id (int): Integer specifying the id of a MentorReport in
+        - int_report_id (int): Integer specifying the id of a UserReport in
             the database.
 
         Optional Parameters
@@ -2148,35 +2148,35 @@ class MentorReports(SVSUModelData,Model):
 
         Returns
         -------
-        - dict_Report (Dictionary, String): containing the report type, body, mentorID and resolved status.
+        - dict_Report (Dictionary, String): containing the report type, body, userID and resolved status.
 
         Example Usage
         -------------
         >>> dict_Report = get_report_id(2)
-        dict_Report = {'reportType': 'Incident', 'reportBody': 'Mentor was rude', 'mentorID': 4, 'is_resolved': False}
+        dict_Report = {'reportType': 'Incident', 'reportBody': 'Mentor was rude', 'user_id': 4, 'is_resolved': False}
 
         Authors
         -------
         Adam C.
         """
-        cls_Report =  MentorReports.get_report_id(int_report_id)
+        cls_Report =  UserReport.get_report_id(int_report_id)
 
         dict_Report = {
             "report_type" : cls_Report.str_report_type,
             "report_body" : cls_Report.str_report_body,
-            "mentor_id" : cls_Report.mentor_id,
+            "user_id"     : cls_Report.user_id,
             "is_resolved" : cls_Report.bln_resolved
         }
 
         return dict_Report
     
     @staticmethod
-    def get_unresolved_reports_grouped_by_mentor() -> dict[Mentor, list]:
+    def get_unresolved_reports_grouped_by_user() -> dict[User, list]:
         """
         Description
         -----------
-        - Gets a list of all MentorReports
-        - Returns a dictionary of mentor: list[reports].
+        - Gets a list of all UserReports
+        - Returns a dictionary of user: list[reports].
 
         Parameters
         ----------
@@ -2188,15 +2188,15 @@ class MentorReports(SVSUModelData,Model):
 
         Returns
         -------
-         - dict[Mentor, list[MentorReports]]
-            A dictionary where the keys are Mentors and the values are lists of MentorReports.
+         - dict[User, list[UserReport]]
+            A dictionary where the keys are Users and the values are lists of UserReports.
 
         Example Usage
         -------------
-        >>> mentor_reports_dict = get_reports_grouped_by_mentor()
-        mentor_reports_dict = {
-            <Mentor object>: [<MentorReports object (1)>, <MentorReports object (2)>],
-            <Mentor object>: [<MentorReports object (3)>, <MentorReports object (4)>],
+        >>> user_reports_dict = get_reports_grouped_by_user()
+        user_reports_dict = {
+            <User object>: [<UserReport object (3)>, <UserReport object (4)>],
+            <User object>: [<UserReport object (1)>, <UserReport object (2)>],
             ...
         }
 
@@ -2206,16 +2206,16 @@ class MentorReports(SVSUModelData,Model):
         """
 
         # TODO: make this less cursed
-        mentors_with_reports = Mentor.objects.annotate(report_count=Count('mentorreports', filter=Q(mentorreports__bln_resolved=False))).filter(report_count__gt=0).prefetch_related('mentorreports_set')
-        mentor_reports_dict: dict[Mentor, list[MentorReports]] = {mentor: list(mentor.mentorreports_set.all().filter(bln_resolved=False)) for mentor in mentors_with_reports}
-        return mentor_reports_dict
+        users_with_reports = User.objects.annotate(report_count=Count('userreport', filter=Q(userreport__bln_resolved=False))).filter(report_count__gt=0).prefetch_related('userreport_set')
+        user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all().filter(bln_resolved=False)) for user in users_with_reports}
+        return user_reports_dict
     
     @staticmethod
     def resolve_report(int_report_id: int):
         """
         Description
         -----------
-        - Resolves a report in the database.
+        - Marks a report as resolved in the database.
 
         Parameters
         ----------
@@ -2238,7 +2238,7 @@ class MentorReports(SVSUModelData,Model):
         Quinn F.
         """
 
-        report = MentorReports.get_report_id(int_report_id)
+        report = UserReport.get_report_id(int_report_id)
         report.bln_resolved = True
         report.save()
 

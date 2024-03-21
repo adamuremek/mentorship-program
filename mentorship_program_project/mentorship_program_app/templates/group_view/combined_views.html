@@ -33,10 +33,9 @@
                 {% endif %}
             {% endif %}
 
-            {% if page_owner_user.is_mentor %}
-                <button id="btn_profile_report">Report</button>
-                {% include 'group_view/report_modal.html' with report_types=report_types %}
-            {% endif %}
+            <!-- TODO: prevent reporting multiple times in a row -->
+            <button id="btn_profile_report">Report</button>
+            {% include 'group_view/report_modal.html' with report_types=report_types %}
 
             {% if  page_owner_user.is_mentee and mentees_or_mentor %}
                 <h3>Mentor: </h3>
