@@ -4,16 +4,19 @@ import inspect
 from collections.abc import Callable
 from datetime import date
 
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.template import loader, Template
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.http import JsonResponse
 from mentorship_program_app.models import *
 from .status_codes import bad_request_400
 from utils import security
 from utils.development import print_debug
-
+from .emails import *
+from ..views import login_uname_text
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
@@ -182,7 +185,6 @@ def register_mentor(req: HttpRequest):
         incoming_email: str = req.POST["email"]
         incoming_plain_text_password = req.POST["password"]
 
-
         # create a new user in the database with the role "Pending"
         pending_mentor_object = Mentor.create_from_plain_text_and_email(incoming_plain_text_password, incoming_email)
         
@@ -193,7 +195,9 @@ def register_mentor(req: HttpRequest):
         organization = None
         if(not Organization.objects.filter(str_org_name=req.POST["organization"]).exists()):
             organization = Organization.objects.create(str_org_name=req.POST["organization"])
-            #organization.save()
+            organization.admins.add(pending_mentor_object)
+            organization.save()
+
         else:
             organization = Organization.objects.get(str_org_name=req.POST["organization"])
             
@@ -216,8 +220,7 @@ def register_mentor(req: HttpRequest):
         pending_mentor_object.organization.add(organization)
 
         parsed_user_interests = [
-                                    Interest.get_or_create_interest(interest) 
-                                    for interest in req.POST["interests"].split(",")[0:-1]
+                                    Interest.get_or_create_interest(interest) for interest in req.POST.getlist("selected_interests")
                                  ]
 
 
@@ -231,8 +234,8 @@ def register_mentor(req: HttpRequest):
         pending_mentor_object.save()
 
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentor.id))
-            
-        template: Template = loader.get_template('successful_registration.html')
+        mentor_signup_email(pending_mentor_object.account.cls_email_address)
+        template: Template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
         ctx = {}
         
         return HttpResponse(template.render(ctx, req))
@@ -242,6 +245,7 @@ def register_mentor(req: HttpRequest):
     
 
 def register_mentee(req: HttpRequest):
+    
     '''
     Description
     -----------
@@ -255,7 +259,7 @@ def register_mentee(req: HttpRequest):
     Returns
     -------
     - str: Email {email} already exsists!
-    - str: Registration request successful! We'll get back to ya!
+    - HttpResponseRedirect:  ̶R̶e̶g̶i̶s̶t̶r̶a̶t̶i̶o̶n̶ ̶r̶e̶q̶u̶e̶s̶t̶ ̶s̶u̶c̶c̶e̶s̶s̶f̶u̶l̶!̶ ̶W̶e̶'̶l̶l̶ ̶g̶e̶t̶ ̶b̶a̶c̶k̶ ̶t̶o̶ ̶y̶a̶! now redirects the new user to their dashboard
     - str: Bad :(
     
     Example Usage
@@ -267,15 +271,21 @@ def register_mentee(req: HttpRequest):
     >>> reqister_mentee(req)
     Registration request successful! We'll get back to ya!
     
+     Edits
+    -------------
+    -changed the response from plain text html to a login and redirect
+
     Authors
     -------
     Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     Jordan A.
+    Tanner W. 🦞
     '''
     if req.method == "POST":
         incoming_email: str = req.POST["email"]
         incoming_plain_text_password = req.POST["password"]
+
 
         # create a new user in the database with the role "Pending"
         pending_mentee_object = Mentee.create_from_plain_text_and_email(incoming_plain_text_password, incoming_email)
@@ -288,12 +298,14 @@ def register_mentee(req: HttpRequest):
         pending_mentee_object.account.str_first_name = req.POST["fname"]
         pending_mentee_object.account.str_last_name = req.POST["lname"]
         pending_mentee_object.account.str_preferred_pronouns = req.POST["pronouns1"] + '/' + req.POST["pronouns2"]
-     
+
         parsed_user_interests = [
-                                    Interest.get_or_create_interest(interest) 
-                                    for interest in req.POST["interests"].split(",")[0:-1]
+                                    Interest.get_or_create_interest(interest) for interest in req.POST.getlist("selected_interests")
                                 ]
-                                
+
+        
+
+
         for interest in parsed_user_interests:
             pending_mentee_object.account.interests.add(interest)
 
@@ -303,8 +315,17 @@ def register_mentee(req: HttpRequest):
 
         user_mentee = User.objects.get(cls_email_address = incoming_email)
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentee.id))
-        return HttpResponse("Registration request successful! We'll get back to ya!")
-        
+
+
+
+        ##adds info to req with correct data names for the login function to work
+        req._body = json.dumps({"username": incoming_email, "password": incoming_plain_text_password}).encode("utf-8")
+        ##logins in the user
+        login_uname_text(req)
+        ##redirects to the dashboard
+        redirect_url = "/dashboard"
+        redirect_response = HttpResponseRedirect(redirect_url)
+        return redirect_response
     else:
         return HttpResponse("Bad :(")
 
@@ -385,13 +406,16 @@ def change_mentor_status(req: HttpRequest):
     # Retrieve user object based on ID
     user = User.objects.get(id=mentor_id)
     
-    # Update user role and activation status based on provided status
+    # Update user role and activation status based on provided status                                           
     if status == 'Approved':
         user.bln_active = True
         user.str_role = User.Role.MENTOR
         user.save()
+        mentor_accepted_email(user.cls_email_address)      
     else:
+        mentor_denied_email(user.cls_email_address)
         user.delete()
+        
         
     # Save changes to user object
     
@@ -492,70 +516,9 @@ def enable_user(req:HttpRequest):
     return HttpResponse(f"user {id}'s status has been changed to enabled")
 
 
-@security.Decorators.require_login(bad_request_400)
-def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpResponse:
-    '''
-     Description
-     ___________
-     view that creates a mentor request between a given mentor id 
-     and mentee id
-
-     Paramaters
-     __________
-        req : HttpRequest - django http request
-        mentee_id : int - mentee id from the datbase, must be valid
-        mentor_id : int - mentee id from the database, must be valid
-
-     Returns
-     _______
-        HttpResponse containing a valid json ok signature or 401 error code for invalid data
-     
-     Example Usage
-     _____________
-        >>> request_mentor(request,mentee_id,mentor_id)
-
-        /path/to/route/mentee_id/mentor_id
-
-     >>> 
-     Authors
-     _______
-     David Kennamer *^*
-    '''
-    user = User.from_session(req.session)
-    
-    
-    #if you are a mentee you can only request for yourself
-    if user.is_mentee():
-        mentee_id : int = user.id
-    elif user.is_mentor() and mentee_id == None:
-        return bad_request_400("mentee id required for mentors")
-
-    ##print_debug(user.has_requested_user(mentor_id))
-    mentor_account = None
-    mentee_account = None
-    
-    try:
-        mentor_account = User.objects.get(id=mentor_id)
-        mentee_account = User.objects.get(id=mentee_id)
-    except ObjectDoesNotExist:
-        return bad_request_400("invalid id detected!")
-    
-    if mentor_account == None or mentee_account == None:
-        #we should never get here, but just in case for some reason
-        return bad_request_400("internal error occured")
-
-    mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id, user.id)
-    if mentorship_request: 
-        mentorship_request.save() 
-    else:
-        print("this request already exists, IDENTITY CRISIS ERROR 🤿  ⛰️")
-
-    ##print_debug(user.has_requested_user(mentor_id))
-    return HttpResponse(json.dumps({"result":"created request!"}));
-
 
 @security.Decorators.require_login(bad_request_400)
-def update_profile_img(req: HttpRequest)->HttpResponse:
+def update_profile_img(user_id, new_pfp):
     '''
     Description
     -----------
@@ -588,48 +551,40 @@ def update_profile_img(req: HttpRequest)->HttpResponse:
     -------
     🌟 Isaiah Galaviz 🌟
     '''
+    page_owner_user = User.objects.get(id=user_id)
 
-    # Get the user id from the current session
-    user = User.from_session(req.session)
-    int_user_id = user.id
-    #   Get the name of the file through an HTTP POST request with JSON data.
-    post_data = json.loads(req.body.decode("utf-8"))
-    str_img_name = post_data["image"] if "image" in post_data else None
-    
     #   If the name of the file is not valid (wrong file extension or insufficient name length),
     #   return an HttpResponse saying the user's profile was not modified.
-    if str_img_name == None:
-        return HttpResponse(f"User {int_user_id}'s image profile was NOT modified")
-    elif len(str_img_name) < 5:
-        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
-    elif str_img_name.endswith(".png") == False:
-        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
-    elif str_img_name.endswith(".jpg") == False:
-        return HttpResponse(f"File name was invalid. User {int_user_id}'s profile was NOT modified.")
+    if new_pfp == None:
+        return bad_request_400(f"User {user_id}'s image profile was NOT modified")
+    elif len(new_pfp.name) < 5:
+        return bad_request_400(f"File name was invalid. User {user_id}'s profile was NOT modified.")
+    elif new_pfp.name.endswith(".png") == False:
+        return bad_request_400(f"File name was invalid. User {user_id}'s profile was NOT modified.")
+    elif new_pfp.name.endswith(".jpg") == False:
+        return bad_request_400(f"File name was invalid. User {user_id}'s profile was NOT modified.")
     
     #   Otherwise, continue on with running the function.
     else:
         #   Check if a 'ProfileImg' instance exists that is associated
         #   with the user currently logged into the system.
-        profile_img = ProfileImg.objects.get(user=user)
+        profile_img = ProfileImg.objects.get(user=page_owner_user)
         if profile_img == None:
             #   If not, create a new instance of the ProfileImg model 
             #   and store it in the program's database
-            bool_flag = ProfileImg.create_from_user_id(int_user_id, str_img_name)
+            bool_flag = ProfileImg.create_from_user_id(int_user_id=user_id)
             #   Return a response saying the process did not go through, if so.
             if bool_flag == False:
-                return HttpResponse(f"Something went wrong while trying to modify user {int_user_id}'s profile.")
+                return bad_request_400(f"Something went wrong while trying to modify user {user_id}'s profile.")
             #   If the process did go through, get the newly created instance.
-            profile_img = ProfileImg.objects.get(user=user)
-        else:
-            #   Otherwise, store the image name and save the image instance
-            profile_img.img_title = str_img_name
+            profile_img = ProfileImg.objects.get(user=page_owner_user)
+
+        #   Store the image name and save the image instance
+        profile_img.img_title = new_pfp
 
         #   Take the name of the image file and store it in the user's ImageView.
-        profile_img.img_profile = str_img_name
+        profile_img.img_profile = new_pfp
         profile_img.save()
-
-        return HttpResponse(f"User {int_user_id}'s image profile was SUCCESSFULLY modified")
 
 
 @security.Decorators.require_login(bad_request_400)
@@ -658,27 +613,46 @@ def create_note (req : HttpRequest):
     Authors
     -------
     Justin Goupil
+    Adam U.
     """
 
     #Grab the users current session
     user = User.from_session(req.session)
-    str_title = req.POST.get("title", None)
-    str_body = req.POST.get("body", None) 
-    bool_flag = False
+    # Get data
+    str_title = req.POST["note-title"]
+    str_public_body = req.POST["public-notes"]
+    str_private_body = req.POST["private-notes"]
+    # Make note
+    Notes.create_note(user.id, str_title, str_public_body, str_private_body)
 
-    #Check if the title and body are None
-    if str_title != None and str_body != None:
-        #create the note and save it to the database.
-        bool_flag = Notes.create_note(user.id, str_title, str_body)
-    else:
-        return bad_request_400("Invalid title or body")
+    return redirect(f"/universal_profile/{user.id}")
 
-    #Check if the note was created.
-    if bool_flag:
-        return HttpResponse("Note created!")
-    else:
-        return HttpResponse("Note creation failed")
-    
+@security.Decorators.require_login(bad_request_400)
+def update_note(req: HttpRequest):
+    if req.method == "POST":
+        #Grab current session user
+        user = User.from_session(req.session)
+
+        note_id = req.POST["note-id"]
+        new_title = req.POST["note-title"]
+        new_pub_body = req.POST["public-notes"]
+        new_pvt_body = req.POST["private-notes"]
+
+        Notes.update_note(note_id, new_title, new_pub_body, new_pvt_body)
+
+    return redirect(f"/universal_profile/{user.id}")
+
+@security.Decorators.require_login(bad_request_400)
+def remove_note(req: HttpRequest):
+    if req.method == "POST":
+
+        #Grab current session user
+        user = User.from_session(req.session)
+        note_id = int(json.loads(req.body)["note-id"])
+
+        Notes.remove_note(note_id)
+
+    return redirect(f"/universal_profile/{user.id}")
 
 #TODO uncomment this
 #@security.Decorators.require_login(bad_request_400)
@@ -776,11 +750,21 @@ def group_view(req: HttpRequest):
 
 @security.Decorators.require_login(bad_request_400)
 def universalProfile(req : HttpRequest, user_id : int):
+    
+    profile_page_owner = None
+    try:
+        profile_page_owner = User.objects.get(id=user_id)
+    except ObjectDoesNotExist:
+        return bad_request_400("user page does not exist")
+
     template = loader.get_template('group_view/combined_views.html')
     signed_in_user = User.from_session(req.session)
+    signed_in_user.has_requested_this_user = signed_in_user.has_requested_user(profile_page_owner)
+  
+    
     # the user object for the page owner
     page_owner_user = User.objects.get(id=user_id)
-    
+
     page_owner_go_fuck_yourself = getattr(page_owner_user, 'mentee' if page_owner_user.is_mentee else 'mentor', None)
     interests = page_owner_user.interests.filter(user=page_owner_user)
     is_page_owner = signed_in_user == page_owner_user
@@ -789,36 +773,80 @@ def universalProfile(req : HttpRequest, user_id : int):
         user_interests.append(interest)
 
     all_interests = Interest.objects.all()
-
+    pendingList = []
+    notes = None
+    max_mentees = None
+    num_mentees = None
+    
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
         pendingRequests = MentorshipRequest.objects.filter(mentee_id=page_owner_user.id)
-        pendingList = []
+        try:
+            mentees_or_mentor = []
+            mentee = page_owner_go_fuck_yourself
+            mentees_or_mentor.append(User.objects.get(id=mentee.mentor.account_id))
+        except Exception:
+            mentees_or_mentor = None
+       
         for pending in pendingRequests:
             if pending.mentee_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentor_id))
         
     elif page_owner_user.is_mentor():
+        mentees_for_mentor = page_owner_user.mentor.mentee_set.all()
+        mentees_or_mentor = [mentee.account for mentee in mentees_for_mentor]
+    
+        notes = Notes.get_all_mentor_notes(page_owner_user)
         pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)
-        pendingList = []
+        
+        max_mentees = page_owner_user.mentor.int_max_mentees
+        num_mentees = range(9, len(mentees_for_mentor), -1)
+        
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentee_id))
+             
             
-    print(pendingList)
-
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
                 "is_page_owner": is_page_owner,
                 "page_owner_user":page_owner_user,
                 "interests": user_interests,
                 "page_owner_go_fuck_yourself": page_owner_go_fuck_yourself,
-                # "mentor" :  page_owner_go_fuck_yourself.mentor.account if page_owner_go_fuck_yourself.mentor != None else None,
                 "all_interests" : all_interests,
                 "user_id" : user_id,
-                "pending" : pendingList
+                "pending" : pendingList,
+                "notes" : notes,
+                "max_mentees" : max_mentees,
+                "num_mentees" : num_mentees,
+                "mentees_or_mentor" : mentees_or_mentor
                }
     return HttpResponse(template.render(context,req))
+
+@security.Decorators.require_login(bad_request_400)
+def reject_mentorship_request(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
+    session_user = User.from_session(req.session)
+    mentor_account = None
+    try:
+        mentor_account = User.objects.get(id=mentor_user_account_id)
+    except ObjectDoesNotExist:
+        return bad_request_400("mentor id is invalid!")
+
+    if session_user.is_super_admin() or session_user.id == mentee_user_account_id or session_user.id == mentor_user_account_id:
+        try:
+            mentorship_request = MentorshipRequest.objects.get(
+                                        mentor_id=mentor_user_account_id,
+                                        mentee_id=mentee_user_account_id
+                                        )
+            try:
+                mentorship_request.delete()
+                return redirect(f"/universal_profile/{User.from_session(req.session).id}")
+            except:
+                return bad_request_400("unable to create request!")
+
+        except ObjectDoesNotExist:
+            return bad_request_400("you do not have a request to accept!")
+    return bad_request_400("permission denied!")
 
 @security.Decorators.require_login(bad_request_400)
 def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
@@ -829,11 +857,8 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
     except ObjectDoesNotExist:
         return bad_request_400("mentor id is invalid!")
 
-    #if session_user.has_authority(mentor_account):
-    print("session ", session_user.id)
-    print("mentee_user_account_id", mentee_user_account_id)
-    print()
-    if session_user.id == mentee_user_account_id or session_user.id == mentor_user_account_id:
+    
+    if session_user.is_super_admin() or session_user.id == mentee_user_account_id or session_user.id == mentor_user_account_id:
         try:
             mentorship_request = MentorshipRequest.objects.get(
                                         mentor_id=mentor_user_account_id,
@@ -846,10 +871,15 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
             # if mentorship_request.is_accepted():
             #     return bad_request_400("you already accepted this request!")
 
-            sucessfull = mentorship_request.accept_request(session_user)
+            sucessful = None
+            try:
+                sucessful = mentorship_request.accept_request(session_user)
+            except ValidationError:
+                #this mentor has max mentees
+                return redirect(f"/universal_profile/{User.from_session(req.session).id}")
             
-            if sucessfull:
-                return HttpResponse("sucesfully created request")
+            if sucessful:
+                return redirect(f"/universal_profile/{User.from_session(req.session).id}")
             
             return bad_request_400("unable to create request!")
 
@@ -876,6 +906,9 @@ def save_profile_info(req : HttpRequest, user_id : int):
         #Change profile picture
         if "profile_image" in req.FILES:
             new_pfp = req.FILES["profile_image"]
+
+            # update_profile_img(user_id, new_pfp)
+            
             page_owner_user.profile_img.img.save(new_pfp.name, new_pfp)
 
         #Set the new interests
@@ -885,14 +918,20 @@ def save_profile_info(req : HttpRequest, user_id : int):
         page_owner_user.interests.clear()
         page_owner_user.interests.add(*interest_data)
 
+        # Set Max Mentees
+        if page_owner_user.is_mentor and [mentee.account for mentee in page_owner_user.mentor.mentee_set.all()]:
+            page_owner_user.mentor.int_max_mentees = req.POST["max_mentees"]
+            page_owner_user.mentor.save()
+
         #Set the new bio
         page_owner_user.str_bio = req.POST["bio"]
         page_owner_user.save()
+        
 
     return redirect(f"/universal_profile/{user_id}")
 
 
-@User.Decorators.require_logged_in_mentor(bad_request_400)
+@security.Decorators.require_login(bad_request_400)
 def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
     """
     Description
@@ -901,15 +940,22 @@ def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_us
 
     Authors
     _______
-    David Kennamer .._.. (if you can call this finsihed)
+    David Kennamer .._..
     """
     session_user = User.from_session(req.session)
 
-    #actually add the mentorship to the db
     session_user.create_mentorship_from_user_ids(mentee_user_account_id, mentor_user_account_id)
 
     return HttpResponse("created request sucessfully")
 
+@security.Decorators.require_login(bad_request_400)
+def delete_mentorship(req: HttpRequest, mentee_user_account_id):
+    print(mentee_user_account_id)
+    mentee = Mentee.objects.get(account_id=mentee_user_account_id)
+    mentee.mentor_id = None
+    mentee.save()
+    # redirect to the page the request came from
+    return HttpResponseRedirect(req.META.get('HTTP_REFERER', '/'))
 
 
 
@@ -963,10 +1009,12 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
         return bad_request_400("invalid id detected!")
     
     if mentor_account == None or mentee_account == None:
-        #we should never get here, but just in case for some reason
-        return bad_request_400("internal error occured")
+        response = HttpResponse(json.dumps({"result":"unable to create request!"}))
+        response.status_code = 400
+        return response
 
     mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id)
+
     if mentorship_request: 
         mentorship_request.save() 
     else:
@@ -1033,3 +1081,149 @@ def cancel_request(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     MentorshipRequest.remove_request(mentee_id, mentor_id)
     print("Request has been removed. Guess ya didn't like 'em huh :(")
 
+def change_password(req : HttpRequest):
+    old_password = req.POST["old-password"]
+    new_password = req.POST["new-password"]
+    user = User.from_session(req.session)
+    if not user.check_valid_password(old_password): 
+           return render(req, 'settings.html', {'message':"Invalid Password"})
+    
+    generated_user_salt = security.generate_salt()
+    user.str_password_hash = security.hash_password(new_password, generated_user_salt)
+    user.str_password_salt = generated_user_salt
+    user.save()
+
+    # redirect to the page the request came from
+    return render(req, 'settings.html', {'message':"Password Updated"})
+
+
+@csrf_exempt
+def reset_request(req: HttpRequest):
+    '''
+     Description
+     ___________
+     a route that creates a token and emails it the given email,
+     the token can be used to reset the email on another view
+
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+
+     Returns
+     _______
+        HttpResponse containing a descriptive message of what happened
+     
+     Example Usage
+     _____________
+        >>> reset_request(req)
+
+        
+
+     >>> 
+     Authors
+     _______
+     Tanner Williams 🦞
+    '''
+
+
+    email = req.POST.get('email', None)
+    
+    try:
+        user = User.objects.get(cls_email_address=email)
+    except ObjectDoesNotExist:
+        return HttpResponse(False)
+    
+    valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
+    
+    reset_token_email(recipient=user.cls_email_address, token=token)
+    print("email sent to: "+email)
+    return HttpResponse(True)
+
+
+
+
+
+
+@csrf_exempt
+def reset_password(req : HttpRequest):
+    '''
+     Description
+     ___________
+     route takes in a new password and previously sent token and verifys said token,
+     then replaces the password for the user
+
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+
+     Returns
+     _______
+        HttpResponse containing a descriptive message of what happened
+     
+     Example Usage
+     _____________
+        >>> reset_password(req)
+
+        
+
+     >>> 
+     Authors
+     _______
+     Tanner Williams 🦞
+    '''
+
+    new_password = req.POST.get('new-password', None)
+    token = req.POST.get('token', None)
+   
+
+
+    valid, message = PasswordResetToken.validate_and_reset_password(token=token,new_password=new_password)
+
+    # redirect to the page the request came from
+    return JsonResponse({'valid': valid, 'message': message})
+
+
+
+    
+
+    
+def request_reset_page(req, token=None):
+    template = loader.get_template('reset_page.html')
+    return HttpResponse(template.render())
+
+@csrf_exempt
+def check_email_for_password_reset(request):
+    '''
+     Description
+     ___________
+     a route called from the password reset modal
+     that checks to see if an account exist with a certain email 
+
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+
+     Returns
+     _______
+        JsonResponse if account exist
+     
+     Example Usage
+     _____________
+        >>> check_email_for_password_reset(request)
+         
+        JsonResponse({'exists': User.objects.filter(cls_email_address=email).exists()})
+
+        
+
+     >>> 
+     Authors
+     _______
+     Tanner Williams 🦞
+    '''
+    email = request.GET.get('email', None)
+
+    data = {
+        'exists': User.objects.filter(cls_email_address=email).exists() #                                          🦞
+    }
+
+    return JsonResponse(data) 

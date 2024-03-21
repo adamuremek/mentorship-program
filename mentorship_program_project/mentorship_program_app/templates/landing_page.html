@@ -22,23 +22,10 @@
             <div class="portal">
                 <form id="frm-login" action="/landing-post/" method="POST">
                     {% csrf_token %}
-                    <div class="federated-li-container">
-                        <button type="button" class="login-buttons" id="si-google-btn">
-                            <img src="{% static 'images/googlelogo.png' %}" id="google-logo"> Sign in with Google
-                        </button>
-                        <button type="button" class="login-buttons" id="si-apple-btn">
-                            <img src="{% static 'images/image.png' %}" id="apple-logo">Sign in with Apple
-                        </button>
-                        <button type="button" class="login-buttons" id="si-linkedin-btn">
-                            <img src="{% static 'images/linkedinlogo.png' %}" id="linkedin-logo">Sign in with LinkedIn
-                        </button>
+                    <div class="prompt-login">
+                        <h1>Login to start your journey</h1>
                     </div>
-                    
-                    <div class="or-container">
-                        <div class="line"></div>
-                        <span class="or-text">or</span>
-                        <div class="line"></div>
-                    </div>
+                    <div class="line"></div>
 
                     <div class="email-password-fields">
                         <input type="email" id="email" name="email" placeholder="Email">

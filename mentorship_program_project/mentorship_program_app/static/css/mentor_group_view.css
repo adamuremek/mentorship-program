@@ -33,6 +33,8 @@ hr {
 .column-left h3 {
     margin-top: 0.5rem;
     margin-bottom: .25rem;
+    margin-right: 5em;
+    display: inline-block;
 }
 
 .column-right {
@@ -97,20 +99,43 @@ hr {
     width: 7rem;
 }
 
-button {
-color: whitesmoke;
+button {    
+    color: whitesmoke;
     font-size: 1rem;
-    background-color: transparent;
-    border: 2px solid;
-    border-radius: 1rem;}
+
+    background-color: #5554;
+    /* background-image: linear-gradient(#666, #555); */
+    border: 2px solid rgb(0 0 0 /70%);
+    box-shadow: rgb(19 19 19) 0 1px 1px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-radius: 1rem;
+}
+
+select {
+    font-size: 1em;
+    width: 3em;
+    float: right;
+    text-align: center;
+}
+
+select[disabled] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 0.01px;
+}
+
+/* 
+    color: #24292E;
+    background-color: #FAFBFC;
+    border: 1px solid rgba(27, 31, 35, 0.15);
+    box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+    box-sizing: border-box;
+    cursor: pointer;    
+*/
 
 .specialties {
     display: block;
-    /* display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: .5em; */
-    /*flex-wrap: wrap; /* Wrap flex items to the next line if needed */
-    /*flex-direction: row; /* Arrange flex items horizontally */
     margin: .5em 0;
 }
 
@@ -122,7 +147,7 @@ color: whitesmoke;
     /* margin-left: 1rem; */
     /* margin-bottom: .5em; */
 
-    height: 1.25rem;
+    height: 1.5rem;
     overflow: hidden;
 
     display: inline-block;
@@ -179,7 +204,11 @@ textarea {
 
 textarea[readonly] {
     outline: none; /* Remove default focus outline */
-  }
+}
+
+input:read-only {
+    outline: none; /* Remove default focus outline */
+}
 
 .row-communication-methods p {
     color: whitesmoke;
@@ -229,6 +258,7 @@ textarea[readonly] {
     display: flex;
     align-items: center;
     margin-bottom: 0.5rem;
+    margin-top: 1em;
 }
 
 .mentee-manager a h4 {
@@ -237,16 +267,37 @@ textarea[readonly] {
 
 .button-pending-action {
     color: white;
-    background-color: transparent;
+    background-color: #444444cc;
+    
     border: 2px solid;
     border-radius: 25px;
     width: 2rem;
     margin: 0 .25em;
 }
 
-.button-pending-action:first-of-type {
+.button-pending-action-container {
+    text-decoration: none;
+}
+
+/* 11aa55cc */
+
+.please-fuck-off-and-die .button-pending-action-container:nth-child(1) .button-pending-action {
+    background-color: #11aa55cc;
+}
+
+/* Apply styles to the second element of the class */
+.please-fuck-off-and-die .button-pending-action-container:nth-child(2) .button-pending-action {
+    background-color: #aa1155cc;
+}
+
+.please-fuck-off-and-die {
     margin-left: auto;
-    margin-right: 0;
+    margin-right: .5em;
+}
+
+#pending-requests-container {
+    width: 90%;
+    margin: auto;
 }
 
 .row-notes {
@@ -264,12 +315,15 @@ textarea[readonly] {
 
 .row-notes button {
     color: whitesmoke;
-    border: solid;
     border-radius: 1rem;
     height: 2rem;
     margin-left: 1rem;
     padding-left: 1rem;
     padding-right: 1rem;
+}
+
+.row-notes h2 {
+    font-weight: 300;
 }
 
 .note-header {
@@ -285,17 +339,23 @@ textarea[readonly] {
 }
 
 .note-title {
-    flex: 1 1 50%;
+    flex: 1 1 35%;
+}
+
+.note-header p {
+    font-weight: 100;
 }
 
 .note-header p:not(.note-title) {
     flex: 1;
     margin: 0 5px;
+    text-align: center;
 }
 
 #bio {
     width: 100%;
     height: 100%;
+    /* scrollbar-width: thin; */
 }
 
 .note {
@@ -304,18 +364,20 @@ textarea[readonly] {
     padding: 0.5rem;
     border-color: #33384200;
     display: flex;
-    height: 2rem;
+    height: 2.5rem;
     border-radius: 0.5rem;
 }
 
 .note p:not(.note-title) {
     flex: 1;
     margin: 0 5px;
+    text-align: center;
 }
 
 .note button:not(.note-title) {
     flex: 1;
     margin: 0 5px;
+    align-self: center;
 }
 
 /* .note button:hover, .row-notes button:hover { */
@@ -336,7 +398,25 @@ button:hover {
 }
 
 #btn_profile_request {
-    margin-left: 25%;
+    margin-top: 1em;
+
+    padding: 0.5em;
+    width: 80%;
+    margin-left: 10%;
+    margin-bottom: 1em
+}
+
+.button-user-remove {
+    background-color: #911c;
+}
+
+.a-user-remove {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.btn-note-edit {
+    transform: scaleX(-1);
 }
 
 /* ----- Modal Component Styling ----- */
@@ -507,4 +587,40 @@ button:hover {
 #btn-create-note:hover,
 #btn-create-note:focus-visible {
     background-color: var(--clr-btn-submit-highlight);
+}
+
+@media screen and (max-width: 1000px) {
+    .hero-container {
+        display: block;
+        text-align: center;
+        margin: auto;
+    }
+
+    .mentee-manager {
+        margin-left: 5%;
+        justify-content: center;
+    }
+
+    .a-user-remove {
+        margin-left: 5%;
+    }
+
+    .top-title {
+        justify-content: center;
+        margin-bottom: 1em;
+        border-top: 1px solid white;
+    }
+
+    .iHateMyself {
+        margin-left: 5%;
+    }
+
+    .column-left, .column-right {
+        margin-left: 0;
+    }
+
+    #bio {
+        scrollbar-width: thin;
+    }
+
 }

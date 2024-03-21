@@ -61,9 +61,10 @@ async function attempt_login_uname_password(username,password) {
 /*
  * requests that the server log out the current user
  *
- * status code 200 means sucesful logout
+ * status code 200 means succesful logout
  * status code 500 means that you were already logged in
  *
+ * 8================================================================================================================================================================================================================================================D~~~~~~~~
  * */
 async function attempt_logout_request() {
 	const req = new Request("/logout/",{
@@ -142,6 +143,29 @@ async function attempt_mentorship_request(mentee_id, mentor_id)
 	// let response = await fetch(req);
 	// return response;
 }
+
+
+// async function attempt_login_uname_password(username,password) {
+// 	let login_request = {type:"username_password",username:username,password:password};
+	
+// 	const req = new Request("/login/",{
+// 							method:"POST",
+// 							body: JSON.stringify(login_request),
+// 							headers: {
+// 									"Content-type": "application/json; charset=UTF-8",
+// 									'X-CSRFToken': csrftoken
+// 								},
+// 							mode: 'same-origin'
+// 	});
+	
+// 	let response = await fetch(req);
+// 	return response;
+// }
+
+
+
+
+
 
 /*
 * requests that the back end removes a mentorship request for the given mentee then adds one for the mentee and mentor

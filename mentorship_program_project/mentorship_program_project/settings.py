@@ -20,6 +20,8 @@ load_dotenv(find_dotenv())
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -29,7 +31,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DEBUG', default=0))
+DEBUG = bool(os.environ.get('DEBUG', default=True))
 
 if(DEBUG):
     ALLOWED_HOSTS = ['*']
@@ -51,6 +53,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'mentorship_program_app',
+
+    # debug tool to help with query stuff
+    # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
+    'debug_toolbar' 
 ]
 
 MIDDLEWARE = [
@@ -61,6 +67,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+]
+
+INTERNAL_IPS = [
+    "127.0.0.1"
 ]
 
 ROOT_URLCONF = 'mentorship_program_project.urls'
@@ -76,6 +88,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'mentorship_program_app.view_routes.navigation.global_nav_data',
             ],
         },
     },
@@ -146,3 +159,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587  # Gmail SMTP port for STARTTLS
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'wingsmentorapp@gmail.com'
+EMAIL_HOST_PASSWORD = 'rjrl aldq kjee ybfv'
+

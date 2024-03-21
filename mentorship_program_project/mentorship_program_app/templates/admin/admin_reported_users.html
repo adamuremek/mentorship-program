@@ -1,0 +1,110 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+SVSU Mentoring
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin_reported_users.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<section class="hero">
+    <div class="hero-container">
+
+        <h1>Reported Users</h1>
+        <div class="filter">
+            <span>Filter:</span>
+            <div class="search-name-container">
+                <div class="search-name">
+                    <img class="search-icon" src="{% static 'images/search-icon.png' %}">
+                    <input type="text" placeholder="Search by Name" id="searchByNameField" oninput="filterUsers()">
+                </div>
+            </div>
+        </div>
+
+        <div class="reported-users-area">
+            <div class="reported-user card">
+                <h2 class="reported-user-name">Jimmy Arnold</h2>
+                <h3>Reports:</h3>
+                <div class="report-subcard">
+                    <ul>
+                        <li class="user-report">
+                            <div class="report-body">He was mean in our one on one.</div>
+                            <div class="report-controls">
+                                <div class="resolve-report">Resolve</div>
+                            </div>
+                        </li>
+                        <li class="user-report">
+                            <div class="report-body">I felt uncomfortable around him.</div>
+                            <div class="report-controls">
+                                <div class="resolve-report">Resolve</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="reported-user card">
+                <div class="reported-user-card-header">
+                    <h2 class="reported-user-name">John Cook</h2>
+                </div>
+                <h3>Reports:</h3>
+                <div class="report-subcard">
+                    <ul>
+                        <li class="user-report">
+                            <div class="report-body">I don't think he showers. Pretend this is a longer report that
+                                takes up more space and shows what it looks like when this is multiple lines long.
+                                Pretend this is a longer report that takes up more space and shows what it looks like
+                                when this is multiple lines long. Pretend this is a longer report that takes up more
+                                space and shows what it looks like when this is multiple lines long. Pretend this is a
+                                longer report that takes up more space and shows what it looks like when this is
+                                multiple lines long. Thanks for reading.
+                            </div>
+                            <div class="report-controls">
+                                <div class="resolve-report">Resolve</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<script>
+    // Super basic string matching on report user's name to show/hide their cards
+    function filterUsers() {
+        const searchByNameField = document.getElementById('searchByNameField');
+        const reportedUserCards = document.querySelectorAll('.card');
+
+        const searchString = searchByNameField.value.toLowerCase();
+
+        // Return early and unhide all cards if there is nothing to search for.
+        if (searchString === '') {
+            const hiddenCards = document.querySelectorAll('.hidden');
+            hiddenCards.forEach(card => card.classList.remove('hidden'));
+            return;
+        }
+
+        reportedUserCards.forEach(card => {
+            // Get the value of the h2, which should be first.
+            // It should contain the name of the card user.
+            const cardName = card.children[0].innerText.toLowerCase();
+
+            if (cardName.includes(searchString)) {
+                // Keep this one disabled, do nothing
+            } else {
+                // Hide the other cards
+                card.classList.add('hidden');
+            }
+        });
+    }
+</script>
+
+{% endblock %}

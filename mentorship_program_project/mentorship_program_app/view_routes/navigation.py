@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta
 from utils.development import print_debug
 from utils import security
 from .status_codes import bad_request_400
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Value,Case,BooleanField,When,F
 from .reporting import *
 
 from ..models import User
@@ -15,26 +15,49 @@ from ..models import Mentor
 from ..models import Mentee
 from ..models import Interest
 from ..models import SystemLogs
+
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
+from timeit import default_timer as get_runtime
 import os
+import time
 
-def default(req: HttpRequest):
-    """
-    Loads the default (root /) page for now until landing page 
-    become the new root route.
-    """
+
+# def default(req: HttpRequest):
+#     """
+#     Loads the default (root /) page for now until landing page   ##possibly delete this? think isnt being used
+#     become the new root route.
+#     """
     
-    template: Template = loader.get_template('index.html')
+#     template: Template = loader.get_template('index.html')
+#     context: dict = {}
+    
+#     return HttpResponse(template.render(context, req)) 
+
+def global_nav_data(req):
     context: dict = {}
-    
-    return HttpResponse(template.render(context, req)) 
+
+    """
+    Adding key values to dict for use in the navigation bar.
+    """
+    authenticated = security.is_logged_in(req.session)
+    context['authenticated'] = authenticated
+
+    if authenticated:
+        session_user = User.from_session(req.session)
+        context['user'] = session_user
+
+    return context
 
 def landing(req):
     """
     Renders the landing page for the application.
+
+    Now redirects to dashboard if logged in - Tanner
     """
-    
+    if security.is_logged_in(req.session): 
+        return redirect("/dashboard")
+
     template: Template = loader.get_template('landing_page.html')
     context: dict = {}
     
@@ -42,9 +65,10 @@ def landing(req):
 
 @security.Decorators.require_login(bad_request_400)
 def dashboard(req):
+    start_time = get_runtime()
     template = loader.get_template('dashboard/dashboard.html')
     session_user = User.from_session(req.session).sanitize_black_properties()
-   
+
     # get the users of the opposite role to be displayed
     # mentors see mentees and mentees see mentors
     
@@ -65,30 +89,117 @@ def dashboard(req):
     # messing with their code we could put it in
     role = session_user.get_database_role_string()
     opposite_role = session_user.get_opposite_database_role_string()
-    card_data = User.objects.filter(str_role=opposite_role)
+
+
+    if session_user.is_super_admin():
+        return admin_dashboard(req)
+
+        
+
+    if opposite_role == "Mentor":
+        card_data = User.objects.annotate(
+        num_mentees=Count('mentor___mentee_set', distinct=True)
+        ).annotate(
+            has_maxed_mentees=Case(
+                When(num_mentees__gte=F('mentor__int_max_mentees'), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        ).filter(
+            has_maxed_mentees=False,  # Exclude mentors who have maxed out their mentee slots
+        ).filter(
+            str_role='Mentor'
+        ).select_related(
+            'mentor'  # Link each Mentor to the corresponding User account
+        ).prefetch_related(
+            'interests'  # Prefetch the interests of the associated User
+        ).prefetch_related(
+            'profile_img_query'
+        ).prefetch_related(
+            'mentor___mentee_set'
+        ).select_related(
+                'mentee'
+        )
+
+        users = [user.sanitize_black_properties() for user in card_data]
+        session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
+
+
+
+    if opposite_role == "Mentee":
+        
+        card_data = User.objects.filter(
+            str_role='Mentee',
+            mentee__mentor=None
+        ).prefetch_related(
+            'interests'  # Prefetch the interests of the associated User
+        ).prefetch_related(
+            'profile_img_query'
+        )
+
+        #card_data = User.objects.filter(str_role=opposite_role). \
+        #prefetch_related('interests'). \
+        #prefetch_related('profile_img_query'). \
+        #defer(
+        #    "cls_email_address",
+        #    "str_password_hash",
+        #    "str_password_salt",
+        #    "str_role",
+        #    "cls_date_joined",
+        #    "cls_active_changed_date",
+        #    "bln_active",
+        #    "bln_account_disabled",
+        #    "str_phone_number",
+        #    "str_last_login_date",
+        #    "str_gender",
+        #    "str_preferred_pronouns",
+        #    "str_bio",
+        #)
+        users = [user.sanitize_black_properties() for user in card_data]
+    
+    #print("starting recomendation algorithm")
+    #recommended_users = session_user.get_recomended_users()
+    #print("ending recomendation algorithm")
+    #for p in recommended_users:
+    #    print((p.str_first_name,p.str_last_name,p.likeness))
+
+    recommended = session_user.get_recomended_users()
 
     #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
         card_data = card_data.exclude(mentee__mentor = session_user.mentor)
     elif session_user.is_mentee() and session_user.mentee.mentor:
         card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
-    # Using the Interest's many-to-many relation with the User table
-    # Count all the interests for the opposing role
-    interests_with_role_count = Interest.objects.annotate(mentor_count=Count('user', filter=Q(user__str_role=opposite_role))).values('strInterest', 'mentor_count')
+    
+
+    interests_with_role_count = Interest.objects.annotate(
+                                    mentor_count=Count('user', filter=Q(user__str_role=opposite_role))
+                                    ).values('strInterest', 'mentor_count')
 
     # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
     #set up the django users to include a property indicateing they have been reqeusted by the current user
-    users = [user.sanitize_black_properties() for user in card_data]
 
+    for user in users:
+        user.is_requested_by_session = False
+
+    #cache the result of this query so we are not using it in the rendered view
     context = {
-            "recommended_users": users[0:4] if len(users) >= 4 else users[0:len(users)], # Making sure that there are enough users to display
-            "all_users"        : users[4:]  if len(users) >= 4 else [],
+                                # Making sure that there are enough users to display
+            "recommended_users": recommended[0:4] if len(recommended) >= 4 else recommended[0:len(recommended)], 
+            "all_users"        : users if len(users) >= 4 else [],
             "interests"        : list(interests_with_role_count),
             "session_user"     : session_user,
             "role"             : role
     }
 
-    return HttpResponse(template.render(context, req))
+    
+    print("Time for query: ", get_runtime()-start_time )
+    render = template.render(context, req)
+
+    print("Time: " ,get_runtime()-start_time)
+    return HttpResponse(render)
+
+
 
 def admin_dashboard(req):
     """
@@ -115,8 +226,9 @@ def admin_dashboard(req):
                "total_approved_mentorships"  : overall_stats["total_approved_mentorships"  ],
                "total_requested_mentorships" : overall_stats["total_requested_mentorships" ],
                "successful_match_rate"       : overall_stats["successful_match_rate"       ],
-               "pending_mentor"              : overall_stats["pending_mentor"              ],
+               "pending_mentors"             : overall_stats["pending_mentors"             ],
                "total_terminated_mentorships": overall_stats["total_terminated_mentorships"],
+               "mentees_reported"            : overall_stats["mentees_reported"            ],
                
                # Daily
                "daily_visitors"              : timespan_stats["Daily"][0],

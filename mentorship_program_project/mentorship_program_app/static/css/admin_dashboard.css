@@ -5,6 +5,7 @@
             "bl3 bl3 bl3 bl3"
             "bl4 bl5 bl6 bl7"
             "bl8 bl8 bl8 bl8"
+            "bl9 bl9 bl9 bl9"
             "bl0 bl0 bl0 bl0";
     }
 
@@ -26,6 +27,7 @@
             "bl4 bl5"
             "bl6 bl7"
             "bl8 bl8"
+            "bl9 bl9"
             "bl0 bl0";
     }
 
@@ -57,6 +59,7 @@
             "bl6"
             "bl7"
             "bl8"
+            "bl9"
             "bl0";
     }
 }
@@ -160,8 +163,12 @@ h3 {
     text-align: left;
 }
 
-.generate-mentee-reports {
+.generate-reports {
     grid-area: bl8;
+}
+
+.view-reported-users {
+    grid-area: bl9;
 }
 
 .user-management {

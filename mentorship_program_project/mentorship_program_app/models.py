@@ -47,15 +47,25 @@ from django.conf import settings
 from django.db import models
 from django.db.models import *
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse,HttpRequest # for typing
+
+
 
 #standard python imports
 from datetime import date
 import os
 from typing import Callable
+import random
+import string
+from enum import Enum
+
 
 #project imports
 from utils import security
+from django.utils import timezone
+from datetime import timedelta
+from typing import Tuple
 
 
 # Create your models here.
@@ -196,7 +206,136 @@ class Interest(SVSUModelData,Model):
     isDefaultInterest = BooleanField(default=False)
 
 
+    @staticmethod
+    def create_interest(str_interest : str, bool_default : bool = False) -> 'Interest' :
+        """
+        Description
+        -----------
+        Creates an interest given a name and boolean value to determine 
+        if the interest is a default interest.
 
+
+        Example Usage
+        _____________
+        >>> my_interest = create_interest("Computer Science")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
+        #Create the interest and save it to the database in one line.
+        try:
+            return Interest.objects.create(
+                strInterest = str_interest,
+                isDefaultInterest = bool_default
+            )
+        except :
+            return None
+        
+    
+    @staticmethod
+    def get_interest(str_interest_name : str ) -> 'Interest' :
+        """
+        Description
+        -----------
+        Gets an interest by name.
+
+
+        Example Usage
+        _____________
+        >>> my_interest = get_interest("Computer Science")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
+        
+        try:
+            #Find the first instance of the interest in the database and return the object.
+            return Interest.objects.filter(str_interest = str_interest_name).first()
+        except:
+            return None
+    
+    @staticmethod
+    def update_interest(str_interest_name : str, bool_default : bool, str_new_interest_name : str = None) -> 'Interest' :
+        """
+        Description
+        -----------
+        Updates an interest with a new default value or interest name.
+
+
+        Example Usage
+        _____________
+        >>> my_interest = update_interest("Netwoking", True, "Networking")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
+        try:
+            #Find the first instance of the interest in the database and return the object.
+            interest : 'Interest' = Interest.objects.filter(str_interest = str_interest_name)
+            
+            if str_new_interest_name != None :
+                interest.strInterest = str_new_interest_name
+            
+            interest.isDefaultInterest = bool_default
+
+            #save the instance to the database
+            interest.save()
+
+            return interest
+        except:
+            return None
+        
+    @staticmethod
+    def create_default_interests():
+        
+        default_interests = [
+            'Artificial Intelligence', 
+            'Computer Graphics', 
+            'Data Structures & Algorithms',
+            'Networking',
+            'Operating Systems',
+            'Embedded Systems',
+            'Cloud Computing',
+            'Software Engineering',
+            'Distrubuted Systems',
+            'Game Development',
+            'Cybersecruity',
+            'System Analysis']
+        
+        for interest in default_interests:
+            Interest.get_or_create_interest(interest)
+    
+    @staticmethod
+    def delete_interest(str_interest_name : str) -> 'Interest' :
+        """
+        Description
+        -----------
+        Removes an interest from the database.
+
+
+        Example Usage
+        _____________
+        >>> my_interest = delete_interest("Compter Science")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
+        try:
+            #Find the first instance of the interest in the database and return the object.
+            interest : 'Interest' = Interest.objects.filter(str_interest = str_interest_name)
+            interest.delete()
+
+            return interest
+        except:
+            return None
 
     @staticmethod
     def get_or_create_interest(str_interest : str) -> 'Interest':
@@ -307,9 +446,72 @@ class User(SVSUModelData,Model):
 
     """
 
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs) #let django cook
+        
+        #mark cached functions so we don't over query the database
+        self.cache = security.Decorators.FunctionCache()
+        
+        #decorate cachable functions on the init level so python understands when to remove
+        #the cached data
+        self.is_mentee = self.cache.create_cached_function(self.is_mentee)
+        self.is_mentor = self.cache.create_cached_function(self.is_mentor)
+
+
+
     @property 
     def str_full_name(self):
-        return self.str_first_name + " " + self.str_last_name
+        first_name = self.str_first_name if self.str_first_name != None else " "
+        last_name =  self.str_last_name if self.str_last_name != None else " "
+        return first_name + " " + last_name
+
+    def get_recomended_users(self):
+        """
+        Description
+        ___________
+        query that returns opposite users in the database that are ordered base on their 
+        interest similarity to the current user
+
+        Notes
+        _____
+        the idea here is to keep the number crunching as much on the databse side of things as possible
+        so the query first computes your likely score to the current user on the db in a subquery, 
+        and then uses that to order on after the sub query finishes
+
+        Authors
+        _______
+        David Kennamer >.>
+        """
+
+        return User.objects.raw(
+                    f"""
+                    SELECT DISTINCT t1.user_id AS id,str_first_name,str_last_name,COUNT(*) as likeness
+                       FROM mentorship_program_app_user_interests AS t1, mentorship_program_app_user_interests AS t2,mentorship_program_app_user AS tu
+                       WHERE t2.user_id={self.id} AND t1.interest_id = t2.interest_id AND t1.user_id = tu.id
+                             AND tu.str_role = '{self.get_opposite_database_role_string()}'
+                       GROUP BY t1.user_id,tu.str_first_name,tu.str_last_name
+                       ORDER BY likeness DESC;
+                    """
+                    )
+
+        
+        #quick and dirty method
+        #pings the database a lil' more than I would like
+        #this method fails to work properly since it does not accout for every item in the database
+        #due to pagination from django, we need this query to run on the server
+        
+        #q_obj = User.objects.filter(str_role=self.get_opposite_database_role_string())
+        #ret_val =  []
+        #for u in q_obj:
+        #    u.likeness = float((u.interests.all() & self.interests.all()).count())
+        #    ret_val.append(u)
+        #ret_val.sort(key = lambda x : x.likeness,reverse=True)
+
+        #ret_val = ret_val
+
+
+        #return ret_val
+
 
     def get_backend_only_properties(self)-> list[str]:
         """
@@ -471,6 +673,7 @@ class User(SVSUModelData,Model):
         -------
         
         """
+
         return User.Role.MENTEE if  self.is_mentor()  else User.Role.MENTOR
 
     def get_database_role_string(self)->str:
@@ -504,8 +707,10 @@ class User(SVSUModelData,Model):
         Authors
         -------
         David Kennamer ._.
+        Jordan Anodjo
         
         """
+        
         return User.Role.MENTOR if self.is_mentor()  else User.Role.MENTEE
 
 
@@ -572,11 +777,71 @@ class User(SVSUModelData,Model):
         
         """
         try:
-            self.mentee 
+            self.mentee
             return self.str_role == User.Role.MENTEE
         except ObjectDoesNotExist:
             return False
+    
+    def is_super_admin(self)->bool:
+        """
+        convinece function that returns true if the given user has super admin privleges in the database
+        """
+        try:
+            return  self.str_role == "Admin" or self.admin_entry.bool_enabled
+        except ObjectDoesNotExist:
+            
+            return False
 
+    def get_shared_organizations(self,other : 'User')->['Organization']:
+        """
+        returns a set of organizations that the two given users share
+        """
+        #only mentors have organizations
+        if not (self.is_mentor() and other.is_mentor()): return None
+
+        return self.mentor.organizations & other.mentor.organizations
+
+
+
+
+    def get_first_shared_organization(self,other : 'User')->'Organization':
+        """
+        returns the first shared organization if it exists, otherwise None
+        """
+        #mentees do not have an organization
+        if self.is_mentee() or other.is_mentee(): return None
+        
+        my_organizations =  self.mentor.organizations.all()
+        your_organizations =  [o.id for o in other.mentor.organizations.all()]
+
+        #get the intersection of the id's
+        #realistically users will only be a part of one to two organiazitons
+        for my_org in my_organizations:
+            if my_org.id in your_organizations:
+                return my_org
+        return None
+
+    def has_authority(self, other : 'User')->bool:
+        """
+        returns true if the given user account has authority over the second user account
+        """
+        if self.id == other.id: return True
+        if self.is_super_admin(): return True
+        
+        if self.is_mentor() and other.is_mentor():
+            #if we are both mentors, check if we share an organization
+
+            shared_organizations = self.mentor.get_shared_organizations(other.mentor)
+
+            for org in shared_organizations:
+                if self.mentor.is_admin_of_organization(org):
+                    return True
+        
+        return False
+
+
+
+    
     def check_valid_password(self,password_plain_text : str)->bool:
         """
         Description
@@ -608,6 +873,54 @@ class User(SVSUModelData,Model):
         return security.hash_password(password_plain_text,self.str_password_hash) ==\
                 self.str_password_hash
 
+
+    def create_mentorship_from_user_ids(self,mentee_user_account_id : int,mentor_user_acount_id : int)->tuple['User','User']:
+        """
+        Description
+        ___________
+        convinence function that creates a relationship between a mentor and a mentee given their account id's
+
+        returns a tuple of the accounts from the database for further processing, will fail if the user this is running from
+        does NOT have permission to interact with the database
+
+        Returns
+        _______
+        a tuple of user objects where the first object is the mentee and the second the mentor
+
+        if you do not have permission to create the request, it returns (None,None)
+
+        Authors
+        _______
+        David Kennamer <.<
+        """
+        
+        #ensure that the person creating the request is a mentor (also admin, since admin is a subset of mentor)
+        # if not self.is_mentor():
+        #     return (None,None)
+
+        mentor_user_account = User.objects.get(id=mentor_user_acount_id)
+
+        if mentor_user_account.mentor.has_maxed_mentees():
+            raise ValidationError('mentor has max mentees!')
+            return (None,None)
+    
+        # if not self.has_authority(mentor_user_account):
+        #     return (None,None)
+
+        mentee_user_account = User.objects.get(id=mentee_user_account_id)
+        mentee_account = mentee_user_account.mentee
+        mentee_account.mentor = mentor_user_account.mentor
+        mentee_account.save()
+
+        #make sure to remove all MentorShipRequests that are in the database still, since this mentee now has a mentor
+        MentorshipRequest.remove_all_from_mentee(mentee_account)
+
+        # record logs
+        # record the mentee since the mentor can be gathered from it later
+        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, 
+                                  specified_user= User.objects.get(id=mentee_user_account_id))
+
+        return (mentee_account,mentee_account.mentor)
 
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
@@ -902,6 +1215,8 @@ class User(SVSUModelData,Model):
             mentor from accessing certain pages
         - require_logged_in_mentee: Prevents users who aren't logged in as a
             mentee from accessing certain pages
+        - require_logged_in_super_admin: Prevents users who aren't logged in as
+            a super admin from accessing certain pages
 
         Magic Functions
         -------------
@@ -984,7 +1299,57 @@ class User(SVSUModelData,Model):
             validator = lambda req : security.is_logged_in(req.session) \
                                      and User.from_session(req.session).is_mentee()
             return security.Decorators.require_check(validator, alternate_view)
+        
+        @staticmethod
+        def require_logged_in_super_admin(alternate_view : Callable): # -> Callable[HttpRequest,HttpResponse]:
+            """
+            Description
+            -----------
+            Prevents users who aren't logged in as a super admin from accessing
+            certain pages or performing certain operations
 
+            Parameters
+            ----------
+            - alternate_view (Any): The page to redirect to if the user logged
+                in is not a mentor
+
+            Optional Parameters
+            -------------------
+            (None)
+
+            Returns
+            -------
+            - Any: The decorated function with the redirect
+
+            Example Usage
+            -------------
+            def some_other_view(req : HttpRequest)->HttpResponse:
+                ...
+
+            @Users.require_logged_in_super_admin(some_other_view)
+            def protected_view(req : HttpRequest)->HttpResponse
+
+            Authors
+            -------
+            David Kennamer
+            William Lipscom:b
+            NOTE: I basically just ctrl c + ctrl v from above.
+            """
+            validator = lambda req : security.is_logged_in(req.session) \
+                                     and User.from_session(req.session).is_super_admin()
+            return security.Decorators.require_check(validator, alternate_view)
+
+
+
+class SuperAdminEntry(SVSUModelData,Model):
+    """
+    this class represents a list of super admin mentors in the database
+
+    if you have an entry in this table you are super admin,
+    if you do not have an entry, you are not super admin
+    """
+    bool_enabled = BooleanField(default=True) #can be used to turn off admin
+    user_account = OneToOneField(User, on_delete=models.CASCADE,related_name="admin_entry")
 
 
 class Organization(SVSUModelData,Model):
@@ -1017,7 +1382,7 @@ class Organization(SVSUModelData,Model):
     str_org_name = CharField(max_length=100)
     str_industry_type = CharField(max_length=100)
 
-    admins = models.ManyToManyField('Mentor',related_name='administered_organizations')
+    admins = models.ManyToManyField('Mentor',related_name='administered_organizations') 
 
 class Mentor(SVSUModelData,Model):
     """
@@ -1053,6 +1418,51 @@ class Mentor(SVSUModelData,Model):
     
     """
 
+    def has_maxed_mentees(self)->bool:
+        """
+        Description
+        ___________
+        returns true if the given mentor has maxed mentees
+        """
+        return self._mentee_set.count() >= self.int_max_mentees
+    
+    @property
+    def mentee_set(self):
+        """
+        Description
+        ___________
+        read only property that ensures mentors do not get more mentees
+        """
+        
+        def wrapper(*args,**kwargs):
+            if self.has_maxed_mentees():
+                raise ValidationError('mentor has maxed mentees!')
+            return self._mentee_set.add(*args,**kwargs)
+        
+        self._mentee_set.add = wrapper
+
+        return self._mentee_set
+
+
+
+
+    def is_admin_of_organization(self,org : 'Organization')->bool:
+        """
+        returns true if the given user administers the given organization
+        """
+        try:
+            org.admins.get(id=self.id)
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    def get_shared_organizations(self,other : 'Mentor')->['Organization']:
+        """
+        returns a list of organizations shared between two mentors,
+        the list will be empty if no mentors exists
+        """
+        return self.organizations.all() & other.organizations.all()
+        
     int_max_mentees = IntegerField(default=4)
    
     # TODO:
@@ -1150,11 +1560,55 @@ class Mentee(SVSUModelData,Model):
     -------
 
     """
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+
+        self.function_cache = security.Decorators.FunctionCache()
+        self.has_maxed_request_count = self.function_cache.create_cached_function(self.has_maxed_request_count)
+
+
+    #limits the number of requests that any given mentee can have
+    MAXIMUM_REQUEST_COUNT = 5
+
     account = OneToOneField(
         "User",
         on_delete = models.CASCADE
     )
-    mentor = models.ForeignKey('Mentor', on_delete=models.CASCADE,null=True)
+    mentor = models.ForeignKey('Mentor',
+                                on_delete=models.CASCADE,
+                                null=True,
+                                related_name='_mentee_set',
+                                db_column="mentor_id")
+
+    #TODO: figure out why the heck these don't work >.<
+    #@property
+    #def mentor(self):
+    #    print("hello from the mentor property")
+    #    return self._mentor
+    #@mentor.setter
+    #def mentor(self,val : 'Mentor'):
+    #    if val != None and val.id != self._mentor.id and val.has_maxed_mentees():
+    #        raise ValidationError('mentor has maxed mentees!')
+
+    #    self._mentor = val
+
+
+    @staticmethod
+    def mentee_has_maxed_request_count(mentee_account_id : int)->bool:
+        """
+        simple function that returns true if a given mentee has more mentors than the maximum request count
+        """
+        try:
+            return MentorshipRequest.objects.filter(requester=mentee_account_id).count() >= Mentee.MAXIMUM_REQUEST_COUNT
+        except ObjectDoesNotExist:
+            return False
+
+    def has_maxed_request_count(self)->bool:
+        """
+        syntactic sugar function that returns true if the given mentee has maxed their request count
+        """
+        return Mentee.mentee_has_maxed_request_count(self.account.id)
     
     @staticmethod
     def create_from_plain_text_and_email(password_plain_text : str,
@@ -1247,12 +1701,76 @@ class MentorshipRequest(SVSUModelData,Model):
         on_delete = models.CASCADE,
         related_name = "mentee_to_mentor_set"
     )
+
     requester = IntegerField(null=True)
 
+    def accept_request(self,session_user : User)->bool:
+        """
+        Description
+        ___________
+        accepts the given mentorship request
 
+
+        fails if the given session user does NOT have PERMISSION to make the request
+
+        Authors
+        _______
+        David Kennamer *_*
+        Tanner Williams 🦞
+        """
+
+        # record logs
+        # record the mentee since the mentor can be gathered from it later
+        mentor,mentee = session_user.create_mentorship_from_user_ids(
+                                                    self.mentee.id,
+                                                    self.mentor.id
+                                                    )
+        print(mentor, mentee)
+        if mentor == None or mentee == None:
+            
+            return False
+
+        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
+                                  specified_user=mentee.account)
+
+       
+        MentorshipRequest.remove_all_from_mentee(mentee)
+        print("AHH GOOD")
+        return True
+        
+
+    def remove_all_from_mentee(mentee : 'Mentee')->None:
+        """
+        Description
+        ___________
+        convinence function that removes all mentorship requests from the database that match a given mentee
+
+        Authors
+        _______
+        David Kennamer \*^*/
+        """
+        MentorshipRequest.objects.filter(mentee=mentee.account).delete()
 
     def is_accepted(self)->bool:
-        self.mentor.mentees.get(id=self.mentee.id)
+        """
+        Description
+        ___________
+        returns true if the given request is accepted in the database, ideally this should 
+        allways be false, since we delete mentorship requests when we add them to a user
+
+        this is here as an extra security check to make sure that the request is NOT accepted
+        if this ever returns true it indicates invalid data
+
+        Authors
+        _______
+        David Kennamer ).)
+        Tanner Williams 🦞
+        """
+        try:
+            self.mentor.mentees.get(id=self.mentee.id)
+            return True
+        except:
+            return False
 
 
     
@@ -1294,6 +1812,15 @@ class MentorshipRequest(SVSUModelData,Model):
         """
 
         try:
+            #prevent requests for mentors that have their mentee count maxed
+            mentor_user_account = User.objects.get(id=int_mentor_user_id)
+            if mentor_user_account.mentor.has_maxed_mentees():
+                return False
+
+            mentee_user_account = User.objects.get(id=int_mentee_user_id)
+            if mentee_user_account.mentee.has_maxed_request_count():
+                return False
+
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,
                 mentee_id = int_mentee_user_id,
@@ -1509,6 +2036,7 @@ class MentorReports(SVSUModelData,Model):
     Authors
     -------
     Adam C.
+    Jordan A.
     """
     class ReportType(TextChoices):
         """
@@ -1536,16 +2064,28 @@ class MentorReports(SVSUModelData,Model):
         -------
         Adam C.
         """
-        BEHAVIOR : 'Behavior'
+        CONDUCT: 'Conduct'
+        PROFILE: 'Profile'
+        RESPONSIVENESS: 'Responsiveness'
+        OTHER: 'Other'
+
+
+        # TODO: Add different issue
 
     mentor = ForeignKey(
         Mentor,
         on_delete = models.CASCADE
     )
+
+    mentee = ForeignKey(
+        Mentee,
+        on_delete = models.CASCADE,
+        default=""
+    )
     str_report_type = CharField(max_length=10, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
 
-    def create_mentor_report(str_provided_report_type: str, str_provided_report_body: str, int_mentor_id: int) -> bool:
+    def create_mentor_report(str_provided_report_type: str, str_provided_report_body: str, int_mentor_id: int, int_mentee_id: int) -> bool:
         """
         Description
         -----------
@@ -1581,7 +2121,8 @@ class MentorReports(SVSUModelData,Model):
             MentorReports.objects.create(
                 str_report_type = str_provided_report_type,
                 str_report_body = str_provided_report_body,
-                mentor = int_mentor_id
+                mentor = int_mentor_id,
+                mentee = int_mentee_id
             )
             return True
         except Exception as e:
@@ -1690,16 +2231,15 @@ class Notes(SVSUModelData,Model):
     """
 
     str_title = CharField(max_length=100)
-    str_body = CharField(max_length=7000)
+    str_public_body = CharField(max_length=7000, null=True, blank=True)
+    str_private_body = CharField(max_length=7000, null=True, blank=True)
     cls_created_on = DateField(default=date.today)
 
 
-    user = ForeignKey(
-        User,
-        on_delete = models.CASCADE
-    )
+    user = ForeignKey(User, on_delete = models.CASCADE)
 
-    def create_note(int_user_id: int, str_title_: str, str_body_: str):
+    @staticmethod
+    def create_note(user_id: int, str_title: str, str_public_body: str, str_private_body: str):
         """
         Description
         -----------
@@ -1726,25 +2266,67 @@ class Notes(SVSUModelData,Model):
         Authors
         -------
         Justin G.
+        Adam U.
 
         Changes
         -------
         """
-        try:
-            #create and save the entry in the database.
-            Notes.objects.create(
-                str_title = str_title_,
-                str_body = str_body_,
-                cls_created_on = date.now(),
-                user = int_user_id
-            )
-            #Operation was a success.
-            return True
-        except Exception as e:
-            print(e)
-            #Operation failed.
-            return False
+        str_title = None if str_title == "" else str_title
+        str_public_body = None if str_public_body == "" else str_public_body
+        str_private_body = None if str_private_body == "" else str_private_body
+        user = User.objects.get(id=user_id)
 
+        if not str_title:
+            return False
+        elif str_public_body or str_private_body:
+            Notes.objects.create(
+                str_title = str_title,
+                str_public_body = str_public_body,
+                str_private_body = str_private_body,
+                cls_created_on = date.today(),
+                user = user
+            )
+            print("Note created")
+            return True
+        else:
+            return False
+    
+    @staticmethod
+    def update_note(note_id: int, new_title: str, new_pub_body: str, new_pvt_body: str) -> None:
+        note = Notes.objects.get(id=note_id)
+
+        note.str_title = new_title
+        note.str_public_body = new_pub_body
+        note.str_private_body = new_pvt_body
+        note.save()
+
+    @staticmethod
+    def remove_note(note_id: int):
+        note = Notes.objects.get(id=note_id)
+        note.delete()
+        
+    @staticmethod
+    def get_all_mentor_notes(mentor: Mentor):
+        pub_notes = Notes.objects.filter(user=mentor)
+        return [{
+            "id" : note.id,
+            "title" : note.str_title,
+            "date_created" : note.cls_created_on,
+            "public_note" : note.str_public_body,
+            "private_note" : note.str_private_body
+        } for note in pub_notes]
+
+    @staticmethod
+    def get_public_mentor_notes(mentor_id: int):
+         pvt_notes = Notes.objects.filter(user=mentor_id, str_private_body__isnull=False)
+         return [{
+            "title" : note.str_title,
+            "date_created" : note.cls_created_on,
+            "public_note" : note.str_public_body
+        } for note in pvt_notes]
+            
+
+        
 class SystemLogs(SVSUModelData,Model):
     """
     Description
@@ -1909,3 +2491,120 @@ class ProfileImg(SVSUModelData,Model):
 
             self.save(update_fields=['file_size'])
         return self.file_size
+
+
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=30, unique=True)  
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def create_reset_token(user_id):
+        try:
+            # Get the user instance
+            user_instance = User.objects.get(pk=user_id)
+
+          # Check if the user already has a token, delete it if it exists
+            try:
+                existing_token = PasswordResetToken.objects.get(user=user_id)
+                existing_token.delete()
+            except ObjectDoesNotExist:
+                # No existing token for the user, proceed with creating a new one
+                print("Existing link deleted")
+                pass
+
+
+
+            
+
+            duplicate = True
+            token = ""
+            while duplicate:
+                # Define the pool of characters to choose from (only uppercase letters and digits)
+                characters = string.ascii_uppercase + string.digits
+
+                # Generate a random string of length 6
+                token = ''.join(random.choice(characters) for _ in range(30))
+
+                #checks to see if token exist already
+                duplicate = PasswordResetToken.objects.filter(token=token).exists()
+            
+            reset_token_instance = PasswordResetToken(user=user_instance, token=token)
+            # Save the new instance of PasswordResetToken model
+            reset_token_instance.save()
+
+            return True, "Reset link created successfully", token
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            return False, f"An error occurred creating your link", token
+        
+
+    
+    def is_valid_token(self) -> Tuple[bool, str]: #this deletes a token if its not valid
+        try:
+            expiration_time = 10 ## time for a token to expire in minutes
+
+            # Get the current time
+            current_time = timezone.now()
+        
+            # Calculate the timestamp ten minutes ago
+            ten_minutes_ago = current_time - timedelta(minutes=expiration_time)
+        
+            # Check if the token timestamp is greater than or equal to ten minutes ago
+            if self.timestamp >= ten_minutes_ago:
+                # Token is valid
+                return True , "found"
+            else:
+                # Token expired
+                self.delete() #delete expired tokens
+                return False, "expired"
+        except Exception as e:
+            # Log or handle the exception
+            return False, "ex"
+    
+    #deletes all expired tokens by validating them
+    @staticmethod
+    def delete_all_expired_reset_tokens():
+        tokens = PasswordResetToken.objects.all()
+
+        for token_record in tokens:
+            if not token_record.is_valid_token(token_record):
+                print(f"Expired token deleted: {token_record}")
+            else:
+                print(f"Token is still valid: {token_record}")
+
+    @staticmethod
+    def validate_and_reset_password(token: str, new_password: str) -> Tuple[bool, str]:
+        try:
+            # Retrieve the token instance based on user ID and token
+
+          
+            token_instance = PasswordResetToken.objects.get(token=token)
+            
+            
+            valid, message = token_instance.is_valid_token()
+            # Check if the token is valid
+            if not valid:
+                if message == "expired":
+                    return False,  "Link expired, attempt reset again!"
+                if message == "ex":
+                    return False, "An error occoured verifying your link."
+            # Delete the token since it was correct and is no longer needed
+            
+
+            user = User.objects.get(id=token_instance.user.id)
+            generated_user_salt = security.generate_salt()
+            user.str_password_hash = security.hash_password(new_password, generated_user_salt)
+            user.str_password_salt = generated_user_salt
+            user.save()
+            token_instance.delete()
+
+            
+            return True, "Password successfully reset, Rerouting you to home page."  # Password reset successful
+        except PasswordResetToken.DoesNotExist:
+            return False,  "Invalid Link"
+
+
+
+   

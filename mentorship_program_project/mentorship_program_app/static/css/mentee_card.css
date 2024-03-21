@@ -82,7 +82,15 @@
     gap: 5px;
     text-align: center;
     min-height: 5rem;
+    max-height: 5rem;
+    overflow: hidden; /* overlay - Use for scroll support */
 }
+
+/* Don't get rid of this you FUCKING SAVAGES */
+/* .card-interests::-webkit-scrollbar {
+    width: 5px;
+    border-radius: 20px;
+} */
 
 .card-interests p {
     font-size: 0.8rem;

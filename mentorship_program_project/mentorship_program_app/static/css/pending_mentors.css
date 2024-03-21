@@ -1,3 +1,7 @@
+body{
+    overflow-x: hidden;
+}
+
 button, input{
     font-size: 1.5rem;
     padding: 2px 2rem;
@@ -26,6 +30,7 @@ button:focus, input:focus{
 }
 
 .left-arrow {
+    overflow: auto;
     position: absolute;
     height: 1rem;
     top: 4%;
@@ -34,9 +39,7 @@ button:focus, input:focus{
 
 .title {
     font-size: 2rem;
-    position: inherit;
-    left: -2rem;
-    width: 100%;
+    align-self: center;
 }
 
 .return-link {
@@ -49,7 +52,7 @@ button:focus, input:focus{
     width: 80vw;
     background-color: rgba(0, 0, 0, .15);
     border-radius: 5vh;
-    margin-top: 5rem;
+    margin-top: 6rem;
     box-shadow: 4px 4px 8px rgba(0, 0, 0, .15);
     overflow-y: scroll;
 }
@@ -85,5 +88,33 @@ button:focus, input:focus{
     font-size: 1.5rem;
 }
 
+
+@media screen and (max-width: 1150px) {
+
+    .mentor-applicants-container {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .mentor-applicant{
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background-color: rgba(255, 255, 255, .1);
+        margin: 1rem;
+        border-radius: 50px;
+        max-width: 320px;
+    }
+
+    .profile-picture-container, .mentor-name {
+        align-self: center;
+        justify-self: center;
+    }
+
+    footer {
+        visibility: hidden;
+    }
+}
 
 
