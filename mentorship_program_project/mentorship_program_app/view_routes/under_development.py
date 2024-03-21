@@ -245,6 +245,7 @@ def register_mentor(req: HttpRequest):
     
 
 def register_mentee(req: HttpRequest):
+    
     '''
     Description
     -----------
@@ -301,6 +302,9 @@ def register_mentee(req: HttpRequest):
         parsed_user_interests = [
                                     Interest.get_or_create_interest(interest) for interest in req.POST.getlist("selected_interests")
                                 ]
+
+        
+
 
         for interest in parsed_user_interests:
             pending_mentee_object.account.interests.add(interest)

@@ -194,6 +194,8 @@ def THESECONDMOVE(req):
 
 def register_mentee(req):
     template = loader.get_template('sign-in card/single_page_mentee.html')
+    if not Interest.objects.exists():
+        Interest.create_default_interests()
     context = {
         'interestlist':  Interest.objects.all(),
         
@@ -217,7 +219,8 @@ def register_mentee(req):
 
 def register_mentor(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
-    
+    if not Interest.objects.exists():
+        Interest.create_default_interests()
     context = {
         'interestlist': Interest.objects.all(),
 

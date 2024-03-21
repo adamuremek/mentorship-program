@@ -290,6 +290,26 @@ class Interest(SVSUModelData,Model):
             return interest
         except:
             return None
+        
+    @staticmethod
+    def create_default_interests():
+        
+        default_interests = [
+            'Artificial Intelligence', 
+            'Computer Graphics', 
+            'Data Structures & Algorithms',
+            'Networking',
+            'Operating Systems',
+            'Embedded Systems',
+            'Cloud Computing',
+            'Software Engineering',
+            'Distrubuted Systems',
+            'Game Development',
+            'Cybersecruity',
+            'System Analysis']
+        
+        for interest in default_interests:
+            Interest.get_or_create_interest(interest)
     
     @staticmethod
     def delete_interest(str_interest_name : str) -> 'Interest' :
@@ -2059,7 +2079,8 @@ class MentorReports(SVSUModelData,Model):
 
     mentee = ForeignKey(
         Mentee,
-        on_delete = models.CASCADE
+        on_delete = models.CASCADE,
+        default=""
     )
     str_report_type = CharField(max_length=10, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
