@@ -78,7 +78,7 @@ Reset Password
             <form>
                 {% csrf_token %}
                 <input type="text" class="email-field" placeholder="Enter New Password" id="new-password" name="new-password" required>
-                <input type="text" class="email-field" placeholder="Renter Password" id="re-new-password" name="re-new-password" required>
+                <input type="text" class="email-field" placeholder="Re-enter Password" id="re-new-password" name="re-new-password" required>
                 <button onclick="reset_password_attempt(event)"  id="token-button" class="token_button submit-button" style="text-align: center;">Submit New Password</button>
                 
                 <p id="status" class="status"></p>
