@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_corner %}
-    <button type="submit" class="sign_in_top_left_element" onclick="window.location.href = '/'">X</button>
+    <button type="submit" class="sign_in_top_left_element" id="modal-exit" onclick="window.location.href = '/'">X</button>
 {% endblock %}
 
 {% block card_head %}
@@ -19,12 +19,12 @@
         </div>
         <div class="sign-in-card-element">
             <form method="get" action="/register/mentee">
-                <button class="sign-in-card-option-button">Mentee</button>
+                <button class="sign-in-card-option-button" id="mentee-btn">Mentee</button>
             </form>
         </div>
         <div class="sign-in-card-element">
             <form method="get" action="/register/mentor">
-                <button class="sign-in-card-option-button">Mentor</button>
+                <button class="sign-in-card-option-button" id="mentor-btn">Mentor</button>
             </form>
         </div>
     </div>
