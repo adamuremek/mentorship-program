@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Title</title>
+    <title>Password Reset</title>
     <style>
         /* CSS styles */
         .modal-footer-container {
@@ -23,6 +23,21 @@
         .submit-buttons:hover {
             background-color: #0056b3; /* Darker blue on hover */
         }
+
+
+        .bad_email {
+
+            padding: 0px 20px ; /* Padding */
+            margin-top: 10px; /* Add margin between the button and the input field */
+            color: firebrick;
+            font-weight: bold;
+        }
+
+        .good_email
+        {
+            color: forestgreen;
+        }
+
     </style>
 </head>
 <body>
@@ -39,10 +54,13 @@
             
         </div>
         <div class="modal-footer-container">
-            <form id="frm-reset-password" action="/request_reset" method="POST">
+            <form id="frm-reset-password">
                 {% csrf_token %}
                 <input type="email" id="reset-email" class="user-input" name="email" placeholder="e.g. john.doe@svsu.edu" />
-                <button class="li-buttons submit-buttons" id="pass-reset" type="submit">Send Confirmation Code</button>
+                <button onclick="checkEmail(event)" class="li-buttons submit-buttons" id="pass-reset" style="font-size: 16px;">Send Password Reset Link</button>
+                <h2 id="email-status-good" class="good_email"></h2>
+                <p id="email-status-bad" class="bad_email" ></p>
+
             </form>
         </div>
     </div>
@@ -53,23 +71,21 @@
 
 <script>
     const input_email = document.getElementById('reset-email')
-    const regex_svsu = /^[^\s@]+@svsu[.]edu$/ 
-    const regex_svsu_domain = /@svsu\.edu$/
+
     const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    let is_student = true //placeholder, try using django stuff later
+
 
     input_email.addEventListener("input", e => {
 
-        //determine is email is student's email based on if it is an SVSU domain, if email is any other domain that must mean they are a mentor
-        is_student = regex_svsu_domain.test(e.target.value)
+        if (e.target.value === "") {
+            input_email.style.backgroundColor = 'rgba(255, 255, 255, 0.07)';
+            return;
+        }
 
-        let regex_custom
-        if(is_student)
-            regex_custom = regex_svsu
-        else
-            regex_custom = regex_email
+        let regex_custom = regex_email
 
         const regex_result = regex_custom.test(e.target.value)
+        
 
         //change background color green if correct email format, red if incorrect email format
         if(regex_result)
@@ -77,4 +93,49 @@
         else
             input_email.style.backgroundColor = 'firebrick'
     })
-</script>
+
+
+
+
+    function checkEmail(event) {
+    event.preventDefault(); // Prevent the default form submission action                                                                  🦞
+    var email = document.getElementById("reset-email").value;
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var response = JSON.parse(this.responseText);
+            if (response.exists) {
+                document.getElementById("email-status-good").innerText = "Email Sent!";
+                sendEmail(email);
+                document.getElementById("pass-reset").style.display = "none"; // Hide the button
+                document.getElementById("reset-email").style.display = "none"; // Hide the textbox
+                document.getElementById("email-status-bad").style.display = "none"; // if visible hide it
+                
+            } else {
+                document.getElementById("email-status-bad").innerText = "No account associated with that email.";
+            }
+        }
+    };
+    xhttp.open("GET", "/check_email_for_password_reset?email=" + email, true);
+    xhttp.send();
+}
+
+
+
+    function sendEmail(email) {
+        
+    var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                // Handle the response of the POST request if needed
+                console.log("POST request successful");
+            }
+        };
+        xhttp.open("POST", "/reset_request", true); // Change endpoint to your reset_request URL
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        var params = "email=" + email; // Constructing POST parameters
+        xhttp.send(params);
+    }
+
+
+    </script>

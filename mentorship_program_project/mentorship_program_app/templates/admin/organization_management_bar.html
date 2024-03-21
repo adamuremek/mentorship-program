@@ -1,14 +1,14 @@
 <div class="organization_management_bar_container">
     <div class="organization_management_bar">
         <div id="organization_account">
-            {{ organizations.organizations }}
+            {{ organizations.id }}
         </div>
 
         <p id="admin_user_management_small_text">
             {{ organization.name }}
         </p>
         
-        {% if user_super_admin_flag or user_admin_flag %}
+        {% if user_admin_flag %}
             <button class="admin_user_management_word_button_active" id="remove_organization_button">
                 <p id="admin_user_management_small_text">
                     REMOVE
@@ -17,7 +17,23 @@
         {% endif %}
     </div>
 
-    {% for mentor in admin_list %}
-        {% include 'admin/organization_management_bar.html' %}
-    {% endfor %}
+    <div id="admin_list">
+        <p id="admin_user_management_small_text">
+            Admins
+        </p>
+        {% for mentor in organization.admin_list %}
+            <hr>
+            {% include 'admin/mentor_management_bar.html' %}
+        {% endfor %}
+    </div>
+
+    <div id="mentor_list">
+        <p id="admin_user_management_small_text">
+            Mentors
+        </p>
+        {% for mentor in organization.mentor_list %}
+            <hr>
+            {% include 'admin/mentor_management_bar.html' %}
+        {% endfor %}
+    </div>
 </div>

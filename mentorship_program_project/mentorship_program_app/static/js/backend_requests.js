@@ -129,7 +129,7 @@ async function attempt_mentor_report(mentor_id) {
 */
 async function attempt_mentorship_request(mentee_id, mentor_id)
 {
-
+	console.log("CUMMMMMMMMM")
 	// NEED TO TEST
     const req = new Request("request_mentor/" + mentee_id + "/" + mentor_id, {
                             method: "POST",

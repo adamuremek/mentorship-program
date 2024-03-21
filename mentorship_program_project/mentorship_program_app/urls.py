@@ -38,7 +38,8 @@ WHO     WHEN     WHAT
 WJL   3/3/2024   Added file header comment
 """
 
-from django.urls import include,path
+from django.urls import include,path, re_path
+
 from django.conf import settings
 from django.conf.urls.static import static
 from mentorship_program_app import views
@@ -88,9 +89,10 @@ urlpatterns = [
 
     
     ##RESETTING PASSWORD ROUTE feel free to move to better spot in file - Tanner 🦞
-    path("request_reset", under_development.reset_request, name="request_reset"),
+    path("reset_request", under_development.reset_request, name="reset_request"),
     path("reset_password", under_development.reset_password, name="reset_password"),
-    path("request_reset_page", under_development.request_reset_page, name="request_reset_page"),
+    re_path(r'^request_reset_page(?:/(?P<token>\w{30}))?/$', under_development.request_reset_page, name="request_reset_page"),
+    path('check_email_for_password_reset', under_development.check_email_for_password_reset, name='check_email_for_password_reset'),
 
 
     #ADAM + ANDREW + JORDAN TESTING

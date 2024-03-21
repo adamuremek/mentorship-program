@@ -91,10 +91,6 @@
 }
 
 .admin_user_management_word_button_inactive {
-    /* background: none;
-    border: none;
-    width: fit-content; */
-
     display: none;
 }
 
@@ -167,6 +163,9 @@
     margin-bottom: 1%;
     margin-top: 1%;
     margin-right: 3%;
+
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 15px;
 }
 
 .organization_management_bar {

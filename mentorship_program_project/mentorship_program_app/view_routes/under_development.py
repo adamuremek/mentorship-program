@@ -15,8 +15,8 @@ from utils import security
 from utils.development import print_debug
 from .emails import *
 from ..views import login_uname_text
-
-
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
@@ -235,7 +235,7 @@ def register_mentor(req: HttpRequest):
 
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentor.id))
         mentor_signup_email(pending_mentor_object.account.cls_email_address)
-        template: Template = loader.get_template('successful_registration.html')
+        template: Template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
         ctx = {}
         
         return HttpResponse(template.render(ctx, req))
@@ -245,6 +245,7 @@ def register_mentor(req: HttpRequest):
     
 
 def register_mentee(req: HttpRequest):
+    
     '''
     Description
     -----------
@@ -301,6 +302,9 @@ def register_mentee(req: HttpRequest):
         parsed_user_interests = [
                                     Interest.get_or_create_interest(interest) for interest in req.POST.getlist("selected_interests")
                                 ]
+
+        
+
 
         for interest in parsed_user_interests:
             pending_mentee_object.account.interests.add(interest)
@@ -402,14 +406,14 @@ def change_mentor_status(req: HttpRequest):
     # Retrieve user object based on ID
     user = User.objects.get(id=mentor_id)
     
-    # Update user role and activation status based on provided status
+    # Update user role and activation status based on provided status                                           
     if status == 'Approved':
         user.bln_active = True
         user.str_role = User.Role.MENTOR
         user.save()
-        mentor_denied_email(user.cls_email_address)
+        mentor_accepted_email(user.cls_email_address)      
     else:
-        mentor_accepted_email(user.cls_email_address)
+        mentor_denied_email(user.cls_email_address)
         user.delete()
         
         
@@ -771,6 +775,9 @@ def universalProfile(req : HttpRequest, user_id : int):
     all_interests = Interest.objects.all()
     pendingList = []
     notes = None
+    max_mentees = None
+    num_mentees = None
+    
     report_types = UserReport.ReportType.values
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
@@ -793,9 +800,13 @@ def universalProfile(req : HttpRequest, user_id : int):
         notes = Notes.get_all_mentor_notes(page_owner_user)
         pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)
         
+        max_mentees = page_owner_user.mentor.int_max_mentees
+        num_mentees = range(9, len(mentees_for_mentor), -1)
+        
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentee_id))
+             
             
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
@@ -807,6 +818,8 @@ def universalProfile(req : HttpRequest, user_id : int):
                 "user_id" : user_id,
                 "pending" : pendingList,
                 "notes" : notes,
+                "max_mentees" : max_mentees,
+                "num_mentees" : num_mentees,
                 "mentees_or_mentor" : mentees_or_mentor,
                 "report_types" : report_types,
                }
@@ -907,9 +920,15 @@ def save_profile_info(req : HttpRequest, user_id : int):
         page_owner_user.interests.clear()
         page_owner_user.interests.add(*interest_data)
 
+        # Set Max Mentees
+        if page_owner_user.is_mentor() and [mentee.account for mentee in page_owner_user.mentor.mentee_set.all()]:
+            page_owner_user.mentor.int_max_mentees = req.POST["max_mentees"]
+            page_owner_user.mentor.save()
+
         #Set the new bio
         page_owner_user.str_bio = req.POST["bio"]
         page_owner_user.save()
+        
 
     return redirect(f"/universal_profile/{user_id}")
 
@@ -1080,7 +1099,7 @@ def change_password(req : HttpRequest):
     return render(req, 'settings.html', {'message':"Password Updated"})
 
 
-
+@csrf_exempt
 def reset_request(req: HttpRequest):
     '''
      Description
@@ -1109,21 +1128,25 @@ def reset_request(req: HttpRequest):
     '''
 
 
-    email = req.POST["email"]
+    email = req.POST.get('email', None)
     
     try:
         user = User.objects.get(cls_email_address=email)
     except ObjectDoesNotExist:
-        return HttpResponse("An account is not assoicated with that email")
+        return HttpResponse(False)
     
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
-    message = PasswordResetToken.see_token(user_id=user.id)
+    
     reset_token_email(recipient=user.cls_email_address, token=token)
-    return HttpResponse(message + f" email: {user.cls_email_address}")
+    print("email sent to: "+email)
+    return HttpResponse(True)
 
 
 
 
+
+
+@csrf_exempt
 def reset_password(req : HttpRequest):
     '''
      Description
@@ -1150,35 +1173,59 @@ def reset_password(req : HttpRequest):
      _______
      Tanner Williams 🦞
     '''
-    new_password = req.POST["new-password"]
-    token = req.POST["token"]
+
+    new_password = req.POST.get('new-password', None)
+    token = req.POST.get('token', None)
+   
 
 
     valid, message = PasswordResetToken.validate_and_reset_password(token=token,new_password=new_password)
 
-    if(not valid):
-        return HttpResponse(message)
-
-
-    #if they are logged in for some reason
-    security.logout(req.session)
     # redirect to the page the request came from
-    return redirect("/")
+    return JsonResponse({'valid': valid, 'message': message})
 
 
 
     
-def request_reset_page(req):
-    template = loader.get_template('reset_page.html')
-    return HttpResponse(template.render())
-    context = {"organization" : Organization.objects.all()}
-    print(context)
 
-    return HttpResponse(template.render(context, req))
     
-def request_reset_page(req):
+def request_reset_page(req, token=None):
     template = loader.get_template('reset_page.html')
     return HttpResponse(template.render())
 
-    
-    
+@csrf_exempt
+def check_email_for_password_reset(request):
+    '''
+     Description
+     ___________
+     a route called from the password reset modal
+     that checks to see if an account exist with a certain email 
+
+     Paramaters
+     __________
+        req : HttpRequest - django http request
+
+     Returns
+     _______
+        JsonResponse if account exist
+     
+     Example Usage
+     _____________
+        >>> check_email_for_password_reset(request)
+         
+        JsonResponse({'exists': User.objects.filter(cls_email_address=email).exists()})
+
+        
+
+     >>> 
+     Authors
+     _______
+     Tanner Williams 🦞
+    '''
+    email = request.GET.get('email', None)
+
+    data = {
+        'exists': User.objects.filter(cls_email_address=email).exists() #                                          🦞
+    }
+
+    return JsonResponse(data) 

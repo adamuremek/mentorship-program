@@ -6,11 +6,14 @@ const EVENT_TYPES = {
     REMOVE_MENTOR_MENTOR: 'REMOVE_MENTOR_MENTOR',
     DISABLE: 'DISABLE',
     REABLE : 'REABLE',
-    PROMOTE_SUPER: 'PROMOTE_SUPER',
+    // PROMOTE_SUPER: 'PROMOTE_SUPER',
+    EDIT_ORGANIZATION_MENTOR: 'EDIT_ORGANIZATION_MENTOR',
+    EDIT_ORGANIZATION_ORGANIZATION: 'EDIT_ORGANIZATION_ORGANIZATION',
     PROMOTE_ORGANIZATION_MENTOR: 'PROMOTE_ORGANIZATION_MENTOR',
     PROMOTE_ORGANIZATION_ORGANIZATION: 'PROMOTE_ORGANIZATION_ORGANIZATION',    
     TRANSFER_ROLE: 'TRANSFER_ROLE',
-    DECOUPLE: 'DECOUPLE',
+    DECOUPLE_MENTOR: 'DECOUPLE_MENTOR',
+    DECOUPLE_ORGANIZATION: 'DECOUPLE_ORGANIZATION',
     REMOVE_ORGANIZATION: 'REMOVE_ORGANIZATION'
 }
 
@@ -68,22 +71,31 @@ class queue
     }
 }
 
+// // OLD STYLE REMOVE WHEN BELOW VALID
+// const mentee_bars = document.querySelectorAll(".mentee_management_bar");
+// const mentor_bars = document.querySelectorAll(".mentor_management_bar_container");
+// const organization_bars = document.querySelectorAll(".organization_management_bar");
+
 // Select and store bar elements
-const mentee_bars = document.querySelectorAll(".mentee_management_bar");
-const mentor_bars = document.querySelectorAll(".mentor_management_bar_container");
-const organization_bars = document.querySelectorAll(".organization_management_bar");
+const mentee_bar_container = document.querySelector("#mentee_bar_container");
+const mentor_bar_container = document.querySelector("#mentor_bar_container");
+
+const mentee_bars = mentee_bar_container.querySelectorAll(".mentee_management_bar");
+const mentor_bars = mentor_bar_container.querySelectorAll(".mentor_management_bar_container");
+const organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar");
 
 // Create flag storage, initlize all flags to false
 let add_mentor_flag = 0;
 let remove_mentor_flag = 0;
 let select_mentee_flag = 0;
-let promote_organization_flag = 0;
+let edit_organization_flag = 0;
+let decouple_mentor_flag = 0;
 
 // Create valid mentee user bar storage
 let valid_mentor_bars = []
 
 // Update valid and invalid mentors
-valid_mentor_bars = get_update_mentor_list()
+valid_mentor_bars = return_updated_mentor_list()
 
 // Create queue of events to be executed
 const event_queue = new queue;
@@ -209,6 +221,20 @@ function execute_events()
 
                 break;
 
+            // Check for edit organization mentor event
+            case EVENT_TYPES.EDIT_ORGANIZATION_MENTOR:
+                if (!last_event_flag)
+                {
+                    // Check if next event in queue is edit organization organization event
+                    if (event_queue.peek().type == EVENT_TYPES.EDIT_ORGANIZATION_ORGANIZATION)
+                    {
+                        // Remove edit organization organization event and edit organization
+                        alert("Edit org for mentor=" + current_event.user_id + " to org=" + event_queue.dequeue().user_id);
+
+                        // TODO EDIT ORGANZATION
+                    }
+                }
+
             // Check for transfer role event
             case EVENT_TYPES.TRANSFER_ROLE:
                 alert("transfer role " + current_event.user_id);
@@ -217,17 +243,27 @@ function execute_events()
 
                 break;
 
-            // Check for decouple 
-            case EVENT_TYPES.DECOUPLE:
-                alert("decouple " + current_event.user_id);
+            // Check for decouple mentor event
+            case EVENT_TYPES.DECOUPLE_MENTOR:
+                // Last event check
+                if (!last_event_flag)
+                {
+                    // Check if next event in queue is decouple organization event
+                    if (event_queue.peek().type == EVENT_TYPES.DECOUPLE_ORGANIZATION)
+                    {
+                        // Remove decouple organziation event and decouple mentor from organization
+                        alert("decouple mentor=" + current_event.id + " from organization= " + event_queue.dequeue().user_id);
 
-                // TODO DECOUPLE MENTOR
+                        // TODO DECOUPLE MENTOR FROM ORGANIZATION
+
+                    }
+                }
 
                 break;
 
             // Check for remove organization event
             case EVENT_TYPES.REMOVE_ORGANIZATION:
-                alert("decouple " + current_event.user_id);
+                alert("remove organization=" + current_event.user_id);
 
                 // TODO REMOVE ORGANIZATION
 
@@ -237,6 +273,7 @@ function execute_events()
             case EVENT_TYPES.ADD_MENTOR_MENTOR:
             case EVENT_TYPES.REMOVE_MENTOR_MENTOR:
             case EVENT_TYPES.PROMOTE_ORGANIZATION_ORGANIZATION:
+            case EVENT_TYPES.DECOUPLE_ORGANIZATION:
                 // Error in queue input will need to cancel rest of queue
                 queue_input_error();
         
@@ -314,17 +351,17 @@ function check_cancel_event()
 
         }
 
-        // Check if promote organization is in progess
-        if (promote_organization_flag)
+        // Check if edit organization is in progess
+        if (edit_organization_flag)
         {
             // Check last event and if promote organzation event then remove it
-            if (event_queue.peek_end().type == EVENT_TYPES.PROMOTE_ORGANIZATION_MENTOR)
+            if (event_queue.peek_end().type == EVENT_TYPES.EDIT_ORGANIZATION_MENTOR)
             {
                 // Remove promote organzation event
                 event_queue.dequeue();
 
                 // Reset promote organzation flag
-                promote_organization_flag = 0;
+                edit_organization_flag = 0;
 
             }
 
@@ -335,19 +372,23 @@ function check_cancel_event()
     }
 }
 
+
+
+
+
 // Cycle through passed bar's styles to include white borders
 function update_choice_bar_styles(passed_bars)
 {
-    valid_mentor_bars.forEach(valid_mentor_bar => {
-        valid_mentor_bar.style.border = "2.5px solid white";
+    passed_bars.forEach(passed_bar => {
+        passed_bar.style.border = "2.5px solid white";
         
     });
 }
 
 // Updates bar's style to include red borders
-function update_choice_remove_bar_style(user_bar)
+function update_choice_remove_bar_style(passed_bar)
 {
-    user_bar.style.border = "2.5px solid red";
+    passed_bar.style.border = "2.5px solid red";
 }
 
 // Set all bars to their default border styles
@@ -389,126 +430,286 @@ function reset_button_style(button)
     
 }
 
+// TODO NEED TESTING 
+// Updates bar's style to include greeen backround color
+function update_mentor_bar_organization_admin_styling(passed_bar)
+{
+    passed_bar.style.background = "green";
+}
+
+// TODO NEED TESTING 
+// Set bar's style default bar backround
+function reset_mentor_bar_organization_admin_styling(passed_bar)
+{
+    passed_bar.style.background = "none";
+}
+
+// TODO NEED TESTING 
 // Updates passed user bar is be styled as disabled 
 function update_disable_bar(user_bar)
 {
-    // Find and set account disable value
-    const account_disable = Number(user_bar.querySelector("#user_account_disabled").textContent.trim());
+    // Find and set disable element
+    determine_disabled(passed_bar).innerHTML = "1";
 
-    // Check if account is not disabled
-    if (account_disable)
+    // Determine buttons
+    const disable_button = determine_disable_button(user_bar);
+    const enable_button = determine_enable_button(user_bar);
+
+    // Switch disable button to enable
+    update_bar_disable_button(disable_button, enable_button);
+
+    // Change background color to disabled (grey)
+    user_bar.style.background = "darkgray";
+
+    // Check if there is hidden mentor element 
+    if (user_bar.querySelector("#user_mentor") != null)
     {
-        // Set deactivated value
-        account_disable.innerHTML = "1";
+        // User bar is a mentee
+        // Determine mentor id value 
+        const mentee_id = determine_mentor_id(user_bar);
 
-        // Check if there is hidden mentor element 
-        if (user_bar.querySelector("#user_mentor") != null)
-        {
-            // User bar is a mentee
-            // Find and update mentor bar
-    
+        // Find mentor bar from id
+        const mentor_bar = return_mentor_bar_from_id(mentee_id);
 
-            // return_mentee_bars_from_ids()
+        // Update mentor bar to remove mentee from mentee list
+        decerment_mentor_mentees(mentor_bar);
 
+    }
+    else
+    {
+        // User bar is a mentor
+        // Find mentees
+        const user_mentees = determine_mentees_value(user_bar);
 
+        // Create mentee list from mentee list string
+        const mentee_id_list = create_array_from_string(user_mentees);
 
-        }
-        else
-        {
-            // User bar is a mentor
-            // Find mentees
-            const user_mentees = user_bar.querySelector("#user_mentees").textContent.trim();
+        // Create list of mentee bars from mentee id list
+        selected_mentees_bars = return_mentee_bars_from_ids(mentee_id_list);
 
-            // Create mentee list from mentee list string
-            const mentee_id_list = create_mentee_list(user_mentees);
+        // Cycle through mentee bars
+        selected_mentees_bars.forEach(mentee_bar => {
+            // Update mentee bar to remove mentor and update to have add
+            update_mentee_bar_remove(mentee_bar);
 
-            // Create list of mentee bars from mentee id list
-            selected_mentees_bars = return_mentee_bars_from_ids(mentee_id_list);
-
-            // Cycle through mentee bars
-            selected_mentees_bars.forEach(mentee_bar => {
-                update_mentee_bar_remove(mentee_bar);
-            });
-        }
-
-        // Change background color to disabled
-        // TODO NEED TO UPDATE
-        // user_bar.style.background = "";
-
-        // Switch disable button to enable
-
+        });
     }
 }
 
+// TODO NEED TESTING
 // Updates passed user bar is be styled as disabled 
 function update_reable_bar(user_bar)
 {
-    // Find and set account disable value
-    const account_disable = Number(user_bar.querySelector("#user_account_disabled").textContent.trim());
+    // Find and set disable element
+    determine_disabled(passed_bar).innerHTML = "0";
+    
+    // Determine buttons
+    const disable_button = determine_disable_button(user_bar);
+    const enable_button = determine_enable_button(user_bar);
 
-    // Check if account is disabled
-    if (!account_disable)
-    {
-        // Set deactivated value
-        account_disable.innerHTML = "0";
+    // Switch disable button to enable
+    update_bar_enable_button(disable_button, enable_button);
 
-        // Change background color to disabled
-        // TODO NEED TO UPDATE
-        // user_bar.style.background = "";
+    // Change background color to disabled
+    user_bar.style.background = "none";
 
-        // Switch disable button to enable
-
-    }
 }
 
-function update_mentee_bar_add(user_bar, mentor_id)
+// Updates passed buttons class lists to hide enable button and show disable button
+function update_bar_disable_button(disable_button, enable_button)
 {
-    // Updates mentee bar to show the remove button and update mentor value to new mentor id
+    // Remove disable button active class and add inactive class
+    disable_button.classList.remove("admin_user_management_button_clear_active");
+    disable_button.classList.add("admin_user_management_button_clear_inactive");
+    
+    // Remove enable button inactive class and add active class
+    enable_button.classList.remove("admin_user_management_button_clear_inactive");
+    enable_button.classList.add("admin_user_management_button_clear_active");
+}
+
+// Updates passed buttons class lists to hide disable button and show enable button
+function update_bar_enable_button(disable_button, enable_button)
+{
+    // Remove disable button inactive class and add active class
+    disable_button.classList.remove("admin_user_management_button_clear_inactive");
+    disable_button.classList.add("admin_user_management_button_clear_active");
+
+    // Remove enable button active class and add inactive class
+    enable_button.classList.remove("admin_user_management_button_clear_active");
+    enable_button.classList.add("admin_user_management_button_clear_inactive");
 
 }
 
+// Updates mentee bar to show the add button and update mentor value to None
 function update_mentee_bar_remove(user_bar)
 {
-    // Updates mentee bar to show the add button and update mentor value to None
+    // Find and set mentor value to None
+    determine_mentor(user_bar).innerHTML = "None";
+
+    // Find add and remove buttons
+    const add_button = determine_add_button(user_bar);
+    const remove_button = determine_remove_button(user_bar);
+
+    // Switch remove and add buttons
+    update_mentee_bar_show_add_button(remove_button, add_button);
 
 }
 
+// Updates mentee bar to show the remove button and update mentor value to new mentor id
+function update_mentee_bar_add(user_bar, mentor_id)
+{
+    // Find and set mentor value to passed mentor_id
+    determine_mentor(user_bar).innerHTML = mentor_id;
+
+    // Find add and remove buttons
+    const add_button = determine_add_button(user_bar);
+    const remove_button = determine_remove_button(user_bar);
+
+    // Switch add and remove buttons
+    update_mentee_bar_remove_button(remove_button, add_button);
+
+}
+
+// Updates passed button class lists to hide add button and show remove button
+function update_mentee_bar_remove_button(remove_button, add_button)
+{
+    // Remove remove button inactive class and add active class
+    remove_button.classList.remove("admin_user_management_button_clear_inactive");
+    remove_button.classList.add("admin_user_management_button_clear_active");
+
+    // Remove add button active class and add inactive class
+    add_button.classList.remove("admin_user_management_button_clear_active");
+    add_button.classList.add("admin_user_management_button_clear_inactive");
+}
+
+// Updates passed button class lists to hide remove button and show add button
+function update_mentee_bar_show_add_button(remove_button, add_button)
+{
+    // Remove remove button active class and add inactive class
+    remove_button.classList.remove("admin_user_management_button_clear_active");
+    remove_button.classList.add("admin_user_management_button_clear_inactive");
+
+    // Remove add button inactive class and add active class
+    add_button.classList.remove("admin_user_management_button_clear_inactive");
+    add_button.classList.add("admin_user_management_button_clear_active");
+    
+}
+
+// Updates current mentee value by 1 and add passed mentee id to mentee list of passed user bar
 function incerment_mentor_mentees(user_bar, mentee_id)
 {
-    // Increase and updates the current mentee value of passed user bar
-    // Add mentee id value to passed user bar
+    // Find current mentees element
+    const current_mentees = determine_current_mentees(user_bar);
+    
+    // Increase and set current value by 1
+    current_mentees.innerHTML = determine_current_mentees_value(user_bar) + 1;
+
+    // Find mentees element
+    const mentees_list = determine_mentees(user_bar);
+
+    // Determine mentee values
+    let mentee_values = determine_mentees_value(user_bar);
+
+    // Get array from string
+    let updated_mentee_values = create_array_from_string(mentee_values);
+
+    // Push new value into updated mentee values
+    updated_mentee_values.push(mentee_id);
+
+    // Split mentee values by commas into a array and push new mentee id into it then update mentee list element
+    mentees_list.innerHTML = updated_mentee_values.toString();
 
 }
 
-function decerment_mentor_mentees(user_bar)
+// Updates current mentee value by -1 and removes mentee id from mentee list of passed user bar
+function decerment_mentor_mentees(user_bar, mentee_id)
 {
-    // Decrease and updates the current mentee value of passed user bar
-    // Remove mentee id value from passed user bar
+    // Find current mentees element
+    const current_mentees = determine_current_mentees(user_bar);
 
-}
+    // Decrease and set current value by 1
+    current_mentees.innerHTML = determine_current_mentees_value(user_bar) - 1;
 
-function get_update_mentor_list()
-{
-    // Remove entries of mentors list
-    let valid_mentor_bars = [];
+    // Find mentees element
+    const mentees_list = determine_mentees(user_bar);
 
-    // Cycles through mentor list determining and storing valid mentors in valid_mentor_bars
-    mentor_bars.forEach(mentor_bar => { 
-        // Set current and max mentee values
-        current_mentees = Number(mentor_bar.querySelector("#current_mentees").textContent);
-        max_mentees = Number(mentor_bar.querySelector("#max_mentees").textContent);
+    // Determine mentee values
+    let mentee_values = determine_mentees_value(user_bar);
 
-        // Determine if mentor is valid for new mentees
-        if (current_mentees < max_mentees)
+    // Get array from string
+    let updated_mentee_values = create_array_from_string(mentee_values);
+
+    // Determine passed mentee id index
+    let remove_index;
+    for (let index = 0; index < updated_mentee_values.length; index++) 
+    {
+        if (updated_mentee_values[index] == mentee_id)
         {
-            // Add mentor bar to valid mentor bars
-            valid_mentor_bars.push(mentor_bar);
+            // Set remove index
+            remove_index = index;
 
-        }
+            break;
+
+        }    
+    }
+
+    // Remove mentee id at remove index
+    updated_mentee_values.splice(remove_index, 1);
+
+    // Remove and set mentee value by replacing mentee id value with an empty string
+    mentees_list.innerHTML = updated_mentee_values;
+
+}
+
+// TODO NEED TESTING
+// Removes and adds passed mentor bar from organziation bar to unaffiliated mentors
+function remove_from_organization(mentor_bar)
+{
+    // Removing mentor bar from organization
+    mentor_bar.remove();
+
+    // Add mentor bar to unaffiliated mentors
+    mentee_bar_container.appendChild(mentor_bar);
+
+}
+
+// TODO NEED TESTING
+// Removes and adds passed mentor bar from unfailiated mentors to passed organization bar
+function add_to_organization(organization_bar, mentor_bar)
+{
+    // Remove mentor bar from unaffiliated mentors
+    mentor_bar.remove();
+
+    // Deteremine mentor list
+
+    // Add mentor bar to orgnization
+    
+
+}
+
+// TODO NEED TESTING
+// Removes and adds mentor bars included in organization bar to unaffiliated mentors, then removes the organization bar
+function remove_organization(organization_bar)
+{
+    // Determine mentors in organization
+    const mentor_bars = determine_mentor_bars(organization_bar);    
+
+    // Cycle thorugh mentors
+    mentor_bars.forEach(mentor_bar => {
+        // Removing mentor bar from organization
+        // Add mentor bar to unaffiliated mentors
+        remove_from_organization(mentor_bar);
+
     });
 
-    return valid_mentor_bars;
+    // Remove organization bar
+    organization_bar.remove();
+
 }
+
+
+
+
 
 // Check and return if mentor is included in valid mentor bars
 function check_mentor_valid(user_bar)
@@ -517,18 +718,20 @@ function check_mentor_valid(user_bar)
     let found_flag = 0;
 
     // Cycle through valid mentor bars
-    valid_mentor_bars.forEach(valid_mentor_bar => {
+    for (let index = 0; index < valid_mentor_bars.length; index++) 
+    {
         // Check if passed user bar is same as the valid mentor bar
-        if (user_bar == valid_mentor_bar)
+        if (user_bar == valid_mentor_bars[index])
         {
             // Set found flag to 1
             found_flag = 1;
+
+            break;
         }
-    });
+    }
 
     return found_flag;
 }
-
 
 // Check and return 1 if prev_event is the same event type and user id and 0 if not
 function check_toggle_event(prev_event, new_event_type, new_event_id)
@@ -545,6 +748,33 @@ function check_toggle_event(prev_event, new_event_type, new_event_id)
     return return_flag;
 }
 
+
+
+
+
+function return_updated_mentor_list()
+{
+    // Remove entries of mentors list
+    let valid_mentor_bars = [];
+
+    // Cycles through mentor list determining and storing valid mentors in valid_mentor_bars
+    mentor_bars.forEach(mentor_bar => { 
+        // Set current and max mentee values
+        current_mentees = determine_current_mentees_value(mentor_bar);
+        max_mentees = determine_max_mentees_value(mentor_bar);
+
+        // Determine if mentor is valid for new mentees
+        if (current_mentees < max_mentees)
+        {
+            // Add mentor bar to valid mentor bars
+            valid_mentor_bars.push(mentor_bar);
+
+        }
+    });
+
+    return valid_mentor_bars;
+}
+
 // Cycle through mentee bars and return bar matching mentee id
 function return_mentee_bar_from_id(user_id)
 {
@@ -555,7 +785,8 @@ function return_mentee_bar_from_id(user_id)
     for (let index = 0; index < mentee_bars.length; index++)
     {
         // Determine user id and mentor from hidden value in passed user bar
-        const mentee_id = mentee_bars[index].querySelector("#user_account").textContent.trim();
+        // const mentee_id = mentee_bars[index].querySelector("#user_account").textContent.trim();
+        const mentee_id = determine_user_id(mentee_bars[index]);
 
         // Check if user id field is the same as passed id
         if (user_id == mentee_id)
@@ -574,7 +805,7 @@ function return_mentee_bar_from_id(user_id)
 }
 
 // Cycle through mentor bars and return bars matching mentor id
-function return_mentor_bar_from_id(mentor_id)
+function return_mentor_bar_from_id(user_id)
 {
     // Initlize return value as undefined
     let return_bar = undefined;
@@ -583,13 +814,14 @@ function return_mentor_bar_from_id(mentor_id)
     for (let index = 0; index < mentor_bars.length; index++)
     {
         // Determine user id and mentor from hidden value in passed user bar
-        const mentor_id = mentor_bars[index].querySelector("#user_account").textContent.trim();
+        // const mentor_id = mentor_bars[index].querySelector("#user_account").textContent.trim();
+        const mentor_id = determine_user_id(mentor_bars[index])
 
         // Check if user id field is the same as passed id
         if (user_id == mentor_id)
         {
             // Set return bar
-            return_bar = mentor_id;
+            return_bar = mentor_bars[index];
 
             // Break loop
             break;
@@ -632,31 +864,153 @@ function return_mentee_bars_from_ids(user_ids)
 
 }
 
-function create_mentee_list(passed_list_string)
+// Takes in passed string, creates and returns array
+function create_array_from_string(passed_list_string)
 {
-    // Initlize mentee list to empty list
-    let mentee_list = [];
+    // Intitlize to empty array
+    let return_array = []
 
-    // Check if passed list is not None
-        // Cycles through passed string seperating mentee out and pushing into list
+    // Check if passed string is empty
+    if (passed_list_string != "")
+    {
+        // Split by commas
+        return_array = passed_list_string.split(",");
 
-    return mentee_list;
+    }
+
+    return return_array
+
 }
 
-function remove_organization(organization_bar)
-{
-    // Remove mentors included in organization admin list and add them to unfailitated mentor list
 
-    // Remove organization bar
+
+
+
+// Return disable value from passed bar
+function determine_disabled_value(passed_bar)
+{
+    return Number(passed_bar.querySelector("#user_account_disabled").textContent.trim());
+
 }
 
-function promote_prganzation_admin(organization_bar, mentor_bar)
+// Determine current mentees value from passed bar
+function determine_current_mentees_value(passed_bar)
 {
-    // Remvove mentor bar from unfilated section
+    return Number(passed_bar.querySelector("#current_mentees").textContent);
 
-    // Place mentor bar in organzation bar
 }
 
+// Determine max mentees value from passed bar
+function determine_max_mentees_value(passed_bar)
+{
+    return Number(passed_bar.querySelector("#max_mentees").textContent);
+
+}
+
+// Return disable element from passed bar
+function determine_disabled(passed_bar)
+{
+    return passed_bar.querySelector("#user_account_disabled");
+
+}
+
+// Returns current mentees element from passed bar
+function determine_current_mentees(passed_bar)
+{
+    return passed_bar.querySelector("#current_mentees");
+}
+
+// Returns disable button from passed bar
+function determine_disable_button(passed_bar)
+{
+    return passed_bar.querySelector("#trashcan_button");
+
+}
+
+// Returns enable button from passed bar
+function determine_enable_button(passed_bar)
+{
+    return passed_bar.querySelector("#trashcan_off_button");
+
+}
+
+// Returns mentor element from passed bar
+function determine_mentor(passed_bar)
+{
+    return passed_bar.querySelector("#user_mentor");
+
+}
+
+// Returns add button element from passed bar
+function determine_add_button(passed_bar)
+{
+    return passed_bar.querySelector("#plus_button");
+
+}
+
+// Returns remove button element from passed bar
+function determine_remove_button(passed_bar)
+{
+    return passed_bar.querySelector("#remove_button");
+
+}
+
+// Returns user id value from passed bar
+function determine_user_id(passed_bar)
+{
+    return passed_bar.querySelector("#user_account").textContent.trim();
+
+}
+
+// Return mentees value from passed bar
+function determine_mentees_value(passed_bar)
+{
+    return passed_bar.querySelector("#user_mentees").textContent.trim();
+
+}
+
+// Return mentees element from passed bar
+function determine_mentees(passed_bar)
+{
+    return passed_bar.querySelector("#user_mentees");
+}
+
+// Return mentor value from passed bar
+function determine_mentor_id(passed_bar)
+{
+    return passed_bar.querySelector("#user_mentor").textContent.trim();
+
+}
+
+// Returns organization id from passed bar
+function determine_organization_id(passed_bar)
+{
+    return passed_bar.querySelector("#organization_account").textContent.trim();
+
+}
+
+// Return parent organization bar element from passed bar
+function determine_parent_organization_bar_element(passed_bar)
+{
+    passed_bar.parentElement.querySelector("#organization_management_bar");
+
+} 
+
+// Returns all mentor bars from passed bar
+function determine_mentor_bars(passed_bar)
+{
+    return passed_bar.querySelectorAll(".mentor_management_bar_container");
+
+}
+
+// Returns edit organizition button from passed bar
+function determine_edit_organization_button(passed_bar)
+{
+    return passed_bar.querySelector("#edit_organization_button");
+
+}
+
+//
 
 
 
@@ -683,10 +1037,13 @@ export function cancel_event()
 
 export function mentee_clicked_event(mentee_bar)
 {
-    alert("mentee clicked")
+    // Check if account is not disabled
+    if (!determine_disabled_value(mentee_bar))
+    {
+        alert("mentee clicked");
+
+    }
 }
-
-
 
 export function view_event(user_bar)
 {
@@ -696,246 +1053,281 @@ export function view_event(user_bar)
 
 export function add_mentor_mentee_event(user_bar)
 {
-    // Intitlize toggle flag to 0
-    let toggle_flag = 0;
-
-    // Determine user id from hidden value in passed user bar
-    const user_id = user_bar.querySelector("#user_account").textContent.trim();
-
-    // Determine add button from user bar
-    const add_mentor_button = user_bar.querySelector("#plus_button");
-
-    // Check if queue is not empty
-    if (!event_queue.isEmpty())
+    // Check if account is not disabled
+    if (!determine_disabled_value(user_bar))
     {
-        // Check if same button was already pressed before
-        toggle_flag = check_toggle_event(event_queue.peek_end(), EVENT_TYPES.ADD_MENTOR_MENTEE, user_id);
+        // Intitlize toggle flag to 0
+        let toggle_flag = 0;
+
+        // Determine user id from hidden value in passed user bar
+        const user_id = determine_user_id(user_bar);
+
+        // Determine add button from user bar
+        const add_mentor_button = determine_add_button(user_bar);
+
+        // Check if queue is not empty
+        if (!event_queue.isEmpty())
+        {
+            // Check if same button was already pressed before
+            toggle_flag = check_toggle_event(event_queue.peek_end(), EVENT_TYPES.ADD_MENTOR_MENTEE, user_id);
+
+        }
+
+        // Check and cancel last event if needed
+        check_cancel_event();
+
+        // Check if button was toggled
+        if (!toggle_flag)
+        {
+            // Last event was different, cont. exeuction normally 
+            // Set add mentor flag on
+            add_mentor_flag = 1;
+
+            // Pass button and style button to be on
+            update_button_style(add_mentor_button);
+
+            // Style valid mentor bars
+            update_choice_bar_styles(valid_mentor_bars);
+
+            // Create and store add mentor mentee event in queue
+            event_queue.enqueue(EVENT_TYPES.ADD_MENTOR_MENTEE, user_id);
+
+        }
+        else 
+        {
+            // Last event was the same cancel without attempting to create event
+            // Pass button and reset button to be off 
+            reset_button_style(add_mentor_button);
+
+            // Remove event from queue
+            event_queue.dequeue();
+
+        }
+
+        // Creates part 1/2 in queue for adding mentorship
+        alert("1/2 add mentor")
+
 
     }
 
-    // Check and cancel last event if needed
-    check_cancel_event();
-
-    // Check if button was toggled
-    if (!toggle_flag)
-    {
-        // Last event was different, cont. exeuction normally 
-        // Set add mentor flag on
-        add_mentor_flag = 1;
-
-        // Pass button and style button to be on
-        update_button_style(add_mentor_button);
-
-        // Style valid mentor bars
-        update_choice_bar_styles(valid_mentor_bars);
-
-        // Create and store add mentor mentee event in queue
-        event_queue.enqueue(EVENT_TYPES.ADD_MENTOR_MENTEE, user_id);
-
-    }
-    else 
-    {
-        // Last event was the same cancel without attempting to create event
-        // Pass button and reset button to be off 
-        reset_button_style(add_mentor_button);
-
-        // Remove event from queue
-        event_queue.dequeue();
-
-    }
-
-    // Creates part 1/2 in queue for adding mentorship
-    alert("1/2 add mentor")
 }
 
 export function remove_mentor_mentee_event(user_bar)
 {
-    // Intitlize toggle flag to 0
-    let toggle_flag = 0;
-
-    // Determine user id and mentor from hidden value in passed user bar
-    const user_id = user_bar.querySelector("#user_account").textContent.trim();
-    const mentor_id = user_bar.querySelector("#user_mentor").textContent.trim();
-
-    // Determine remove button from user bar
-    const remove_mentor_button = user_bar.querySelector("#remove_button");
-
-    // Check if queue is not empty
-    if (!event_queue.isEmpty())
+    // Check if account is not disabled
+    if (!determine_disabled_value(user_bar))
     {
-        // Check if same button was already pressed before
-        toggle_flag = check_toggle_event(event_queue.peek_end(), EVENT_TYPES.REMOVE_MENTOR_MENTEE, user_id);
+        // Intitlize toggle flag to 0
+        let toggle_flag = 0;
 
-    }
+        // Determine user id and mentor from hidden value in passed user bar
+        const user_id = determine_user_id(user_bar);
+        const mentor_id = determine_mentor_id(user_bar);
 
-    // Check and cancel last event if needed
-    check_cancel_event();
+        // Determine remove button from user bar
+        const remove_mentor_button = determine_remove_button(user_bar);
 
-    // Check if button was toggled
-    if (!toggle_flag)
-    {   
-        // Last event was different, cont. exeuction normally
-        // Find mentor bar using mentor id
-        const mentor_bar = return_mentor_bar_from_id(mentor_id);
-
-        // Check if mentor_bar is not undefined
-        if (mentor_bar != undefined)
+        // Check if queue is not empty
+        if (!event_queue.isEmpty())
         {
-            // Pass button and style button to be on
-            update_button_style(remove_mentor_button)
-
-            // Style mentee's mentor bar
-            update_choice_remove_bar_style(mentor_bar);
-
-            // Create and store remove mentor mentee event in queue
-            event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, user_id);
+            // Check if same button was already pressed before
+            toggle_flag = check_toggle_event(event_queue.peek_end(), EVENT_TYPES.REMOVE_MENTOR_MENTEE, user_id);
 
         }
+
+        // Check and cancel last event if needed
+        check_cancel_event();
+
+        // Check if button was toggled
+        if (!toggle_flag)
+        {   
+            // Last event was different, cont. exeuction normally
+            // Set remove flag
+            remove_mentor_flag = 1;
+
+            // Find mentor bar using mentor id
+            const mentor_bar = return_mentor_bar_from_id(mentor_id);
+
+            // Check if mentor_bar is not undefined
+            if (mentor_bar != undefined)
+            {
+                // Pass button and style button to be on
+                update_button_style(remove_mentor_button)
+
+                // Style mentee's mentor bar
+                update_choice_remove_bar_style(mentor_bar);
+
+                // Create and store remove mentor mentee event in queue
+                event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, user_id);
+
+            }
+        }
+        else
+        {
+            // Last event was the same cancel without attempting to create event
+            // Pass button and reset button to be off 
+            reset_button_style(remove_mentor_button);
+
+            // Remove event from queue
+            event_queue.dequeue();
+
+        }
+
+        // Create part 1/2 in queue for removing mentorship 
+        alert("1/2 remove mentor");
+
     }
-    else
-    {
-        // Last event was the same cancel without attempting to create event
-        // Pass button and reset button to be off 
-        reset_button_style(remove_mentor_button);
-
-        // Remove event from queue
-        event_queue.dequeue();
-
-    }
-
-    // Create part 1/2 in queue for removing mentorship 
-    alert("1/2 remove mentor")
 }
 
+// TODO NEED TESTING
 export function disable_event(user_bar)
 {
-    // Determine user id from hidden value in passed user bar
-    const user_id = user_bar.querySelector("#user_account").textContent.trim();
+    // Check if account is not disabled
+    if (!determine_disabled_value(user_bar))
+    {
+        // Determine user id from hidden value in passed user bar
+        const user_id = determine_user_id(user_bar);
 
-    // Check and cancel last event if needed
-    check_cancel_event();
+        // Check and cancel last event if needed
+        check_cancel_event();
 
-    // Update bar to be disabled 
-    update_disable_bar(user_bar)
+        // Update bar to be disabled 
+        update_disable_bar(user_bar)
 
-    // Create and store deactivate event in queue
-    event_queue.enqueue(EVENT_TYPES.DISABLE, user_id);
+        // Create and store deactivate event in queue
+        event_queue.enqueue(EVENT_TYPES.DISABLE, user_id);
 
-    // Create in queue for deactiving a user
-    alert("disable")
+        // Create in queue for deactiving a user
+        alert("disable");
+    }
 }
 
+// TODO NEED TESTING
 export function reable_event(user_bar)
 {   
-    // Determine user id from hidden value in passed user bar
-    const user_id = user_bar.querySelector("#user_account").textContent.trim();
+    // Check if account is disabled
+    if (determine_disabled_value(user_bar))
+    {
+        // Determine user id from hidden value in passed user bar
+        const user_id = determine_user_id(user_bar);
 
-    // Check and cancel last event if needed
-    check_cancel_event();
+        // Check and cancel last event if needed
+        check_cancel_event();
 
-    // Update bar to be reable
-    update_reable_bar(user_bar)
+        // Update bar to be reable
+        update_reable_bar(user_bar);
 
-    // Create and store deactivate event in queue
-    event_queue.enqueue(EVENT_TYPES.REABLE, user_id);
+        // Create and store deactivate event in queue
+        event_queue.enqueue(EVENT_TYPES.REABLE, user_id);
 
-    // Creates in queue for reactiving a user
-    alert("reactivte")
+        // Creates in queue for reactiving a user
+        alert("reactivte");
+
+    }
 }
 
 export function mentor_clicked_event(user_bar)
 {
-    // Check if any flag are on
-    if (add_mentor_flag | remove_mentor_flag)
+    // Check if account is not disabled
+    if (!determine_disabled_value(user_bar))
     {
-        // Check if mentor is valid and event queue is not empty
-        if (check_mentor_valid(user_bar) & !event_queue.isEmpty())
+        // Check if any flag are on
+        if (add_mentor_flag | remove_mentor_flag)
         {
-            // Determine user id and mentees from hidden value in passed user bar
-            const user_id = user_bar.querySelector("#user_account").textContent.trim();
-            const user_mentees = user_bar.querySelector("#user_mentees").textContent.trim();
-
-            // Store last event
-            let prev_event = event_queue.peek_end();
-
-            // Find mentee bar from user id
-            const mentee_bar = return_mentee_bar_from_id(prev_event.user_id);
-
-            // Check if mentor_bar is not undefined
-            if (mentee_bar != undefined)
+            // Check if mentor is valid and event queue is not empty
+            if (check_mentor_valid(user_bar) & !event_queue.isEmpty())
             {
-                // Determine buttons from mentee bar
-                const add_mentee_button = mentee_bar.querySelector("#plus_button");
-                const remove_mentee_button = mentee_bar.querySelector("#remove_button");
+                // Determine user id and mentees from hidden value in passed user bar
+                const user_id = determine_user_id(user_bar);
+                const user_mentees = determine_mentees_value(user_bar);
 
-                // Check for a add event flag
-                if (add_mentor_flag)
+                // Store last event
+                let prev_event = event_queue.peek_end();
+
+                // Find mentee bar from user id
+                const mentee_bar = return_mentee_bar_from_id(prev_event.user_id);
+
+                // Check if mentor_bar is not undefined
+                if (mentee_bar != undefined)
                 {
-                    // Determine if last event is an add mentor mentee event
-                    if (prev_event.type == EVENT_TYPES.ADD_MENTOR_MENTEE) 
-                    {                    
-                        // Pass mentee bar and mentor id and update mentee bar
-                        update_mentee_bar_add(mentee_bar, user_id);
+                    // Determine buttons from mentee bar
+                    const add_mentee_button = determine_add_button(mentee_bar);
+                    const remove_mentee_button = determine_remove_button(mentee_bar);
 
-                        // Update mentor bar
-                        incerment_mentor_mentees(user_bar, prev_event.user_id);
-
-                        // Pass button and reset button to be off
-                        reset_button_style(add_mentee_button)
-
-                        // Reset bar styles
-                        reset_bar_styles();
-
-                        // Create and store add mentor mentee event in queue
-                        event_queue.enqueue(EVENT_TYPES.ADD_MENTOR_MENTOR, user_id);
-
-                        // Reset add event flag
-                        add_mentor_flag = 0;
-
-                        alert("mentor add mentor")
-
-                    }
-                }
-                    
-                // Check for a remove event flag
-                if (remove_mentor_flag)
-                {
-                    // Create mentee list from mentee list string
-                    const mentee_id_list = create_mentee_list(user_mentees);
-
-                    // Get mentee id is inlcuded in mentor mentees
-                    mentee_id = prev_event.user_id
-
-                    // Determine if last event is an remove mentor mentee event and mentee is included in mentee list
-                    if (prev_event.type == EVENT_TYPES.REMOVE_MENTOR_MENTEE & mentee_id_list.includes(mentee_id))
+                    // Check for a add event flag
+                    if (add_mentor_flag)
                     {
-                        // Update mentee bar
-                        update_mentee_bar_remove(mentee_bar)
+                        // Determine if last event is an add mentor mentee event
+                        if (prev_event.type == EVENT_TYPES.ADD_MENTOR_MENTEE) 
+                        {                    
+                            // Pass mentee bar and mentor id and update mentee bar
+                            update_mentee_bar_add(mentee_bar, user_id);
 
-                        // Update mentor bar to include 1 less mentee and list
-                        decerment_mentor_mentees(user_bar);
+                            // Update mentor bar
+                            incerment_mentor_mentees(user_bar, prev_event.user_id);
 
-                        // Pass button and reset button to be off
-                        reset_button_style(remove_mentee_button)
+                            // Pass button and reset button to be off
+                            reset_button_style(add_mentee_button)
 
-                        // Reset bar styles
-                        reset_bar_styles();
+                            // Reset bar styles
+                            reset_bar_styles();
 
-                        // Create and store remove mentor mentor event in queue
-                        event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
+                            // Create and store add mentor mentee event in queue
+                            event_queue.enqueue(EVENT_TYPES.ADD_MENTOR_MENTOR, user_id);
 
-                        // Reset remove event flag
-                        remove_mentor_flag = 0;
+                            // Reset add event flag
+                            add_mentor_flag = 0;
 
-                        alert("mentor remove mentor");
+                            alert("mentor add mentor")
 
+                        }
+                    }
+                        
+                    // Check for a remove event flag
+                    if (remove_mentor_flag)
+                    {
+                        // Create mentee list from mentee list string
+                        const mentee_id_list = create_array_from_string(user_mentees);
+
+                        // // Get mentee id is inlcuded in mentor mentees
+                        // mentee_id = prev_event.user_id
+
+                        // Determine if last event is an remove mentor mentee event and mentee is included in mentee list
+                        if (prev_event.type == EVENT_TYPES.REMOVE_MENTOR_MENTEE & mentee_id_list.includes(prev_event.user_id))
+                        {
+                            // Update mentee bar
+                            update_mentee_bar_remove(mentee_bar)
+
+                            // Update mentor bar to include 1 less mentee and list
+                            decerment_mentor_mentees(user_bar, prev_event.user_id);
+
+                            // Pass button and reset button to be off
+                            reset_button_style(remove_mentee_button)
+
+                            // Reset bar styles
+                            reset_bar_styles();
+
+                            // Create and store remove mentor mentor event in queue
+                            event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
+
+                            // Reset remove event flag
+                            remove_mentor_flag = 0;
+
+                            alert("mentor remove mentor");
+
+                        }
                     }
                 }
+
+                // Update valid mentors
+                valid_mentor_bars = return_updated_mentor_list();
+
             }
         }
     }
 }
 
+// TODO NEED TESTING
 export function select_mentee_mentor_event(user_bar)
 {
     // NEED TO SET UP TOGGLE FOR THIS SO CLICKING THE SAME BUTTON WILL CANCEL WITHOUT START ELSE JUST CANCEL AND START NEW ONE
@@ -946,147 +1338,187 @@ export function select_mentee_mentor_event(user_bar)
     // // Set select mentee flag
     // select_mentee_flag = 1;
 
-    // Initlize selected mentee bars as empty list
-    let selected_mentees_bars = []
+    // Check if account is not disabled
+    if (!determine_disabled_value(user_bar))
+    {
+        // Initlize selected mentee bars as empty list
+        let selected_mentees_bars = []
 
-    // Updates to display mentees included in mentee list of passed user bar
-    const user_mentees = user_bar.querySelector("#user_mentees").textContent.trim();
+        // Updates to display mentees included in mentee list of passed user bar
+        const user_mentees = determine_mentees_value(user_bar);
 
-    // Create mentee list from mentee list string
-    const mentee_id_list = create_mentee_list(user_mentees);
+        // Create mentee list from mentee list string
+        const mentee_id_list = create_array_from_string(user_mentees);
 
-    // Create list of mentee bars from mentee id list
-    selected_mentees_bars = return_mentee_bars_from_ids(mentee_id_list);
+        // Create list of mentee bars from mentee id list
+        selected_mentees_bars = return_mentee_bars_from_ids(mentee_id_list);
 
-    // Update mentee bars styles from list
-    update_choice_bar_styles(selected_mentees_bars);
+        // Update mentee bars styles from list
+        update_choice_bar_styles(selected_mentees_bars);
 
-    alert("select mentor's mentees")
+        alert("select mentor's mentees");
+
+    }
 }
 
-// REMOVING FUNCTIONALLTY 
-// export function promote_super_mentor_event(user_bar)
-// {
-//     // Determine user id from hidden value in passed user bar
-//     const user_id = user_bar.querySelector("#user_account").textContent.trim();
-
-//     // Check and cancel last event if needed
-//     check_cancel_event();
-
-//     // Create and store remove mentor mentor event in queue
-//     event_queue.enqueue(EVENT_TYPES.PROMOTE_SUPER, user_id);
-
-//     // Promotes user to super admin status
-//     alert("promote super");
-// }
-
+// TODO NEED TESTING
 export function promote_organization_mentor_event(user_bar)
 {
-    // Intitlize toggle flag to 0
-    let toggle_flag = 0;
-
-    // Determine user id from hidden value in passed user bar
-    const user_id = user_bar.querySelector("#user_account").textContent.trim();
-
-    // Determine organization promote button from user bar
-    const organization_promote_button = user_bar.querySelector("#organization_promote_button");
-
-    // Check if queue is not empty
-    if (!event_queue.isEmpty())
+    // Check if account is not disabled
+    if (!determine_disabled_value(user_bar))
     {
-        // Check if same button was already pressed before
-        toggle_flag = check_toggle_event(event_queue.peek_end(), EVENT_TYPES.PROMOTE_ORGANIZATION_MENTOR, user_id);
+        // Determine user id from hidden value in passed user bar
+        const user_id = determine_user_id(user_bar);
 
-    }
+        // Determine organization id of organization bar is included in
+        const organization_id = determine_organization_id(determine_parent_organization_bar_element(user_bar));
 
-    // Check and cancel last event if needed
-    check_cancel_event();
+        // Check and cancel last event if needed
+        check_cancel_event();
 
-    // Check if button was toggled
-    if (!toggle_flag)
-    {
-        // Last event was different, cont. exeuction normally
-        // Set promote organization flag
-        promote_organization_flag = 1;
+        // Update mentor bar to organization admin bar styling
+        update_mentor_bar_organization_admin_styling(user_bar);
 
-        // Pass button and style button to be on
-        update_button_style(organization_promote_button);
-
-        // Style organization bars
-        update_choice_bar_styles(organization_bars);
-
-        // Create and store remove mentor mentor event in queue
+        // Create and store promote organization mentor event in queue
         event_queue.enqueue(EVENT_TYPES.PROMOTE_ORGANIZATION_MENTOR, user_id);
 
-    }
-    else
-    {
-        // Last event was the same cancel without attempting to create event
-        // Pass button and reset button to be off 
-        reset_button_style(organization_promote_button);
+        // Create and store promote organization organzation event in queue
+        event_queue.enqueue(EVENT_TYPES.PROMOTE_ORGANIZATION_ORGANIZATION, organization_id);
+        
+        // Promotes user to organization admin status
+        alert("promote org");
 
-        // Remove event from queue
-        event_queue.dequeue();
     }
-    
-    // Promotes user to organization admin status
-    alert("promote org")
-
 }
 
+// TODO NEED TESTING
 export function edit_organization_mentor_event(user_bar)
 {
-    // Determine user id from hidden value in passed user bar
-    const user_id = user_bar.querySelector("#user_account").textContent.trim();
+    // Check if account is not disabled
+    if (!determine_disabled_value(user_bar))
+    {
+        // Intitlize toggle flag to 0
+        let toggle_flag = 0; 
 
-    // Check and cancel last event if needed
-    check_cancel_event();
+        // Determine user id from hidden value in passed user bar
+        const user_id = determine_user_id(user_bar);
 
-    // TODO NEED LOGIC
+        // Determine edit organization button
+        const edit_organization_button = determine_edit_organization_button(user_bar);
 
-    alert("edit org")
+        // Check if queue is not empty
+        if (!event_queue.isEmpty())
+        {
+            // Check if same button was already pressed before
+            toggle_flag = check_toggle_event(event_queue.peek_end(), EVENT_TYPES.EDIT_ORGANIZATION_MENTOR, user_id);
+
+        }
+
+        // Check and cancel last event if needed
+        check_cancel_event();
+
+        // Check if button was toggled
+        if (!toggle_flag)
+        {
+            // Last event was different, cont. exeuction normally 
+            // Set edit organization flag on
+            edit_organization_flag = 1;
+
+            // Pass button and style button to be on
+            update_button_style(edit_organization_button);
+
+            // Style organization bars
+            update_choice_bar_styles(organization_bars);
+            
+            // Create and store add mentor mentee event in queue
+            event_queue.enqueue(EVENT_TYPES.EDIT_ORGANIZATION_MENTOR, user_id);
+        }
+        else
+        {
+            // Last event was the same cancel without attempting to create event
+            // Pass button and reset button to be off 
+            reset_button_style(edit_organization_button);
+
+            // Remove event from queue
+            event_queue.dequeue();
+
+        }
+
+        alert("edit org");
+
+    }
 }
 
+// TODO NEED TESTING
 export function transfer_role_mentor_event(user_bar)
 {
-    // Determine user id from hidden value in passed user bar
-    const user_id = user_bar.querySelector("#user_account").textContent.trim();
+    // Check if account is not disabled
+    if (!determine_disabled_value(user_bar))
+    {
+        // Determine user id from hidden value in passed user bar
+        const user_id = determine_user_id(user_bar);
 
-    // Check and cancel last event if needed
-    check_cancel_event();
+        // Check and cancel last event if needed
+        check_cancel_event();
 
-    // Create and store remove mentor mentor event in queue
-    event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE, user_id);    
+        // TODO NEED LOGIC 
+        // Find and update user bar to just be within company
+        // Update mentor bar to organzational admin of company
 
-    // Transfers user account role to user
-    alert("transfer role")
+        // Create and store remove mentor mentor event in queue
+        event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE, user_id);    
+
+        // Transfers user account role to user
+        alert("transfer role");
+
+    }
 }
 
+// TODO NEED TESTING
 export function decouple_mentor_event(user_bar)
 {
-    // Determine user id from hidden value in passed user bar
-    const user_id = user_bar.querySelector("#user_account").textContent.trim();
+    // Check if account is not disabled
+    if (!determine_disabled_value(user_bar))
+    {
+        // Set decoupling flag
+        decouple_mentor_flag = 1;
 
-    // Check and cancel last event if needed
-    check_cancel_event();
+        // Determine user id from hidden value in passed user bar
+        const user_id = determine_user_id(user_bar);
 
-    // Create and store remove mentor mentor event in queue
-    event_queue.enqueue(EVENT_TYPES.DECOUPLE, user_id);
+        // Determine orgnization
+        const organization_id = determine_organization_id();
 
-    // Removes mentor from organization
-    alert("decouple")
+        // Create and store decouple organization event in queue
+        event_queue.enqueue(EVENT_TYPES.DECOUPLE_ORGANIZATION, organization_id);
+
+        // Check and cancel last event if needed
+        check_cancel_event();
+
+        // TODO NEED TO PASS ORG BAR AND MENTOR BAR
+        // Remove mentor bar from organization to unaffiliated mentors
+        remove_from_organization()
+
+        // Create and store decouple mentor event in queue
+        event_queue.enqueue(EVENT_TYPES.DECOUPLE_MENTOR, user_id);
+
+        // Removes mentor from organization
+        alert("decouple");
+
+    }
 }
 
+// TODO NEED TESTING
 export function organization_clicked_event(organization_bar)
 {
-    // Check if promote organzation flag
-    if (promote_organization_flag)
+    // Check if edit organzation flag is on
+    if (edit_organization_flag)
     {
         // Check if mentor is valid and event queue is not empty
         if (!event_queue.isEmpty())
         {
             // Determine organization id from hidden value in passed organization bar
-            const organization_id = organization_bar.querySelector("#organization_account").textContent.trim();
+            const organization_id = determine_organization_id(organization_bar);
 
             // Store last event
             let prev_event = event_queue.peek_end();
@@ -1097,17 +1529,28 @@ export function organization_clicked_event(organization_bar)
             // Check if mentor_bar is not undefined
             if (mentor_bar != undefined)
             {
-                // Determine organization promote button from mentor bar
-                const organization_promote_button = mentor_bar.querySelector("#organization_promote_button");
+                // Determine edit organization button
+                const edit_organization_button = determine_edit_organization_button(mentor_bar);
 
                 // Determine if last event is an promote organzation mentor event
                 if (prev_event.type == EVENT_TYPES.PROMOTE_ORGANIZATION_MENTOR) 
                 {
-                    // Pass organization bar and promote mentor to admin of organzation
-                    promote_prganzation_admin(organization_bar, mentor_bar);
+                    // Determine parent organization if mentor is apart of another organization
+                    const prev_organization_bar = determine_parent_organization_bar_element(mentor_bar)
+                    
+                    // Check mentor was part of another organization
+                    if (prev_organization_bar != null)
+                    {
+                        // Remove mentor from prev organization bar
+                        remove_from_organization(prev_organization_bar, mentor_bar);
+
+                    }
+
+                    // Add mentor bar to organization bar
+                    add_to_organization(organization_bar, mentor_bar);
 
                     // Pass button and reset button to be off
-                    reset_button_style(organization_promote_button);
+                    reset_button_style(edit_organization_button);
 
                     // Reset bar styles
                     reset_bar_styles();
@@ -1128,10 +1571,11 @@ export function organization_clicked_event(organization_bar)
     alert("org clicked");
 }
 
+// TODO NEED TESTING
 export function remove_organization_event(organization_bar)
 {
     // Determine user id from hidden value in passed user bar
-    const organization_id = organization_bar.querySelector("#organization_account").textContent.trim();
+    const organization_id = determine_organization_id(organization_bar);
 
     // Check and cancel last event if needed
     check_cancel_event();

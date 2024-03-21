@@ -290,6 +290,26 @@ class Interest(SVSUModelData,Model):
             return interest
         except:
             return None
+        
+    @staticmethod
+    def create_default_interests():
+        
+        default_interests = [
+            'Artificial Intelligence', 
+            'Computer Graphics', 
+            'Data Structures & Algorithms',
+            'Networking',
+            'Operating Systems',
+            'Embedded Systems',
+            'Cloud Computing',
+            'Software Engineering',
+            'Distrubuted Systems',
+            'Game Development',
+            'Cybersecruity',
+            'System Analysis']
+        
+        for interest in default_interests:
+            Interest.get_or_create_interest(interest)
     
     @staticmethod
     def delete_interest(str_interest_name : str) -> 'Interest' :
@@ -2017,6 +2037,7 @@ class UserReport(SVSUModelData,Model):
     Authors
     -------
     Adam C.
+    Jordan A.
     """
     class ReportType(TextChoices):
         """
@@ -2044,11 +2065,23 @@ class UserReport(SVSUModelData,Model):
         -------
         Adam C.
         """
-        BEHAVIOR = 'Behavior'
+        CONDUCT: 'Conduct'
+        PROFILE: 'Profile'
+        RESPONSIVENESS: 'Responsiveness'
+        OTHER: 'Other'
+
+
+        # TODO: Add different issue
 
     user = ForeignKey(
         User,
         on_delete = models.CASCADE
+    )
+
+    mentee = ForeignKey(
+        Mentee,
+        on_delete = models.CASCADE,
+        default=""
     )
     str_report_type = CharField(max_length=10, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
@@ -2092,7 +2125,7 @@ class UserReport(SVSUModelData,Model):
                 str_report_type = str_provided_report_type,
                 str_report_body = str_provided_report_body,
                 user = user,
-                bln_resolved = False
+                bln_resolved = False,
             ).save()
             return True
         except Exception as e:
@@ -2539,7 +2572,7 @@ class ProfileImg(SVSUModelData,Model):
 
 class PasswordResetToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    token = models.CharField(max_length=6, unique=True)  
+    token = models.CharField(max_length=30, unique=True)  
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
@@ -2554,7 +2587,7 @@ class PasswordResetToken(models.Model):
                 existing_token.delete()
             except ObjectDoesNotExist:
                 # No existing token for the user, proceed with creating a new one
-                print("Existing token deleted")
+                print("Existing link deleted")
                 pass
 
 
@@ -2568,7 +2601,7 @@ class PasswordResetToken(models.Model):
                 characters = string.ascii_uppercase + string.digits
 
                 # Generate a random string of length 6
-                token = ''.join(random.choice(characters) for _ in range(6))
+                token = ''.join(random.choice(characters) for _ in range(30))
 
                 #checks to see if token exist already
                 duplicate = PasswordResetToken.objects.filter(token=token).exists()
@@ -2577,10 +2610,10 @@ class PasswordResetToken(models.Model):
             # Save the new instance of PasswordResetToken model
             reset_token_instance.save()
 
-            return True, "Reset token created successfully", token
+            return True, "Reset link created successfully", token
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-            return False, f"An error occurred creating your token", token
+            return False, f"An error occurred creating your link", token
         
 
     
@@ -2630,28 +2663,24 @@ class PasswordResetToken(models.Model):
             # Check if the token is valid
             if not valid:
                 if message == "expired":
-                    return False,  "Token expired, attempt reset again!"
+                    return False,  "Link expired, attempt reset again!"
                 if message == "ex":
-                    return False, "An error occoured checking your token."
+                    return False, "An error occoured verifying your link."
             # Delete the token since it was correct and is no longer needed
-            token_instance.delete()
+            
 
-            user = User.objects.get(id=token_instance.user)
+            user = User.objects.get(id=token_instance.user.id)
             generated_user_salt = security.generate_salt()
             user.str_password_hash = security.hash_password(new_password, generated_user_salt)
             user.str_password_salt = generated_user_salt
             user.save()
-
+            token_instance.delete()
 
             
             return True, "Password successfully reset, Rerouting you to home page."  # Password reset successful
         except PasswordResetToken.DoesNotExist:
-            return False,  "Invalid Token"
+            return False,  "Invalid Link"
 
 
 
-    @staticmethod
-    def see_token(user_id):
-        existing_token = PasswordResetToken.objects.get(user=user_id)
-      
-        return f"Reset token created successfully for user: {existing_token.user}, token: {existing_token.token}, timestamp: {existing_token.timestamp}"
+   
