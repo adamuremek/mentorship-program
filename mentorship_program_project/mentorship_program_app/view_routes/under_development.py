@@ -919,8 +919,9 @@ def save_profile_info(req : HttpRequest, user_id : int):
         page_owner_user.interests.add(*interest_data)
 
         # Set Max Mentees
-        page_owner_user.mentor.int_max_mentees = req.POST["max_mentees"]
-        page_owner_user.mentor.save()
+        if page_owner_user.is_mentor and [mentee.account for mentee in page_owner_user.mentor.mentee_set.all()]:
+            page_owner_user.mentor.int_max_mentees = req.POST["max_mentees"]
+            page_owner_user.mentor.save()
 
         #Set the new bio
         page_owner_user.str_bio = req.POST["bio"]

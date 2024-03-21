@@ -237,7 +237,8 @@
         //Make editable elements visible and selectable
         bioTextArea.readOnly = false
         editPfpOverlay.style.display = "flex"
-        max_mentees.disabled = false
+        if(max_mentees)
+            max_mentees.disabled = false
 
         user_interests.forEach(button => {
             button.classList.add('hover_interest')
