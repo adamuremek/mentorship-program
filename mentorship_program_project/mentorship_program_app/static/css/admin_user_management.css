@@ -66,17 +66,17 @@
 }
 
 .admin_user_management_button_clear_inactive {
-    /* background: none;
-    border: none;
-    width: 8%; */
-
     display: none;
 }
 
 .admin_user_management_button_clear_active {
-    background: none;
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 15px;
     border: none;
-    width: 8%;
+    width: 12%;
+    display: flex;
+    justify-content: center;
+    padding: 1%;
 }
 
 .admin_user_management_word_button_active {

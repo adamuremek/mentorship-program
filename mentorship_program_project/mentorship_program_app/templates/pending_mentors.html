@@ -14,7 +14,7 @@ Mentor Applicant Approval
 
 
 <div class="link-container">
-    <a href="/dashboard" class="return-link">
+    <a href="/dashboard" class="return-link" id="return-btn">
         <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
         Administrator Dashboard
     </a>
@@ -43,21 +43,21 @@ Mentor Applicant Approval
         <form action="/view_mentor_by_admin" method="POST">
             {% csrf_token %}
             <input type="hidden" name="mentor_id" value="{{user.id}}" />
-            <input type="submit" value="View" />
+            <input type="submit" value="View" id="view-mentor-btn"/>
         </form>
 
         <form action="/change_mentor_status" method="POST">
             {% csrf_token %}
             <input type="hidden" name="status" value="Approved" />
             <input type="hidden" name="mentor_id" value="{{user.id}}" />
-            <input type="submit" value="Approve" />
+            <input type="submit" value="Approve" id="approve-mentor-btn"/>
         </form>
 
         <form action="/change_mentor_status" method="POST">
             {% csrf_token %}
             <input type="hidden" name="status" value="Denied" />
             <input type="hidden" name="mentor_id" value="{{user.id}}" />
-            <input type="submit" value="Deny" />
+            <input type="submit" value="Deny" id="deny-mentor-btn"/>
         </form>
     </div>
 
