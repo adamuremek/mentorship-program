@@ -7,7 +7,7 @@ import { save_event, cancel_event,
 // Select and store bar elements
 const mentee_bars = document.querySelectorAll(".mentee_management_bar");
 const mentor_bars = document.querySelectorAll(".mentor_management_bar_container");
-const organization_bars = document.querySelectorAll(".organization_management_bar");
+const organization_bars = document.querySelectorAll(".organization_management_bar_container");
 
 // Select and store button elements for user management page
 const save_button = document.getElementById("save_button");
@@ -41,14 +41,14 @@ for (let mentee_bar of mentee_bars)
     if (mentee_bar.querySelector("#trashcan_button") != null)
     {
         // Set button listener for deactivate button
-        mentee_bar.querySelector("#trashcan_button").addEventListener('click', function() { deactivate_event(mentee_bar) });
+        mentee_bar.querySelector("#trashcan_button").addEventListener('click', function() { disable_event(mentee_bar) });
     }
 
     // Check if there reactivate button 
     if (mentee_bar.querySelector("#trashcan_off_button") != null)
     {
         // Set button listener for reactivate button
-        mentee_bar.querySelector("#trashcan_off_button").addEventListener('click', function() { reactivate_event(mentee_bar) });
+        mentee_bar.querySelector("#trashcan_off_button").addEventListener('click', function() { reable_event(mentee_bar) });
     }
 }
 
@@ -71,14 +71,14 @@ for (let mentor_bar of mentor_bars)
     if (mentor_bar.querySelector("#trashcan_button") != null)
     {
         // Set button listener for deactivate button
-        mentor_bar.querySelector("#trashcan_button").addEventListener('click', function() { deactivate_event(mentor_bar) });
+        mentor_bar.querySelector("#trashcan_button").addEventListener('click', function() { disable_event(mentor_bar) });
     }
 
     // Check if there reactivate button 
     if (mentor_bar.querySelector("#trashcan_off_button") != null)
     {
         // Set button listener for reactivate button
-        mentor_bar.querySelector("#trashcan_off_button").addEventListener('click', function() { reactivate_event(mentor_bar) });
+        mentor_bar.querySelector("#trashcan_off_button").addEventListener('click', function() { reable_event(mentor_bar) });
     }
 
     // Check if there super promote button 
@@ -90,6 +90,9 @@ for (let mentor_bar of mentor_bars)
 
     // Set button listener for organization promote button
     mentor_bar.querySelector("#organization_promote_button").addEventListener('click', function() { promote_organization_mentor_event(mentor_bar) });
+
+    // Set button listener for edit organization button
+    mentor_bar.querySelector("#edit_organization_button").addEventListener('click', function() { edit_organization_mentor_event(mentor_bar) } );
 
     // Set button listener for transfer role button
     mentor_bar.querySelector("#transfer_role_button").addEventListener('click', function() { transfer_role_mentor_event(mentor_bar) });
