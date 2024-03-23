@@ -778,6 +778,7 @@ def universalProfile(req : HttpRequest, user_id : int):
     max_mentees = None
     num_mentees = None
     
+    report_types = UserReport.ReportType.values
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
         pendingRequests = MentorshipRequest.objects.filter(mentee_id=page_owner_user.id)
@@ -819,7 +820,8 @@ def universalProfile(req : HttpRequest, user_id : int):
                 "notes" : notes,
                 "max_mentees" : max_mentees,
                 "num_mentees" : num_mentees,
-                "mentees_or_mentor" : mentees_or_mentor
+                "mentees_or_mentor" : mentees_or_mentor,
+                "report_types" : report_types,
                }
     return HttpResponse(template.render(context,req))
 

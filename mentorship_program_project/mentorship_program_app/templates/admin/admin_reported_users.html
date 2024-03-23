@@ -27,46 +27,32 @@ SVSU Mentoring
         </div>
 
         <div class="reported-users-area">
+            <h2 class="no-reports-message" {% if user_reports_dict %}style="display: none;"{% endif %}>No reported users</h2>
+
+            {% for user, reports in user_reports_dict.items %}
             <div class="reported-user card">
-                <h2 class="reported-user-name">Jimmy Arnold</h2>
+                <h2 class="reported-user-name">{{user.str_first_name}} {{user.str_last_name}}</h2>
                 <h3>Reports:</h3>
                 <div class="report-subcard">
                     <ul>
+                        {% for report in reports %}
                         <li class="user-report">
-                            <div class="report-body">He was mean in our one on one.</div>
+                            <div class="report-body">{{report.str_report_body}}</div>
                             <div class="report-controls">
-                                <div class="resolve-report">Resolve</div>
+                                <div class="resolve-report" id="{{report.id}}">Resolve</div>
+                                <form class="resolve-report-form" id="resolve-report-form-{{report.id}}" action="/admin_reported_users/resolve_report/" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="report_id" value="{{report.id}}">
+                                    <input type="submit" value="" style="display: none;" />
+                                </form>
                             </div>
+                            
                         </li>
-                        <li class="user-report">
-                            <div class="report-body">I felt uncomfortable around him.</div>
-                            <div class="report-controls">
-                                <div class="resolve-report">Resolve</div>
-                            </div>
-                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
-
-            <div class="reported-user card">
-                <div class="reported-user-card-header">
-                    <h2 class="reported-user-name">John Cook</h2>
-                </div>
-                <h3>Reports:</h3>
-                <div class="report-subcard">
-                    <ul>
-                        <li class="user-report">
-                            <div class="report-body">
-                                Left inappropriate and unprofessional notes after meetings
-                            </div>
-                            <div class="report-controls">
-                                <div class="resolve-report">Resolve</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
+            {% endfor %}
         </div>
 
     </div>
@@ -100,6 +86,24 @@ SVSU Mentoring
             }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+    var resolve = document.getElementsByClassName("resolve-report");
+    for (var i = 0; i < resolve.length; i++) {
+        resolve[i].addEventListener("click", function() {
+            var reportId = this.id;
+            resolveReport(reportId);
+        });
+    }  
+
+    function resolveReport(reportId) {
+        var resolveReportForm = document.getElementById("resolve-report-form-" + reportId)
+        resolveReportForm.submit();
+    }
+});
+
+
 </script>
 
 {% endblock %}
