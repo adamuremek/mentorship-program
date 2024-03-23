@@ -305,7 +305,7 @@ class Interest(SVSUModelData,Model):
             'Software Engineering',
             'Distrubuted Systems',
             'Game Development',
-            'Cybersecruity',
+            'Cybersecurity',
             'System Analysis']
         
         for interest in default_interests:
