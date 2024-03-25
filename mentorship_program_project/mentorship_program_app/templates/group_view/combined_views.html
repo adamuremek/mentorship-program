@@ -352,8 +352,9 @@
         const lst_btn_view_note = document.getElementsByClassName('btn-note-view');
         
         const lst_btn_remove_note = document.getElementsByClassName('btn-note-remove');
-        const lst_note_modal = document.getElementsByClassName('modal');
+        const lst_note_modal = document.getElementsByClassName('note-modal');
         const lst_modal_exit = document.getElementsByClassName('modal-exit');
+        const every_single_fucking_note_on_the_goddamn_page = document.getElementsByClassName('modal')
         
         const add_modal = Array.from(lst_note_modal).pop()
 
@@ -374,7 +375,7 @@
         
         if(lst_modal_exit.length > 0)
             for(let i = 0; i < lst_modal_exit.length; i++)
-                lst_modal_exit[i].addEventListener("click", () => lst_note_modal[i].close());
+                lst_modal_exit[i].addEventListener("click", () => every_single_fucking_note_on_the_goddamn_page[i].close());
 
 
         // Haha this is stinky I hate my life because of this

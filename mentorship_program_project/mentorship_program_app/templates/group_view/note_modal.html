@@ -1,4 +1,4 @@
-<dialog class="modal" id="note-modal">
+<dialog class="modal note-modal" id="note-modal">
     <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
     <div class="modal-container">
         <form id="note-form" action="{% if note %}{% url 'update_note' %}{%else%}{% url 'create_note' %}{%endif%}" class="frm-note-creator" method="post">
