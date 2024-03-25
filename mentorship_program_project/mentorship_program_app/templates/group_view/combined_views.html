@@ -33,6 +33,9 @@
                 {% endif %}
             {% endif %}
 
+            <!-- TODO: prevent reporting multiple times in a row -->
+            <button id="btn_profile_report">Report</button>
+            {% include 'group_view/report_modal.html' with report_types=report_types %}
 
             {% if  page_owner_user.is_mentee and mentees_or_mentor %}
                 <h3>Mentor: </h3>
@@ -328,6 +331,13 @@
             reader.readAsDataURL(event.target.files[0]); // Read the selected file as Data URL
         })
     })
+
+    const btn_profile_report = document.getElementById('btn_profile_report');
+    if (btn_profile_report) {
+        btn_profile_report.addEventListener('click', () => {
+            document.getElementById('report-modal').showModal();
+        });
+    }
 
 </script>
 

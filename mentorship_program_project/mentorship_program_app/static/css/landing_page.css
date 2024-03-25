@@ -166,7 +166,7 @@ a:not([class]) {
     }
 }
 
-form {
+.portal form {
     width: 40rem;
     background-color: rgba(99, 99, 99, 0.055);
     border-radius: 10px;
@@ -181,7 +181,7 @@ form {
         width: 100%;
     }
 
-    form {
+    .portal form {
         width: 100%;
     }
 }
@@ -323,7 +323,7 @@ input,
     font-size: 1rem;
     font-weight: 300;
     font-family: var(--ff-roboto);
-    color: #FFFFFF;
+    color: var(--clr-font-primary);
     box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
 }
 
@@ -359,14 +359,14 @@ input:-moz-autofill:active {
     padding-left: 10px;
 }
 
-#li-btn {
+.li-btn {
     background-color: #3E4C6C;
     font-size: 1.25rem;
     font-weight: 600;
 }
 
-#li-btn:hover,
-#li-btn:focus-visible {
+.li-btn:hover,
+.li-btn:focus-visible {
     background-color: #4a5a7d;
 }
 
@@ -408,8 +408,8 @@ input:-moz-autofill:active {
 
 .modal {
     padding: 1em;
-    width: 50ch;
-    height: 55ch;
+    width: 45ch;
+    height: 48ch;
     border: 0;
     box-shadow: 0 0 1em rgb(0 0 0 / .3);
     border-radius: 15px;
@@ -436,13 +436,15 @@ input:-moz-autofill:active {
 }
 
 .modal-container {
-    padding: 1em;
+    padding: 0 5px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
 .modal-content-container {
+    /* margin-top: 0px; */
+    padding: 0 15px;
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
@@ -451,18 +453,27 @@ input:-moz-autofill:active {
 
 .modal-footer-container {
     display: flex;
-    /* margin-top: 4.43em; */
-    margin-top: 3em;
-
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 0px;
+    padding: 15px;
 }
 
 .modal-footer-container form {
-    padding: 0.5rem;
+    width: 100%;
 }
 
-.modal-footer-container button {
-    background-color: transparent;
+.modal-footer-container form input {
+    margin: 0px;
+    padding: 10px;
+    height: 50px;
+    width: 100%;
 }
+
+/* .modal-footer-container button {
+    background-color: transparent;
+} */
 
 .modal-exit:hover,
 .modal-exit:focus-visible {
@@ -484,13 +495,25 @@ input:-moz-autofill:active {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.5rem;
+    text-align: center;
+    font-size: 2rem;
+    letter-spacing: 0.08em;
+    flex-grow: 1;
     font-weight: var(--fw-extrabold);
+}
+
+/* Resize modal heading at smaller screens to fit on one line */
+@media (max-width: 450px) {
+    .modal h2 {
+        font-size: 2rem;
+        letter-spacing: normal;
+    }
 }
 
 .modal-content-container p {
     margin-top: .5em;
     font-size: 1.15rem;
+    letter-spacing: .05em;
     color: var(--clr-font-secondary);
 }
 
@@ -499,6 +522,14 @@ input:-moz-autofill:active {
     flex-direction: column;
     align-items: center;
     text-align: center;
+}
+
+
+
+#pass-reset {
+    height: 50px;
+    border-radius: 10px;
+    width: 100%;
 }
 
 .prompt-login h1 {
@@ -514,4 +545,29 @@ input:-moz-autofill:active {
     color: yellow;
     margin-top: .5em;
     margin-left: .5em;
+}
+
+#email-status-good,
+#email-status-bad {
+    padding-top: 5px;
+}
+
+.circle-wrapper {
+    display: inline-block;
+    border-radius: 50%;
+    padding: 10px;
+    transition: background-color 0.2s;
+}
+
+.circle-wrapper:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+}
+
+.circle-wrapper img {
+    display: block;
+    border-radius: 50%;
+}
+
+.bad_email {
+    text-align: center;
 }

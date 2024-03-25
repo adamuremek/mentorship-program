@@ -41,7 +41,7 @@ from django.http import HttpResponse,HttpRequest
 from django.shortcuts import redirect
 from ..models import User
 from datetime import date
-#from dateutil import relativedelta
+from dateutil import relativedelta
 import json
 from ..models import SystemLogs
 from ..views import invalid_request_401
@@ -225,3 +225,117 @@ def create_new_interest(req : HttpRequest, admin_id : int, str_interest : str, b
     else:
         #All is good.
         return HttpRequest("Interest Added.")
+    
+
+@security.Decorators.require_login(bad_request_400)
+def resolve_report(req: HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Resolves a report by setting the bln_resolved field to True
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request object
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The http response for the redirect
+
+    Example Usage
+    -------------
+    >>> path('resolve_report/', backend_requests.resolve_report, name='resolve report')
+
+    Authors
+    -------
+    Quinn F. 
+    """
+
+    user = User.from_session(req.session)
+    str_error_message = "The following error(s) occured:"
+    errors =  []
+    errors.append(str_error_message)
+    bool_error = False
+
+    if not user.is_super_admin() :
+        errors.append("Not an administrator.")
+        bool_error = True
+
+    report_id = req.POST['report_id']
+    if report_id == None:
+        errors.append("Report ID is required.")
+        bool_error = True
+    
+    try:
+        UserReport.get_report_id(report_id)
+    except ObjectDoesNotExist:
+        errors.append("Invalid report ID.")
+        bool_error = True
+
+    if bool_error :
+        return bad_request_400("\n".join(errors))
+    else:
+        report_id = req.POST['report_id']
+        UserReport.resolve_report(report_id)
+        return redirect('/admin_reported_users')
+
+@security.Decorators.require_login(bad_request_400)
+def report_user(req: HttpRequest) -> HttpResponse:
+    """
+    Description
+    -----------
+    Creates a new user report
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request object
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - HttpResponse: The http response for the redirect
+
+    Example Usage
+    -------------
+    >>> path('report_user/', backend_requests.report_user, name='report user')
+
+    Authors
+    -------
+    Quinn F. 
+    """
+
+    user = User.from_session(req.session)
+    str_error_message = "The following error(s) occured:"
+    errors =  []
+    errors.append(str_error_message)
+    bool_error = False
+
+    try:
+        User.objects.get(id=req.POST.get("reported_user_id", None))
+    except ObjectDoesNotExist:
+        errors.append("Invalid reported user ID.")
+        bool_error = True
+
+    if not req.POST.get("report_type", None):
+        errors.append("Report type is required.")
+        bool_error = True
+    
+    if not req.POST.get("report_reason", None):
+        errors.append("Report reason is required.")
+        bool_error = True    
+    
+    if bool_error:
+        return bad_request_400("\n".join(errors))
+    else:
+        reported_user_id = req.POST['reported_user_id']
+        report_type = req.POST['report_type']
+        report_reason = req.POST['report_reason']
+        UserReport.create_user_report(report_type, report_reason, reported_user_id)
+        return redirect('/universal_profile/' + reported_user_id)

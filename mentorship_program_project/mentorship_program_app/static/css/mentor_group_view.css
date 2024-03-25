@@ -412,6 +412,15 @@ button:hover {
     margin-bottom: 1em
 }
 
+#btn_profile_report {
+    margin-top: 1em;
+
+    padding: 0.5em;
+    width: 80%;
+    margin-left: 10%;
+    background-color: #911c;
+}
+
 .button-user-remove {
     background-color: #911c;
 }
@@ -529,6 +538,60 @@ button:hover {
     border: none;
     background-color: rgba(255, 255, 255, 0.07);
     box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
+}
+
+.modal select {
+    font-size: 1rem;
+    font-family: var(--ff-primary);
+    line-height: 1.1em;
+    border-radius: 4px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.07);
+    box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
+
+    padding: .5em;
+    margin-top: .25em;
+    margin-bottom: .5ema;
+
+    width: 50%;
+    overflow: scroll;
+}
+
+select option {
+    font-size: 1rem;
+    font-family: var(--ff-primary);
+    line-height: 1.1em;
+    border-radius: 4px;
+    border: none;
+    background-color: rgba(58, 58, 58, 0.212);
+    color: rgba(0, 0, 0, 0.07);
+}
+
+#btn-report-submit {
+    font-family: var(--ff-primary);
+    font-size: 2rem;
+    font-weight: var(--fw-medium);
+    color: var(--clr-font-primary);
+    background-color: var(--clr-btn-submit);
+
+    display: block;
+    height: 40px;
+    width: 100%;
+    padding: 0 10px;
+    border-radius: 25px;
+    outline: none;
+    font-size: 1rem;
+    font-weight: var(--fw-medium);
+    filter: drop-shadow(.6em .6em .55em rgba(58, 58, 58, 0.15));
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    margin-top: 1em;
+}
+
+#btn-report-submit:hover,
+#btn-report-submit:focus-visible {
+    background-color: var(--clr-btn-submit-highlight);
 }
 
 .modal input {

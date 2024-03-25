@@ -229,6 +229,7 @@ def admin_dashboard(req):
                "pending_mentors"             : overall_stats["pending_mentors"             ],
                "total_terminated_mentorships": overall_stats["total_terminated_mentorships"],
                "mentees_reported"            : overall_stats["mentees_reported"            ],
+               "unresolved_reports"          : overall_stats["unresolved_reports"          ],
                
                # Daily
                "daily_visitors"              : timespan_stats["Daily"][0],
