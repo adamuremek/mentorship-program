@@ -2065,10 +2065,10 @@ class UserReport(SVSUModelData,Model):
         -------
         Adam C.
         """
-        CONDUCT: 'Conduct'
-        PROFILE: 'Profile'
-        RESPONSIVENESS: 'Responsiveness'
-        OTHER: 'Other'
+        CONDUCT = 'Conduct'
+        PROFILE = 'Profile'
+        RESPONSIVENESS = 'Responsiveness'
+        OTHER = 'Other'
 
 
         # TODO: Add different issue
@@ -2078,12 +2078,7 @@ class UserReport(SVSUModelData,Model):
         on_delete = models.CASCADE
     )
 
-    mentee = ForeignKey(
-        Mentee,
-        on_delete = models.CASCADE,
-        default=""
-    )
-    str_report_type = CharField(max_length=10, choices=ReportType.choices, default='')
+    str_report_type = CharField(max_length=15, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
     bln_resolved = BooleanField(default=False)
 
