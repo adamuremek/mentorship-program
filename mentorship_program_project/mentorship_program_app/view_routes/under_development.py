@@ -921,7 +921,7 @@ def save_profile_info(req : HttpRequest, user_id : int):
         page_owner_user.interests.add(*interest_data)
 
         # Set Max Mentees
-        if page_owner_user.is_mentor() and [mentee.account for mentee in page_owner_user.mentor.mentee_set.all()]:
+        if page_owner_user.is_mentor():
             page_owner_user.mentor.int_max_mentees = req.POST["max_mentees"]
             page_owner_user.mentor.save()
 
