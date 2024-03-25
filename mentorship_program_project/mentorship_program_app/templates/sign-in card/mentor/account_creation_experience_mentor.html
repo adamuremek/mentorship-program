@@ -8,7 +8,7 @@
     <div class="sign-in-card-element-horizontal">
         <div>
             <p class="sign-in-card-text-normal">Company Type:</p>
-            <select>
+            <select id="select-company-type" name="company-type">
                 <option></option>
                 {% for companytype in companytypelist %}
                     <option>{{companytype}}</option>
@@ -18,7 +18,7 @@
         </div>
         <div>
             <p class="sign-in-card-text-normal">Experience:</p>
-            <select name="experience">
+            <select id="select-experience" name="experience">
                 <option value=""></option>
                 {% for experience in experiencelist %}
                     <option value="{{experience}}">{{experience}}</option>
