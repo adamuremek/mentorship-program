@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             case 2: // Email | Phone | Password
                 is_valid = regex_custom.test(input_email.value) &&
                     regex_phone.test(input_phone.value) &&
-                    input_password.value.length > 1
+                    is_password_valid()
                 if(!is_valid)
                     display_error_message_for_email_phone_password()
                 break
@@ -267,6 +267,42 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
         return is_valid
     }
+
+
+    function is_password_valid(){
+       
+            // Requirement 1: Password should contain 12 or more characters
+            if (input_password.value.length < 12) {
+              return false;
+            }
+          
+            // Requirement 2: Password should contain 36 or less characters
+            if (input_password.value.length > 36) {
+              return false;
+            }
+          
+            // Requirement 3: Password should contain a combination of uppercase letters, lowercase letters, at least one number, and at least one symbol
+            const uppercaseRegex = /[A-Z]/;
+            const lowercaseRegex = /[a-z]/;
+            const numberRegex = /[0-9]/;
+            const symbolRegex = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+          
+            if (
+              !uppercaseRegex.test(input_password.value) ||
+              !lowercaseRegex.test(input_password.value) ||
+              !numberRegex.test(input_password.value) ||
+              !symbolRegex.test(input_password.value)
+            ) {
+              return false;
+            }
+          
+            return true;
+          
+          
+          
+    }
+
+
 
 
     function is_mentee_page_valid(form_idx) {
@@ -361,13 +397,18 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         let email_warning_message = document.getElementById('frm-email-warning-message')
         let phone_warning_message = document.getElementById('frm-phone-warning-message')
         let password_warning_message = document.getElementById('frm-password-warning-message')
-        
-        if(input_password.value.length == 0)
-            password_warning_message.innerText = "Password cannot be blank!"
-        else if(input_password.value.length == 1)
-            password_warning_message.innerText = "Password must be longer than one character."
-        else
-            password_warning_message.innerText = ""
+
+        if (input_password.value.length == 0) {
+            password_warning_message.innerText = "Password cannot be blank!";
+        } else if (input_password.value.length < 12) {
+            password_warning_message.innerText = "Password must be 12 or more characters.";
+        } else if (input_password.value.length > 36) {
+            password_warning_message.innerText = "Password must be 36 or fewer characters.";
+        } else if (!/[A-Z]/.test(input_password.value) || !/[a-z]/.test(input_password.value) || !/[0-9]/.test(input_password.value) || !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(input_password.value)) {
+            password_warning_message.innerText = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.";
+        } else {
+            password_warning_message.innerText = "";
+        }
         
         if(input_phone.value.length == 0)
             phone_warning_message.innerText = "Phone number cannot be blank!"
