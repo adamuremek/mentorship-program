@@ -359,14 +359,14 @@ input:-moz-autofill:active {
     padding-left: 10px;
 }
 
-.li-btn {
+#li-btn {
     background-color: #3E4C6C;
     font-size: 1.25rem;
     font-weight: 600;
 }
 
-.li-btn:hover,
-.li-btn:focus-visible {
+#li-btn:hover,
+#li-btn:focus-visible {
     background-color: #4a5a7d;
 }
 
