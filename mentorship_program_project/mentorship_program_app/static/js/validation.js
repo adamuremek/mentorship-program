@@ -67,8 +67,14 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_interests = document.getElementById('interests')
 
     const btn_user_agree = document.getElementById('btnUserAgree')
-
-    let warning_message = document.getElementById('must-accept-agreement-error')
+    const warning_message = document.getElementById('must-accept-agreement-error')
+    const first_name_warning_message = document.getElementById('frm-first-name-warning-message')
+    const last_name_warning_message = document.getElementById('frm-last-name-warning-message')
+    const email_warning_message = document.getElementById('frm-email-warning-message')
+    const phone_warning_message = document.getElementById('frm-phone-warning-message')
+    const password_warning_message = document.getElementById('frm-password-warning-message')
+    const company_warning_message = document.getElementById('frm-company-warning-message')
+    const job_title_warning_message = document.getElementById('frm-job-title-warning-message')
 
     var regex_custom = /^/
 
@@ -251,6 +257,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                                 
                 if(!is_valid)
                     display_error_message_for_name()
+                else
+                    reset_error_messages(form_idx)
                 break
 
             case 2: // Email | Phone | Password
@@ -259,6 +267,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     is_password_valid()
                 if(!is_valid)
                     display_error_message_for_email_phone_password()
+                else
+                    reset_error_messages(form_idx)
                 break
 
             default:
@@ -340,7 +350,9 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     input_job_title.value.length > 0
                 //input_company-type.value != none ??
                 //input_expeience.value != none    ??
-                if(!is_valid)
+                if(is_valid)
+                    reset_error_messages(form_idx)
+                else
                     display_error_message_for_mentor()
                 break
 
@@ -374,29 +386,20 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
     function display_error_message_for_name(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
-        let first_name_warning_message = document.getElementById('frm-first-name-warning-message')
-        let last_name_warning_message = document.getElementById('frm-last-name-warning-message')
 
         if(input_first_name.value.length == 0)
             first_name_warning_message.innerText = "First name cannot be blank!"
-        else if(input_first_name.value.length == 1)
-            first_name_warning_message.innerText = "First name must be longer than one character."
         else
             first_name_warning_message.innerText = ""
         
         if(input_last_name.value.length == 0)
             last_name_warning_message.innerText = "Last name cannot be blank!"
-        else if(input_last_name.value.length == 1)
-            last_name_warning_message.innerText = "Last name must be longer than one character."
         else
             last_name_warning_message.innerText = ""
     }
 
     function display_error_message_for_email_phone_password(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
-        let email_warning_message = document.getElementById('frm-email-warning-message')
-        let phone_warning_message = document.getElementById('frm-phone-warning-message')
-        let password_warning_message = document.getElementById('frm-password-warning-message')
 
         if (input_password.value.length == 0) {
             password_warning_message.innerText = "Password cannot be blank!";
@@ -427,10 +430,6 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
     function display_error_message_for_mentor(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
-        let company_warning_message = document.getElementById('frm-company-warning-message')
-        //let company_type_warning_message = document.getElementById('frm-company-type-warning-message')
-        //let experience_warning_message = document.getElementById('frm-experience-warning-message')
-        let job_title_warning_message = document.getElementById('frm-job-title-warning-message')
 
         if(input_company.value.length == 0)
             company_warning_message.innerText = "Company cannot be blank!"
@@ -446,6 +445,28 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         else
             job_title_warning_message.innerText = ""
         
+    }
+
+    function reset_error_messages(form_idx){
+        //Resets the innerText values of the error messages based on the form index 
+        //(so that if you go back, the error messages do not continue to show)
+        switch (form_idx){
+            case 1:
+                first_name_warning_message.innerText = ""
+                last_name_warning_message.innerText = ""
+                break;
+            case 2:
+                password_warning_message.innerText = ""
+                phone_warning_message.innerText = ""
+                email_warning_message.innerText = ""
+                break;
+            case 3:
+                company_warning_message.innerText = ""
+                job_title_warning_message.innerText = ""
+                break;
+            default:
+                break;
+        }
     }
 
 }) // DOM listener
