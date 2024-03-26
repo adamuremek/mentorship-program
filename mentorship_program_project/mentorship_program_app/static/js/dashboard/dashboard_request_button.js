@@ -26,6 +26,9 @@ async function request_user(requested_user_id) {
 	}
 }
 
+async function reject_user(requested_user_id) {
+
+}
 
 //actually setup each button to be clickable
 
