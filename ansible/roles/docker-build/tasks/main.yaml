@@ -3,6 +3,7 @@
     name: "localhost:5000/project-kubernetes"
     path: "{{ absolute_project_path }}"
     dockerfile: ./Dockerfile
+    rebuild: always
 
 - name: Push Django image to local repository
   community.docker.docker_image_push:
@@ -13,6 +14,7 @@
     name: "localhost:5000/nginx-kubernetes"
     path: "{{ absolute_project_path }}/nginx"
     dockerfile: ./Dockerfile
+    rebuild: always
 
 - name: Push Nginx image to local repository
   community.docker.docker_image_push:
