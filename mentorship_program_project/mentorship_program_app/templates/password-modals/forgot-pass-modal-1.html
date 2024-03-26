@@ -29,60 +29,70 @@
 <script>
     const input_email = document.getElementById('reset-email')
 
-    const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    // const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    // input_email.addEventListener("input", e => {
+
+    //     if (e.target.value === "") {
+    //         input_email.style.backgroundColor = 'rgba(255, 255, 255, 0.07)';
+    //         return;
+    //     }
+
+    //     let regex_custom = regex_email
+
+    //     const regex_result = regex_custom.test(e.target.value)
 
 
-    input_email.addEventListener("input", e => {
+    //     //change background color green if correct email format, red if incorrect email format
+    //     if (regex_result)
+    //         input_email.style.backgroundColor = 'forestgreen'
+    //     else
+    //         input_email.style.backgroundColor = 'firebrick'
+    // })
 
-        if (e.target.value === "") {
-            input_email.style.backgroundColor = 'rgba(255, 255, 255, 0.07)';
-            return;
-        }
+    // This routine hides the email-status-bad text 2.5 seconds after the event
+    inputEmail.addEventListener("input", () => {
+        // Clear any existing timeout to ensure we don't have multiple clears queued
+        if (window.emailInputTimeout) clearTimeout(window.emailInputTimeout);
 
-        let regex_custom = regex_email
-
-        const regex_result = regex_custom.test(e.target.value)
-        
-
-        //change background color green if correct email format, red if incorrect email format
-        if(regex_result)
-            input_email.style.backgroundColor = 'forestgreen'
-        else
-            input_email.style.backgroundColor = 'firebrick'
-    })
-
-
-
+        // Set a new timeout when the user starts typing
+        window.emailInputTimeout = setTimeout(() => {
+            // Clear and hide the message 2.5 seconds after the user stops typing
+            document.getElementById("email-status-bad").innerText = "";
+            document.getElementById("email-status-bad").style.display = "none";
+        }, 2500);
+    });
 
     function checkEmail(event) {
-    event.preventDefault(); // Prevent the default form submission action                                                                  🦞
-    var email = document.getElementById("reset-email").value;
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var response = JSON.parse(this.responseText);
-            if (response.exists) {
-                document.getElementById("email-status-good").innerText = "Email Sent!";
-                sendEmail(email);
-                document.getElementById("pass-reset").style.display = "none"; // Hide the button
-                document.getElementById("reset-email").style.display = "none"; // Hide the textbox
-                document.getElementById("email-status-bad").style.display = "none"; // if visible hide it
-                
-            } else {
-                document.getElementById("email-status-bad").innerText = "Sorry we could not find that account.";
+        event.preventDefault(); // Prevent the default form submission action                                                                  🦞
+
+        // Clear any existing timeout to hide the 'email-status-bad' message
+        if (window.emailInputTimeout) clearTimeout(window.emailInputTimeout);
+
+        var email = document.getElementById("reset-email").value;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                if (response.exists) {
+                    document.getElementById("email-status-good").innerText = "Email Sent!";
+                    sendEmail(email);
+                    document.getElementById("pass-reset").style.display = "none"; // Hide the button
+                    document.getElementById("reset-email").style.display = "none"; // Hide the textbox
+                    document.getElementById("email-status-bad").style.display = "none"; // if visible hide it
+                } else {
+                    document.getElementById("email-status-bad").innerText = "Sorry we could not find that account.";
+                    document.getElementById("email-status-bad").style.display = ""; // Make sure it's visible
+                }
             }
-        }
-    };
-    xhttp.open("GET", "/check_email_for_password_reset?email=" + email, true);
-    xhttp.send();
-}
-
-
+        };
+        xhttp.open("GET", "/check_email_for_password_reset?email=" + email, true);
+        xhttp.send();
+    }
 
     function sendEmail(email) {
-        
-    var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 // Handle the response of the POST request if needed
                 console.log("POST request successful");
@@ -93,6 +103,4 @@
         var params = "email=" + email; // Constructing POST parameters
         xhttp.send(params);
     }
-
-
-    </script>
+</script>

@@ -46,6 +46,8 @@ body {
     /* stretches instead of repeats gradient on long pages */
     background-attachment: fixed;
     position: static;
+
+    overscroll-behavior: none;
 }
 
 main {

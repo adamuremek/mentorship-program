@@ -778,7 +778,7 @@ def universalProfile(req : HttpRequest, user_id : int):
     max_mentees = None
     num_mentees = None
     
-    report_types = UserReport.ReportType.values
+    report_types = UserReport.ReportType.labels
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
         pendingRequests = MentorshipRequest.objects.filter(mentee_id=page_owner_user.id)
@@ -801,7 +801,7 @@ def universalProfile(req : HttpRequest, user_id : int):
         pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)
         
         max_mentees = page_owner_user.mentor.int_max_mentees
-        num_mentees = range(9, len(mentees_for_mentor), -1)
+        num_mentees = range(9, len(mentees_for_mentor)-1, -1) ##subtract one from length so they display properly online 🦞
         
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
@@ -921,7 +921,7 @@ def save_profile_info(req : HttpRequest, user_id : int):
         page_owner_user.interests.add(*interest_data)
 
         # Set Max Mentees
-        if page_owner_user.is_mentor() and [mentee.account for mentee in page_owner_user.mentor.mentee_set.all()]:
+        if page_owner_user.is_mentor():
             page_owner_user.mentor.int_max_mentees = req.POST["max_mentees"]
             page_owner_user.mentor.save()
 
@@ -1137,7 +1137,7 @@ def reset_request(req: HttpRequest):
     
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
     
-    reset_token_email(recipient=user.cls_email_address, token=token)
+    reset_token_email(req, recipient=user.cls_email_address, token=token) # Pass req along with recipient email and token
     print("email sent to: "+email)
     return HttpResponse(True)
 

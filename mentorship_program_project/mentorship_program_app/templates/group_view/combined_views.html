@@ -13,7 +13,6 @@
 
 {% block main_content %}
 
-<form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data">
 <section class="hero">
     <div class="hero-container">
 
@@ -42,11 +41,6 @@
                 <h3>Mentor: </h3>
             {% elif page_owner_user.is_mentor and mentees_or_mentor %}
                 <h3>Mentees: </h3>
-                <select disabled name="max_mentees" id="select-max-mentees">
-                    {% for i in num_mentees %}
-                        <option {%if i == max_mentees%}selected{%endif%} value="{{i}}">{{i}}</option>
-                    {% endfor %}
-                </select>
             {% endif %}
             
             <ul>
@@ -84,7 +78,7 @@
                             </a>
                             <!-- ############################### -->
 
-                            <!-- WILL (OR ANYBODY), DO NOT TOUCH -->
+                            <!-- I SWEAR TO GOD, DO NOT TOUCH THIS. -->
                             <div class="please-fuck-off-and-die">
                             <a class="button-pending-action-container" href="{% if signed_in_user.is_mentee %}{% url 'accept_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'accept_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
                                 <button type="button" class="button-pending-action">&#10003;</button>
@@ -103,7 +97,7 @@
         </div>
         <div class="column-right">
             
-            <!-- <form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data"> -->
+            <form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" id="profile_image" name="profile_image" style="display: none;">
                 <div class="row-titles">
@@ -123,6 +117,17 @@
 
                     {% if page_owner_user.str_preferred_pronouns != None %}
                     <h4>{{page_owner_user.str_preferred_pronouns}}</h4>
+                    {% endif %}
+
+                    {% if page_owner_user.is_mentor %}
+                    <label for="select-max-mentees">Max Mentees: </label>
+                    <select disabled name="max_mentees" id="select-max-mentees">
+                            {% for i in num_mentees %}
+                                <option >{{i}}</option>
+                            {% endfor %}
+                    </select>
+
+                   
                     {% endif %}
 
                     <h2>{{page_owner_user.str_job_title}}</h2>
@@ -167,7 +172,7 @@
                 <textarea class="note" id="bio" name="bio" rows="20" cols="200"
                     readonly>{{page_owner_user.cleaned_bio}}</textarea>
             </div>
-            <!-- </form> -->
+            </form>
             
             {% if page_owner_user.is_mentor %}
                 <hr>
@@ -215,7 +220,7 @@
         
     </div>
 </section>
-</form>
+
 
 {% include 'group_view/note_modal.html' %}
 <script src = "{% static 'js/backend_requests.js' %}"></script>
@@ -242,6 +247,25 @@
         
         const btn_profile_request = document.getElementById('btn_profile_request')
         
+////////////////////////////////////////////////////// Needed for max mentees option box to display properly, old method wasnt workin on certain cases 🦞
+       // Get the max mentees value from the context
+        const max_mentees_value = "{{ max_mentees }}";
+        console.log(max_mentees_value)
+        
+        const select_max_mentees = document.getElementById('select-max-mentees');
+
+        
+        const options = select_max_mentees.getElementsByTagName('option');
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].value === max_mentees_value) {
+            
+                options[i].selected = true;
+                break;  // Exit the loop after setting the selected option
+            }
+        }
+//////////////////////////////////////////////
+
+
         if(!btn_profile_request){
             return
         }
@@ -349,8 +373,9 @@
         const lst_btn_view_note = document.getElementsByClassName('btn-note-view');
         
         const lst_btn_remove_note = document.getElementsByClassName('btn-note-remove');
-        const lst_note_modal = document.getElementsByClassName('modal');
+        const lst_note_modal = document.getElementsByClassName('note-modal');
         const lst_modal_exit = document.getElementsByClassName('modal-exit');
+        const every_single_fucking_note_on_the_goddamn_page = document.getElementsByClassName('modal')
         
         const add_modal = Array.from(lst_note_modal).pop()
 
@@ -371,7 +396,7 @@
         
         if(lst_modal_exit.length > 0)
             for(let i = 0; i < lst_modal_exit.length; i++)
-                lst_modal_exit[i].addEventListener("click", () => lst_note_modal[i].close());
+                lst_modal_exit[i].addEventListener("click", () => every_single_fucking_note_on_the_goddamn_page[i].close());
 
 
         // Haha this is stinky I hate my life because of this
@@ -399,6 +424,33 @@
                 console.error('Error:', error);
             });
         }
+
+    // -------------------- <<< UPDATE NOTE SECTION >>> -------------------- \\
+
+    /* async function updateNote()
+    {
+        // NEED TO TEST
+        const req = new Request("/update_note/", {
+                                method: "POST",
+                                headers: {
+                                    "Content-type": "application/json; charset=UTF-8",
+                                    'X-CSRFToken': csrftoken
+                                },
+                                mode: 'same-origin'
+        });
+
+        let response = await fetch(req);
+        window.location.href = "/universal_profile/{{page_owner_user.id}}"
+        // return response;
+    }
+
+    const btn_update_note = document.getElementsByClassName('btn-update-note') 
+    
+    // If a note is editable, make it's update buttons send the form.
+    // Used javascript because nesting forms is not possible in HTML.
+    if(btn_update_note) 
+        for(btn of btn_update_note)
+            btn.addEventListener('click', () => updateNote())*/
     </script>
 
 {% endblock %}

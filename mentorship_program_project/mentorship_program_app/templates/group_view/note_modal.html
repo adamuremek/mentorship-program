@@ -1,4 +1,4 @@
-<dialog class="modal" id="note-modal">
+<dialog class="modal note-modal" id="note-modal">
     <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
     <div class="modal-container">
         <form id="note-form" action="{% if note %}{% url 'update_note' %}{%else%}{% url 'create_note' %}{%endif%}" class="frm-note-creator" method="post">
@@ -32,7 +32,8 @@
             {% if is_page_owner %}
                 {% if note %}
                     <input style="display: none" name="note-id" value="{{note.id}}">
-                    <button type="submit" form="note-form" id="btn-create-note">Apply Changes</button>
+                    <!-- CLASS 'btn-update-note' IS USED IN JAVASCRIPT | BE VERY CAREFUL WHEN CHANGING-->
+                    <button type="submit" form="note-form" class="btn-update-note" id="btn-create-note">Apply Changes</button> 
                 {% else %}
                     <button type="submit" form="note-form" id="btn-create-note">Create Note</button>
                 {% endif %}
