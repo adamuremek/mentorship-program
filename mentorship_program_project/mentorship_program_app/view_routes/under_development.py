@@ -801,7 +801,7 @@ def universalProfile(req : HttpRequest, user_id : int):
         pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)
         
         max_mentees = page_owner_user.mentor.int_max_mentees
-        num_mentees = range(9, len(mentees_for_mentor), -1)
+        num_mentees = range(9, len(mentees_for_mentor)-1, -1) ##subtract one from length so they display properly online 🦞
         
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
