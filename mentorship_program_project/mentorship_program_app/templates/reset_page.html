@@ -1,0 +1,222 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+Reset Password
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/password_reset.css' %}">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset</title>
+    <style>
+        /* CSS styles */
+      
+
+        .token_button {
+            /* Add your custom styles here */
+            background-color: #007bff; /* Blue background color */
+            color: white; /* White text color */
+            border: none; /* No border */
+            border-radius: 5px; /* Rounded corners */
+            padding: 10px 20px; /* Padding */
+            cursor: pointer; /* Cursor on hover */
+            margin-top: 10px; /* Add margin between the button and the input field */
+        }
+
+        .token_button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .status {
+
+            padding: 0px 20px ; /* Padding */
+            margin-top: 10px; /* Add margin between the button and the input field */
+            color: firebrick;
+            font-weight: bold;
+        }
+
+        .reset-card {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+        }
+       
+       
+
+    </style>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+{% block main_content %}
+<div class="reset-card">
+    <div class="grid-container">
+        <div class="link-container">
+            <a href="/" class="home-link">
+                <img src="{% static 'images/icons/house_with_door.svg' %}" alt="Home" class="home-icon">
+                <span class="home-text">Back to home!</span>
+            </a>
+        </div>
+        <div class="title">
+            Reset Password
+        </div>
+        <div class="input-email-container">
+            <form>
+                {% csrf_token %}
+                <input type="text" class="email-field" placeholder="Enter New Password" id="new-password" name="new-password" required>
+                <input type="text" class="email-field" placeholder="Re-enter Password" id="re-new-password" name="re-new-password" required>
+                <button onclick="reset_password_attempt(event)"  id="token-button" class="token_button submit-button" style="text-align: center;">Submit New Password</button>
+                
+                <p id="status" class="status"></p>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+
+
+    var token
+
+    window.onload = function() {
+        var url = window.location.href;
+        var parts = url.split('/');
+        var link = parts[parts.length - 2]; // Get the second-to-last part, which is the token
+        // Check if the URL consists of at least four parts and the token is not an empty string
+        if (link !== ''&&link !== 'request_reset_page') {
+            token = link;
+        }
+    };
+
+
+    function is_password_valid(input_password){
+       
+       // Requirement 1: Password should contain 12 or more characters
+       if (input_password.length < 12) {
+         return false;
+       }
+     
+       // Requirement 2: Password should contain 36 or less characters
+       if (input_password.length > 36) {
+         return false;
+       }
+     
+       // Requirement 3: Password should contain a combination of uppercase letters, lowercase letters, at least one number, and at least one symbol
+       const uppercaseRegex = /[A-Z]/;
+       const lowercaseRegex = /[a-z]/;
+       const numberRegex = /[0-9]/;
+       const symbolRegex = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+     
+       if (
+         !uppercaseRegex.test(input_password) ||
+         !lowercaseRegex.test(input_password) ||
+         !numberRegex.test(input_password) ||
+         !symbolRegex.test(input_password)
+       ) {
+         return false;
+       }
+     
+       return true;
+     
+     
+     
+}
+
+
+
+    function reset_password_attempt(event) {
+        event.preventDefault(); // Prevent the default form submission behavior
+
+        // Get the token from when the website loads
+        var newpassword = document.getElementById('new-password').value;
+    var renewpassword = document.getElementById('re-new-password').value;
+
+       
+        if(!is_password_valid(newpassword)){
+             // Token is invalid
+
+             if (newpassword.length == 0) {
+                document.getElementById('status').innerText = "Password cannot be blank!";
+        } else if (newpassword.length < 12) {
+            document.getElementById('status').innerText = "Password must be 12 or more characters.";
+        } else if (newpassword.length > 36) {
+            document.getElementById('status').innerText = "Password must be 36 or fewer characters.";
+        } else if (!/[A-Z]/.test(newpassword) || !/[a-z]/.test(newpassword) || !/[0-9]/.test(newpassword) || !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newpassword)) {
+            document.getElementById('status').innerText = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.";
+        } else {
+            document.getElementById('status').innerText = "";
+        }
+
+
+           
+            document.getElementById('status').style.color = 'firebrick'
+            return true;
+        }
+
+        if(newpassword !== renewpassword){
+            document.getElementById('status').innerText = "Passwords dont match";
+            document.getElementById('status').style.color = 'firebrick'
+            return true;
+        }
+
+        // Create a new XMLHttpRequest object
+        var xhttp = new XMLHttpRequest();
+
+        // Define a callback function to handle the response
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                
+                // Update text based on the response
+                var response = JSON.parse(this.responseText);
+               
+                if (response.valid) {
+                     // Token is valid
+                document.querySelector('.title').innerText = response.message;
+                document.querySelector('.title').style.color = 'forestgreen'; // Set title color to green
+
+                // Remove the elements instead of hiding them
+                document.getElementById("new-password").remove(); // Remove the new password input field
+                document.getElementById("re-new-password").remove(); // Remove the re new password input field
+                document.getElementById("token-button").remove(); // Remove the submit button
+                document.querySelector(".home-link").remove(); // Remove the home link
+                document.getElementById('status').remove(); // Remove the status paragraph
+                
+                // Resize the reset card to fit just the title
+                var resetCardElement = document.querySelector('.reset-card');
+                resetCardElement.style.height = document.querySelector('.title').offsetHeight + 'px';
+
+                setTimeout(function() {
+                    window.location.href = '/'; // Replace '/' with the URL of your home page
+                }, 3000);
+
+                } else {
+                    // Token is invalid
+                    document.getElementById('status').innerText = response.message;
+                    document.getElementById('status').style.color = 'firebrick'
+                    
+                }
+            }
+        };
+
+        // Open a POST request to the server
+        xhttp.open("POST", "/reset_password", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        // Send the token as the request payload
+        xhttp.send("token=" + token + "&new-password=" + encodeURIComponent(newpassword));
+    }
+</script>
+{% endblock %}

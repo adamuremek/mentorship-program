@@ -1,0 +1,136 @@
+.card-body {
+    
+    width: 20%;
+    background-image: linear-gradient(to bottom, black 20%, #2C2C2C 20%, gray 21%, #2C2C2C 21%);
+    border-radius: 10%;
+    position: relative;
+    flex-direction: column;
+    text-align: center;
+    justify-items: center;
+    padding: 1rem;
+    aspect-ratio: 1 / 1;
+
+    box-shadow:  2px 2px 2px 2px rgba(47, 47, 47, 0.6);
+}
+
+/* .profile-picture-container {
+    position: absolute;
+    height: 30%;
+    left: 34%;
+    top: 6%;
+} */
+
+.profile-picture {
+    height: 100%;
+    border-radius: 50%;
+}
+
+.mentor-description {
+    flex-direction: column;
+    color: white;
+    font-size: 1em;
+}
+
+.mentor-company {
+    font-size: 12px;
+    color: #B0B0B0;
+}
+
+.mentor-job-title {
+    font-size: 12px;
+    color: #999999;
+}
+
+.line {
+    height: 1px;
+    background-color: #999999;
+    margin: 1%;
+    min-width: 50%;
+}
+
+.specializations-header, .specialization {
+    font-size: .70rem;
+    color: white;
+}
+
+.specializations-container{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.specialization {
+    margin: 5px;
+    background-color: gray;
+    padding: 2px 6px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 2px 2px 4px black;
+}
+
+.request-button-container {
+    margin-top: 5px;
+    width: 90%;
+    justify-content: center;
+}
+
+.request-button{
+    width: 100%;
+    background-color: #27446D;
+    color: #DCE1E7;
+    border: none;
+    padding: 4px;
+    border-radius: 20px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, .5);
+    cursor: pointer;
+}
+
+.green-button {
+    background-color: rgb(80, 200, 120);
+}
+
+.red-button {
+   background-color: rgb(136, 8, 8)
+}
+
+.request-button:hover {
+    opacity: .75;
+}
+
+.request-button:active {
+    opacity: .5;
+}
+
+body {
+    font-family: 'Roboto','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    height: 100vh;
+     /* This gradient is PRETTY DANG close to the Figma model */
+    /* Runner-up Blue: #1E2E55*/
+    background-image: -webkit-linear-gradient(135deg, #792f38 0%,  #233667 100%);
+    background-image: -moz-linear-gradient(135deg, #792f38 0%,  #233667 100%);
+    background-image: -o-linear-gradient(135deg, #792f38 0%,  #233667 100%);
+    /* background-image: linear-gradient(135deg, #792f38 0%,  #233667 100%); */
+	background-image: linear-gradient(
+        315deg,
+        hsl(216deg 36% 19%) 0%,
+        hsl(216deg 45% 24%) 23%,
+        hsl(229deg 23% 32%) 41%,
+        hsl(326deg 20% 31%) 57%,
+        hsl(355deg 43% 27%) 76%,
+        hsl(354deg 33% 23%) 100%
+      );
+      
+    /* stretches instead of repeats gradient on long pages */
+    background-attachment: fixed;
+    position: static;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+    margin: 0; 
+}
+
+* {
+    overscroll-behavior: none;
+}

@@ -11,6 +11,8 @@
     --clr-btn-submit-highlight: hsl(222, 27%, 35%);
     --clr-modal-backdrop: hsl(210, 2%, 16%);
 
+    --clr-input-background: rgba(255, 255, 255, 0.07);
+
     --ff-primary: 'Roboto', sans-serif;
     --ff-primary-heading: 'Montserrat', sans-serif;
     --ff-secondary-heading: 'Roboto Slab', serif;
@@ -92,25 +94,22 @@ a:not([class]) {
 
 @media screen and (max-width: 768px) {
     .hero-container {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 }
 
 
 .hero-container {
     display: grid;
-    gap: 1em;
     grid-template-columns: 1fr 1fr;
     height: 90%;
     padding: 0 calc((100vw - 1300px) / 2);
 }
 
-.column-left {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    color: #FFFFFF;
+@media screen and (max-width: 1400px) {
+    .hero-container {
+        padding-left: 5%;
+    }
 }
 
 .column-left h1 {
@@ -128,6 +127,24 @@ a:not([class]) {
     line-height: 33.6px;
 }
 
+@media screen and (max-width: 1250px) {
+    .column-left h1 {
+        font-size: 2.5em;
+    }
+
+    .column-left p {
+        font-size: 1.25rem;
+    }
+}
+
+.column-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    color: #FFFFFF;
+}
+
 .column-right {
     display: flex;
     justify-content: center;
@@ -135,15 +152,40 @@ a:not([class]) {
     padding: 0rem 2rem;
 }
 
-form {
-    height: 550px;
-    width: 500px;
+@media screen and (max-width: 850px) {
+    .column-left {
+        padding: 1em;
+    }
+
+    .column-right {
+        padding: 0 1em 0 1em;
+    }
+
+    .hero-container {
+        margin-top: 2em;
+        grid-template-columns: 1fr;
+        padding: 0;
+    }
+}
+
+.portal form {
+    width: 40rem;
     background-color: rgba(99, 99, 99, 0.055);
     border-radius: 10px;
     backdrop-filter: blur(10px);
     border: none;
     box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
     padding: 25px 35px;
+}
+
+@media screen and (max-width: 1400px) {
+    .portal {
+        width: 100%;
+    }
+
+    .portal form {
+        width: 100%;
+    }
 }
 
 form * {
@@ -175,6 +217,15 @@ form * {
     /* Change cursor icon to hand when hovering */
     transition: all 0.3s ease;
     /* Smooth transition for the hover effect */
+
+    background-color: #3E4C6C;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.login-buttons:hover,
+.login-buttons:focus-visible {
+    background-color: #4a5a7d;
 }
 
 #si-google-btn {
@@ -274,7 +325,7 @@ input,
     height: 50px;
     width: 95%;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.07);
+    background-color: var(--clr-input-background);
     border-radius: 3px;
     padding: 0 10px;
     margin-top: 8px;
@@ -283,7 +334,7 @@ input,
     font-size: 1rem;
     font-weight: 300;
     font-family: var(--ff-roboto);
-    color: #FFFFFF;
+    color: var(--clr-font-primary);
     box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
 }
 
@@ -292,7 +343,7 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-    -webkit-text-fill-color: #FFFFFF !important;
+    -webkit-text-fill-color: var(--clr-font-primary) !important;
     -webkit-box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset !important;
     transition: background-color 5000s ease-in-out 0s;
 }
@@ -304,7 +355,7 @@ input:-moz-autofill:focus,
 input:-moz-autofill:active {
     background-color: rgba(255, 255, 255, 0.07) !important;
     font-family: var(--ff-roboto) !important;
-    color: #FFFFFF !important;
+    color: var(--clr-font-primary) !important;
 }
 
 ::placeholder {
@@ -319,7 +370,8 @@ input:-moz-autofill:active {
     padding-left: 10px;
 }
 
-#li-btn {
+/* Not needed ~ artifact */
+/* #li-btn {
     background-color: #3E4C6C;
     font-size: 1.25rem;
     font-weight: 600;
@@ -328,7 +380,7 @@ input:-moz-autofill:active {
 #li-btn:hover,
 #li-btn:focus-visible {
     background-color: #4a5a7d;
-}
+} */
 
 .text-btn {
     margin-top: 7.5px;
@@ -368,8 +420,8 @@ input:-moz-autofill:active {
 
 .modal {
     padding: 1em;
-    width: 50ch;
-    height: 55ch;
+    width: 45ch;
+    height: 48ch;
     border: 0;
     box-shadow: 0 0 1em rgb(0 0 0 / .3);
     border-radius: 15px;
@@ -396,13 +448,15 @@ input:-moz-autofill:active {
 }
 
 .modal-container {
-    padding: 1em;
+    padding: 0 5px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
 .modal-content-container {
+    /* margin-top: 0px; */
+    padding: 0 15px;
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
@@ -411,10 +465,27 @@ input:-moz-autofill:active {
 
 .modal-footer-container {
     display: flex;
-    /* margin-top: 4.43em; */
-    margin-top: 5em;
-
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 0px;
+    padding: 15px;
 }
+
+.modal-footer-container form {
+    width: 100%;
+}
+
+.modal-footer-container form input {
+    margin: 0px;
+    padding: 10px;
+    height: 50px;
+    width: 100%;
+}
+
+/* .modal-footer-container button {
+    background-color: transparent;
+} */
 
 .modal-exit:hover,
 .modal-exit:focus-visible {
@@ -436,12 +507,77 @@ input:-moz-autofill:active {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.5rem;
+    text-align: center;
+    font-size: 2rem;
+    letter-spacing: 0.08em;
+    flex-grow: 1;
     font-weight: var(--fw-extrabold);
+}
+
+/* Resize modal heading at smaller screens to fit on one line */
+@media (max-width: 450px) {
+    .modal h2 {
+        font-size: 2rem;
+        letter-spacing: normal;
+    }
 }
 
 .modal-content-container p {
     margin-top: .5em;
     font-size: 1.15rem;
+    letter-spacing: .05em;
     color: var(--clr-font-secondary);
+}
+
+.prompt-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+#pass-reset {
+    height: 50px;
+    border-radius: 10px;
+    width: 100%;
+}
+
+.prompt-login h1 {
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    color: #FFFFFF;
+    font-family: 'Montserrat';
+}
+
+.error-message {
+    color: yellow;
+    margin-top: .5em;
+    margin-left: .5em;
+}
+
+#email-status-good,
+#email-status-bad {
+    padding-top: 5px;
+}
+
+.circle-wrapper {
+    display: inline-block;
+    border-radius: 50%;
+    padding: 10px;
+    transition: background-color 0.2s;
+}
+
+.circle-wrapper:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+}
+
+.circle-wrapper img {
+    display: block;
+    border-radius: 50%;
+}
+
+.bad_email {
+    text-align: center;
 }

@@ -1,0 +1,358 @@
+.admin_user_management_container {
+    display: flex;
+    flex-direction: column;
+
+    text-align: center;
+    justify-content: space-around;
+    align-items: center;
+
+    min-height: 80vh;
+    max-height: 90vh;
+}
+
+.user_board_title_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 1%;
+}
+
+.user_board_search_container {
+    background: rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 0.5em;
+    margin: 0.25em;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.search_bar {
+    height: 3vh;
+    width: 30vw;
+
+    background: none;
+    border: none;
+}
+
+#search_icon {
+    height: 2.5vh;
+    width: 1.5vw;
+}
+
+#address_arrow {
+    height: 1vh;
+    width: 1vw;
+}
+
+.admin_user_management_header_elements {
+    text-align: left;
+    width: 95vw;
+}
+
+#admin_user_management_small_text {
+    font-size: 1vw
+}
+
+#admin_user_management_medium_text {
+    font-size: 2vw
+}
+
+#admin_user_management_large_text {
+    font-size: 2.5vw
+}
+
+.admin_user_management_button_clear_inactive {
+    display: none;
+}
+
+.admin_user_management_button_clear_active {
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 15px;
+    border: none;
+    width: 12%;
+    display: flex;
+    justify-content: center;
+    padding: 1%;
+}
+
+.admin_user_management_word_button_active {
+    /* background: none; */
+    border: none;
+    width: 25%;
+
+    background-color: rgba(128, 128, 128, 0.25);
+    border-radius: 15px;
+    padding: 0.5%;
+    margin: 0.5%;
+}
+
+.admin_user_management_word_button_inactive {
+    display: none;
+}
+
+.admin_user_management_button {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+
+    padding-left: 2%;
+    padding-right: 2%;
+    min-width: 12vw;
+    min-height: 4vh;
+
+    margin: 0.5%;
+}
+
+
+.dual_user_board_container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.user_board_container {
+    width: 45vw;
+    margin: 1vw;
+}
+
+.user_board {
+    height: 50vh;
+
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 1em;
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+
+.user_management_bar_container {
+    height: inherit;
+
+    overflow-y: scroll;
+}
+
+.mentor_management_bar_container {
+    display: flex;
+    flex-direction: column;
+}
+
+.mentee_management_bar, .mentor_management_bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 1%;
+    margin-top: 1%;
+    margin-right: 5%;
+}
+
+.organization_management_bar_container {
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: 1%;
+    margin-top: 1%;
+    margin-right: 3%;
+
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 15px;
+}
+
+.organization_management_bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    /* margin-bottom: 1%;
+    margin-top: 1%;
+    margin-right: 5%; */
+
+    padding: 1%;
+    border-radius: 15px;
+
+    background: rgba(128, 128, 128, 0.25);
+
+    border-color: aliceblue;
+}
+
+/* .organization_management_button_clear_active {
+    background: none;
+    border: none;
+    width: fit-content;
+}
+
+.organization_management_button_clear_inactive {
+    display: none;
+} */
+
+#user_bar_valid {
+
+}
+
+#user_bar_invalid {
+
+}
+
+#user_bar_prev {
+
+}
+
+#user_account, #user_mentor, #user_mentees, #user_account_disabled, #organization_account {
+    display: none;
+}
+
+.user_management_bar_name {
+    flex-basis: 55%;
+}
+
+.mentee_counter_container {
+    display: flex;
+    flex-direction: row;
+
+    width: 10%;
+    justify-content: space-around;
+
+    background-color: gray;
+    border-radius: 15px;
+    padding: 0.5%
+}
+
+.user_management_photo {
+    width: 8%;
+}
+
+.user_management_icon {
+    width: 40%;
+}
+
+.user_management_icon {
+    width: 40%;
+}
+
+#plus_button {
+    /* display: none; */
+}
+
+#remove_button {
+    /* display: none; */
+}
+
+#eye_button {
+
+}
+
+#trashcan_button {
+
+}
+
+@media screen and (max-width: 1000px) {
+    .user_board_container {
+        width: 46vw;
+        margin: 0.5vw;
+    }
+
+    .user_board {
+        height: 55vh;
+    }
+
+    #admin_user_management_small_text {
+        font-size: 1.5vw
+    }
+    
+    #admin_user_management_medium_text {
+        font-size: 2.5vw
+    }
+    
+    #admin_user_management_large_text {
+        font-size: 3.5vw
+    }
+
+    #search_icon {
+        height: 2.5vh;
+        width: 2vw;
+    }
+
+    .search_bar {
+        height: 3vh;
+        width: 25vw;
+    }
+
+    .user_management_photo {
+        width: 12%;
+    }
+    
+    .user_management_icon {
+        width: 60%;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .user_board_container {
+        width: 48vw;
+        margin: 0.5vw;
+    }
+
+    .user_board {
+        height: 55vh;
+    }
+
+    #admin_user_management_small_text {
+        font-size: 2vw
+    }
+    
+    #admin_user_management_medium_text {
+        font-size: 3vw
+    }
+    
+    #admin_user_management_large_text {
+        font-size: 4vw
+    }
+
+    #search_icon {
+        height: 2.5vh;
+        width: 3vw;
+    }
+
+    .mentee_management_bar, .mentor_management_bar {
+        display: inherit;
+
+        margin-bottom: 5%;
+        margin-top: 5%;
+        margin-top: 1%;
+        margin-bottom: 1%;
+    }
+
+    .admin_user_management_button_clear_inactive {
+        /* width: 30%; */
+
+        display: none;
+    }
+
+    .admin_user_management_button_clear_active {   
+        width: 30%;
+    }
+    
+
+    .user_management_photo {
+        width: 35%;
+    }
+    
+    .user_management_icon {
+        width: 80%;
+    }
+
+    .mentee_counter_container {
+        width: 100%;
+    }
+}

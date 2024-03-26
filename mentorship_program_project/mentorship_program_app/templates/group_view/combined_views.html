@@ -1,0 +1,435 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+¯\_(Profile)_/¯
+{% endblock %}
+
+{% block style %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/mentor_group_view.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<section class="hero">
+    <div class="hero-container">
+
+        <div class="column-left">
+            <div class="profile-container">
+                <img src="{{page_owner_user.profile_img.img.url}}" id="profile_pic" class="profile-picture">
+                <div id="edit_profile_overlay" class="profile-picture-edit-overlay" style="display: none;">
+                    Change Photo
+                </div>
+            </div>
+            <br>
+
+            {% if page_owner_user.str_role != signed_in_user.str_role and not signed_in_user.mentee.mentor.account.id == page_owner_user.id %}
+                {% if signed_in_user.has_requested_this_user %} 
+                    <button type="button" id="btn_profile_request" disabled>Requested!</button>
+                {% else %}
+                    <button type="button" id="btn_profile_request">Request {{page_owner_user.str_role}}</button>
+                {% endif %}
+            {% endif %}
+
+            <!-- TODO: prevent reporting multiple times in a row -->
+            <button id="btn_profile_report">Report</button>
+            {% include 'group_view/report_modal.html' with report_types=report_types %}
+
+            {% if  page_owner_user.is_mentee and mentees_or_mentor %}
+                <h3>Mentor: </h3>
+            {% elif page_owner_user.is_mentor and mentees_or_mentor %}
+                <h3>Mentees: </h3>
+            {% endif %}
+            
+            <ul>
+                    {% for mentee in mentees_or_mentor %}
+                    <li class="mentee-manager">
+                        <a href="{% url 'universal_profile' mentee.id %}">
+                            <h4>{{mentee.str_first_name}}</h4>
+                            <h4>{{mentee.str_last_name}}</h4>
+                         </a>
+                        {% if is_page_owner and signed_in_user.is_mentee %}
+                    <a class="a-user-remove" href="{% url 'delete_mentorship' page_owner_user.id %}">
+                        <button type="button" style="width:2em" class="button-user-remove">&#10007;</button>
+                    </a>
+                        {% endif %}
+                        {% if is_page_owner and signed_in_user.is_mentor %}
+                        <a class="a-user-remove" href="{% url 'delete_mentorship' mentee.id %}">
+                            <button type="button" style="width:2em" class="button-user-remove">&#10007;</button>
+                        </a>
+                            {% endif %}
+                    </li>
+                    {% endfor %}
+                    
+                {% if pending and is_page_owner %}
+                    <hr>
+                    <h3>Pending Requests:</h3>
+                    <br>
+                    <ul>
+
+                        
+                        {% for request in pending %}
+                        <li id="pending-requests-container" class="mentee-manager">
+                            <a href="{% url 'universal_profile' request.id %}">
+                                <h4>{{ request.str_first_name }}</h4>
+                                <h4>{{ request.str_last_name }}</h4>
+                            </a>
+                            <!-- ############################### -->
+
+                            <!-- I SWEAR TO GOD, DO NOT TOUCH THIS. -->
+                            <div class="please-fuck-off-and-die">
+                            <a class="button-pending-action-container" href="{% if signed_in_user.is_mentee %}{% url 'accept_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'accept_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
+                                <button type="button" class="button-pending-action">&#10003;</button>
+                            </a>
+                            <a class="button-pending-action-container" href="{% if signed_in_user.is_mentee %}{% url 'reject_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'reject_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
+                                <button type="button" class="button-pending-action">&#10007;</button>
+                            </a>
+                            </div>
+                        </li>
+                        <hr class="request-separator">
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+            </ul>
+        </div>
+        <div class="column-right">
+            
+            <form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" id="profile_image" name="profile_image" style="display: none;">
+                <div class="row-titles">
+                    <div class="top-title">
+                        <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}{% if page_owner_user.is_mentor%}'s Mentorship Group{% endif %}</h1>
+                        {% if is_page_owner %}
+                        <span class="iHateMyself">
+                            <button type="button" class="button-edit" id="button-edit"
+                                onclick="changeEditToSave(event)">Edit Page</button>
+                            <button type="submit" class="button-save" id="button-save"
+                                style="display: none;">Save</button>
+                            <button type="button" class="button-cancel" id="button-cancel" onclick="location.reload()"
+                                style="display: none;" id="button-cancel">Cancel</button>
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {% if page_owner_user.str_preferred_pronouns != None %}
+                    <h4>{{page_owner_user.str_preferred_pronouns}}</h4>
+                    {% endif %}
+
+                    {% if page_owner_user.is_mentor %}
+                    <label for="select-max-mentees">Max Mentees: </label>
+                    <select disabled name="max_mentees" id="select-max-mentees">
+                        {% for i in num_mentees %}
+                            <option {%if i == max_mentees%}selected{%endif%} value="{{i}}">{{i}}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+
+                    <h2>{{page_owner_user.str_job_title}}</h2>
+                    <h3>{{organization}}</h3>
+
+                    {% if interests %}
+                        <h2>Specializations / Areas of Expertise:</h2>
+                    {%endif%}
+                    <div class="specialties">
+                        {% for interest in interests %}
+                        <label class="user-interest">
+                            <input type="checkbox" class="user_interests" id="{{interest.strInterest}}"
+                                name="selected_interests" value="{{interest.strInterest}}"
+                                onchange="interestClicked(event)" checked>
+                            <div class="user-interest-label">{{interest.strInterest}}</div>
+                        </label>
+                        {% endfor %}
+                        {% for interest in all_interests %}
+                        {% if interest not in interests %}
+                        <label class="user-interest hidden_interests" style="display: none;">
+                            <input type="checkbox" class="hover_interest" id="{{interest.strInterest}}"
+                                name="selected_interests" value="{{interest.strInterest}}"
+                                onchange="interestClicked(event)">
+                            <div class="user-interest-label">{{interest.strInterest}}</div>
+                        </label>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            
+            <hr>
+            <div class="row-communication-methods">
+                <h2>Communication Method(s):</h2>
+                {% if page_owner_user.is_mentor %}
+                <p>Phone: {{page_owner_user.str_phone_number}}</p>
+                {% endif %}
+                <p>Email: {{page_owner_user.cls_email_address}}</p>
+            </div>
+            <hr>
+            <div class="row-overview">
+                <h2>Overview:</h2>
+                <textarea class="note" id="bio" name="bio" rows="20" cols="200"
+                    readonly>{{page_owner_user.cleaned_bio}}</textarea>
+            </div>
+            </form>
+            
+            {% if page_owner_user.is_mentor %}
+                <hr>
+                <div class="row-notes">
+                    <h2>Note(s):</h2>
+                    {% if is_page_owner and page_owner_user.is_mentor %}
+                        <button type="button" id="btn-add-note">Add Note</button>
+                    {% endif %}
+                </div>
+            {%endif%}
+
+            {% if page_owner_user.is_mentor %}
+            {% if is_page_owner or signed_in_user.mentee.mentor.account.id == page_owner_user.id %} 
+                <hr class="invisible" style="visibility: hidden;">
+                    <div class="note-header">
+                        <p class="note-title">Title</p>
+                        <p>Date Created</p>
+                        {% if is_page_owner %}
+                            <p>View/Edit</p>
+                            <!-- <p>Edit</p> -->
+                            <p>Remove</p>
+                        {% else %}
+                            <p>View Note</p>
+                        {% endif %}
+                    </div>
+                    {% if notes %}
+                        {% for note in notes %}
+                            <div class="note">
+                                <p class="note-title">{{note.title}}</p>
+                                <p>{{note.date_created}}</p>
+                                {% if is_page_owner %}
+                                    <button type="button" class="btn-note-edit">&#9998;</button>
+                                    <!-- <button class="btn-note-edit">&#9998;</button> -->
+                                    <button type="button" class="btn-note-remove" onclick="remove_note('{{note.id}}')">&#10007;</button> <!-- X -->
+                                {% else %}
+                                    <button type="button" class="btn-note-view">&#128065;</button>
+                                {% endif %}
+                            </div>
+                            {% include 'group_view/note_modal.html' with note=note %}
+                            {% endfor %}
+                    {% endif %}
+            {% endif %}
+            {% endif %}
+        </div>
+        
+    </div>
+</section>
+
+
+{% include 'group_view/note_modal.html' %}
+<script src = "{% static 'js/backend_requests.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    async function attempt_mentorship_request(mentee_id, mentor_id)
+    {
+        // NEED TO TEST
+        const req = new Request("/request_mentor/" + mentee_id + "/" + mentor_id, {
+                                method: "POST",
+                                headers: {
+                                    "Content-type": "application/json; charset=UTF-8",
+                                    'X-CSRFToken': csrftoken
+                                },
+                                mode: 'same-origin'
+        });
+
+        let response = await fetch(req);
+        window.location.href = "/universal_profile/{{page_owner_user.id}}"
+        // return response;
+    }
+
+    document.addEventListener('DOMContentLoaded', winloaded => {
+        
+        const btn_profile_request = document.getElementById('btn_profile_request')
+        
+        if(!btn_profile_request){
+            return
+        }
+
+        btn_profile_request.addEventListener('click', () => {
+            let mentee = null
+            let mentor = null
+            
+
+            if("{{page_owner_user.is_mentee}}" === "True"){ //This is FUCKING retarded bro....
+                mentee = "{{page_owner_user.mentee.account.id}}"
+                mentor = "{{signed_in_user.mentor.account.id}}" 
+            } else {
+                mentee = "{{signed_in_user.mentee.account.id}}" 
+                mentor = "{{page_owner_user.mentor.account.id}}"
+            }
+
+            attempt_mentorship_request(mentee, mentor)
+        })
+    })
+
+    
+
+    function changeEditToSave(event) {
+        event.preventDefault()
+
+        //Save button bullshit and shananiganz
+        let editBtn = document.getElementById("button-edit")
+        let saveBtn = document.getElementById("button-save")
+        let cancelBtn = document.getElementById("button-cancel")
+        let editPfpOverlay = document.getElementById("edit_profile_overlay")
+
+        //Editable field fuckshit
+        let bioTextArea = document.getElementById("bio")
+        let allInterestsButtons = document.querySelectorAll(".hidden_interests")
+        let user_interests = document.querySelectorAll(".user_interests")
+        let max_mentees = document.getElementById('select-max-mentees')
+
+        //Make editable elements visible and selectable
+        bioTextArea.readOnly = false
+        editPfpOverlay.style.display = "flex"
+        if(max_mentees)
+            max_mentees.disabled = false
+
+        user_interests.forEach(button => {
+            button.classList.add('hover_interest')
+        })
+
+        //This makes all available interests visible
+        allInterestsButtons.forEach(button => {
+            button.style.display = "inline-block"
+            button.getElementsByTagName('input')[0].classList.add('hover_interest')
+        })
+
+        //Make edit button invisible
+        editBtn.style.display = "none"
+        //Make save and cancel buttons visible
+        cancelBtn.style.display = "inline-block"
+        saveBtn.style.display = "inline-block"
+    }
+
+    function interestClicked(event) {
+        event.preventDefault()
+
+        let saveDisplayed = document.getElementById("button-save")
+        console.log(saveDisplayed)
+
+        //Basically, if the profile is not in edit mode, dont allow the interest selection to be changed.
+        if (saveDisplayed === null || saveDisplayed.style.display !== "inline-block") {
+            event.target.checked = !event.target.checked
+        }
+    }
+
+    $(document).ready(function () {
+        $('#edit_profile_overlay').click(function () {
+            $('#profile_image').click(); // Trigger file input click
+        })
+
+        $('#profile_image').change(function (event) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $('#profile_pic').attr('src', e.target.result) // Set preview image source to selected file
+            }
+            reader.readAsDataURL(event.target.files[0]); // Read the selected file as Data URL
+        })
+    })
+
+    const btn_profile_report = document.getElementById('btn_profile_report');
+    if (btn_profile_report) {
+        btn_profile_report.addEventListener('click', () => {
+            document.getElementById('report-modal').showModal();
+        });
+    }
+
+</script>
+
+    <script>
+
+        // -------------------- <<< DO NOT DELETE >>> -------------------- \\
+        // -------------------- <<< NOT USELESS >>> -------------------- \\
+
+        const btn_add_note = document.getElementById('btn-add-note');
+
+        const lst_btn_edit_note = document.getElementsByClassName('btn-note-edit');
+        const lst_btn_view_note = document.getElementsByClassName('btn-note-view');
+        
+        const lst_btn_remove_note = document.getElementsByClassName('btn-note-remove');
+        const lst_note_modal = document.getElementsByClassName('note-modal');
+        const lst_modal_exit = document.getElementsByClassName('modal-exit');
+        const every_single_fucking_note_on_the_goddamn_page = document.getElementsByClassName('modal')
+        
+        const add_modal = Array.from(lst_note_modal).pop()
+
+        // Don't worry about this for a second ;)
+        if(btn_add_note)
+            btn_add_note.addEventListener('click', () => add_modal.showModal())
+
+        console.log(lst_note_modal)
+        console.log('what the hell')
+        console.log(lst_btn_view_note)
+        if(lst_btn_view_note.length > 0)
+            for(let i = 0; i < lst_btn_view_note.length; i++) 
+                lst_btn_view_note[i].addEventListener('click', () => lst_note_modal[i].showModal())
+        
+        if(lst_btn_edit_note.length > 0)
+            for(let i = 0; i < lst_btn_edit_note.length; i++) 
+                lst_btn_edit_note[i].addEventListener('click', () => lst_note_modal[i].showModal())
+        
+        if(lst_modal_exit.length > 0)
+            for(let i = 0; i < lst_modal_exit.length; i++)
+                lst_modal_exit[i].addEventListener("click", () => every_single_fucking_note_on_the_goddamn_page[i].close());
+
+
+        // Haha this is stinky I hate my life because of this
+        // Actually its a far deeper rooted issue than just this function
+        remove_note = note_id => {
+            document.getElementById('loading-overlay').style.display = 'block';
+
+            fetch("/remove_note", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+                body: JSON.stringify({
+                    'note-id': Number(note_id)
+                })
+            }).then(response => {
+                if (!response.ok) 
+                    throw new Error('Network response was shit');
+                if(response.redirected)
+                    window.location.href = response.url
+                
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+    // -------------------- <<< UPDATE NOTE SECTION >>> -------------------- \\
+
+    /* async function updateNote()
+    {
+        // NEED TO TEST
+        const req = new Request("/update_note/", {
+                                method: "POST",
+                                headers: {
+                                    "Content-type": "application/json; charset=UTF-8",
+                                    'X-CSRFToken': csrftoken
+                                },
+                                mode: 'same-origin'
+        });
+
+        let response = await fetch(req);
+        window.location.href = "/universal_profile/{{page_owner_user.id}}"
+        // return response;
+    }
+
+    const btn_update_note = document.getElementsByClassName('btn-update-note') 
+    
+    // If a note is editable, make it's update buttons send the form.
+    // Used javascript because nesting forms is not possible in HTML.
+    if(btn_update_note) 
+        for(btn of btn_update_note)
+            btn.addEventListener('click', () => updateNote())*/
+    </script>
+
+{% endblock %}

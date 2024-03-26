@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block card_corner %}
-    <button type="submit" class="sign_in_top_left_element">X</button>
+    <button type="submit" class="sign_in_top_left_element" id="modal-exit" onclick="window.location.href = '/role_selection'">X</button>
 {% endblock %}
 
 {% block card_head %}
@@ -39,7 +39,7 @@
 
         <div class="sign-in-card-element">
             <form class="sign-in-card-form" method="get" action="/thebigmove">
-                <button class="sign-in-card-option-button">Create account</button>
+                <button class="sign-in-card-option-button" id="create-account-btn">Create account</button>
             </form>
         </div>
     </div>
