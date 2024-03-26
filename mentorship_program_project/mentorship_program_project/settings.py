@@ -31,8 +31,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = bool(os.environ.get('DEBUG', default=True))
-DEBUG = True
+# DEBUG IS SET TO FALSE BY DEFAULT TO FAIL CLOSED
+# bool() only processes 0 as False, all other values are True
+DEBUG = bool(os.environ.get('DEBUG', default=0))
 
 if(DEBUG):
     ALLOWED_HOSTS = ['*']
@@ -41,7 +42,7 @@ else:
 
 
 # We need to add any origins that the server is hosted on to this list.
-CSRF_TRUSTED_ORIGINS = ['https://mentorship-program-dev.jordananodjo.com']
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', default='').split(' ')
 
 # Application definition
 
