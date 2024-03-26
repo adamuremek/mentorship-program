@@ -1,0 +1,9 @@
+- name: Create kubernetes secrets file
+  template:
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s-secret/templates/template-mentor-secret.yaml"
+    dest: "/{{ absolute_project_path }}/kubernetes/mentor-secret.yaml"
+
+- name: Create kubernetes configmap file
+  template:
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s-secret/templates/template-mentor-configmap.yaml"
+    dest: "/{{ absolute_project_path }}/kubernetes/mentor-configmap.yaml"

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: media-pv
+  name: static-pv
 spec:
   capacity:
     storage: 1Gi
@@ -9,5 +9,5 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: localhost
-    path: /srv/nfs/media/
+    server: {{ nfs_server_ip }}
+    path: /srv/nfs/static/

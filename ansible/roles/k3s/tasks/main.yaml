@@ -1,44 +1,70 @@
 - name: Install k3s
   shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik" sh -
 
-- name: Apply k3s recources
-  k3s:
+- name: Install k3s dependencies
+  apt:
+    name:
+      - python3-kubernetes
     state: present
-    src: "{{ lookup('template', '{{ item }}') | from_yaml }}"
-  with_fileglob:
-    - "./kubernetes/media-pv.yaml"
-    - "./kubernetes/media-pvc.yaml"
-    - "./kubernetes/static-pv.yaml"
-    - "./kubernetes/static-pvc.yaml"
-    - "./kubernetes/mentor-configmap.yaml"
-    - "./kubernetes/mentor-deployment.yaml"
-    - "./kubernetes/mentor-secret.yaml"
-    - "./kubernetes/mentor-service.yaml"
+
+- name: Enable k3s service
+  systemd:
+    name: k3s
+    state: restarted
+    enabled: yes
+
+- name: Create media pv config
+  template:
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-media-pv.yaml"
+    dest: "/{{ absolute_project_path }}/kubernetes/media-pv.yaml"
+
+- name: Create static pv config
+  template:
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-static-pv.yaml"
+    dest: "/{{ absolute_project_path }}/kubernetes/static-pv.yaml"
+
+
+- name: Apply k3s resources
+  shell:
+    cmd: "kubectl apply -f {{ item }}"
+  with_items:
+    - "/{{ absolute_project_path }}/kubernetes/media-pv.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/media-pvc.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/static-pv.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/static-pvc.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/mentor-configmap.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/mentor-secret.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/mentor-deployment.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/mentor-service.yaml"
 
 - name: Apply ingress-nginx
-  k3s:
-    state: present
-    src: https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
-  when: "ingress-nginx not in groups['ungrouped']"
-
+  shell:
+    cmd: "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml"
+  
 - name: Install cert-manager
-  k3s:
-    state: present
-    src: https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
-  when: "cert-manager not in groups['ungrouped']"
+  shell:
+    cmd: "kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml"
 
-- name: Wait for ingress-nginx and cert-manager ready
-  k3s: 
-    wait_for: read;
-    timeout: 300
-  when: "ingress-nginx not in groups['ungrouped'] or cert-manager not in groups['ungrouped']"
+- name: Create ingress config
+  template:
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-mentor-ingress.yaml"
+    dest: "/{{ absolute_project_path }}/kubernetes/ingress-controller/mentor-ingress.yaml"
+
+- name: Create production issuer config
+  template:
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-prod-issuer.yaml"
+    dest: "/{{ absolute_project_path }}/kubernetes/ingress-controller/prod-issuer.yaml"
+
+- name: Create staging issuer config
+  template:
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-staging-issuer.yaml"
+    dest: "/{{ absolute_project_path }}/kubernetes/ingress-controller/staging-issuer.yaml"
 
 #TODO: different configs depending on prod or staging
 - name: Apply configs
-  k3s:
-    state: present
-    src: "{{ lookup('template', '{{ item }}') | from_yaml }}"
-  with_fileglob:
-    - "./kubernetes/ingress-controller/mentor-ingress.yaml"
-    - "./kubernetes/ingress-controller/prod-issuer.yaml"
-    - "./kubernetes/ingress-controller/staging-issuer.yaml"
+  shell:
+    cmd: "kubectl apply -f {{ item }}"
+  with_items:
+    - "/{{ absolute_project_path }}/kubernetes/ingress-controller/mentor-ingress.yaml"
+    #- "/{{ absolute_project_path }}/kubernetes/ingress-controller/prod-issuer.yaml"
+    #- "/{{ absolute_project_path }}/kubernetes/ingress-controller/staging-issuer.yaml"

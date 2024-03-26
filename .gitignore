@@ -87,6 +87,7 @@ celerybeat-schedule
 # dotenv
 #.env
 .env.*
+env.yaml
 
 # virtualenv
 venv/
@@ -144,3 +145,15 @@ Desktop.ini
 
 # Postgres data
 postgres_data/
+
+# k3s files that are created using ansible templates
+mentor-ingress.yaml
+staging-issuer.yaml
+prod-issuer.yaml
+media-pv.yaml
+static-pv.yaml
+
+mentor-configmap.yaml
+mentor-secret.yaml
+
+inventory.yaml
