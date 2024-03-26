@@ -11,6 +11,8 @@
     --clr-btn-submit-highlight: hsl(222, 27%, 35%);
     --clr-modal-backdrop: hsl(210, 2%, 16%);
 
+    --clr-input-background: rgba(255, 255, 255, 0.07);
+
     --ff-primary: 'Roboto', sans-serif;
     --ff-primary-heading: 'Montserrat', sans-serif;
     --ff-secondary-heading: 'Roboto Slab', serif;
@@ -215,6 +217,15 @@ form * {
     /* Change cursor icon to hand when hovering */
     transition: all 0.3s ease;
     /* Smooth transition for the hover effect */
+
+    background-color: #3E4C6C;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.login-buttons:hover,
+.login-buttons:focus-visible {
+    background-color: #4a5a7d;
 }
 
 #si-google-btn {
@@ -314,7 +325,7 @@ input,
     height: 50px;
     width: 95%;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.07);
+    background-color: var(--clr-input-background);
     border-radius: 3px;
     padding: 0 10px;
     margin-top: 8px;
@@ -332,7 +343,7 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-    -webkit-text-fill-color: #FFFFFF !important;
+    -webkit-text-fill-color: var(--clr-font-primary) !important;
     -webkit-box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset !important;
     transition: background-color 5000s ease-in-out 0s;
 }
@@ -344,7 +355,7 @@ input:-moz-autofill:focus,
 input:-moz-autofill:active {
     background-color: rgba(255, 255, 255, 0.07) !important;
     font-family: var(--ff-roboto) !important;
-    color: #FFFFFF !important;
+    color: var(--clr-font-primary) !important;
 }
 
 ::placeholder {
@@ -359,7 +370,8 @@ input:-moz-autofill:active {
     padding-left: 10px;
 }
 
-#li-btn {
+/* Not needed ~ artifact */
+/* #li-btn {
     background-color: #3E4C6C;
     font-size: 1.25rem;
     font-weight: 600;
@@ -368,7 +380,7 @@ input:-moz-autofill:active {
 #li-btn:hover,
 #li-btn:focus-visible {
     background-color: #4a5a7d;
-}
+} */
 
 .text-btn {
     margin-top: 7.5px;
@@ -523,8 +535,6 @@ input:-moz-autofill:active {
     align-items: center;
     text-align: center;
 }
-
-
 
 #pass-reset {
     height: 50px;
