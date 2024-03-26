@@ -3,4 +3,4 @@
   become: true
 
   roles:
-    - docker-build
+    - role: docker-build

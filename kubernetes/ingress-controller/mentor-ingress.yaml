@@ -6,12 +6,12 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-staging"
     kubernetes.io/ingress.class: "nginx"
 spec:
-  tls:
-  - hosts:
-    - $(DOMAIN)
-    secretName: tls
+  #  tls:
+  #  - hosts:
+  #    - "localhost"
+  #    secretName: tls
   rules:
-    - host: $(DOMAIN)
+    - host: "localhost"
       http:
         paths:
           - path: /

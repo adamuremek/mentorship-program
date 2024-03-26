@@ -9,5 +9,5 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: NFS_SERVER_IP
-    path: /media/
+    server: localhost
+    path: /srv/nfs/media/

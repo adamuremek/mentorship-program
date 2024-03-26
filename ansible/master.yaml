@@ -2,20 +2,13 @@
   hosts: localhost
   gather_facts: false
   become: true
+  
 
-  tasks:
-    - name: Check if .env.server is exists
-      stat:
-        path: ./ansible/.env.server
-      register: env_file_stat
-
-    - name: Fail if .env.server is missing
-      fail:
-        msg: "The ./ansible/.env.server file is missing. Create it using template.env.server"
-      when: not env_file_stat.stat.exists
-
-    - name: Load Environment
-      shell: source ./ansible/.env.server
-      become: false
-
-    - name: Include
+  #TODO: switch to using ansible vault
+#- import_playbook: ./env-setup.yaml
+- import_playbook: ./postgres-setup.yaml
+- import_playbook: ./nfs-setup.yaml
+- import_playbook: ./docker-repo-setup.yaml
+- import_playbook: ./docker-build.yaml
+- import_playbook: ./k3s-secret.yaml
+- import_playbook: ./k3s-setup.yaml
