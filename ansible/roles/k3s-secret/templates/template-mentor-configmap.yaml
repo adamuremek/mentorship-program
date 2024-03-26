@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mentor-config
+data:
+  DB: "{{ db }}"
+  DB_ENGINE: {{ db_engine }}
+  DJANGO_ALLOWED_HOSTS: "{{ django_allowed_hosts }}"
+  DOMAIN: "{{ domain }}"

@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mentor-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  #  tls:
+  #  - hosts:
+  #    - "{{ domain }}"
+  #    secretName: tls
+  rules:
+    - host: "{{ domain }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mentor-service
+                port:
+                  number: 80

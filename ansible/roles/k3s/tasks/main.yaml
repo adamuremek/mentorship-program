@@ -15,12 +15,12 @@
 
 - name: Create media pv config
   template:
-    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/media-pv.yaml"
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-media-pv.yaml"
     dest: "/{{ absolute_project_path }}/kubernetes/media-pv.yaml"
 
 - name: Create static pv config
   template:
-    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/static-pv.yaml"
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-static-pv.yaml"
     dest: "/{{ absolute_project_path }}/kubernetes/static-pv.yaml"
 
 
@@ -47,17 +47,17 @@
 
 - name: Create ingress config
   template:
-    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/mentor-ingress.yaml"
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-mentor-ingress.yaml"
     dest: "/{{ absolute_project_path }}/kubernetes/ingress-controller/mentor-ingress.yaml"
 
 - name: Create production issuer config
   template:
-    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/prod-issuer.yaml"
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-prod-issuer.yaml"
     dest: "/{{ absolute_project_path }}/kubernetes/ingress-controller/prod-issuer.yaml"
 
 - name: Create staging issuer config
   template:
-    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/staging-issuer.yaml"
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-staging-issuer.yaml"
     dest: "/{{ absolute_project_path }}/kubernetes/ingress-controller/staging-issuer.yaml"
 
 #TODO: different configs depending on prod or staging
