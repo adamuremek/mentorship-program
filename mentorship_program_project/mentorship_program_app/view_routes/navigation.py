@@ -107,6 +107,8 @@ def dashboard(req):
             'mentor___mentee_set'
         ).select_related(
                 'mentee'
+        ).order_by(
+                'is_requested_by_session' #make sure all mentors who we can cancel get displayed up top
         )
 
         users = [user.sanitize_black_properties() for user in card_data]
