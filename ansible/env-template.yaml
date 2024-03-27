@@ -11,4 +11,5 @@ domain:
 nfs_server_ip: 
 acme_email: 
 absolute_project_path: "/home/user/mentorship-program"
+# space separated. Must start with http:// or https://
 csrf_trusted_origins:
