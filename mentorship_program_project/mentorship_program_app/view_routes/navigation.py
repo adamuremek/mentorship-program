@@ -136,6 +136,11 @@ def dashboard(req):
 
     recommended = session_user.get_recomended_users()
 
+    #TODO: we need to move this into the query above, since this is only 4 users
+    #its not a SUPER big deal that its out here, but if we notice performance gains this is a good place to start
+    for user in recommended:
+        user.is_requested_by_session = session_user.has_requested_user(user)
+
     #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
         card_data = card_data.exclude(mentee__mentor = session_user.mentor)
