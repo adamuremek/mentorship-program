@@ -19,15 +19,27 @@ async function request_user(requested_user_id) {
 	if (response.status == 200) {
 		let btns = document.getElementsByClassName("card-request-btn-user-id:" + requested_user_id);
 		for (const btn of btns) {
-			btn.classList.add("card-button-disabled");
-			btn.innerText = "requested!";
-			btn.onclick = null;
+			btn.classList.add("card-button-cancel");
+			btn.innerText = "Cancel Request";
 		}
 	}
 }
 
 async function reject_user(requested_user_id) {
+	let response = null;
 
+	if (is_mentee)
+		response = await attempt_reject_mentorship_request(session_user_id,requested_user_id);
+	else
+		response = await attempt_reject_mentorship_request(requested_user_id,session_user_id);
+
+	if (response.status == 200) {
+		let btns = document.getElementsByClassName("card-request-btn-user-id:" + requested_user_id);
+		for (const btn of btns) {
+			btn.classList.remove("card-button-cancel");
+			btn.innerText = "Request";
+		}
+	}
 }
 
 //actually setup each button to be clickable
@@ -46,6 +58,10 @@ for (let btnRequest of request_mentor) {
 
 	
 	btnRequest.onclick = async () => {
-		request_user(request_user_id);
+	   //determine if we are a reject or accept button based on our display class
+	   if (btnRequest.classList.contains("card-button-cancel"))
+	      reject_user(request_user_id);
+	   else
+		   request_user(request_user_id);
 	}
 }

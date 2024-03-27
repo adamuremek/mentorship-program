@@ -129,3 +129,7 @@
 div.card-button-disabled , div.card-button-disabled:hover , div.card-button-disabled:active {
     background-color: #363f4d;
 }
+div.card-button-cancel, div.card-button-cancel:hover , div.card-button-cancel:active {
+   background-color: yellow;
+   color: black;
+}

@@ -36,11 +36,12 @@
 		  </div>
 
 		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
-		  {% if user.is_requested_by_session or session_user.has_maxed_requests_as_mentee %}
-		  card-button-disabled
-		  {% endif %}
+                              {% if user.is_requested_by_session %}
+                              card-button-cancel
+                              {% elif session_user.has_maxed_requests_as_mentee %}
+                              card-button-disabled
+		                        {% endif %}
 		  ">
-           <div>{{ user.is_requested_by_session }}</div>
 		  {% if not user.is_requested_by_session %}
 			  {% if role.value == 'Mentee' %}
               {% if session_user.mentee.has_maxed_request_count %}
@@ -52,7 +53,7 @@
 				Request Mentee
 			  {% endif %}
 		  {% else %}
-         pending request...
+        Cancel Request
 		  {% endif %}
 
 			
