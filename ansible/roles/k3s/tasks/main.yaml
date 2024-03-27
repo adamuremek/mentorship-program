@@ -13,15 +13,21 @@
     state: restarted
     enabled: yes
 
-- name: Create media pv config
-  template:
-    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-media-pv.yaml"
-    dest: "/{{ absolute_project_path }}/kubernetes/media-pv.yaml"
+    
+- name: Add longhorn storage
+  shell:
+    cmd: "kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.6.0/deploy/longhorn.yaml"
+  
 
-- name: Create static pv config
-  template:
-    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-static-pv.yaml"
-    dest: "/{{ absolute_project_path }}/kubernetes/static-pv.yaml"
+# - name: Create media pv config
+#   template:
+#     src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-media-pv.yaml"
+#     dest: "/{{ absolute_project_path }}/kubernetes/media-pv.yaml"
+
+# - name: Create static pv config
+#   template:
+#     src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-static-pv.yaml"
+#     dest: "/{{ absolute_project_path }}/kubernetes/static-pv.yaml"
 
 
 - name: Apply k3s resources

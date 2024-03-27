@@ -1,14 +1,14 @@
-DB: "postgres"
-DB_ENGINE: "django.db.backends.postgresql"
-DB_NAME: 
-DB_USER: 
-DB_PASSWORD: 
-DB_HOST: 
-DB_PORT: 
-SECRET_KEY: 
-DJANGO_ALLOWED_HOSTS: 
-DOMAIN: 
-NFS_SERVER_IP: 
-ACME_EMAIL: 
-ABSOLUTE_PROJECT_PATH: "/home/user/mentorship-program"
-CSRF_TRUSTED_ORIGINS: 
+db: "postgres"
+db_engine: "django.db.backends.postgresql"
+db_name: 
+db_user: 
+db_password: 
+db_host: 
+db_port: 
+secret_key: 
+django_allowed_hosts: 
+domain: 
+nfs_server_ip: 
+acme_email: 
+absolute_project_path: "/home/user/mentorship-program"
+csrf_trusted_origins:
