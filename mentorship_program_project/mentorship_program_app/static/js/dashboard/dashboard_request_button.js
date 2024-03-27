@@ -31,11 +31,6 @@ async function request_user(requested_user_id) {
 	if (response.status == 200) {
       let data = await response.json();
       
-      //let the user know when they max out their mentee requests
-      //as soon as we get the information
-      if (data.has_maxed_mentee_requests) {
-         display_requests_maxed();
-      }
 
 		let btns = get_all_buttons_of_id(requested_user_id);
 		for (const btn of btns) {
@@ -43,6 +38,12 @@ async function request_user(requested_user_id) {
 			btn.classList.remove("pending");
 			btn.innerText = "Cancel Request";
 		}
+
+      //let the user know when they max out their mentee requests
+      //as soon as we get the information
+      if (data.has_maxed_mentee_requests) {
+         display_requests_maxed();
+      }
 	} else if (response.status == 400) { //permission denied request
       let error = await response.json();
       if (error.result == 'MENTEE_MAXED_REQUEST_AMOUNT') {
@@ -65,6 +66,14 @@ async function reject_user(requested_user_id) {
 
 	if (response.status == 200) {
 
+		let btns = get_all_buttons_of_id(requested_user_id);
+		for (const btn of btns) {
+			btn.classList.remove("card-button-cancel");
+			btn.classList.remove("pending");
+			btn.innerText = get_request_string();
+		}
+
+
 	   //we could query the database again to ensure that we have not maxed our requests,
 	   //but if were canceling a request then we do NOT have maxed requests, so we can save
 	   //a hit to the database
@@ -74,12 +83,6 @@ async function reject_user(requested_user_id) {
       //if (!data.has_maxed_mentee_requests) {
          undisplay_requests_maxed();
       //}
-		let btns = get_all_buttons_of_id(requested_user_id);
-		for (const btn of btns) {
-			btn.classList.remove("card-button-cancel");
-			btn.classList.remove("pending");
-			btn.innerText = get_request_string();
-		}
 	}
 }
 function get_request_string() {
@@ -120,7 +123,6 @@ function undisplay_requests_maxed() {
 
 }
 
-//actually setup each button to be clickable
 
 
 const request_mentor = document.getElementsByClassName("card-request-btn");
@@ -139,9 +141,13 @@ for (let btnRequest of request_mentor) {
 	btnRequest.onclick = async () => {
 	   //get ALL buttons of our id
 	   let btns = get_all_buttons_of_id(request_user_id);
+
 	   
 	   //let the end user know that something is happening while we wait for queries
 	   for (let button of btns) {
+	      if (button.classList.contains("card-button-disabled"))
+            // we do NOT let disabled buttons send data to the back end
+	         return false; 
          button.classList.add("pending");
       }
 
