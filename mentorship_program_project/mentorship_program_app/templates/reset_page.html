@@ -3,86 +3,35 @@
 {% load static %}
 
 {% block title %}
-Reset Password
+    Reset Password
 {% endblock %}
 
 {% block style %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/password_reset.css' %}">
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Reset</title>
-    <style>
-        /* CSS styles */
-      
-
-        .token_button {
-            /* Add your custom styles here */
-            background-color: #007bff; /* Blue background color */
-            color: white; /* White text color */
-            border: none; /* No border */
-            border-radius: 5px; /* Rounded corners */
-            padding: 10px 20px; /* Padding */
-            cursor: pointer; /* Cursor on hover */
-            margin-top: 10px; /* Add margin between the button and the input field */
-        }
-
-        .token_button:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-        }
-
-        .status {
-
-            padding: 0px 20px ; /* Padding */
-            margin-top: 10px; /* Add margin between the button and the input field */
-            color: firebrick;
-            font-weight: bold;
-        }
-
-        .reset-card {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-        }
-       
-       
-
-    </style>
-
+    <!-- <link rel="stylesheet" type="text/css" href="{% static 'css/password_reset.css' %}"> -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/landing_page.css' %}">
 {% endblock %}
 
-
-
-
-
-
-
-
-
-
 {% block main_content %}
-<div class="reset-card">
-    <div class="grid-container">
-        <div class="link-container">
-            <a href="/" class="home-link">
-                <img src="{% static 'images/icons/house_with_door.svg' %}" alt="Home" class="home-icon">
-                <span class="home-text">Back to home!</span>
-            </a>
+<div class="reset-card | modal" id="reset-card">
+    <div class="modal-header">
+        <a href="{% url 'default' %}" class="circle-wrapper" id="pwr-wrapper" tabindex="0">
+            <img id="pwr-icon-home" src="{% static 'images/icons/icon-home.svg' %}" alt="Home">
+        </a>
+    </div>
+    <div class="modal-container">
+        <div class="modal-content-container">
+            <h2 class="title">Reset Password</h2>
+            <div class="modal-line"><hr></div>
         </div>
-        <div class="title">
-            Reset Password
-        </div>
-        <div class="input-email-container">
+        <div class="input-email-container | modal-footer-container">
             <form>
-                {% csrf_token %}
-                <input type="text" class="email-field" placeholder="Enter New Password" id="new-password" name="new-password" required>
-                <input type="text" class="email-field" placeholder="Re-enter Password" id="re-new-password" name="re-new-password" required>
-                <button onclick="reset_password_attempt(event)"  id="token-button" class="token_button submit-button" style="text-align: center;">Submit New Password</button>
-                
-                <p id="status" class="status"></p>
-            </form>
+            {% csrf_token %}
+            <input type="text" class="email-field | user-input" placeholder="Enter New Password" id="new-password" name="new-password" required>
+            <input type="text" class="email-field | user-input" placeholder="Re-enter Password" id="re-new-password" name="re-new-password" required>
+            <button onclick="reset_password_attempt(event)"  id="token-button" class=" login-buttons | modal-buttons">Submit New Password</button>
+            
+            <p id="status" class="status"></p>
+        </form>
         </div>
     </div>
 </div>
@@ -130,9 +79,6 @@ Reset Password
        }
      
        return true;
-     
-     
-     
 }
 
 
@@ -162,13 +108,13 @@ Reset Password
 
 
            
-            document.getElementById('status').style.color = 'firebrick'
+            // document.getElementById('status').style.color = 'firebrick'
             return true;
         }
 
         if(newpassword !== renewpassword){
-            document.getElementById('status').innerText = "Passwords dont match";
-            document.getElementById('status').style.color = 'firebrick'
+            document.getElementById('status').innerText = "Passwords don't match";
+            // document.getElementById('status').style.color = 'firebrick'
             return true;
         }
 
@@ -199,13 +145,13 @@ Reset Password
                 resetCardElement.style.height = document.querySelector('.title').offsetHeight + 'px';
 
                 setTimeout(function() {
-                    window.location.href = '/'; // Replace '/' with the URL of your home page
+                    window.location.href = "/"; // Replace '/' with the URL of your home page
                 }, 3000);
 
                 } else {
                     // Token is invalid
                     document.getElementById('status').innerText = response.message;
-                    document.getElementById('status').style.color = 'firebrick'
+                    // document.getElementById('status').style.color = 'firebrick'
                     
                 }
             }
