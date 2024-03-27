@@ -34,9 +34,10 @@
             {% endif %}
 
             <!-- TODO: prevent reporting multiple times in a row -->
+            {% if not is_page_owner %}
             <button id="btn_profile_report">Report</button>
             {% include 'group_view/report_modal.html' with report_types=report_types %}
-
+            {%endif%}
             {% if  page_owner_user.is_mentee and mentees_or_mentor %}
                 <h3>Mentor: </h3>
             {% elif page_owner_user.is_mentor and mentees_or_mentor %}
@@ -122,10 +123,12 @@
                     {% if page_owner_user.is_mentor %}
                     <label for="select-max-mentees">Max Mentees: </label>
                     <select disabled name="max_mentees" id="select-max-mentees">
-                        {% for i in num_mentees %}
-                            <option {%if i == max_mentees%}selected{%endif%} value="{{i}}">{{i}}</option>
-                        {% endfor %}
+                            {% for i in num_mentees %}
+                                <option >{{i}}</option>
+                            {% endfor %}
                     </select>
+
+                   
                     {% endif %}
 
                     <h2>{{page_owner_user.str_job_title}}</h2>
@@ -166,7 +169,7 @@
             </div>
             <hr>
             <div class="row-overview">
-                <h2>Overview:</h2>
+                <h2 id="overview-title">Overview:</h2>
                 <textarea class="note" id="bio" name="bio" rows="20" cols="200"
                     readonly>{{page_owner_user.cleaned_bio}}</textarea>
             </div>
@@ -224,6 +227,43 @@
 <script src = "{% static 'js/backend_requests.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    //The max length that can be stored in the backend is 5000
+    const MAX_OVERVIEW_LENGTH = 5000;
+    const TOO_LONG_ERROR_MSG = 'Overview must be less than ' + MAX_OVERVIEW_LENGTH + ' characters'
+    var bioTextArea;
+    var saveButton;
+    var bioLength;
+    var overviewTitle;
+
+    saveButton = document.getElementById('button-save');
+    bioTextArea = document.getElementById('bio');
+    overviewTitle = document.getElementById('overview-title');
+
+    //when user types & overview's length is over max length, make overview text red and add warning in header
+    bioTextArea.addEventListener('input', function () {
+        var bioLength = bioTextArea.value.length;
+
+        if (bioLength > MAX_OVERVIEW_LENGTH) {
+            bioTextArea.style.color = 'red';
+            overviewTitle.innerText = 'Overview: ' + TOO_LONG_ERROR_MSG;
+        }
+        else {
+            bioTextArea.style.color = '';
+            overviewTitle.innerText = 'Overview:'
+        }
+    });
+
+    //when user clicks save button and overview's length is over max length, alert user and keep them on page
+    saveButton.addEventListener('click', function () {
+        bioLength = bioTextArea.value.length;
+
+        if (bioLength > MAX_OVERVIEW_LENGTH) {
+            alert('Overview exceeds 5000 characters. Please shorten Overview');
+            event.preventDefault();
+        }
+    });
+</script>
+<script>
     async function attempt_mentorship_request(mentee_id, mentor_id)
     {
         // NEED TO TEST
@@ -245,6 +285,25 @@
         
         const btn_profile_request = document.getElementById('btn_profile_request')
         
+////////////////////////////////////////////////////// Needed for max mentees option box to display properly, old method wasnt workin on certain cases 🦞
+       // Get the max mentees value from the context
+        const max_mentees_value = "{{ max_mentees }}";
+        console.log(max_mentees_value)
+        
+        const select_max_mentees = document.getElementById('select-max-mentees');
+
+        
+        const options = select_max_mentees.getElementsByTagName('option');
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].value === max_mentees_value) {
+            
+                options[i].selected = true;
+                break;  // Exit the loop after setting the selected option
+            }
+        }
+//////////////////////////////////////////////
+
+
         if(!btn_profile_request){
             return
         }

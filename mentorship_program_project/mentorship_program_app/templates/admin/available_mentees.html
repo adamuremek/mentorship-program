@@ -1,0 +1,184 @@
+<!-- NEED TO SET PROFILE PAGES URLS FOR USERS -->
+
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+    Admin Mentor Application Review
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin_user_management.css' %}">
+    <style>
+        .mentee_management_bar {
+            justify-content: left;
+            display: flex;
+        }
+        .user_board_title_container {
+            justify-content: left;
+        }
+        label {
+            font-size: 1.5em;
+            margin-right: 0.5em;
+            margin-left: 1em;
+        }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+    <div class="admin_user_management_container">
+        <div>
+            <a href="/dashboard" class="return-link">
+                <p class="admin_user_management_header_elements" id="admin_user_management_small_text"><img src="{% static 'images/white-dropdown-arrow.png' %}" id="address_arrow"> Admin Dashboard / Mentee Management</p>
+            </a>
+            <h1 class="admin_user_management_header_elements" id="admin_user_management_large_text">Mentee Management</h1>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" action="/process_file">
+            {% csrf_token %}
+            <!-- <label for="fileUpload">Choose file to upload:</label> -->
+            <input type="file" id="fileUpload" name="fileUpload">
+            <button class="admin_user_management_button" type="submit">Upload</button>
+        </form>
+        <div class="dual_user_board_container">
+            <div class="user_board_container">
+                <div class="user_board_title_container">
+                    <h2 id="admin_user_management_medium_text">Added</h2>
+                    <label for="check-all-added">Select All</label>
+                    <input type="checkbox" id="check-all-added">
+                </div>
+                <div class="user_board">
+                    <div class="user_management_bar_container" id="added_bar_container">
+                        {% for mentee in added %}
+                             <!-- -------------------- <<< BLOCK TEST >>> -------------------- -->
+                                <div class="mentee_management_bar">
+
+                                    <input type="checkbox" class="admin_user_management_button_clear_active" id="{{mentee.0}}">
+                                    <!-- <img class="user_management_icon" src="{% static 'images/icons/add-icon.png' %}"> -->
+                                    
+                                        <h2>  
+                                               Email: {{mentee.0}} | Name: {{ mentee.1 }} {{ mentee.2 }}
+                                        </h2>
+                                        
+                                </div>
+                                <hr>
+                             <!-- -------------------- <<< ENDTEST >>> -------------------- -->
+
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+            <div class="user_board_container">
+                <div class="user_board_title_container">
+                    <h2 id="admin_user_management_medium_text">Removed</h2>
+                    <label for="check-all-removed">Select All</label>
+                    <input type="checkbox" id="check-all-removed">
+                </div>
+                <div class="user_board">
+                    <div class="user_management_bar_container" id="removed_bar_container">
+                        {% for mentee in removed %}
+                             <!-- -------------------- <<< BLOCK TEST >>> -------------------- -->
+                                <div class="mentee_management_bar" >
+
+                                    <input type="checkbox" class="admin_user_management_button_clear_active" id="{{mentee.0}}">
+                                    <!-- <img class="user_management_icon" src="{% static 'images/icons/add-icon.png' %}"> -->
+                                    
+                                    <h2>Email: {{mentee.0}} | Name: {{ mentee.1 }} {{ mentee.2 }}</h2>
+                                        
+                                </div>
+                                <hr>
+                             <!-- -------------------- <<< ENDTEST >>> -------------------- -->
+
+                        {% endfor %}
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        <button class="admin_user_management_button" id="save_button">Save</button>
+        <button class="admin_user_management_button" id="cancel_button">Cancel</button>
+    </div>
+
+    <script src = "{% static 'js/backend_requests.js' %}"></script>
+
+    <script>
+        const added = document.getElementById('check-all-added')
+        const removed = document.getElementById('check-all-removed')
+        const cancel_button = document.getElementById('cancel_button')
+        const save_button = document.getElementById('save_button')
+        const added_checks = document.getElementById('added_bar_container').getElementsByTagName('input')
+        const removed_checks = document.getElementById('removed_bar_container').getElementsByTagName('input')
+        
+        added.addEventListener('change', (e) => {
+            if(e.target.checked) 
+                for(chk of added_checks)
+                    chk.checked = true
+            
+            else
+                for(chk of added_checks)
+                    chk.checked = false
+            
+        })
+        removed.addEventListener('change', (e) => {
+            if(e.target.checked) 
+                for(chk of document.getElementById('removed_bar_container').getElementsByTagName('input'))
+                    chk.checked = true
+            else
+                for(chk of removed_checks)
+                    chk.checked = false
+        })
+
+        cancel_button.addEventListener('click', e =>{
+            location.reload()
+        })
+
+        save_button.addEventListener('click', async function(e){
+            let added_string = ""
+            for(let i=0; i<added_checks.length; i++){
+                if(added_checks[i].checked)
+                    added_string += "," + added_checks[i].id
+            }
+            added_string += ";"
+            for(let i=0; i<removed_checks.length; i++){
+                if(removed_checks[i].checked)
+                    added_string += "," + removed_checks[i].id
+            }
+            const response = await update_mentee_list(added_string)
+            if (!response.ok) 
+                    throw new Error('Network response was shit')
+            if(response.redirected)
+                window.location.href = response.url
+
+            // add1Δadd2Δadd3Δadd4ωremove3Δremove4Δremove5
+        })  
+        
+
+    async function update_mentee_list(list_of_mentees) {
+        console.log(list_of_mentees);
+        const req = new Request("add_remove_mentees_from_file", {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                'X-CSRFToken': csrftoken
+            },
+            mode: 'same-origin',
+            // Convert your data into a JSON string
+            body: JSON.stringify({list_of_mentees: list_of_mentees})
+        });
+
+        let response = await fetch(req);
+        return response;
+}
+
+        
+
+        
+
+    </script>
+
+
+
+
+{% endblock %}
