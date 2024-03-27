@@ -7,7 +7,7 @@ from datetime import date
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.template import loader, Template
 from django.shortcuts import render, redirect
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.http import JsonResponse
 from mentorship_program_app.models import *
 from .status_codes import bad_request_400
@@ -1229,3 +1229,80 @@ def check_email_for_password_reset(request):
     }
 
     return JsonResponse(data) 
+
+def available_mentees(req: HttpRequest):
+    template = loader.get_template('admin/available_mentees.html')
+    added_mentees = None
+    removed_mentees = None
+    context = {}
+
+    return HttpResponse(template.render(context,req))
+
+
+def process_file(req: HttpRequest):
+    template = loader.get_template('admin/available_mentees.html')
+    
+    if req.method == "GET":
+        context = {'added': [], 'removed': [], 'file_name': ''}
+        return HttpResponse(template.render(context, req))
+
+    if req.method == 'POST' and 'fileUpload' in req.FILES:
+        imported_file = req.FILES['fileUpload']
+        whitelisted_and_present = []
+        added_users = []
+        all_whitelisted_emails = set(WhitelistedEmails.objects.values_list('str_email', flat=True))
+        emails_in_file = set()
+        try:
+            # Read the content of the uploaded file
+            file_content = imported_file.read().decode('utf-8').splitlines()
+
+            for line in file_content:
+                parts = line.strip().split('\t')
+                if len(parts) < 3:
+                    continue  # Skip lines that don't have at least three parts
+                email, first_name, last_name = parts[0], parts[1], parts[2]
+                user_tuple = (email, first_name, last_name)
+                emails_in_file.add(user_tuple)
+
+                if email in all_whitelisted_emails:
+                    whitelisted_and_present.append(user_tuple)
+                else:
+                    added_users.append(user_tuple)
+
+            
+
+            # Determine which whitelisted emails were not found in the file
+            removed_emails = all_whitelisted_emails - {email for email, _, _ in emails_in_file}
+            removed_users = [(email, '', '') for email in removed_emails]  
+
+            context = {
+                'added': added_users,
+                'removed': removed_users,
+                'file_name': imported_file.name,
+                'whitelisted_and_present': whitelisted_and_present
+            }
+            return HttpResponse(template.render(context, req))
+
+        except Exception as e:
+            # In case of any exception, render the template with an error message
+            context = {'error': f"An error occurred while processing the file: {str(e)}"}
+            return HttpResponse(template.render(context, req))
+    else:
+        # If it's neither a GET nor a POST with a file, it's an invalid request
+        return HttpResponse('Invalid request', status=400)
+
+
+def add_remove_mentees_from_file(req : HttpRequest):
+    list_of_mentees = json.loads(req.body)["list_of_mentees"]
+    banana_split = list_of_mentees.split(";")
+    added_mentees = banana_split[0].split(",") if len(banana_split) > 0 else []
+    removed_mentees = banana_split[1].split(",") if len(banana_split) > 1 else []
+
+    added_list = []
+    for mentee_email in added_mentees:
+        added_list.append(WhitelistedEmails(str_email=mentee_email))
+    print("CUM ",added_list)
+    WhitelistedEmails.objects.bulk_create(added_list)
+    WhitelistedEmails.objects.filter(str_email__in=removed_mentees).delete()
+
+    return redirect("/available_mentees")

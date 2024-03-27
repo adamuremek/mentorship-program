@@ -2679,3 +2679,6 @@ class PasswordResetToken(models.Model):
 
 
    
+class WhitelistedEmails(SVSUModelData,Model):
+    # 320 is max length of an email address
+    str_email = CharField(max_length = 320)

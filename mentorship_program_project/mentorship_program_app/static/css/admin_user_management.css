@@ -106,8 +106,15 @@
     min-height: 4vh;
 
     margin: 0.5%;
+    cursor: pointer;
 }
 
+input[type="file"] {
+    text-align: center;
+    text-align-last: center;
+    margin: 1em;
+    cursor: pointer;
+}
 
 .dual_user_board_container {
     display: flex;
