@@ -1,6 +1,0 @@
-- name: Set up NFS
-  hosts: nfs_server
-  become: true
-
-  roles:
-    - nfs-server

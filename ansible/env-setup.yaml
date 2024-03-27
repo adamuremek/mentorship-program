@@ -1,9 +1,0 @@
-- name: Set remote environment variables
-  hosts: all
-  become: true
-
-  roles:
-    - role: env-setup
-      remote_env_file_path: "/etc/profile"
-      #Absolute path
-      local_env_file_path: "~/mentorship-program/ansible/env.yaml"
