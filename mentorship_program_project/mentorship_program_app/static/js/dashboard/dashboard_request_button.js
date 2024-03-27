@@ -153,4 +153,21 @@ for (let btnRequest of request_mentor) {
 	}
 }
 
+//start the animation tick for the pending buttons
+pending_idx = 0;
+function run_pending_animation() {
+   let pending = document.getElementsByClassName("pending");
+   let text_update = " pending ";
+   
+   for (let i = 0; i < pending_idx; i++) {
+      text_update = "-" + text_update + "-";
+   }
 
+   for (let ele of pending) {
+      ele.innerText = text_update;
+   }
+   pending_idx = (pending_idx + 1) % 4;
+   setTimeout(run_pending_animation,100);
+}
+
+run_pending_animation();
