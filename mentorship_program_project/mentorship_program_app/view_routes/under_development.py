@@ -1182,16 +1182,22 @@ def reset_password(req : HttpRequest):
     valid, message = PasswordResetToken.validate_and_reset_password(token=token,new_password=new_password)
 
     # redirect to the page the request came from
-    return JsonResponse({'valid': valid, 'message': message})
-
-
-
-    
-
+    return JsonResponse({'valid': valid, 'message': message})   
     
 def request_reset_page(req, token=None):
-    template = loader.get_template('reset_page.html')
-    return HttpResponse(template.render())
+    '''
+    Updated: 3/22/2024 Tanner K.
+    Updated route to include context as navbar will not load without it.
+    Old code is commented below.
+    '''
+
+    # template = loader.get_template('reset_page.html')
+    # return HttpResponse(template.render())
+
+    template: Template = loader.get_template('reset_page.html')
+    context: dict = {}
+    
+    return HttpResponse(template.render(context, req))
 
 @csrf_exempt
 def check_email_for_password_reset(request):

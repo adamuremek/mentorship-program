@@ -483,15 +483,11 @@ input:-moz-autofill:active {
     width: 100%;
 }
 
-/* .modal-footer-container button {
-    background-color: transparent;
-} */
-
-.modal-exit:hover,
+/* .modal-exit:hover,
 .modal-exit:focus-visible {
     transform: scale(1.15);
     outline: none;
-}
+} */
 
 .modal-header {
     padding-bottom: 1em;
@@ -536,10 +532,11 @@ input:-moz-autofill:active {
     text-align: center;
 }
 
-#pass-reset {
+.modal-buttons {
     height: 50px;
     border-radius: 10px;
-    width: 100%;
+    font-size: 16px;
+    text-align: center;
 }
 
 .prompt-login h1 {
@@ -579,5 +576,30 @@ input:-moz-autofill:active {
 }
 
 .bad_email {
+    text-align: center;
+}
+
+/* Style modifications for password-reset page */
+
+#pwr-wrapper {
+    padding: 10px;
+}
+
+#pwr-icon-home {
+    height: 20px;
+    width: 100%;
+    border-radius: 0;
+    filter: brightness(0) invert(1);
+}
+
+#re-new-password {
+    margin: 10px 0;
+}
+
+#status {
+    font-size: 1em;
+    margin-top: 10px;
+    padding: 0px 10px;
+    font-weight: 300;
     text-align: center;
 }

@@ -1,7 +1,7 @@
 <dialog class="modal" id="forgot-pass-modal-1">
     <header class="modal-header">
-        <div class="circle-wrapper">
-             <img src="../static/images/x-16.png" alt="exit" class="modal-exit" id="modal-exit" tabindex="0">
+        <div class="circle-wrapper" id="modal-exit" tabindex="0">
+             <img src="../static/images/x-16.png" alt="exit" class="modal-exit">
         </div>
     </header>
 
@@ -15,7 +15,7 @@
             <form id="frm-reset-password">
                 {% csrf_token %}
                 <input type="email" id="reset-email" class="user-input" name="email" placeholder="e.g. john.doe@svsu.edu" >
-                <button onclick="checkEmail(event)" class="login-buttons | li-btn" id="pass-reset" style="font-size: 16px;">Send Password Reset Link</button>
+                <button onclick="checkEmail(event)" class="login-buttons | modal-buttons" id="pass-reset">Send Password Reset Link</button>
                 <h2 id="email-status-good" class="good_email"></h2>
                 <p id="email-status-bad" class="bad_email" ></p>
             </form>
@@ -51,7 +51,7 @@
     // })
 
     // This routine hides the email-status-bad text 2.5 seconds after the event
-    inputEmail.addEventListener("input", () => {
+    input_email.addEventListener("input", () => {
         // Clear any existing timeout to ensure we don't have multiple clears queued
         if (window.emailInputTimeout) clearTimeout(window.emailInputTimeout);
 
