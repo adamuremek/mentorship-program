@@ -130,3 +130,7 @@ body {
     height: 100vh; 
     margin: 0; 
 }
+
+* {
+    overscroll-behavior: none;
+}

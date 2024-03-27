@@ -1,5 +1,6 @@
 from django.core.mail import send_mail
 from django.conf import settings
+from django.http import HttpRequest
 
 
 from_email = "wingsmentorapp@gmail.com"
@@ -67,11 +68,12 @@ def mentor_accepted_email(recipient : str):
 	send_mail(subject, message, from_email, [recipient])
 
 
-def reset_token_email(recipient: str, token: str):
+def reset_token_email(request: HttpRequest, recipient: str, token: str):
     subject = "WINGS Password Reset Link"
-    reset_link = f"http://localhost:8000/request_reset_page/{token}"
+    domain = request.get_host()
+    reset_link = f"http://{domain}/request_reset_page/{token}"
     message = f"""
-    Please <a href="{reset_link}">Click Here</a> to go reset your WINGS password.
+    Please <a href="{reset_link}">Click Here</a> to reset your WINGS password.
     """
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient], html_message=message)
 

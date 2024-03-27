@@ -801,7 +801,7 @@ def universalProfile(req : HttpRequest, user_id : int):
         pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)
         
         max_mentees = page_owner_user.mentor.int_max_mentees
-        num_mentees = range(9, len(mentees_for_mentor), -1)
+        num_mentees = range(9, len(mentees_for_mentor)-1, -1) ##subtract one from length so they display properly online 🦞
         
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
@@ -1025,63 +1025,6 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     ##print_debug(user.has_requested_user(mentor_id))
     return HttpResponse(json.dumps({"result":"created request!"}));
 
-def cancel_request(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpResponse:
-    '''
-     Description
-     ___________
-     view that removes a mentor request using the mentor and mentee id
-
-     Paramaters
-     __________
-        req : HttpRequest - django http request
-        mentee_id : int - mentee id from the datbase, must be valid
-        mentor_id : int - mentee id from the database, must be valid
-
-     Returns
-     _______
-        HttpResponse containing a valid json ok signature or 401 error code for invalid data
-     
-     Example Usage
-     _____________
-        >>> cancel_request(request,mentee_id,mentor_id)
-
-        /path/to/route/mentee_id/mentor_id
-
-     >>> 
-     Authors
-     _______
-     Andy Nguyen Do *^*
-    '''
-    user = User.from_session(req.session)
-    
-    #If you are a mentee you can only request for yourself
-    if user.is_mentee():
-        mentee_id : int = user.id
-    elif user.is_mentor() and mentee_id == None:
-        return bad_request_400("mentee id required for mentors")
-
-    ##print_debug(user.has_requested_user(mentor_id))
-    mentor_account = None
-    mentee_account = None
-    
-    #If mentor account does not exists
-    try:
-        mentor_account = User.objects.get(id=mentor_id)
-    except ObjectDoesNotExist:
-        return bad_request_400("invalid mentor id detected!")
-    
-    #If mentor account does not exists
-    try:
-        mentee_account = User.objects.get(id=mentee_id)
-    except ObjectDoesNotExist:
-        return bad_request_400("invalid mentee id detected!")
-    
-    if mentor_account == None or mentee_account == None:
-        #we should never get here, but just in case for some reason
-        return bad_request_400("internal error occured")
-    
-    MentorshipRequest.remove_request(mentee_id, mentor_id)
-    print("Request has been removed. Guess ya didn't like 'em huh :(")
 
 def change_password(req : HttpRequest):
     old_password = req.POST["old-password"]
@@ -1137,7 +1080,7 @@ def reset_request(req: HttpRequest):
     
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
     
-    reset_token_email(recipient=user.cls_email_address, token=token)
+    reset_token_email(req, recipient=user.cls_email_address, token=token) # Pass req along with recipient email and token
     print("email sent to: "+email)
     return HttpResponse(True)
 
@@ -1182,16 +1125,22 @@ def reset_password(req : HttpRequest):
     valid, message = PasswordResetToken.validate_and_reset_password(token=token,new_password=new_password)
 
     # redirect to the page the request came from
-    return JsonResponse({'valid': valid, 'message': message})
-
-
-
-    
-
+    return JsonResponse({'valid': valid, 'message': message})   
     
 def request_reset_page(req, token=None):
-    template = loader.get_template('reset_page.html')
-    return HttpResponse(template.render())
+    '''
+    Updated: 3/22/2024 Tanner K.
+    Updated route to include context as navbar will not load without it.
+    Old code is commented below.
+    '''
+
+    # template = loader.get_template('reset_page.html')
+    # return HttpResponse(template.render())
+
+    template: Template = loader.get_template('reset_page.html')
+    context: dict = {}
+    
+    return HttpResponse(template.render(context, req))
 
 @csrf_exempt
 def check_email_for_password_reset(request):
@@ -1229,6 +1178,7 @@ def check_email_for_password_reset(request):
     }
 
     return JsonResponse(data) 
+
 
 def available_mentees(req: HttpRequest):
     template = loader.get_template('admin/available_mentees.html')
