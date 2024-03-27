@@ -1,6 +1,6 @@
 const forgot_pass_btn = document.querySelector('#forgot-pass-btn');
 const forgot_pass_modal_1 = document.querySelector('#forgot-pass-modal-1');
-const modal_exit = document.querySelector('#modal-exit');
+const modal_exit = document.getElementById('modal-exit');
 const reset_email_field = document.getElementById('reset-email');
 const email_status_bad = document.getElementById('email-status-bad');
 
@@ -9,8 +9,6 @@ forgot_pass_btn.addEventListener("click", () => {
 });
 
 modal_exit.addEventListener("click", () => {
-    forgot_pass_modal_1.close();
-
     // Reset the reset-email field when the modal is closed
     reset_email_field.value = "";
 
@@ -20,4 +18,7 @@ modal_exit.addEventListener("click", () => {
     // Clear the 'user not found' prompt when closing
     email_status_bad.innerText = "";
     email_status_bad.style.display = "none";
+
+    // Close the modal
+    forgot_pass_modal_1.close();
 });

@@ -24,14 +24,8 @@
             <div class="user_board_container">
                 <div class="user_board_title_container">
                     <h2 id="admin_user_management_medium_text">Mentors</h2>
-                    <div class="user_board_search_container">
-                        <button class="admin_user_management_button_clear_active">
-                            <img src="{% static 'images/search-icon.png' %}" id="search_icon">
-                        </button>
-
-                        <input type="text" class="search_bar" placeholder="Search by name">
-                    </div>
                 </div>
+
                 <div class="user_board">
                     <div class="user_management_bar_container" id="mentor_bar_container">
                         {% for mentor in unaffiliated_mentors %}
@@ -51,14 +45,8 @@
             <div class="user_board_container">
                 <div class="user_board_title_container">
                     <h2 id="admin_user_management_medium_text">Mentees</h2>
-                    <div class="user_board_search_container">
-                        <button class="admin_user_management_button_clear_active">
-                            <img src="{% static 'images/search-icon.png' %}" id="search_icon">
-                        </button>
-
-                        <input type="text" class="search_bar" placeholder="Search by name">
-                    </div>
                 </div>
+
                 <div class="user_board">
                     <div class="user_management_bar_container" id="mentee_bar_container">
                         {% for mentee in mentees %}
@@ -70,9 +58,32 @@
                 
             </div>
         </div>
-        <button class="admin_user_management_button" id="save_button">Save</button>
-        <button class="admin_user_management_button" id="cancel_button">Cancel</button>
-        <button class="admin_user_management_button" id="experiment_delta_bravo">Experiment!</button>
+
+        <div class="user_board_search_container">
+            <div class="user_board_search_bar_container">
+                <button class="admin_user_management_word_button_active" id="filter_users_button">
+                    <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                    <h2 class="admin_user_management_medium_text">Search by user</h2>
+                </button>
+
+                <input type="text" class="search_bar" id="user_search_bar" placeholder="Search by name">
+            </div>
+
+            <div class="user_board_search_bar_container">
+                <button class="admin_user_management_word_button_active" id="filter_organization_button">
+                    <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                    <h2 class="admin_user_management_medium_text">Search by organization</h2>
+                </button>
+
+                <input type="text" class="search_bar" id="organization_search_bar" placeholder="Search by name">
+            </div>
+        </div>
+
+        <div class="user_board_button_container">
+            <button class="admin_user_management_button" id="save_button">Save</button>
+            <button class="admin_user_management_button" id="cancel_button">Cancel</button>
+            <button class="admin_user_management_button" id="experiment_delta_bravo">Experiment!</button>
+        </div>
     </div>
 
     <!-- I will figure this out but im really stupid rn -->
@@ -80,6 +91,11 @@
 </dialog> -->
 
 <script src = "{% static 'js/backend_requests.js' %}"></script>
+
+<script type="module" src="{% static 'js/admin/user_management/filtering.js' %}"></script>
+<script type="module" src="{% static 'js/admin/user_management/determiners.js' %}"></script>
+<script type="module" src="{% static 'js/admin/user_management/updaters.js' %}"></script>
+
 <script type="module" src="{% static 'js/admin/user_management/event_queue.js' %}"></script>
 <script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script>
 

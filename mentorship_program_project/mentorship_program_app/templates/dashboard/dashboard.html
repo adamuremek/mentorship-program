@@ -154,7 +154,7 @@ Dashboard
         const search_bar = document.getElementById('searchByNameField')
 
         // params
-        const search_query = search_bar.value
+        const search_query = search_bar.value.toLowerCase()
         const selected_filters = getInterestFilters();
 
         for(const user of users) {

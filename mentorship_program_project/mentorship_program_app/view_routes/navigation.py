@@ -134,12 +134,20 @@ def dashboard(req):
     #for p in recommended_users:
     #    print((p.str_first_name,p.str_last_name,p.likeness))
 
-    recommended = session_user.get_recomended_users()
+   # Retrieve a list of recommended users
+    recommended_users = session_user.get_recomended_users()
 
-    #TODO: we need to move this into the query above, since this is only 4 users
-    #its not a SUPER big deal that its out here, but if we notice performance gains this is a good place to start
-    for user in recommended:
-        user.is_requested_by_session = session_user.has_requested_user(user)
+    # Get the IDs of recommended users
+    recommended_user_ids = [user.id for user in recommended_users]
+
+    # Retrieve a dictionary indicating whether the current user has requested each recommended user
+    requested_users = session_user.has_requested_user_all(recommended_user_ids)
+
+    # Set the is_requested_by_session property for each recommended user based on the dictionary
+    for user in recommended_users:
+        user.is_requested_by_session = requested_users.get(user.id, False)
+
+
 
     #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
@@ -155,14 +163,15 @@ def dashboard(req):
     # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
     #set up the django users to include a property indicateing they have been reqeusted by the current user
 
-    #for user in users:
-    #    print(user.is_requested_by_session)
-    #    #user.is_requested_by_session = session_user.has_requested_user(user)
+    # Get a list of user IDs
+    user_ids = [user.id for user in users]
+    # Retrieve a dictionary indicating whether the current user has requested each user
+    requested_users = session_user.has_requested_user_all(user_ids)
 
     #cache the result of this query so we are not using it in the rendered view
     context = {
                                 # Making sure that there are enough users to display
-            "recommended_users": recommended[0:4] if len(recommended) >= 4 else recommended[0:len(recommended)], 
+            "recommended_users": recommended_users[0:4] if len(recommended_users) >= 4 else recommended_users[0:len(recommended_users)], 
             "all_users"        : users if len(users) >= 4 else [],
             "interests"        : list(interests_with_role_count),
             "session_user"     : session_user,

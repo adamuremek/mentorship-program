@@ -59,7 +59,10 @@ from typing import Callable
 import random
 import string
 from enum import Enum
+from typing import List, Dict
+from functools import reduce
 
+from django.db.models import Q
 
 #project imports
 from utils import security
@@ -640,6 +643,50 @@ class User(SVSUModelData,Model):
             return MentorshipRequest.objects.get(mentee=self,mentor_id=other_user_id ) 
         except:
             return False
+
+
+    def has_requested_user_all(self, user_ids: List[int]) -> Dict[int, bool]:
+        """
+        Retrieve MentorshipRequest objects involving the current user and any of the specified user IDs.
+
+        Parameters:
+        - user_ids (List[int]): List of user IDs to check for MentorshipRequests.
+
+        Returns:
+        - Dict[int, bool]: A dictionary indicating whether a MentorshipRequest exists between each user and the current user.
+        """
+    
+
+
+        # Initialize a query that combines all individual conditions using logical OR (|)
+        combined_query = Q()
+        for user_id in user_ids:
+            combined_query |= Q(mentor=self, mentee_id=user_id) | Q(mentee=self, mentor_id=user_id)
+
+        # Fetch all mentorship requests matching any of the combined conditions in one query
+        mentorship_requests = MentorshipRequest.objects.filter(combined_query)
+
+        # Initialize dictionary to track requested users
+        requested_users = {}
+
+        # Loop through each user ID
+        for user_id in user_ids:
+            # Check if any mentorship request exists for the user
+            user_query = Q(mentor=self, mentee_id=user_id) | Q(mentee=self, mentor_id=user_id)
+            user_requests = mentorship_requests.filter(user_query)
+            user_exists = user_requests.exists()
+            
+            
+
+            if user_exists:
+                requested_users[user_id] = True  # Mark the user as involved
+            else:
+                requested_users[user_id] = False  # Mark the user as not involved
+
+        return requested_users
+
+
+
 
 
     def get_opposite_database_role_string(self)->str:

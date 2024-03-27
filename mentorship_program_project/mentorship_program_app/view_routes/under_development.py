@@ -801,7 +801,7 @@ def universalProfile(req : HttpRequest, user_id : int):
         pendingRequests = MentorshipRequest.objects.filter(mentor_id = page_owner_user.id)
         
         max_mentees = page_owner_user.mentor.int_max_mentees
-        num_mentees = range(9, len(mentees_for_mentor), -1)
+        num_mentees = range(9, len(mentees_for_mentor)-1, -1) ##subtract one from length so they display properly online 🦞
         
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
@@ -1080,7 +1080,7 @@ def reset_request(req: HttpRequest):
     
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
     
-    reset_token_email(recipient=user.cls_email_address, token=token)
+    reset_token_email(req, recipient=user.cls_email_address, token=token) # Pass req along with recipient email and token
     print("email sent to: "+email)
     return HttpResponse(True)
 
@@ -1125,16 +1125,22 @@ def reset_password(req : HttpRequest):
     valid, message = PasswordResetToken.validate_and_reset_password(token=token,new_password=new_password)
 
     # redirect to the page the request came from
-    return JsonResponse({'valid': valid, 'message': message})
-
-
-
-    
-
+    return JsonResponse({'valid': valid, 'message': message})   
     
 def request_reset_page(req, token=None):
-    template = loader.get_template('reset_page.html')
-    return HttpResponse(template.render())
+    '''
+    Updated: 3/22/2024 Tanner K.
+    Updated route to include context as navbar will not load without it.
+    Old code is commented below.
+    '''
+
+    # template = loader.get_template('reset_page.html')
+    # return HttpResponse(template.render())
+
+    template: Template = loader.get_template('reset_page.html')
+    context: dict = {}
+    
+    return HttpResponse(template.render(context, req))
 
 @csrf_exempt
 def check_email_for_password_reset(request):

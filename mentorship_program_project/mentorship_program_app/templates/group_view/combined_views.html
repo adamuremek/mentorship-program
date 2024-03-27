@@ -122,10 +122,12 @@
                     {% if page_owner_user.is_mentor %}
                     <label for="select-max-mentees">Max Mentees: </label>
                     <select disabled name="max_mentees" id="select-max-mentees">
-                        {% for i in num_mentees %}
-                            <option {%if i == max_mentees%}selected{%endif%} value="{{i}}">{{i}}</option>
-                        {% endfor %}
+                            {% for i in num_mentees %}
+                                <option >{{i}}</option>
+                            {% endfor %}
                     </select>
+
+                   
                     {% endif %}
 
                     <h2>{{page_owner_user.str_job_title}}</h2>
@@ -245,6 +247,25 @@
         
         const btn_profile_request = document.getElementById('btn_profile_request')
         
+////////////////////////////////////////////////////// Needed for max mentees option box to display properly, old method wasnt workin on certain cases 🦞
+       // Get the max mentees value from the context
+        const max_mentees_value = "{{ max_mentees }}";
+        console.log(max_mentees_value)
+        
+        const select_max_mentees = document.getElementById('select-max-mentees');
+
+        
+        const options = select_max_mentees.getElementsByTagName('option');
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].value === max_mentees_value) {
+            
+                options[i].selected = true;
+                break;  // Exit the loop after setting the selected option
+            }
+        }
+//////////////////////////////////////////////
+
+
         if(!btn_profile_request){
             return
         }
