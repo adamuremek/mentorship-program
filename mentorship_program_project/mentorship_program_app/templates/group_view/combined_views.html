@@ -34,9 +34,10 @@
             {% endif %}
 
             <!-- TODO: prevent reporting multiple times in a row -->
+            {% if not is_page_owner %}
             <button id="btn_profile_report">Report</button>
             {% include 'group_view/report_modal.html' with report_types=report_types %}
-
+            {%endif%}
             {% if  page_owner_user.is_mentee and mentees_or_mentor %}
                 <h3>Mentor: </h3>
             {% elif page_owner_user.is_mentor and mentees_or_mentor %}
