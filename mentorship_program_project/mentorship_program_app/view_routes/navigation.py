@@ -84,7 +84,7 @@ def dashboard(req):
         requests_count = requests.annotate(c=Count("*")).values('c')
 
         card_data = User.objects.annotate(
-        num_mentees=Count('mentor___mentee_set', distinct=True)
+            num_mentees=Count('mentor___mentee_set', distinct=True)
         ).annotate(
             has_maxed_mentees=Case(
                 When(num_mentees__gte=F('mentor__int_max_mentees'), then=Value(True)),
@@ -117,7 +117,6 @@ def dashboard(req):
 
 
     if opposite_role == "Mentee":
-        
         card_data = User.objects.filter(
             str_role='Mentee',
             mentee__mentor=None
@@ -127,24 +126,6 @@ def dashboard(req):
             'profile_img_query'
         )
 
-        #card_data = User.objects.filter(str_role=opposite_role). \
-        #prefetch_related('interests'). \
-        #prefetch_related('profile_img_query'). \
-        #defer(
-        #    "cls_email_address",
-        #    "str_password_hash",
-        #    "str_password_salt",
-        #    "str_role",
-        #    "cls_date_joined",
-        #    "cls_active_changed_date",
-        #    "bln_active",
-        #    "bln_account_disabled",
-        #    "str_phone_number",
-        #    "str_last_login_date",
-        #    "str_gender",
-        #    "str_preferred_pronouns",
-        #    "str_bio",
-        #)
         users = [user.sanitize_black_properties() for user in card_data]
     
     #print("starting recomendation algorithm")

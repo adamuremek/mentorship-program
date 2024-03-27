@@ -101,19 +101,34 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
         return bad_request_400("internal error occured")
 
     mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id, user.id)
-    if mentorship_request: 
-        mentorship_request.save()
-    else:
-        #print("this request already exists, IDENTITY CRISIS ERROR 🤿  ⛰️")
-        
-        response = HttpResponse(json.dumps({"result":"invalid request"}))
+    if type(mentorship_request) == int:
+        #there was an error creating the request
+        response = HttpResponse(
+                json.dumps(
+                    {
+                        "result":MentorshipRequest.ErrorCode.error_code_to_string(
+                                                                mentorship_request
+                                                                )
+                    }
+                    )
+                )
+
         response.status_code = 400
-        
         return response
+    else: 
+        mentorship_request.save()
+        
         
  
     ##print_debug(user.has_requested_user(mentor_id))
-    return HttpResponse(json.dumps({"result":"created request!"}))
+    return HttpResponse(
+            json.dumps(
+                    {
+                        "result":"created request!",
+                        "has_maxed_mentee_requests": user.is_mentee() and user.mentee.has_maxed_request_count()
+                    }
+                )
+            )
 
 #@User.Decorators.require_logged_in_super_admin(invalid_request_401)
 def verify_mentee_ug_status(req : HttpRequest) -> HttpResponse:

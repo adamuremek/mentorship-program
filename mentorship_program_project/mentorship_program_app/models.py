@@ -1773,7 +1773,19 @@ class MentorshipRequest(SVSUModelData,Model):
             return False
 
 
-    
+    class ErrorCode:
+        MENTOR_MAXED_MENTEES = -1
+        MENTEE_MAXED_REQUEST_AMOUNT = -2
+        DATABASE_ERROR = -3
+        
+        @staticmethod
+        def error_code_to_string(code : int)->str:
+            return [
+             "MENTOR_MAXED_MENTEES",
+             "MENTEE_MAXED_REQUEST_AMOUNT",
+             "DATABASE_ERROR"
+            ][-(code+1)]
+
     @staticmethod
     def create_request(int_mentor_user_id: int, int_mentee_user_id: int, requester_id: int):
         """
@@ -1792,15 +1804,19 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Returns
         -------
-        - True (boolean): IF the mentorship request was sucessfully created.
-        - False (boolean): IF the mentorship request was NOT created.
+        either the request object or an error code indicating what occured
+        while making the request
+
+        you can find these error codes under MentorshipRequest.ErrorCode
 
         Example Usage
         -------------
-        >>> boolFlag = create_request(13, 16)
-        boolFlag = False
-        >>> boolFlag = create_request(5, 24)
-        boolFlag = True
+        >>> error_code = create_request(13, 16)
+        error_code = MentorshipRequest.ErrorCode.MENTEE_MAXED_REQUEST_AMOUNT
+        >>> request_object = create_request(5, 24)
+        request_object = valid request object
+
+        
 
         Authors
         -------
@@ -1815,11 +1831,13 @@ class MentorshipRequest(SVSUModelData,Model):
             #prevent requests for mentors that have their mentee count maxed
             mentor_user_account = User.objects.get(id=int_mentor_user_id)
             if mentor_user_account.mentor.has_maxed_mentees():
-                return False
+                return MentorshipRequest.ErrorCode.MENTOR_MAXED_MENTEES
 
-            mentee_user_account = User.objects.get(id=int_mentee_user_id)
-            if mentee_user_account.mentee.has_maxed_request_count():
-                return False
+            #prevent mentees from creating too many requests
+            requester_user_account = User.objects.get(id=requester_id)
+            if requester_user_account.is_mentee() \
+            and requester_user_account.mentee.has_maxed_request_count():
+                return MentorshipRequest.ErrorCode.MENTEE_MAXED_REQUEST_AMOUNT
 
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,
@@ -1829,7 +1847,7 @@ class MentorshipRequest(SVSUModelData,Model):
             return mentor_ship_request
         except Exception as e:
             print(e)
-            return False
+            return MentorshipRequest.ErrorCode.DATABASE_ERROR
 
     def get_request_id(int_request_id: int) -> 'MentorshipRequest':
         """

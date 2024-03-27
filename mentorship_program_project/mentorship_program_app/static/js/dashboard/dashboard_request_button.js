@@ -17,12 +17,25 @@ async function request_user(requested_user_id) {
 		response = await attempt_mentor_request(requested_user_id,session_user_id);
 
 	if (response.status == 200) {
+      let data = await response.json();
+      
+      //let the user know when they max out their mentee requests
+      //as soon as we get the information
+      if (data.has_maxed_mentee_requests) {
+         display_requests_maxed();
+      }
+
 		let btns = document.getElementsByClassName("card-request-btn-user-id:" + requested_user_id);
 		for (const btn of btns) {
 			btn.classList.add("card-button-cancel");
 			btn.innerText = "Cancel Request";
 		}
-	}
+	} else if (response.status == 400) { //permission denied request
+      let error = await response.json();
+      if (error.result == 'MENTEE_MAXED_REQUEST_AMOUNT') {
+         display_requests_maxed();
+      }
+   }
 }
 
 async function reject_user(requested_user_id) {
@@ -42,6 +55,23 @@ async function reject_user(requested_user_id) {
 	}
 }
 
+/*
+ * this function sets all buttons of non requested mentees to be disabled from a maximum request amount
+ * so that the front end user is aware of the request limit on the main page, it does NOT
+ * have any effect on the back end, and purly exists as an indicator for the front end user of the app
+ * */
+function display_requests_maxed() {
+   const requested_buttons = document.getElementsByClassName("card-request-btn");
+   for (let btn of requested_buttons) {
+      //we do NOT apply the tranformation to buttons of mentors that we already requested
+      if (btn.classList.contains("card-button-cancel"))
+         continue;
+
+      btn.classList.add("card-button-disabled");
+      btn.innerText = "Maximum Request Amount Reached";
+   }
+
+}
 //actually setup each button to be clickable
 
 
