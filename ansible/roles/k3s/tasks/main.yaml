@@ -34,9 +34,9 @@
   shell:
     cmd: "kubectl apply -f {{ item }}"
   with_items:
-    - "/{{ absolute_project_path }}/kubernetes/media-pv.yaml"
+    # - "/{{ absolute_project_path }}/kubernetes/media-pv.yaml"
     - "/{{ absolute_project_path }}/kubernetes/media-pvc.yaml"
-    - "/{{ absolute_project_path }}/kubernetes/static-pv.yaml"
+    # - "/{{ absolute_project_path }}/kubernetes/static-pv.yaml"
     - "/{{ absolute_project_path }}/kubernetes/static-pvc.yaml"
     - "/{{ absolute_project_path }}/kubernetes/mentor-configmap.yaml"
     - "/{{ absolute_project_path }}/kubernetes/mentor-secret.yaml"
