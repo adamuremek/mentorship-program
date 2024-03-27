@@ -48,6 +48,55 @@ from ..views import invalid_request_401
 
 from mentorship_program_app.models import *
 
+
+
+@security.Decorators.require_login(bad_request_400)
+def request_session_user_data(req : HttpRequest):
+    '''
+    Description
+    ___________
+    convinence view that gets requested data from the current session user and returns it as a dictionary
+    this is so that front end forms can update over ajax from the given user data
+
+    Usage
+    ------
+    <route>/request_session_user_data?data=str_first_name,str_last_name
+    >>> returns
+    {str_first_name:<firstname>,str_last_name:<lastname>}
+
+    '''
+    session_user : User = User.from_session(req.session)
+    print(session_user)
+    session_user = session_user.sanitize_black_properties() #ensure only safe data gets sent to front end
+
+    if req.GET:
+
+        ret_val = {}
+        if "data" in req.GET:
+            data = req.GET["data"].split(",")
+
+            for key in data:
+                ret_val[key] = session_user.__dict__[key]
+
+        if "request" in req.GET:
+            requests = req.GET["request"].split(",")
+
+            for query_req in requests:
+                if query_req not in ret_val:
+                    match query_req:
+                        case "has_maxed_mentee_requests":
+                            ret_val["has_maxed_mentee_requests"] = session_user.is_mentee() and \
+                                    session_user.mentee.has_maxed_request_count()
+
+
+
+
+
+        return HttpResponse(json.dumps(ret_val))
+    
+    return bad_request_400("get data required")
+
+
 @security.Decorators.require_login(bad_request_400)
 def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpResponse:
     '''

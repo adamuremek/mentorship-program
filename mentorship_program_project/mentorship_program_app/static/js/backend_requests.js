@@ -186,3 +186,25 @@ async function attempt_reject_mentorship_request(mentor_id,mentee_id = null) {
 	let response = await fetch(req);
 	return response;
 }
+
+async function attempt_query_session_user(request=null,data=null) {
+   let query_string = "/api/get_session_data?"
+   if (request) {
+      query_string += "request=" + request.join(",");
+   }
+   if (data) {
+      query_string += "data=" + data.join(",");
+   }
+
+   const req = new Request(query_string,{
+      method: "GET",
+      headers: {
+                  "Content-type": "application/json; charset=UTF-8",
+                  'X-CSRFToken': csrftoken
+      },
+      mode: "same-origin"
+   });
+   
+   let response = await fetch(req);
+   return response;
+}
