@@ -1,6 +1,6 @@
 <dialog class="modal" id="forgot-pass-modal-1">
     <header class="modal-header">
-        <div class="circle-wrapper" id="modal-exit" tabindex="0">
+        <div aria-label="Close" class="circle-wrapper" id="modal-exit" tabindex="0">
              <img src="../static/images/x-16.png" alt="exit" class="modal-exit">
         </div>
     </header>
@@ -63,6 +63,14 @@
         }, 2500);
     });
 
+    // This routine sets assigns focus to the email field
+    function focusInput() {
+    // Use setTimeout to delay the focus action ~ allow modal to show
+    setTimeout(() => {
+        input_email.focus();
+    }, 0); // Starting with 0 milliseconds
+}
+
     function checkEmail(event) {
         event.preventDefault(); // Prevent the default form submission action                                                                  🦞
 
@@ -83,6 +91,7 @@
                 } else {
                     document.getElementById("email-status-bad").innerText = "Sorry we could not find that account.";
                     document.getElementById("email-status-bad").style.display = ""; // Make sure it's visible
+                    focusInput();
                 }
             }
         };
