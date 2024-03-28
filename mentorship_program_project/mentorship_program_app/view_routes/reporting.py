@@ -191,8 +191,11 @@ def generate_report(req : HttpRequest):
     response = HttpResponse(
         buffer,
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        
     )
+    
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+    # response['Refresh'] = '0; url=' + req.path
     return response
 
 

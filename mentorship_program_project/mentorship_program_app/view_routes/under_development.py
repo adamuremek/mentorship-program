@@ -588,7 +588,7 @@ def update_profile_img(user_id, new_pfp):
 
 
 @security.Decorators.require_login(bad_request_400)
-def create_note (req : HttpRequest):
+def create_note(req : HttpRequest):
     """
     Description
     -----------
@@ -750,7 +750,6 @@ def group_view(req: HttpRequest):
 
 @security.Decorators.require_login(bad_request_400)
 def universalProfile(req : HttpRequest, user_id : int):
-    
     profile_page_owner = None
     try:
         profile_page_owner = User.objects.get(id=user_id)
