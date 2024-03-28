@@ -83,8 +83,7 @@ def request_session_user_data(req : HttpRequest):
 
             for query_req in requests:
                 if query_req not in ret_val:
-                    match query_req:
-                        case "has_maxed_mentee_requests":
+                        if query_req == "has_maxed_mentee_requests":
                             ret_val["has_maxed_mentee_requests"] = session_user.is_mentee() and \
                                     session_user.mentee.has_maxed_request_count()
 
