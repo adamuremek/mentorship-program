@@ -4,7 +4,7 @@ import inspect
 from collections.abc import Callable
 from datetime import date
 
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseNotAllowed, HttpResponseRedirect
 from django.template import loader, Template
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -329,6 +329,8 @@ def register_mentee(req: HttpRequest):
     else:
         return HttpResponse("Bad :(")
 
+
+@security.Decorators.require_login(bad_request_400)
 def view_pending_mentors(req: HttpRequest):
     '''
     Description
@@ -356,8 +358,12 @@ def view_pending_mentors(req: HttpRequest):
     Andrew P.
     '''
     
-    #TODO Verify youre an admin
+    session_user = User.from_session(req.session)
 
+    is_super_admin = session_user.is_super_admin()
+
+    if not(is_super_admin):
+        return redirect("/")
 
     template = loader.get_template('pending_mentors.html')
     # Get all mentors who are still pending
