@@ -487,12 +487,23 @@ class User(SVSUModelData,Model):
         """
 
 
+
+        
         #TODO: we should probably get this going specifically through djangos orm's
+        #       idk if thats possible tho since this is doing a self join on a table to 
+        #       get the data we need, def more research is required
 
         sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
+        
+        #TODO: actually get this filtering
+        not_taken = "SELECT 1=1"
+
+
         if self.is_mentor():
             sub_query = \
                 f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id=t1.user_id AND mentor_id={self.id}"
+
+            not_taken = f"SELECT COUNT(mentor_id)<1 FROM mentorship_program_app_mentee WHERE account_id = tu.id"
         
         return User.objects.raw(
                     f"""
@@ -505,9 +516,12 @@ class User(SVSUModelData,Model):
                             mentorship_program_app_user_interests AS t1,
                             mentorship_program_app_user_interests AS t2,
                             mentorship_program_app_user AS tu
-                       WHERE t2.user_id={self.id} AND t1.interest_id = t2.interest_id AND t1.user_id = tu.id
-                             AND tu.str_role = '{self.get_opposite_database_role_string()}'
-                       GROUP BY t1.user_id,tu.str_first_name,tu.str_last_name
+                       WHERE t2.user_id={self.id} 
+                            AND t1.interest_id = t2.interest_id 
+                            AND t1.user_id = tu.id
+                            AND tu.str_role = '{self.get_opposite_database_role_string()}'
+                            AND ({not_taken})
+                       GROUP BY t1.user_id,tu.str_first_name,tu.str_last_name,tu.id
                        ORDER BY likeness DESC
                        LIMIT {limit};
                     """

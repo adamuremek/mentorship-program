@@ -147,6 +147,8 @@ def dashboard(req):
     
     # Retrieve a list of recommended users
     recommended_users = session_user.get_recomended_users()
+    #for u in recommended_users:
+    #    print(u.request_count)
 
     #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
