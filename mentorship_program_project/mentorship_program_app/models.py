@@ -2456,6 +2456,8 @@ class Notes(SVSUModelData,Model):
             return True
         else:
             return False
+        
+        
     
     @staticmethod
     def update_note(note_id: int, new_title: str, new_pub_body: str, new_pvt_body: str) -> None:
