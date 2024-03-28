@@ -468,7 +468,7 @@ class User(SVSUModelData,Model):
         last_name =  self.str_last_name if self.str_last_name != None else " "
         return first_name + " " + last_name
 
-    def get_recomended_users(self):
+    def get_recomended_users(self,limit : int =4):
         """
         Description
         ___________
@@ -486,14 +486,30 @@ class User(SVSUModelData,Model):
         David Kennamer >.>
         """
 
+
+        #TODO: we should probably get this going specifically through djangos orm's
+
+        sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
+        if self.is_mentor():
+            sub_query = \
+                f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id=t1.user_id AND mentor_id={self.id}"
+        
         return User.objects.raw(
                     f"""
-                    SELECT DISTINCT t1.user_id AS id,str_first_name,str_last_name,COUNT(*) as likeness
-                       FROM mentorship_program_app_user_interests AS t1, mentorship_program_app_user_interests AS t2,mentorship_program_app_user AS tu
+                    SELECT DISTINCT t1.user_id AS id,
+                                    str_first_name,
+                                    str_last_name,
+                                    COUNT(*) as likeness,
+                                    ({sub_query}) as is_requested_by_session
+                       FROM 
+                            mentorship_program_app_user_interests AS t1,
+                            mentorship_program_app_user_interests AS t2,
+                            mentorship_program_app_user AS tu
                        WHERE t2.user_id={self.id} AND t1.interest_id = t2.interest_id AND t1.user_id = tu.id
                              AND tu.str_role = '{self.get_opposite_database_role_string()}'
                        GROUP BY t1.user_id,tu.str_first_name,tu.str_last_name
-                       ORDER BY likeness DESC;
+                       ORDER BY likeness DESC
+                       LIMIT {limit};
                     """
                     )
 
