@@ -343,6 +343,7 @@ nav li:first-child {
 .sign-in-card {
     border-radius: 5%;
     background-color: #292A2B;
+    align-self: center;
 
     min-height: 40vw;
     max-height: 50vw;
@@ -505,6 +506,10 @@ footer {
     background-color: dimgrey;
 }
 
+button {
+     cursor: pointer;
+}
+
 select {
     font-weight: 400;
     font-size: 1.5em;
@@ -640,7 +645,7 @@ select {
     justify-content: center;
     align-items: center;
 
-    font-weight: 400;
+    font-weight: 300;
     font-size: 1.5em;
 
     width: 100%;
@@ -652,15 +657,19 @@ select {
     margin-top: 2%;
     margin-bottom: 2%;
 
-    border-radius: 2vw;
+    border-radius: 0.5em;
 
-    background-color: #3E4C6C;
+    background-color: #3E4C6C99;
     border-color: #3E4C6C;
 }
 
 .sign-in-card-button-option:hover {
     background-color: #1f315d;
     border-color: #1f315d;
+}
+
+.btn-select-role {
+    height: 15vh;
 }
 
 .sign_in_top_left_element {

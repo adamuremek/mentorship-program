@@ -2,7 +2,8 @@ from django.http import HttpRequest, FileResponse, HttpResponse
 from django.conf import settings
 from datetime import date, datetime, timedelta
 
-from ..models import User
+from django.db.models import Count, Q, Value,Case,BooleanField,When,F,OuterRef,Subquery
+from ..models import Mentee, MentorshipRequest, User
 from ..models import Mentor
 from ..models import SystemLogs
 from ..models import UserReport
@@ -78,29 +79,11 @@ def get_project_overall_statistics():
     # Total amount of requested mentorships
     total_requested_mentorships = SystemLogs.objects.filter(str_event=SystemLogs.Event.REQUEST_MENTORSHIP_EVENT).count()
 
-    #  user.mentor.account if page_owner_mentee.mentor != None else None
-    all_mentees = User.objects.filter(str_role='Mentee')
 
     # count number of unassigned mentees
-    unassigned_mentees = 0
-    for mentee in all_mentees:
-        if mentee.mentee.mentor_id == None:
-            unassigned_mentees += 1
+    unassigned_mentees = Mentee.objects.filter(mentor=None).count()
+    assigned_mentors = User.objects.all().filter(str_role='Mentor').annotate(mentee_count=Count('mentor___mentee_set')).exclude(mentee_count=0).count()
 
-    # count number of unassigned mentors
-    unassigned_mentors = 0
-   
-    for mentor in User.objects.filter(str_role ="Mentor", bln_active=True, bln_account_disabled=False):
-        mentor_obj = getattr(mentor, 'mentor', None)
-        
-        if len(mentor_obj.mentee_set.all()) == 0:
-            unassigned_mentors += 1
-
-    active_mentors_count = User.objects.filter(str_role='Mentor',str_last_login_date__gte=inactive_date).count()
-
-    # count number of reports with unique mentor 
-    mentors_reported = UserReport.objects.filter(user__str_role=User.Role.MENTOR).values("user").distinct().count()
-    mentees_reported = UserReport.objects.filter(user__str_role=User.Role.MENTEE).values("user").distinct().count()
     # count number of unresolved reports
     unresolved_reports = UserReport.objects.filter(bln_resolved = False).count()
 
@@ -109,20 +92,22 @@ def get_project_overall_statistics():
         "assigned_mentees"             : total_mentees - unassigned_mentees,
         "unassigned_mentees"           : unassigned_mentees,
         "inactive_mentees"             : User.objects.filter(str_role='Mentee', bln_active=False).count(),
-        "active_mentors"               : active_mentors_count,
-        "assigned_mentors"             : total_mentors - unassigned_mentors,
-        "unassigned_mentors"           : unassigned_mentors,
+        
+        "active_mentors"               :  User.objects.filter(str_role='Mentor', bln_active=True).count(),
+        "assigned_mentors"             : assigned_mentors,
+        "unassigned_mentors"           : total_mentors - assigned_mentors,
         "inactive_mentors"             : inactive_mentors_count,
+
         "mentees_per_mentor"           : f"{round(total_mentees/total_mentors,2)}" if total_mentors != 0 else 'N/A',
         "mentor_retention_rate"        : f"{round(100 - ((inactive_mentors_count / total_mentors) * 100))}%" if total_mentors != 0 else 'N/A',
         "mentor_turnover_rate"         : f"{round((inactive_mentors_count / total_mentors ) * 100)}%" if total_mentors != 0 else 'N/A',
-        "total_approved_mentorships"   : total_approved_mentorships,
-        "total_requested_mentorships"  : total_requested_mentorships,
-        "successful_match_rate"        : f"{round(total_approved_mentorships/total_requested_mentorships * 100)}%" if total_requested_mentorships != 0 else "N/A",
+        "successful_match_rate"        : f"{round(total_approved_mentorships / total_requested_mentorships * 100)}%" if total_requested_mentorships != 0 else "N/A",
+        
+        "total_approved_mentorships"   : total_approved_mentorships,  # Not nessisary
+        "total_requested_mentorships"  : total_requested_mentorships, # Not nessisary 
         "total_terminated_mentorships" : SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT).count(),
+
         "pending_mentors"              : User.objects.filter(str_role='MentorPending').count(),
-        "mentees_reported"             : mentees_reported,
-        "mentors_reported"             : mentors_reported,
         "unresolved_reports"           : unresolved_reports,
     }
 

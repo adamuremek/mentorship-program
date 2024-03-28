@@ -496,7 +496,16 @@ class User(SVSUModelData,Model):
         sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
         
         #TODO: actually get this filtering
-        not_taken = "SELECT 1=1"
+        not_taken = f"""
+                        SELECT COUNT(*)=0 FROM 
+                                mentorship_program_app_mentee as ment 
+                            INNER JOIN 
+                                mentorship_program_app_mentor as m 
+                            ON 
+                                m.id = mentor_id 
+                            WHERE 
+                                ment.id = {self.id} AND m.id = tu.id
+                    """
 
 
         if self.is_mentor():
@@ -1162,7 +1171,6 @@ class User(SVSUModelData,Model):
             "FirstName": self.str_first_name,
             "LastName": self.str_last_name,
             "PhoneNumber": self.str_phone_number,
-            "DateOfBirth": self.cls_date_of_birth,
             "Gender": self.str_gender,
             "PreferredPronouns": self.str_preferred_pronouns,
             "str_bio" : self.str_bio
@@ -1171,6 +1179,13 @@ class User(SVSUModelData,Model):
 
 
         return user_info
+    
+    @staticmethod
+    def make_user_inactive(user :"User"):
+        user.bln_active = False
+        user.save()
+        if user.is_mentee():
+            pass
     
     # @property
     # def img_user_profile(self):

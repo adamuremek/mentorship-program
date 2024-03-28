@@ -696,6 +696,8 @@ def view_mentor_by_admin(req: HttpRequest):
         mentor = Mentor.objects.get(account_id=mentor_id)
         organization = mentor.organization.get(mentor=mentor).str_org_name
         interests = user.interests.filter(user=user)
+        phone = user.cls_email_address
+        email = user.str_phone_number
         
         user_interests = []
         for interest in interests:
@@ -707,6 +709,8 @@ def view_mentor_by_admin(req: HttpRequest):
                    "organization": organization,
                    "user_interests": user_interests,
                    "experience" : mentor.str_experience,
+                   "phone" : phone,
+                   "email" : email,
                    "user" : user.sanitize_black_properties()
                    }
         return HttpResponse(template.render(context, req))
@@ -1091,9 +1095,6 @@ def reset_request(req: HttpRequest):
 
 
 
-
-
-
 @csrf_exempt
 def reset_password(req : HttpRequest):
     '''
@@ -1256,7 +1257,7 @@ def add_remove_mentees_from_file(req : HttpRequest):
     added_list = []
     for mentee_email in added_mentees:
         added_list.append(WhitelistedEmails(str_email=mentee_email))
-    print("CUM ",added_list)
+        
     WhitelistedEmails.objects.bulk_create(added_list)
     WhitelistedEmails.objects.filter(str_email__in=removed_mentees).delete()
 

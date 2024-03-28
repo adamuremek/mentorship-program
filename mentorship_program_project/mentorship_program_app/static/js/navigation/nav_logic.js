@@ -65,7 +65,8 @@ function openMobileSidebar() {
 // close icon is clicked on the mobile navigation sidebar.
 function closeMobileSidebar() {
     const sidebar = document.querySelector('.mobile-sidebar');
-    sidebar.style.display = 'none';
+    if(sidebar)
+        sidebar.style.display = 'none';
 }
 
 // This routine checks the screen width, checking if it exceeds 800px. If true
