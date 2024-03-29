@@ -588,4 +588,24 @@ def test_login_page(request):
     template = loader.get_template("dev/test_login.html")
     return HttpResponse(template.render({},request))
 
+# sucessful saml logins redirect here
+# the built in django user will be logged in, but our user will not be, and it might not even exist yet (first time sign in)
+def saml_login(request):
+    #direct to /register/mentee if user doesn't exist else direct to /dashboard
+    user = request.user
 
+    # Invalid saml login. Probably cannot get to this page, but good to be sure
+    if not user:
+        #TODO: add a error message
+        return redirect('landing')
+    
+    if not User.objects.filter(cls_email_address=user.email).exists():
+        #TODO: somehow skip the pages that are unneeded/auto populate and lock fields
+        # First name, last name, email, and uid are in the user from saml login
+        return redirect('/register/mentee')
+
+    # User exists, log them in
+    user = User.objects.get(cls_email_address=user.email)
+    security.set_logged_in(request.session,user)
+    return redirect('/dashboard')
+    

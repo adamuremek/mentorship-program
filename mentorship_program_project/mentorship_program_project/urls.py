@@ -54,6 +54,7 @@ from mentorship_program_app import views
 #     path('account_creation_2_mentor/', views.account_creation_2_mentor, name='account_creation_2_mentor'),
 # ]
 urlpatterns = [
-    path('', include('mentorship_program_app.urls'))
+    path('', include('mentorship_program_app.urls')),
+    path('saml2/', include('djangosaml2.urls')),
 ]
 development_urls = []

@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv, find_dotenv
+import saml2
+import saml2.saml
+from os import path
 
 # Load .env file
 load_dotenv(find_dotenv())
@@ -53,6 +56,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'mentorship_program_app',
+
+    'djangosaml2',
 ]
 
 
@@ -65,7 +70,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
+    'djangosaml2.middleware.SamlSessionMiddleware',
 ]
+
 
 if DEBUG:
     # debug tool to help with query stuff
@@ -172,3 +179,148 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'wingsmentorapp@gmail.com'
 EMAIL_HOST_PASSWORD = 'rjrl aldq kjee ybfv'
 
+
+# For saml auth
+SESSION_COOKIE_SECURE = True
+SAML_SESSION_COOKIE_SAMESITE = 'None'
+
+AUTHENTICATION_BACKENDS = [
+    'djangosaml2.backends.Saml2Backend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+LOGIN_URL = '/saml/login'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+LOGIN_REDIRECT_URL = '/saml/login'
+
+SAML_CREATE_UNKNOWN_USER = True
+
+SAML_DJANGO_USER_MAIN_ATTRIBUTE = 'email'
+SAML_DJANGO_USER_MAIN_ATTRIBUTE_LOOKUP = '__iexact'
+ACS_DEFAULT_REDIERCT_URL = '/saml/login'
+
+SAML_ATTRIBUTE_MAPPING = {
+    'email': ('email', ),
+    'firstName': ('firstName', ),
+    'lastName': ('lastName', ),
+    'id': ('objectIdentifier', ),
+}
+
+SAML_CONFIG = {
+    # full path to the xmlsec1 binary programm
+  'xmlsec_binary': '/usr/bin/xmlsec1',
+
+  # your entity id, usually your subdomain plus the url to the metadata view
+  'entityid': f'{os.environ.get('DOMAIN')}/saml2/metadata/',
+
+  # directory with attribute mapping
+  #'attribute_map_dir': path.join(BASE_DIR, 'saml/attribute-maps'),
+
+  # Permits to have attributes not configured in attribute-mappings
+  # otherwise...without OID will be rejected
+  'allow_unknown_attributes': True,
+
+  # this block states what services we provide
+  'service': {
+      # we are just a lonely SP
+      'sp' : {
+          'name': 'WINGS Development',
+          'name_id_format': saml2.saml.NAMEID_FORMAT_TRANSIENT,
+
+          # For Okta add signed logout requests. Enable this:
+          # "logout_requests_signed": True,
+
+          'endpoints': {
+              # url and binding to the assetion consumer service view
+              # do not change the binding or service name
+              'assertion_consumer_service': [
+                  (f'{os.environ.get('DOMAIN')}/saml2/acs/',
+                   saml2.BINDING_HTTP_POST),
+                  ],
+              # url and binding to the single logout service view
+              # do not change the binding or service name
+              'single_logout_service': [
+                  # Disable next two lines for HTTP_REDIRECT for IDP's that only support HTTP_POST. Ex. Okta:
+                  (f'{os.environ.get('DOMAIN')}/saml2/ls/',
+                   saml2.BINDING_HTTP_REDIRECT),
+                  (f'{os.environ.get('DOMAIN')}/saml2/ls/post',
+                   saml2.BINDING_HTTP_POST),
+                  ],
+              },
+
+          'signing_algorithm':  saml2.xmldsig.SIG_RSA_SHA256,
+          'digest_algorithm':  saml2.xmldsig.DIGEST_SHA256,
+
+           # Mandates that the identity provider MUST authenticate the
+           # presenter directly rather than rely on a previous security context.
+          'force_authn': False,
+
+           # Enable AllowCreate in NameIDPolicy.
+          'name_id_format_allow_create': False,
+
+           # attributes that this project need to identify a user
+          'required_attributes': [
+                                  'ObjectIdentifier',
+                                  'Email',
+                                  'Given Name',
+                                  'Surname',
+                                  ],
+
+           # attributes that may be useful to have but not required
+          #'optional_attributes': ['eduPersonAffiliation'],
+
+          'want_response_signed': True,
+          'authn_requests_signed': True,
+          'logout_requests_signed': True,
+          # Indicates that Authentication Responses to this SP must
+          # be signed. If set to True, the SP will not consume
+          # any SAML Responses that are not signed.
+          'want_assertions_signed': True,
+
+          'only_use_keys_in_metadata': True,
+
+          # When set to true, the SP will consume unsolicited SAML
+          # Responses, i.e. SAML Responses for which it has not sent
+          # a respective SAML Authentication Request.
+          'allow_unsolicited': False,
+
+          # in this section the list of IdPs we talk to are defined
+          # This is not mandatory! All the IdP available in the metadata will be considered instead.
+          'idp': {
+              # we do not need a WAYF service since there is
+              # only an IdP defined here. This IdP should be
+              # present in our metadata
+
+              # the keys of this dictionary are entity ids
+              os.environ.get('SAML_IDP_ENTITY_ID'): {
+                  'single_sign_on_service': {
+                      saml2.BINDING_HTTP_REDIRECT: os.environ.get('SAML_IDP_SSO_URL'),
+                      },
+                  'single_logout_service': {
+                      saml2.BINDING_HTTP_POST: os.environ.get('SAML_IDP_SLO_URL'),
+                      }
+                  },
+              },
+          },
+      },
+
+  # where the remote metadata is stored, local, remote or mdq server.
+  # One metadatastore or many ...
+  'metadata': {
+      'local': [path.join(BASE_DIR, 'saml/remote_metadata.xml')],
+      },
+
+  # set to 1 to output debugging information
+  'debug': 1,
+
+  # Signing
+  'key_file': path.join(BASE_DIR, 'saml/private.key'),  # private part
+  'cert_file': path.join(BASE_DIR, 'saml/public.pem'),  # public part
+
+  # Encryption
+  'encryption_keypairs': [{
+      'key_file': path.join(BASE_DIR, 'saml/private.key'),  # private part
+      'cert_file': path.join(BASE_DIR, 'saml/public.pem'),  # public part
+  }],
+}
