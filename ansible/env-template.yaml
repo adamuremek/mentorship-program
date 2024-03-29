@@ -13,3 +13,6 @@ acme_email:
 absolute_project_path: "/home/user/mentorship-program"
 # space separated. Must start with http:// or https://
 csrf_trusted_origins:
+saml_idp_entity_id: 
+saml_idp_sso_url: 
+saml_idp_slo_url: 
