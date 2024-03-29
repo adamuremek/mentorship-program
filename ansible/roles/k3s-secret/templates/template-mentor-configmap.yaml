@@ -4,7 +4,7 @@ metadata:
   name: mentor-config
 data:
   DB: "{{ db }}"
-  DB_ENGINE: {{ db_engine }}
+  DB_ENGINE: "{{ db_engine }}"
   DJANGO_ALLOWED_HOSTS: "{{ django_allowed_hosts }}"
   DOMAIN: "{{ domain }}"
   CSRF_TRUSTED_ORIGINS: "{{ csrf_trusted_origins }}"
