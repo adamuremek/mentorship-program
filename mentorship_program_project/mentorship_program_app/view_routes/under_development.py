@@ -195,7 +195,7 @@ def register_mentor(req: HttpRequest):
         organization = None
         if(not Organization.objects.filter(str_org_name=req.POST["organization"]).exists()):
             organization = Organization.objects.create(str_org_name=req.POST["organization"])
-            organization.admins.add(pending_mentor_object)
+            organization.admin_mentor = pending_mentor_object
             organization.save()
 
         else:
@@ -1404,6 +1404,7 @@ def add_remove_mentees_from_file(req : HttpRequest):
     Authors
     -------
     - Andrew P
+    - Adam U.
     '''
     list_of_mentees = json.loads(req.body)["list_of_mentees"]
     banana_split = list_of_mentees.split(";")
@@ -1418,3 +1419,21 @@ def add_remove_mentees_from_file(req : HttpRequest):
     WhitelistedEmails.objects.filter(str_email__in=removed_mentees).delete()
 
     return redirect("/available_mentees")
+
+
+def promote_org_admin(req : HttpRequest, promoted_mentor_id):
+    user_from_session = User.from_session(req.session)
+    mentor_account = Mentor.objects.get(id=user_from_session.id)
+    current_org_admin = Organization.objects.get(mentor=mentor_account).admin_mentor
+    is_org_admin = current_org_admin == mentor_account
+    if not user_from_session.is_super_admin() or not is_org_admin:
+        return bad_request_400("Permission denied")
+    
+
+    new_org_admin= Mentor.objects.get(id=promoted_mentor_id)
+    org = Organization.objects.get(mentor=new_org_admin)
+    org.admin_mentor = new_org_admin
+    org.save()
+
+    return HttpResponse("Org Admin updated")
+    
