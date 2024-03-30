@@ -1195,12 +1195,14 @@ class User(SVSUModelData,Model):
             Mentee.objects.bulk_update(mentees_for_mentor, ['mentor'])
         user.save()
 
+    @staticmethod
     def reactivate_user(user: "User"):
         if user.bln_account_disabled:
             return "Account cannot be reactivated, user is banned"
         user.bln_active = True
         user.save()
-
+        
+    @staticmethod
     def disable_user(user:"User"):
         user.bln_account_disabled = True
         user.save()

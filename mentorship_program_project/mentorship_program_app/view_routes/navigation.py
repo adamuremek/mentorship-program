@@ -94,7 +94,8 @@ def dashboard(req):
         ).annotate(
                 is_requested_by_session=Subquery(requests_count)
                 ).filter(
-            has_maxed_mentees=False,  # Exclude mentors who have maxed out their mentee slots
+            has_maxed_mentees=False,
+              bln_active = True,  # Exclude mentors who have maxed out their mentee slots
         ).filter(
             str_role='Mentor'
         ).select_related(
@@ -124,6 +125,7 @@ def dashboard(req):
 
         card_data = User.objects.filter(
             str_role='Mentee',
+            bln_active = True,
             mentee__mentor=None
         ).prefetch_related(
             'interests'  # Prefetch the interests of the associated User
@@ -179,7 +181,7 @@ def dashboard(req):
     }
 
     
-    print("Time for query: ", get_runtime()-start_time )
+    print("Time for query: ", get_runtime()-start_time)
     render = template.render(context, req)
 
     print("Time: " ,get_runtime()-start_time)

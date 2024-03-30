@@ -798,6 +798,10 @@ def universalProfile(req : HttpRequest, user_id : int):
     except ObjectDoesNotExist:
         return bad_request_400("user page does not exist")
 
+    # if the users account is disabled, you can't view their profile
+    if not profile_page_owner.bln_active:
+        return bad_request_400("user page does not exist")
+
     # Load the template for the profile page
     template = loader.get_template('group_view/combined_views.html')
     signed_in_user = User.from_session(req.session)
@@ -901,11 +905,15 @@ def reject_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
 def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
     session_user = User.from_session(req.session)
     mentor_account = None
+    mentee_account = None
     try:
         mentor_account = User.objects.get(id=mentor_user_account_id)
+        mentee_account = User.objects.get(id=mentee_user_account_id)
     except ObjectDoesNotExist:
         return bad_request_400("mentor id is invalid!")
 
+    if not mentor_account.bln_active or not mentee_account.bln_active:
+        return bad_request_400("User is no longer active")
     
     if session_user.is_super_admin() or session_user.id == mentee_user_account_id or session_user.id == mentor_user_account_id:
         try:
@@ -1095,6 +1103,9 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
         response = HttpResponse(json.dumps({"result":"unable to create request!"}))
         response.status_code = 400
         return response
+    
+    if not mentor_account.bln_active or not mentee_account.bln_active:
+        return bad_request_400("User is no longer active")
 
     mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id)
 
@@ -1145,7 +1156,8 @@ def change_password(req : HttpRequest):
 
 
 def deactivate_your_own_account(req : HttpRequest):
-    pass
+    User.make_user_inactive(User.objects.get(id=User.from_session(req.session).id))
+    return redirect('/logout')
 
 
 @csrf_exempt
