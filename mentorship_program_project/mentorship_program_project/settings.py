@@ -212,7 +212,7 @@ SAML_CONFIG = {
   'xmlsec_binary': '/usr/bin/xmlsec1',
 
   # your entity id, usually your subdomain plus the url to the metadata view
-  'entityid': f'{os.environ.get('DOMAIN')}/saml2/metadata/',
+  'entityid': f'http://{os.environ.get('DOMAIN')}/saml2/metadata/',
 
   # directory with attribute mapping
   #'attribute_map_dir': path.join(BASE_DIR, 'saml/attribute-maps'),
@@ -235,16 +235,16 @@ SAML_CONFIG = {
               # url and binding to the assetion consumer service view
               # do not change the binding or service name
               'assertion_consumer_service': [
-                  (f'{os.environ.get('DOMAIN')}/saml2/acs/',
+                  (f'http://{os.environ.get('DOMAIN')}/saml2/acs/',
                    saml2.BINDING_HTTP_POST),
                   ],
               # url and binding to the single logout service view
               # do not change the binding or service name
               'single_logout_service': [
                   # Disable next two lines for HTTP_REDIRECT for IDP's that only support HTTP_POST. Ex. Okta:
-                  (f'{os.environ.get('DOMAIN')}/saml2/ls/',
+                  (f'http://{os.environ.get('DOMAIN')}/saml2/ls/',
                    saml2.BINDING_HTTP_REDIRECT),
-                  (f'{os.environ.get('DOMAIN')}/saml2/ls/post',
+                  (f'http://{os.environ.get('DOMAIN')}/saml2/ls/post',
                    saml2.BINDING_HTTP_POST),
                   ],
               },
