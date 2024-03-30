@@ -591,7 +591,8 @@ def test_login_page(request):
 # sucessful saml logins redirect here
 # the built in django user will be logged in, but our user will not be, and it might not even exist yet (first time sign in)
 def saml_login(request):
-    #direct to /register/mentee if user doesn't exist else direct to /dashboard
+    # TODO: this is just testing code. Replace this with something decent
+
     user = request.user
 
     # Invalid saml login. Probably cannot get to this page, but good to be sure

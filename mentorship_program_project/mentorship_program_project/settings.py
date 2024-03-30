@@ -189,7 +189,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-LOGIN_URL = '/saml/login'
+LOGIN_URL = '/saml2/login'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 LOGIN_REDIRECT_URL = '/saml/login'
