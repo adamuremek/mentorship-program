@@ -1219,6 +1219,10 @@ class User(SVSUModelData,Model):
             user.mentor = None
             MentorshipRequest.objects.filter(mentee_id=user.id).delete()
         if user.is_mentor():
+            mentor_account = Mentor.objects.get(account_id=user.id)
+            if mentor_account.is_admin_of_organization(mentor_account.organization):
+                Organization.find_new_org_admin()
+
             MentorshipRequest.objects.filter(mentor_id=user.id).delete()
             mentees_for_mentor = Mentee.objects.filter(mentor_id=user.id)
             for mentee in mentees_for_mentor:
@@ -1528,6 +1532,19 @@ class Organization(SVSUModelData,Model):
 
     admin_mentor = OneToOneField('Mentor', related_name='administered_organizations', on_delete=models.CASCADE, null=True) 
 
+
+    @staticmethod
+    def find_new_org_admin(org_id : int):
+        # this might not work tbh
+        organization = Organization.objects.get(id=org_id)
+        # get all mentors within an organziation and order them by id
+        mentors = organization.mentor_set.all().order_by('id') 
+        # get the second oldest mentor in an org, who will become the new org admin
+        second_oldest_mentor = mentors[1:2].first()
+        # assign them as the new org admin
+        organization.admin_mentor = second_oldest_mentor
+        organization.save()
+
 class Mentor(SVSUModelData,Model):
     """
     Description
@@ -1594,11 +1611,10 @@ class Mentor(SVSUModelData,Model):
         """
         returns true if the given user administers the given organization
         """
-        try:
-            org.admins.get(id=self.id)
+        if org.admin_mentor.id==self.id:
             return True
-        except ObjectDoesNotExist:
-            return False
+        return False
+
 
     def get_shared_organizations(self,other : 'Mentor')->['Organization']:
         """
