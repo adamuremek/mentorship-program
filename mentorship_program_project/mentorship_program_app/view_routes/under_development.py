@@ -466,10 +466,8 @@ def disable_user(req:HttpRequest):
     
     # Get the user and set their disabled field to True
     user = User.objects.get(id=id)
-    user.bln_account_disabled = True
-    
-    # Save changes to user object
-    user.save()
+    User.disable_user(user)
+
     if(user.str_role == "Mentee"):
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
     else:
@@ -1422,14 +1420,41 @@ def add_remove_mentees_from_file(req : HttpRequest):
 
 
 def promote_org_admin(req : HttpRequest, promoted_mentor_id):
+    '''
+    Description
+    -----------
+    Function to promote a new mentor to the position of organization admin. This action can be performed by a super admin or the current organization admin. It updates the designated organization's admin to the newly promoted mentor.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object, which should carry the session of the currently logged-in user.
+    - promoted_mentor_id : int
+        The ID of the mentor who is to be promoted to the organization admin.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome. If the operation is successful, it returns a confirmation message. If the operation fails due to permission issues, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Andrew P.
+    - Adam U.
+    '''
+
+    # gets the user from the session to check if theyre a super admin
     user_from_session = User.from_session(req.session)
-    mentor_account = Mentor.objects.get(id=user_from_session.id)
-    current_org_admin = Organization.objects.get(mentor=mentor_account).admin_mentor
-    is_org_admin = current_org_admin == mentor_account
+    is_org_admin = False
+    # if user is not super admin, check if they're the org admin for the org being changed
+    if not user_from_session.is_super_admin():
+        mentor_account = Mentor.objects.get(id=user_from_session.id)
+        current_org_admin = Organization.objects.get(mentor=mentor_account).admin_mentor
+        is_org_admin = current_org_admin == mentor_account
     if not user_from_session.is_super_admin() or not is_org_admin:
         return bad_request_400("Permission denied")
     
-
+    # promote them to super admin
     new_org_admin= Mentor.objects.get(id=promoted_mentor_id)
     org = Organization.objects.get(mentor=new_org_admin)
     org.admin_mentor = new_org_admin
@@ -1437,3 +1462,97 @@ def promote_org_admin(req : HttpRequest, promoted_mentor_id):
 
     return HttpResponse("Org Admin updated")
     
+
+def edit_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
+    '''
+    Description
+    -----------
+    Function to assign a new organization to a mentor. This operation can only be performed by a super admin. It updates the organization associated with a specified mentor to a new organization based on the provided organization ID.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the session of the currently logged-in user. Used to check if the user has super admin privileges.
+    - mentor_id : int
+        The ID of the mentor whose organization affiliation is to be edited.
+    - org_id : int
+        The ID of the new organization to which the mentor will be assigned.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome of the operation. If successful, it confirms that the organization was updated. If the operation fails due to lack of permissions, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Andrew P.
+    '''
+    user_from_session = User.from_session(req.session)
+    if not user_from_session.is_super_admin():
+        return bad_request_400("Permission denied")
+    
+
+    #TODO next of kin for org admin
+    mentor_account = Mentor.objects.get(id=mentor_id)
+    new_org = Organization.objects.get(id=org_id)
+    mentor_account.organization = new_org
+    mentor_account.save()
+    return HttpResponse("Organization updated")
+
+
+def admin_create_new_org(req : HttpRequest, org_name : str):
+    '''
+    Description
+    -----------
+    Function to create a new organization. This action is restricted to super admins only. It creates an organization with the given name.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the session of the currently logged-in user. This is used to verify if the user has super admin privileges.
+    - org_name : str
+        The name of the new organization to be created.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome of the operation. If the operation is successful, it confirms that the organization was created. If the operation fails due to lack of permissions, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Andrew P.
+    '''
+    user_from_session = User.from_session(req.session)
+    if not user_from_session.is_super_admin():
+        return bad_request_400("Permission denied")
+    Organization.objects.create(str_org_name=org_name)
+    return HttpResponse("Organization created")
+
+def admin_delete_org(req: HttpRequest, org_id: int):
+    '''
+    Description
+    -----------
+    Function to delete an existing organization. This operation is restricted to super admins only, ensuring that only authorized users can remove organizations from the system. It deletes the organization corresponding to the provided organization ID.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the session of the currently logged-in user. Used to verify if the user possesses super admin privileges.
+    - org_id : int
+        The unique identifier of the organization to be deleted.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome of the operation. If successful, it confirms that the organization was deleted. If the operation fails due to lack of permissions or if the specified organization does not exist, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Andrew P.
+    '''
+    user_from_session = User.from_session(req.session)
+    if not user_from_session.is_super_admin():
+        return bad_request_400("Permission denied")
+    
+    Organization.objects.get(id=org_id).delete()
+    return HttpResponse("Organization deleted")
