@@ -760,27 +760,65 @@ def group_view(req: HttpRequest):
 
 @security.Decorators.require_login(bad_request_400)
 def universalProfile(req : HttpRequest, user_id : int):
+    '''
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object.
+    - user_id : int
+        The unique identifier of the user whose profile is to be displayed.
+
+    Returns
+    -------
+    HttpResponse
+        Renders and returns the universal profile page with context data including the user's details, interests, mentorship requests, and notes.
+
+    Raises
+    ------
+    - ObjectDoesNotExist
+        If no User object with the given `user_id` exists.
+
+    Example Usage
+    -------------
+    universalProfile(request, 42)
+    Displays the profile page for the user with id=42.
+
+    Authors
+    -------
+    - Andrew P
+    - Logan Z
+    - Adam U
+    - Jordan A
+'''
+   
     profile_page_owner = None
+    # Attempt to retrieve the profile page owner from the database
     try:
         profile_page_owner = User.objects.get(id=user_id)
     except ObjectDoesNotExist:
         return bad_request_400("user page does not exist")
 
+    # Load the template for the profile page
     template = loader.get_template('group_view/combined_views.html')
     signed_in_user = User.from_session(req.session)
+    signed_in_user = User.from_session(req.session)
+
     signed_in_user.has_requested_this_user = signed_in_user.has_requested_user(profile_page_owner)
   
     
     # the user object for the page owner
     page_owner_user = User.objects.get(id=user_id)
-
+    # Determine the role-based object for the page owner (mentee or mentor)
     page_owner_go_fuck_yourself = getattr(page_owner_user, 'mentee' if page_owner_user.is_mentee else 'mentor', None)
+    # Fetch interests linked to the user
     interests = page_owner_user.interests.filter(user=page_owner_user)
     is_page_owner = signed_in_user == page_owner_user
+    # Compile a list of user interests for the template context
     user_interests = []
     for interest in interests:
         user_interests.append(interest)
 
+    # all interests (used for editing profile)
     all_interests = Interest.objects.all()
     pendingList = []
     notes = None
@@ -961,6 +999,40 @@ def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_us
 
 @security.Decorators.require_login(bad_request_400)
 def delete_mentorship(req: HttpRequest, mentee_user_account_id):
+    '''
+    Description
+    -----------
+    Function to dissociate a mentee from their current mentor based on the mentee's account ID. 
+    It sets the `mentor_id` of the specified Mentee object to None, thereby removing the mentor-mentee relationship.
+    After the operation, it redirects the user to the previous page.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing all details of the request.
+    - mentee_user_account_id : int
+        The account ID of the mentee whose mentorship is to be deleted.
+
+    Returns
+    -------
+    HttpResponseRedirect
+        Redirects the user to the page they came from, as indicated by the HTTP_REFERER header, 
+        or to the homepage if the referrer is not available.
+
+    Example Usage
+    -------------
+    Assuming a mentee with an account ID of 123 exists and is currently associated with a mentor:
+
+        >>> from django.http import HttpRequest
+        >>> request = HttpRequest()
+        >>> delete_mentorship(request, 123)
+
+        This will remove the mentee's current mentor association and redirect the user to the referring page.
+
+    Authors
+    -------
+    - Andrew P
+'''
     print(mentee_user_account_id)
     mentee = Mentee.objects.get(account_id=mentee_user_account_id)
     mentee.mentor_id = None
@@ -1036,12 +1108,33 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
 
 
 def change_password(req : HttpRequest):
+    '''
+    Description
+    -----------
+    Function to change the password of the currently logged-in user. It validates the old password, generates a new salt, hashes the new password with this salt, updates the user's password details, and saves these changes to the database.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the old and new passwords submitted through a form.
+
+    Returns
+    -------
+    HttpResponse
+        Renders the settings page with a message indicating whether the password was successfully updated or if the old password was invalid.
+
+    Authors
+    -------
+    - Andrew P
+    '''
+    # Retrieve old and new passwords from POST request
     old_password = req.POST["old-password"]
     new_password = req.POST["new-password"]
     user = User.from_session(req.session)
+    # Check if the old password is valid
     if not user.check_valid_password(old_password): 
            return render(req, 'settings.html', {'message':"Invalid Password"})
-    
+    # Hash the new password with the newly generated salt
     generated_user_salt = security.generate_salt()
     user.str_password_hash = security.hash_password(new_password, generated_user_salt)
     user.str_password_salt = generated_user_salt
@@ -1049,6 +1142,10 @@ def change_password(req : HttpRequest):
 
     # redirect to the page the request came from
     return render(req, 'settings.html', {'message':"Password Updated"})
+
+
+def deactivate_your_own_account(req : HttpRequest):
+    pass
 
 
 @csrf_exempt
@@ -1187,26 +1284,52 @@ def check_email_for_password_reset(request):
 
 
 def available_mentees(req: HttpRequest):
-    template = loader.get_template('admin/available_mentees.html')
-    added_mentees = None
-    removed_mentees = None
-    context = {}
+    '''
+    Loads the page for the admin to upload a file to add/remove mentees who are eligible
 
+    - Andrew P
+    '''
+    template = loader.get_template('admin/available_mentees.html')
+    context = {}
     return HttpResponse(template.render(context,req))
 
-
 def process_file(req: HttpRequest):
+    '''
+    Description
+    -----------
+    Function to process an uploaded file containing email addresses, first names, and last names separated by tabs. It identifies emails that are both whitelisted and present in the file, emails in the file not whitelisted (considered as 'added users'), and whitelisted emails not found in the file (considered as 'removed users'). The function renders a template displaying these categorized emails and additional information.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object, which can carry the uploaded file in a POST request or handle a GET request to initially render the form.
+
+    Returns
+    -------
+    HttpResponse
+        Renders an HTML template with context data that includes lists of added, removed, and already whitelisted users found in the uploaded file, along with the file name and any error messages.
+
+    Authors
+    -------
+    - Andrew P
+    '''
+
     template = loader.get_template('admin/available_mentees.html')
     
+    # its a get request the first time you load the page
     if req.method == "GET":
         context = {'added': [], 'removed': [], 'file_name': ''}
         return HttpResponse(template.render(context, req))
-
+    # after you upload a file, it'll be a post request and all the fun stuff gets to happen
     if req.method == 'POST' and 'fileUpload' in req.FILES:
         imported_file = req.FILES['fileUpload']
+        # users whos accounts are still valid
         whitelisted_and_present = []
+        # users to be added
         added_users = []
+        # all the emails that exist already
         all_whitelisted_emails = set(WhitelistedEmails.objects.values_list('str_email', flat=True))
+        # set of all the emails and names in the file
         emails_in_file = set()
         try:
             # Read the content of the uploaded file
@@ -1219,15 +1342,17 @@ def process_file(req: HttpRequest):
                 email, first_name, last_name = parts[0], parts[1], parts[2]
                 user_tuple = (email, first_name, last_name)
                 emails_in_file.add(user_tuple)
-
+                # we kinda ignore these
                 if email in all_whitelisted_emails:
                     whitelisted_and_present.append(user_tuple)
+                # these users could be added if admin chooses
                 else:
                     added_users.append(user_tuple)
 
             
 
             # Determine which whitelisted emails were not found in the file
+            # the admin can chose to remove these users
             removed_emails = all_whitelisted_emails - {email for email, _, _ in emails_in_file}
             removed_users = [(email, '', '') for email in removed_emails]  
 
@@ -1249,6 +1374,25 @@ def process_file(req: HttpRequest):
 
 
 def add_remove_mentees_from_file(req : HttpRequest):
+    '''
+    Description
+    -----------
+    Function to add and remove mentee emails from a whitelist based on a provided list within a single HttpRequest. The request contains a string of mentee emails to be added or removed, formatted and separated by specific delimiters. Emails to be added are separated from those to be removed by a semicolon (";"), and individual emails within those groups are separated by commas (",").
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object carrying the payload with the list of mentees' emails.
+
+    Returns
+    -------
+    HttpResponseRedirect
+        Redirects to the "/available_mentees" URL after processing the list.
+
+    Authors
+    -------
+    - Andrew P
+    '''
     list_of_mentees = json.loads(req.body)["list_of_mentees"]
     banana_split = list_of_mentees.split(";")
     added_mentees = banana_split[0].split(",") if len(banana_split) > 0 else []
