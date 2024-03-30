@@ -51,7 +51,7 @@ def get_random_interests(size : int)->[Interest]:
 fills the database with randomly generated users ONLY if in 
 debug mode
 """
-def populate_database_with_random_users(amount  : int = 10)->None:
+def populate_database_with_random_users(amount  : int = 900)->None:
     print_debug("[random user generator] ensuring existence of interests...")
     populate_database_with_interests()
 

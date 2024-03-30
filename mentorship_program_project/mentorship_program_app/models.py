@@ -440,6 +440,19 @@ class User(SVSUModelData,Model):
     - from_session: Gets a user object using a session
     - check_valid_login: Checks if a given email/pass combination is correct
 
+    Notes
+    -----
+    A lot of the query functions ping the database with a query and then cache, that means
+    if you use them in a for loop the app gez slow. So to avoid that make sure your prefetching data you are going to use
+    in user query sets
+
+    see:
+    https://docs.djangoproject.com/en/5.0/ref/models/querysets/#prefetch-related
+
+    for info on how prefetch related works and how it can be used, 
+    also the dashboard function in navigation.py is an example for how this prefetch can be 
+    used to optimize performance
+
     Magic Functions
     -------------
     (None)
@@ -456,11 +469,29 @@ class User(SVSUModelData,Model):
         self.cache = security.Decorators.FunctionCache()
         
         #decorate cachable functions on the init level so python understands when to remove
-        #the cached data
-        self.is_mentee = self.cache.create_cached_function(self.is_mentee)
-        self.is_mentor = self.cache.create_cached_function(self.is_mentor)
+        #the cached data, see security.py for how function caching works :)
+
+        #dontya just love functional programing :)
+        #fr tho we should prolly get a way to pass an array for this
+        c = self.cache.create_cached_function
+        self.is_mentee = c(self.is_mentee)
+        self.is_mentor = c(self.is_mentor)
+        self.is_an_org_admin = c(self.is_an_org_admin)
+        self.is_super_admin = c(self.is_super_admin)
 
 
+
+    def is_an_org_admin(self)->bool: #:)
+        """
+        Description
+        -----------
+        returns true if the given user is an admin of ANY organization
+
+        Notes
+        _____
+
+        """
+        return self.is_mentor() and self.mentor.administered_organizations.Count() > 0
 
     @property 
     def str_full_name(self):

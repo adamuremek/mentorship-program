@@ -35,6 +35,7 @@ class Command(BaseCommand):
         password_plain_text = self.prompt_password_plain_text()
 
         admin_user_account = User.create_from_plain_text_and_email(password_plain_text, email)
+        admin_user_account = User.Role.ADMIN
         admin_user_account.save()
 
         super_admin_entry = SuperAdminEntry.objects.create(user_account=admin_user_account,bool_enabled=True)
