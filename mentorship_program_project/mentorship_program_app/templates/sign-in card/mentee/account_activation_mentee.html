@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_corner %}
-    <button class="sign_in_top_left_element">X</button>
+    <button class="sign_in_top_left_element" id="modal-exit">X</button>
 {% endblock %}
 
 {% block card_head %}
@@ -20,11 +20,11 @@
 
         <div class="sign-in-card-element">
             <p class="sign-in-card-text-normal">Email:</p>
-            <input type="email" placeholder="e.g. john.doe@svsu.edu">
+            <input type="email" id="email-txt" placeholder="e.g. john.doe@svsu.edu">
         </div>
 
         <div class="sign-in-card-element">
-            <button class="sign-in-card-option-button">Send Activation Email</button>
+            <button class="sign-in-card-option-button" id="email-btn">Send Activation Email</button>
         </div>
     </div>
 {% endblock %}

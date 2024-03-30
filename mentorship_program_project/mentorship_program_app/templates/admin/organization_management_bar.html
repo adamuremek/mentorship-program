@@ -1,0 +1,39 @@
+<div class="organization_management_bar_container">
+    <div class="organization_management_bar">
+        <div id="organization_account">
+            {{ organization.id }}
+        </div>
+
+        <p class="organization_management_bar_name" id="admin_user_management_small_text">
+            {{ organization.name }}
+        </p>
+        
+        {% if user_admin_flag %}
+            <button class="admin_user_management_word_button_active" id="remove_organization_button">
+                <p id="admin_user_management_small_text">
+                    REMOVE
+                </p>
+            </button>
+        {% endif %}
+    </div>
+
+    <div id="admin_list">
+        <p id="admin_user_management_small_text">
+            Admins
+        </p>
+        {% for mentor in organization.admin_list %}
+            <hr>
+            {% include 'admin/mentor_management_bar.html' %}
+        {% endfor %}
+    </div>
+
+    <div id="mentor_list">
+        <p id="admin_user_management_small_text">
+            Mentors
+        </p>
+        {% for mentor in organization.mentor_list %}
+            <hr>
+            {% include 'admin/mentor_management_bar.html' %}
+        {% endfor %}
+    </div>
+</div>

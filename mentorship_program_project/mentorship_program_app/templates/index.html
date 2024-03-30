@@ -3,20 +3,22 @@
 
 {% load static %}
 
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/BLOCK - PANTONE 187C.png' %}" />
+
   <title>{% block title %}{% endblock %}</title>
   <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
   {% block style %}{% endblock %}
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo"><img src="{% static 'images/svsu_header.png' %}" alt="SVSU Logo"></div>
-        </nav>
-    </header>
+    {% include 'header.html' %}
+
+    <div id="loading-overlay">
+        <div class="loading"></div>
+    </div>
 
 	<main>
         {% block main_content %}{% endblock %}
@@ -26,6 +28,7 @@
         <p>&copy;<span id="current-year"></span> Saginaw Valley State University</p>
     </footer>
 
+<script src='{% static "js/navigation/nav_logic.js" %}'></script>
 </body>
 <!-- Script to Append Current Year to bottom of page -->
 <script>
@@ -33,6 +36,37 @@
         const currentYear = new Date().getFullYear();
         document.getElementById('current-year').textContent = currentYear;
     });
+
+    const load_overlay = document.getElementById('loading-overlay')
+    
+    if(load_overlay)
+    {
+        window.onbeforeunload = () => {
+            load_overlay.style.display = 'block'
+            return undefined
+        };
+
+        window.onload = () => {
+            load_overlay.style.display = 'none'
+            return undefined
+        }
+
+        window.addEventListener('pageshow', () => {
+            load_overlay.style.display = 'none'
+            return undefined
+        });
+
+        
+    }
+</script>
+
+<!-- script used to check if light mode is turned on -->
+<script>
+    theme = localStorage.getItem('theme');
+
+    if (theme) {
+        document.body.classList.add(theme);
+    }
 </script>
 </html>
 

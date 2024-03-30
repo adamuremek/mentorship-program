@@ -1,0 +1,47 @@
+.hero-container {
+    height: 90%;
+}
+
+@media screen and (min-width: 900px) {
+    .hero {
+        width: 60%;
+    }
+
+    .info {
+        padding-top: 5em;
+        padding-bottom: 5em;
+    }
+
+    .info h1 {
+        font-size: 4em;
+        text-align: center;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .hero {
+        width: 100%;
+    }
+
+    .info {
+        padding-top: 4em;
+        padding-bottom: 4em;
+    }
+
+    .info h1 {
+        font-size: 3em;
+        text-align: center;
+    }
+}
+
+.section {
+    margin: auto;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 1em;
+    margin-top: 1em;
+}
+
+.section h1 {
+    padding-bottom: 0.5em;
+}

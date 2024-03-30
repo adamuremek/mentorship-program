@@ -1,0 +1,40 @@
+<div class="sign-in-card-content">
+    <div class="sign-in-card-element">
+        <p class="sign-in-card-text-normal">Company:</p>
+        <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp." maxlength="100">
+        <p id="frm-company-warning-message" class="error-message"></p>
+    </div>
+
+    <div class="sign-in-card-element-horizontal">
+        <div>
+            <p class="sign-in-card-text-normal">Company Type:</p>
+            <select id="select-company-type" name="company-type">
+                <option></option>
+                {% for companytype in companytypelist %}
+                    <option>{{companytype}}</option>
+                {% endfor %}
+            </select>
+            <p id="frm-company-type-warning-message" class="error-message"></p>
+        </div>
+        <div>
+            <p class="sign-in-card-text-normal">Experience:</p>
+            <select id="select-experience" name="experience">
+                <option value=""></option>
+                {% for experience in experiencelist %}
+                    <option value="{{experience}}">{{experience}}</option>
+                {% endfor %}
+            </select>
+            <p id="frm-experience-warning-message" class="error-message"></p>
+        </div>
+    </div>
+
+    <div class="sign-in-card-element">
+        <p class="sign-in-card-text-normal">Job Title:</p>
+        <input type="text" id="jobTitle" name="jobTitle" placeholder="e.g. Software Developer" maxlength="100">
+        <p id="frm-job-title-warning-message" class="error-message"></p>
+    </div>
+
+    <div class="sign-in-card-element">
+        <button type="button" class="sign-in-card-option-button">Next</button>
+    </div>
+</div>

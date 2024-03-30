@@ -3,13 +3,11 @@
 {% load static %}
 
 {% block title %}
-    TESTING
+    Sign Up Mentee TESTING
 {% endblock %}
 
 {% block card_corner %}
-    <form action="">
-        <button type="submit" class="sign_in_top_left_element">X</button>
-    </form>
+    <button type="button" class="sign_in_top_left_element" id="modal-exit" onclick="window.location.href = '/role_selection'">X</button>
 {% endblock %}
 
 {% block card_head %}
@@ -17,14 +15,15 @@
 {% endblock %}
 
 {% block card_content %}
-    <form action="/register-test/" method="POST">
+    <form class="sign-in-card-form" id="register-form-mentee" action="/register-mentee-test/" method="POST">
         {% csrf_token %}
-        {% include 'sign-in card/mentee/account_creation_1_mentee.html' %}
-        {% include 'sign-in card/mentee/account_creation_2_mentee.html' %}
-        {% include 'sign-in card/mentee/account_creation_3_mentee.html' %}
-        {% include 'sign-in card/mentee/account_creation_4_mentee.html' %}
+        {% include 'sign-in card/shared/account_creation_name_pronoun.html' %}
+        {% include 'sign-in card/shared/account_creation_email_password.html' %}
+        {% include 'sign-in card/shared/account_creation_interests.html' %}
+        {% include 'sign-in card/shared/account_creation_user_agreement.html' %}
     </form>
    
+    <script>var is_student = true</script>
     <script src="{% static 'js/dynamic_card.js' %}"></script>
     <script src="{% static 'js/validation.js' %}"></script>
 {% endblock %}

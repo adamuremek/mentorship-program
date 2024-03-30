@@ -6,15 +6,24 @@
 
 {% block main_content %}
 
+<!-- <form action="/group_view" method="POST">
+	{% csrf_token %}
+	<input type="hidden" name="mentor_id" value="{{user.id}}" />
+	<input type="submit" value="Approve" />
+</form> -->
+
+
 <div class="card">
+	<!-- <form action="{% if user.is_mentee %}/mentee_profile{% else %}/group_view{% endif %}" method="POST"> -->
+	<form action="/universal_profile/{{user.id}}" method="POST">
+    	{% csrf_token %}
+    	<input type="hidden" name="id" value="{{ user.id }}" />
+    	<input type="image" class="card-profile-image" alt="Login" src="{{ user.profile_img.img.url }}" />
+	</form>
+	
+    <div class="card-gray-part">		  
 
-	<div class="card-line-divider-1"></div>
-
-    <div class="card-gray-part">
-
-		  <img class="card-profile-image" src="{{ user.imgUserProfile.url }}"/>
-
-		  <p class="card-name">{{ user.strFirstName }}</p>
+		  <p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
 
         <div class="card-line-divider-2"></div>
 
@@ -26,9 +35,30 @@
 			  {% endfor %}
 		  </div>
 
-        <div class="card-button">Request Mentee</div>
+		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
+                              {% if user.is_requested_by_session %}
+                              card-button-cancel
+                              {% elif session_user.has_maxed_requests_as_mentee %}
+                              card-button-disabled
+		                        {% endif %}
+		  ">
+		  {% if not user.is_requested_by_session %}
+			  {% if role.value == 'Mentee' %}
+              {% if session_user.has_maxed_requests_as_mentee %}
+                  Maximum Request Amount Reached
+              {% else %}
+                  Request Mentor
+              {% endif %}
+			  {% else %}
+				Request Mentee
+			  {% endif %}
+		  {% else %}
+        Cancel Request
+		  {% endif %}
+
+			
+			</div>
     </div>
-    
 </div>
 
 {% endblock %}

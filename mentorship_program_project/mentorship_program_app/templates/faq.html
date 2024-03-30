@@ -1,0 +1,83 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+FAQ
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/faq.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<section class="hero">
+    <div class="hero-container">
+        <div class="info">
+            <h1>Mentorship Program FAQs</h1>
+        </div>
+        <div class="section">
+            <h1>What is the Computer Science and Information Systems Mentorship System?</h1>
+            <div class="answer">
+                The mentorship system is an application that can be used to establish connections with 
+                SVSU CSIS students and professionals working with the Industrial Advisory Board in our area.
+            </div>
+        </div>
+        <div class="section">
+            <h1>What is the Industrial Advisory Board?</h1>
+            <div class="answer">
+                The Industrial Advisory Board (IAB) is an organization that provides input and feedback on the academic 
+                programs offered by the SVSU CSIS department. Members of the IAB include Dow, Nexteer, Meta, 
+                Auto-Owners, Saginaw County, Dice Technoligies, Samsa and others.
+            </div>
+        </div>
+        <div class="section">
+            <h1>What is the goal of the Mentorship System?</h1>
+            <div class="answer">
+                The mentorship system was created so that current SVSU students can talk with mentors who work
+                in our field with the goal of helping students make informed decisions about their future career 
+                goals prior to graduation. Additionally, mentors will be there to support students through their 
+                undergraduate studies and difficulties that they may encounter.
+            </div>
+        </div>
+        <div class="section">
+            <h1>What is a mentee?</h1>
+            <div class="answer">
+                A mentee is a current CSIS student enrolled in the mentorship system that can get a mentor to 
+                assist them with information about working experiences at local companies.
+            </div>
+        </div>
+        <div class="section">
+            <h1>What is a mentor?</h1>
+            <div class="answer">
+                A mentor is an employee working for an IAB company that a mentee can talk to and gain skills, 
+                information, or experience from.
+            </div>
+        </div>
+        <div class="section">
+            <h1>How do I get a mentee/mentor?</h1>
+            <div class="answer">
+                The system uses an algorithm based on shared interests and compatibility to pair mentors with mentees.
+                The system will also allow mentors and mentees to search for mentorship opportunities based on company.
+            </div>
+        </div>
+        <div class="section">
+            <h1>How do I contact my mentee/mentor?</h1>
+            <div class="answer">
+                Contact can be established through a listed email or other channels if preferred once the 
+                mentee/mentor relationship has begun.
+            </div>
+        </div>
+        <div class="section">
+            <h1>Can I switch to a different mentor?</h1>
+            <div class="answer">
+                Yes, it could even be beneficial to work with multiple mentors to gain different experiences.
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src='{% static "js/backend_requests.js" %}'></script>
+
+{% endblock %}
+

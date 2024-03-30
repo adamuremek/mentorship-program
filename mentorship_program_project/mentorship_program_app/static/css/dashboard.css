@@ -1,7 +1,9 @@
 .hero-container {
     height: 90%;
-    padding: 0 calc((100vw - 1300px) / 2);
+    /* padding: 0 calc((100vw - 1300px) / 2); */
+    width: 95vw;
 }
+
 
 h1 {
     margin-top: 1rem;
@@ -12,7 +14,9 @@ h1 {
 .available-cards {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 1em;
+    align-items: center;
+    justify-items: center;
 }
 
 .available-filters {
@@ -163,4 +167,37 @@ h1 {
 
 .available-filters {
     margin-bottom: 12px;
+}
+
+@media screen and (max-width: 1000px) {
+
+    .recommended-cards,
+    .available-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 420px) {
+
+    .recommended-cards,
+    .available-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media screen and (max-width: 620px) {
+    .available-filters {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .available-interests-filter {
+        flex-basis: 100%;
+        /* force wrap at this size */
+        margin-bottom: 1em;
+    }
+
+    .available-search-name {
+        margin-left: unset;
+    }
 }

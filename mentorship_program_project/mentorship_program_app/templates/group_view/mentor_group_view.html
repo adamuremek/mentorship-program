@@ -1,0 +1,117 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+Mentor Group View
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mentor_group_view.css' %}">
+{% endblock %}
+
+{% block main_content %}
+
+<section class="hero">
+    <div class="hero-container">
+
+        <div class="column-left">
+            <img src="../../static/images/ex-pfp.jpg" class="profile-picture">
+            <h3>Mentees:</h3>
+            <ul>
+                {% for mentee in mentees %}
+                <li class="mentee-manager">
+                    
+                    <p>{{mentee.str_first_name}} {{mentee.str_last_name}}</p>
+                    {% if is_page_owner == True %}
+                        <button class="button-user-remove">Remove</button>
+                    {% endif  %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="column-right">
+            <div class="row-titles">
+                <div class="top-title">
+                    <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}'s Mentorship Group</h1>
+                    {% if is_page_owner == True %}
+                    {% if page_owner_user.str_preferred_pronouns != None %}
+                        <h2>{{page_owner_user.str_preferred_pronouns}}</h2>
+                    {% endif %}
+
+                    <button class="button-edit">Edit Page</button>
+                    {% endif %}
+                </div>
+
+                
+
+
+                <h2>{{page_owner_mentor.str_job_title}}</h2> 
+                <h3>{{organization}}</h3> 
+
+                <h2>Specializations / Areas of Expertise:</h2>
+                <div class="specialties">
+                    {% for interest in interests %}
+                        <button>{{interest}}</button>
+                    {% endfor %}
+
+                </div>
+                
+            </div>
+            <hr>
+            <div class="row-communication-methods">
+                <h2>Communication Method(s):</h2>
+                <p>Phone: {{page_owner_user.str_phone_number}}</p>
+                <p>Email: {{page_owner_user.cls_email_address}}</p>
+            </div>
+            <hr>
+            <div class="row-overview">
+                <h2>Overview:</h2>
+                <p>
+                    {{page_owner_user.str_bio}}
+                </p>
+            </div>
+            <hr>
+            <div class="row-notes">
+                <h2>Note(s):</h2>
+                <button id="btn-add-note">Add Note</button>
+            </div>
+            <hr class="invisible">
+            <div class="note-header">
+                <p class="note-title">Title</p>
+                <p>Date Created</p>
+                <p>Edit</p>
+                <p>Remove</p>
+                <p>Actions</p>
+            </div>
+            <div class="note">
+                <p class="note-title">fake note title</p>
+                <p>10-19-2023</p>
+                <button>E</button>
+                <button>X</button>
+                <button>^</button>
+            </div>
+            <div class="note">
+                <p class="note-title">fake note title</p>
+                <p>10-19-2023</p>
+                <button>E</button>
+                <button>X</button>
+                <button>^</button>
+            </div>
+            <div class="note">
+                <p class="note-title">fake note title</p>
+                <p>10-19-2023</p>
+                <button>E</button>
+                <button>X</button>
+                <button>^</button>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% include 'group_view/note_creation_modal.html' %}
+
+<script src='{% static "js/note_modal.js" %}'></script>
+
+{% endblock %}

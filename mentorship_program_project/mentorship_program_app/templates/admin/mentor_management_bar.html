@@ -1,0 +1,88 @@
+{% load static %}
+
+<div class="mentor_management_bar_container">
+    <div class="mentor_management_bar">
+        <div id="user_account">
+            {{ mentor.id }}
+        </div>
+
+        <div id="user_mentees">
+            {{ mentor.mentees }}
+        </div>
+       
+
+        <p class="user_management_bar_name" id="admin_user_management_medium_text">
+            {{ mentor.account.str_first_name }} {{ mentor.account.str_last_name }}
+        </p>
+
+        <div class="mentee_counter_container">
+            <p id="current_mentees">{{ mentor.current_mentees }}</p>/<p id="max_mentees">{{ mentor.max_mentees }}</p>
+        </div>
+
+        <button class="admin_user_management_button_clear_active" id="{{mentor.account.id}}">
+            <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
+        </button>
+
+        {% if mentor.account.bln_account_disabled %}
+            <div id="user_account_disabled">
+                1
+            </div>
+        {% else %}
+            <div id="user_account_disabled">
+                0
+            </div>
+        {% endif %}
+
+        {% if user_admin_flag %}
+            {% if not mentor.deactivated %}
+                <button class="admin_user_management_button_clear_active" id="trashcan_button">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+                </button>
+
+                <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+                </button>
+            {% else %}
+                <button class="admin_user_management_button_clear_inactive" id="trashcan_button">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+                </button>
+
+                <button class="admin_user_management_button_clear_active" id="trashcan_off_button">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+                </button>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="mentor_management_bar">
+        <button class="admin_user_management_word_button_active" id="organization_promote_button">
+            <p id="admin_user_management_small_text">
+                Promote Organization Admin
+            </p>
+        </button>
+
+        <button class="admin_user_management_word_button_active" id="edit_organization_button">
+            <p id="admin_user_management_small_text">
+                Edit Organization
+            </p>
+        </button>
+
+        <button class="admin_user_management_word_button_active" id="transfer_role_button">
+            <p id="admin_user_management_small_text">
+                Transfer Role
+            </p>
+        </button>
+
+        <button class="admin_user_management_word_button_active" id="decouple_button">
+            <p id="admin_user_management_small_text">
+                Decouple Mentor
+            </p>
+        </button>
+    </div>
+
+</div>
+<script>
+document.getElementById("{{ mentor.account.id }}").addEventListener("click", function() {
+    window.location.href = "{% url 'universal_profile' mentor.account.id %}"
+});
+</script>

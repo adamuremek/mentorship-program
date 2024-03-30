@@ -1,44 +1,54 @@
 .card {
-    width: 250px;
-    height: 250px;
-    background-image: url("../images/dark_background.png");
+    width: 100%;
+    height: 100%;
+
+    max-width: 25em;
+    max-height: 20em;
+    
+    background-color: rgb(44, 44, 44);
     background-size: contain;
     border-radius: 20px;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-    margin-bottom: 2em;
+    margin-bottom: .5em;
+}
+
+.card form {
+    background-image: url("../images/dark_background.png");
+    border-top-right-radius: inherit;
+    border-top-left-radius: inherit;
 }
 
 .card-gray-part {
     position: relative;
-    background-color: rgb(44, 44, 44);
+    justify-items: center;
     width: 100%;
     height: 76%;
-    top: 24%;
+    margin-top: .25em;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
+    overflow: auto;
 }
 
 .card-profile-image {
     position: relative;
+    display: block;
     width: 90px;
     height: 90px;
+    margin: .5em;
     border-radius: 50%;
     margin: auto;
-    top: -21%;
-    margin-bottom: -14%;
     text-align: center;
-    /*background-image: url("../images/ex-pfp.jpg");*/
     background-size: cover;
 }
 
 .card-name {
     text-align: center;
-    font-size: 0.8750em;
+    font-size: 1rem;
 }
 
 .card-interests-header {
     text-align: center;
-    font-size: 0.6875em;
+    font-size: 0.75rem;
 }
 
 .card-line-divider-1 {
@@ -71,15 +81,25 @@
     margin-right: 10%;
     gap: 5px;
     text-align: center;
+    min-height: 5rem;
+    max-height: 5rem;
+    overflow: hidden; /* overlay - Use for scroll support */
 }
 
+/* Don't get rid of this you FUCKING SAVAGES */
+/* .card-interests::-webkit-scrollbar {
+    width: 5px;
+    border-radius: 20px;
+} */
+
 .card-interests p {
-    font-size: 0.6250em;
+    font-size: 0.8rem;
     background-color: #464B4E;
     border-radius: 20px;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     font-weight: 300;
-    height: 14px;
+    height: 1rem;
+    overflow: hidden;
 }
 
 .card-button {
@@ -102,4 +122,14 @@
 
 .card-button:active {
     background-color: #182b46;
+}
+
+/* for buttons that no longer click, div. to increase
+ * priority */
+div.card-button-disabled , div.card-button-disabled:hover , div.card-button-disabled:active {
+    background-color: #363f4d;
+}
+div.card-button-cancel, div.card-button-cancel:hover , div.card-button-cancel:active {
+   background-color: #ddbb22;
+   color: black;
 }
