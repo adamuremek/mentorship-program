@@ -19,25 +19,12 @@
     cmd: "kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.6.0/deploy/longhorn.yaml"
   
 
-# - name: Create media pv config
-#   template:
-#     src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-media-pv.yaml"
-#     dest: "/{{ absolute_project_path }}/kubernetes/media-pv.yaml"
-
-# - name: Create static pv config
-#   template:
-#     src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-static-pv.yaml"
-#     dest: "/{{ absolute_project_path }}/kubernetes/static-pv.yaml"
-
-
 - name: Apply k3s resources
   shell:
     cmd: "kubectl apply -f {{ item }}"
   with_items:
     - "/{{ absolute_project_path }}/kubernetes/storage-class.yaml"
-    # - "/{{ absolute_project_path }}/kubernetes/media-pv.yaml"
     - "/{{ absolute_project_path }}/kubernetes/media-pvc.yaml"
-    # - "/{{ absolute_project_path }}/kubernetes/static-pv.yaml"
     - "/{{ absolute_project_path }}/kubernetes/static-pvc.yaml"
     - "/{{ absolute_project_path }}/kubernetes/mentor-configmap.yaml"
     - "/{{ absolute_project_path }}/kubernetes/mentor-secret.yaml"

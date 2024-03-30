@@ -8,7 +8,6 @@ db_port:
 secret_key: 
 django_allowed_hosts: 
 domain: 
-nfs_server_ip: 
 acme_email: 
 absolute_project_path: "/home/user/mentorship-program"
 # space separated. Must start with http:// or https://

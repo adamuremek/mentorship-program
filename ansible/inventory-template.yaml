@@ -9,9 +9,6 @@ all:
         database_server:
           hosts:
             - staging01
-        nfs_server:
-          hosts:
-            - staging01
         k3s_server:
           hosts:
             - staging01
@@ -26,9 +23,6 @@ all:
           ansible_user: user
       children:
         database_server:
-          hosts:
-            - prod01
-        nfs_server:
           hosts:
             - prod01
         k3s_server:
