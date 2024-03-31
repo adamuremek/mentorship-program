@@ -69,4 +69,4 @@
 
 - name: Rolling update
   shell:
-    cmd: "kubectl rollout restart deployment/mentor-deployment"
+    cmd: "kubectl rollout restart deployment/mentor"
