@@ -19,7 +19,7 @@ sudo apt-get install -y python3-pip
 sudo pip3 install --upgrade pip
 
 # Install Ansible collections
-ansible-galaxy collection install -r requirements.yaml
+ansible-galaxy collection install -r ./ansible/requirements.yaml
 
 # Run Ansible playbook
 ansible-playbook -i ./ansible/inventory.yaml -e @./ansible/env.yaml -k -K ./ansible/master.yaml

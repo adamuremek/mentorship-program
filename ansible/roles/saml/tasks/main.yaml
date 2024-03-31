@@ -1,35 +1,35 @@
 - name: Check for saml private key
   stat:
-    path: "{{ absolute_project_path }}/saml/private.key"
+    path: "{{ absolute_project_path }}/mentorship_program_project/saml/private.key"
   register: saml_private_key
 
 - name: Check for saml public key
   stat:
-    path: "{{ absolute_project_path }}/saml/public.pem"
+    path: "{{ absolute_project_path }}/mentorship_program_project/saml/public.pem"
   register: saml_public_key
 
 - name: Generate saml private key
   community.crypto.openssl_privatekey:
-    path: "{{ absolute_project_path }}/saml/private.key"
-    type: rsa
+    path: "{{ absolute_project_path }}/mentorship_program_project/saml/private.key"
+    type: RSA
     size: 2048
   when: not saml_private_key.stat.exists    
 
 - name: Generate saml public key
   community.crypto.openssl_publickey:
-    path: "{{ absolute_project_path }}/saml/public.pem"
-    privatekey_path: "{{ absolute_project_path }}/saml/private.key"
+    path: "{{ absolute_project_path }}/mentorship_program_project/saml/public.pem"
+    privatekey_path: "{{ absolute_project_path }}/mentorship_program_project/saml/private.key"
   when: not saml_public_key.stat.exists
   
 - name: Check for remote_metadata.xml
   stat:
-    path: "{{ absolute_project_path }}/saml/remote_metadata.xml"
+    path: "{{ absolute_project_path }}/mentorship_program_project/saml/remote_metadata.xml"
   register: remote_metadata
 
 - name: Download remote_metadata.xml
   get_url:
     url: "{{ saml_idp_metadata_url }}"
-    dest: "{{ absolute_project_path }}/saml/remote_metadata.xml"
+    dest: "{{ absolute_project_path }}/mentorship_program_project/saml/remote_metadata.xml"
   when: not remote_metadata.stat.exists
 
 - name: Copy saml files into project directory
