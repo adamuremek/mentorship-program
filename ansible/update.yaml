@@ -1,0 +1,16 @@
+- name: Update
+  hosts: localhost
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Clone / pull git repo
+      ansible.builtin.git:
+        repo: 'https://github.com/adamuremek/mentorship_program.git'
+        dest: "{{ absolute_project_path }}"
+        update: yes
+        version: k3s
+
+- import_playbook: ./docker-build.yaml
+- import_playbook: ./k3s-secret.yaml
+- import_playbook: ./k3s-setup.yaml

@@ -34,7 +34,11 @@
 - name: Apply ingress-nginx
   shell:
     cmd: "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml"
-  
+
+- name: Wait for ingress-nginx rollout to finish
+  shell:
+    cmd: "kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller --timeout=90s"
+
 - name: Install cert-manager
   shell:
     cmd: "kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml"
@@ -62,3 +66,7 @@
     - "/{{ absolute_project_path }}/kubernetes/ingress-controller/mentor-ingress.yaml"
     #- "/{{ absolute_project_path }}/kubernetes/ingress-controller/prod-issuer.yaml"
     #- "/{{ absolute_project_path }}/kubernetes/ingress-controller/staging-issuer.yaml"
+
+- name: Rolling update
+  shell:
+    cmd: "kubectl rollout restart deployment/mentor-deployment"
