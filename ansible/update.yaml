@@ -6,7 +6,7 @@
   tasks:
     - name: Clone / pull git repo
       ansible.builtin.git:
-        repo: 'https://github.com/adamuremek/mentorship_program.git'
+        repo: 'https://github.com/adamuremek/mentorship-program.git'
         dest: "{{ absolute_project_path }}"
         update: yes
         version: k3s
