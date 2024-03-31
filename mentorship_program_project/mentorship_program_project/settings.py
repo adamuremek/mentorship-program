@@ -43,7 +43,7 @@ else:
 
 
 # We need to add any origins that the server is hosted on to this list.
-CSRF_TRUSTED_ORIGINS = ['https://mentorship-program-dev.jordananodjo.com']
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', default='').split(' ')
 
 # Application definition
 
