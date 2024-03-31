@@ -1,33 +1,15 @@
 all:
+  hosts:
+    server01:
+      ansible_host: 127.0.0.1
+      ansible_user: user
   children:
-    staging:
-      hostvars:
-        staging01:
-          ansible_host: 127.0.0.1
-          ansible_user: user
-      children:
-        database_server:
-          hosts:
-            - staging01
-        k3s_server:
-          hosts:
-            - staging01
-        docker_repo_server:
-          hosts:
-            - staging01
-
-    production:
-      hostvars:
-        prod01: 
-          ansible_host: 127.0.0.1
-          ansible_user: user
-      children:
-        database_server:
-          hosts:
-            - prod01
-        k3s_server:
-          hosts:
-            - prod01
-        docker_repo_server:
-          hosts:
-            - prod01
+    database_server:
+      hosts:
+        server01:
+    k3s_server:
+      hosts:
+        server01:
+    docker_repo_server:
+      hosts:
+        server01:
