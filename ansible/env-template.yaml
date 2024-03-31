@@ -15,3 +15,4 @@ csrf_trusted_origins:
 saml_idp_entity_id: 
 saml_idp_sso_url: 
 saml_idp_slo_url: 
+saml_idp_metadata_url:
