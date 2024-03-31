@@ -1,3 +1,4 @@
+debug: 0
 db: "postgres"
 db_engine: "django.db.backends.postgresql"
 db_name: 

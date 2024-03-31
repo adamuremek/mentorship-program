@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: mentor-config
 data:
+  DEBUG: "{{ debug }}"
   DB: "{{ db }}"
   DB_ENGINE: "{{ db_engine }}"
   DJANGO_ALLOWED_HOSTS: "{{ django_allowed_hosts }}"
