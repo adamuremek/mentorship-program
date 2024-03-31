@@ -496,10 +496,17 @@ def login_uname_text(request):
         response.status_code = 401
         return response
 
+    if User.objects.get(cls_email_address=uname).bln_account_disabled:
+        response = HttpResponse(json.dumps({"warning":"Your account has been disabled"}))
+        response.status_code = 401
+        return response
+
     user = User.objects.get(cls_email_address=uname)
     user.str_last_login_date = date.today()
+    # if the user deactivated their own account, reactivate it
+    if not user.bln_active and not user.bln_account_disabled:
+        user.bln_active = True
     user.save()
-
     # record logs
     SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
 

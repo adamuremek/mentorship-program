@@ -1183,9 +1183,30 @@ class User(SVSUModelData,Model):
     @staticmethod
     def make_user_inactive(user :"User"):
         user.bln_active = False
-        user.save()
+        
         if user.is_mentee():
-            pass
+            user.mentor = None
+            MentorshipRequest.objects.filter(mentee_id=user.id).delete()
+        if user.is_mentor():
+            MentorshipRequest.objects.filter(mentor_id=user.id).delete()
+            mentees_for_mentor = Mentee.objects.filter(mentor_id=user.id)
+            for mentee in mentees_for_mentor:
+                mentee.mentor = None
+            Mentee.objects.bulk_update(mentees_for_mentor, ['mentor'])
+        user.save()
+
+    @staticmethod
+    def reactivate_user(user: "User"):
+        if user.bln_account_disabled:
+            return "Account cannot be reactivated, user is banned"
+        user.bln_active = True
+        user.save()
+        
+    @staticmethod
+    def disable_user(user:"User"):
+        user.bln_account_disabled = True
+        user.save()
+        User.make_user_inactive(user)
     
     # @property
     # def img_user_profile(self):
@@ -1474,7 +1495,7 @@ class Organization(SVSUModelData,Model):
     str_org_name = CharField(max_length=100)
     str_industry_type = CharField(max_length=100)
 
-    admins = models.ManyToManyField('Mentor',related_name='administered_organizations') 
+    admin_mentor = OneToOneField('Mentor', related_name='administered_organizations', on_delete=models.CASCADE, null=True) 
 
 class Mentor(SVSUModelData,Model):
     """

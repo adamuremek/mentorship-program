@@ -13,15 +13,11 @@ then
     echo "Postgres started"
 fi
 
-# Reset the db and apply migrations
-# python manage.py reset_db --router=default --noinput --close-sessions
-# python manage.py migrate
-
 if [ "$DEBUG" != 1 ]
 then
     echo "Collecting static files"
 
-    python manage.py collectstatic --no-input --clear
+    python /mentorship_program/mentorship_program_project/manage.py collectstatic --no-input --clear
     
     echo "Done collecting static"
 fi

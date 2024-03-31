@@ -418,6 +418,10 @@ input:-moz-autofill:active {
     background-color: var(--clr-btn-submit-highlight);
 }
 
+#su-p {
+    padding-top: 5px;
+}
+
 .modal {
     padding: 1em;
     width: 45ch;
@@ -561,12 +565,14 @@ input:-moz-autofill:active {
 
 .circle-wrapper {
     display: inline-block;
+    outline: none;
     border-radius: 50%;
     padding: 10px;
     transition: background-color 0.2s;
 }
 
-.circle-wrapper:hover {
+.circle-wrapper:hover,
+.circle-wrapper:focus-visible {
     background-color: rgba(255, 255, 255, 0.075);
 }
 

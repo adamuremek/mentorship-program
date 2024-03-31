@@ -61,7 +61,8 @@ Settings
 
         <!-- container for deactivating account -->
         <div class="deactivate-account-container">
-            <form action="">
+            <form action="/deactivate_your_own_account" method="post">
+                {% csrf_token %}
                 <input type="submit" value="Deactivate Account" class="btn-deactivate-account" id="deactivate-btn">
             </form>
         </div>
