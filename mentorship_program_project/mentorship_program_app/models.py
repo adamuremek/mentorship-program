@@ -1611,7 +1611,7 @@ class Mentor(SVSUModelData,Model):
         """
         returns true if the given user administers the given organization
         """
-        if org.admin_mentor.id==self.id:
+        if org.admin_mentor == self:
             return True
         return False
 
