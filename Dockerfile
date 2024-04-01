@@ -1,7 +1,7 @@
 FROM python:3.12.1-slim-bookworm
 
 # Set the working directory inside the container
-WORKDIR /mentorship_program_project
+WORKDIR /mentorship_program
 
 # Prevent python caching pyc files
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y netcat-openbsd
 RUN mkdir /static
 
 # Copy entrypoint script into the container 
-COPY ./docker/entrypoint.sh /entrypoint.sh
+COPY ./entrypoint.sh /entrypoint.sh
 
 # Replace Windows newlines with Unix
 RUN sed -i 's/\r$//g' /entrypoint.sh
@@ -31,7 +31,11 @@ RUN sed -i 's/\r$//g' /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Copy the project into the container
-COPY ../ .
+COPY . .
 
 # Specify the script to run when starting the container
 ENTRYPOINT ["/entrypoint.sh"]
+
+WORKDIR /mentorship_program/mentorship_program_project
+
+CMD ["gunicorn", "-w", "4", "mentorship_program_project.wsgi:application", "--bind", "0.0.0.0:8000"]

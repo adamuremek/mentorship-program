@@ -25,7 +25,7 @@ services:
   web:
     build: 
       context: .
-      dockerfile: ./docker/Dockerfile
+      dockerfile: ./Dockerfile
     # Run the django server when contriner starts
     command: python manage.py runserver 0.0.0.0:8000
     # Mount the local project directory to the container
