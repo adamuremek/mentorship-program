@@ -32,9 +32,16 @@
     dest: "{{ absolute_project_path }}/mentorship_program_project/saml/remote_metadata.xml"
   when: not remote_metadata.stat.exists
 
+- name: make directory for saml files
+  file:
+    path: "/{{ absolute_project_path }}/repo/mentorship_program_project/saml"
+    state: directory
+
 - name: Copy saml files into project directory
   copy:
     src: "{{ item }}"
     dest: "/{{ absolute_project_path }}/repo/mentorship_program_project/saml/{{ item | basename }}"
   with_items:
-    - "{{ absolute_project_path }}/saml/*"
+    - "{{ absolute_project_path }}/mentorship_program_project/saml/private.key"
+    - "{{ absolute_project_path }}/mentorship_program_project/saml/public.pem"
+    - "{{ absolute_project_path }}/mentorship_program_project/saml/remote_metadata.xml"
