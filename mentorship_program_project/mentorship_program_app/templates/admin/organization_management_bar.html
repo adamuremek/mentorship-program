@@ -21,8 +21,10 @@
         <p id="admin_user_management_small_text">
             Admins
         </p>
+
+        <hr>
+
         {% for mentor in organization.admin_list %}
-            <hr>
             {% include 'admin/mentor_management_bar.html' %}
         {% endfor %}
     </div>
@@ -31,9 +33,13 @@
         <p id="admin_user_management_small_text">
             Mentors
         </p>
+
+        <hr>
+
         {% for mentor in organization.mentor_list %}
-            <hr>
             {% include 'admin/mentor_management_bar.html' %}
         {% endfor %}
     </div>
+
+    <hr>
 </div>

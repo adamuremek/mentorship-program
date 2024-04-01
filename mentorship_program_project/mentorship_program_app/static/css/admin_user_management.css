@@ -231,7 +231,8 @@ input[type="file"] {
 
 }
 
-#user_account, #user_mentor, #user_mentees, #user_account_disabled, #organization_account {
+#user_account, #user_mentor, #user_mentees, 
+#user_account_disabled, #organization_account, #session_user_flag {
     display: none;
 }
 

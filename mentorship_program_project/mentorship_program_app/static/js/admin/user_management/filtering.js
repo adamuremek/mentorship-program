@@ -16,8 +16,11 @@ function check_cancel_filter()
     // Check if user filter is in progess
     if (user_filter_flag)
     {
+        // Detemine user filter button
+        const filter_user_button = determiners.determine_filter_user_button();
+
         // Update user filter button to be off
-        updaters.update_filter_user_button_off();
+        updaters.update_off_button_style(filter_user_button);
 
         // Reset filters
         updaters.update_reset_filter();
@@ -30,8 +33,11 @@ function check_cancel_filter()
     // Check if orgnaizatiton filter is in progess
     if (organization_filter_flag)
     {
+        // Determine filter orgnization button 
+        const filter_organization_button = determiners.determine_filter_organization_button();
+
         // Update organization filter button to be off
-        updaters.update_filter_organization_button_off();
+        updaters.update_off_button_style(filter_organization_button);
 
         // Reset filters
         updaters.update_reset_filter();
@@ -105,8 +111,11 @@ export function attempt_user_filter(user_input)
     // Check and cancel last filter if needed
     check_cancel_filter();
 
+    // Determine filter user button
+    const filter_user_button = determiners.determine_filter_user_button();
+
     // Update button to be on
-    updaters.update_filter_user_button_on();
+    updaters.update_on_button_style(filter_user_button);
 
     // Set user filter flag to active
     user_filter_flag = 1;
@@ -130,8 +139,11 @@ export function attempt_organziation_filter(user_input)
     // Check and cancel last filter if needed
     check_cancel_filter();
 
+    // Determine filter orgnaization button
+    const filter_organization_button = determiners.determine_filter_organization_button();
+
     // Update button to be on
-    updaters.update_filter_organization_button_on();
+    updaters.update_on_button_style(filter_organization_button);
 
     // Set user filter flag to active
     organization_filter_flag = 1;

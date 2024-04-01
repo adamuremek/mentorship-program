@@ -1,17 +1,6 @@
 // Import functions from determiners.js
 import * as determiners from "./determiners.js";
 
-// Select and store bar elements
-const mentee_bars = mentee_bar_container.querySelectorAll(".mentee_management_bar");
-const mentor_bars = mentor_bar_container.querySelectorAll(".mentor_management_bar_container");
-const organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar_container");
-
-const filter_user_button = document.querySelector("#filter_users_button");
-const filter_organization_button = document.querySelector("#filter_organization_button");
-
-
-
-
 // Styling methods 
 
 // Updates bar style to visible
@@ -46,6 +35,11 @@ export function update_remove_choice_bar_style(passed_bar)
 // Set all bars to their default border styles
 export function update_reset_choice_bar_styles()
 {
+    // Determine mentee, mentor, and orgnaiztion bar elements
+    const mentor_bars = determiners.determine_all_mentor_bars();
+    const mentee_bars = determiners.determine_all_mentee_bars();
+    const organization_bars = determiners.determine_all_organization_bars();
+
     // Cycle through mentee bars
     mentee_bars.forEach(mentee_bar => {
         mentee_bar.style.border = "none";
@@ -84,6 +78,10 @@ export function update_reset_bar_filter_buttons()
 {
     // Inintlize filter buttons to empty list
     const filter_buttons = []
+
+    // Determine mentee and  mentor bar elements
+    const mentor_bars = determiners.determine_all_mentor_bars();
+    const mentee_bars = determiners.determine_all_mentee_bars()
 
     // Cycle through mentee bars
     mentee_bars.forEach(mentee_bar => {
@@ -192,6 +190,101 @@ export function update_mentee_bar_show_add_button(remove_button, add_button)
     
 }
 
+// Updates passed organization bar user's transfer button to reflect new postitons
+export function update_organization_transfer_buttons(organitization_bar)
+{
+    // Determine organization admin and mentor list from organization bar
+    const organitization_admins = determiners.return_admin_list_all(organitization_bar);
+    const organitization_mentors = determiners.return_mentor_list_all(organitization_bar);
+    
+    // Determine session user bar
+    const session_user_bar = determiners.determine_session_user_bar();
+
+    // Cycle through admin list
+    organitization_admins.forEach(organitization_admin => {
+        // Determine transfer button for admin bar
+        let transfer_own_role_button = determiners.determine_transfer_role_organization_admin_button(organitization_admin);
+
+        // Check if organitization admin has transfer own role button
+        if (transfer_own_role_button != null)
+        {
+            // Update to not have transfer own role button
+            update_mentor_bar_remove_transfer_own_role_button(transfer_own_role_button);
+
+        }
+    });
+
+    //Cycle through mentor list
+    organitization_mentors.forEach(organitization_mentor => {
+        // Determine transfer button for admin bar
+        let transfer_own_role_button = determiners.determine_transfer_role_organization_admin_button(organitization_mentor);
+
+        // Check if organitization admin has transfer own role button
+        if (transfer_own_role_button != null)
+        {
+            // Checking if mentor is session user bar
+            if (organitization_mentor == session_user_bar)
+            {
+                // Update to not have transfer own role button
+                update_mentor_bar_remove_transfer_own_role_button(transfer_own_role_button);
+
+            } 
+            else
+            {
+                // Update to have transfer own role button
+                update_mentor_bar_show_transfer_own_role_button(transfer_own_role_button);
+
+            }
+        }
+    });
+}
+
+// Updates transfer own role button to show
+export function update_mentor_bar_show_transfer_own_role_button(transfer_own_role_button)
+{
+    // Remove transfer own role button inactive class and add active class
+    transfer_own_role_button.classList.remove("admin_user_management_button_clear_inactive");
+    transfer_own_role_button.classList.add("admin_user_management_button_clear_active");
+
+}
+
+// Updates transfer own role button to not show
+export function update_mentor_bar_remove_transfer_own_role_button(transfer_own_role_button)
+{
+    // Remove transfer own role button inactive class and add active class
+    transfer_own_role_button.classList.remove("admin_user_management_button_clear_active");
+    transfer_own_role_button.classList.add("admin_user_management_button_clear_inactive");
+
+}
+
+// Updates promote super button to not show
+export function update_mentor_bar_remove_promote_super_button(promote_super_button)
+{
+    // Remove promote button inactive class and add active class
+    promote_super_button.classList.remove("admin_user_management_button_clear_active");
+    promote_super_button.classList.add("admin_user_management_button_clear_inactive");
+
+}
+
+// Updates promote organization admin button to show
+export function update_button_showing(button)
+{
+    // Remove button inactive class and add active class
+    button.classList.remove("admin_user_management_button_clear_inactive");
+    button.classList.add("admin_user_management_button_clear_active");
+
+}
+
+// Updates promote organization admin button to not show
+export function update_button_not_showing(button)
+{
+    // Remove button inactive class and add active class
+    button.classList.remove("admin_user_management_button_clear_active");
+    button.classList.add("admin_user_management_button_clear_inactive");
+
+}
+
+
 
 
 
@@ -200,6 +293,12 @@ export function update_mentee_bar_show_add_button(remove_button, add_button)
 // Set all bars elements to visible
 export function update_reset_filter()
 {
+
+    // Determine mentee, mentor, and orgnaiztion bar elements
+    const mentor_bars = determiners.determine_all_mentor_bars();
+    const mentee_bars = determiners.determine_all_mentee_bars();
+    const organization_bars = determiners.determine_all_organization_bars();
+
     // Cycles through mentee bars
     mentee_bars.forEach(mentee_bar => {
         // Update bar styles to be visible
@@ -228,10 +327,14 @@ export function update_filter_user_bars(user_input)
     // Create storage for temp user name
     let current_user_name;
 
+    // Determine mentee and mentor orgnaiztion bar elements
+    const mentor_bars = determiners.determine_all_mentor_bars();
+    const mentee_bars = determiners.determine_all_mentee_bars();
+
     // Cycle through mentee bars
     mentee_bars.forEach(mentee_bar => {
         // Determine mentee bar name
-        current_user_name = determiners.determine_user_name(mentee_bar).innerHTML.trim().toLowerCase();
+        current_user_name = determiners.determine_user_name(mentee_bar);
 
         // Check if mentee bar name dosesn't matche input
         if (!current_user_name.includes(user_input.toLowerCase()))
@@ -245,7 +348,7 @@ export function update_filter_user_bars(user_input)
     // Cycle through mentor bars
     mentor_bars.forEach(mentor_bar => {
         // Determine mentor bar name
-        current_user_name = determiners.determine_user_name(mentor_bar).innerHTML.trim().toLowerCase();
+        current_user_name = determiners.determine_user_name(mentor_bar);
 
         // Check if mentor bar name doesn't matche input
         if (!current_user_name.includes(user_input.trim().toLowerCase()))
@@ -263,10 +366,13 @@ export function update_filter_organization_bars(user_input)
     // Create storage for temp user name
     let current_organization_name;
 
+    // Determine orgnaiztion bar elements
+    const organization_bars = determiners.determine_all_organization_bars();
+
     // Cycle through organization bars
     organization_bars.forEach(organization_bar => {
         // Determine orgnaization bar name
-        current_organization_name = determiners.determine_organization_name(organization_bar).innerHTML.trim().toLowerCase();
+        current_organization_name = determiners.determine_organization_name(organization_bar);
 
         // Check if orgnaization bar name doesn't match input
         if (!current_organization_name.includes(user_input.trim().toLowerCase()))
@@ -278,37 +384,12 @@ export function update_filter_organization_bars(user_input)
     });
 }
 
-// Updates filter user button to be on
-export function update_filter_user_button_on()
-{
-    update_on_button_style(filter_user_button);
-
-}
-
-// Update filter user button to be off
-export function update_filter_user_button_off()
-{
-    update_off_button_style(filter_user_button);
-
-}
-
-// Updates filter orgnization button to be on
-export function update_filter_organization_button_on()
-{
-    update_on_button_style(filter_organization_button);
-
-}
-
-// Updates filter orgnization button to be off
-export function update_filter_organization_button_off()
-{
-    update_off_button_style(filter_organization_button);
-
-}
-
 // Updates mentee bars to filter all bars not included in passed bars
 export function update_filter_all_mentee_bars_but_passed(passed_bars)
 {
+    // Determine mentee bar elements
+    const mentee_bars = determiners.determine_all_mentee_bars();
+
     // Cycle through mentee bars
     mentee_bars.forEach(mentee_bar => {
         // Update mentee bar to be hidden
