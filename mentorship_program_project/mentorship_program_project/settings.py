@@ -273,7 +273,7 @@ SAML_CONFIG = {
            # attributes that may be useful to have but not required
           #'optional_attributes': ['eduPersonAffiliation'],
 
-          'want_response_signed': True,
+          'want_response_signed': False,
           'authn_requests_signed': True,
           'logout_requests_signed': True,
           # Indicates that Authentication Responses to this SP must
