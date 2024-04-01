@@ -321,10 +321,9 @@ def get_mentor_data_from_mentor(mentor : 'Mentor',session_user : 'User')->dict:
     """
     mentor_data = {
         'account': mentor.account,
-        
         #if you need the id mentor.account.id has it built in, so you don't need to pass it around twice,
         #still if you feel its better here uncomment :)
-        #'id': str(mentor.account.id) #str(mentor.account), 
+        #'id': str(mentor.account.id), #str(mentor.account), 
         
         #TODO:
         # we didn't see any usage usage of this while exploring, we also simplified the python
@@ -332,7 +331,7 @@ def get_mentor_data_from_mentor(mentor : 'Mentor',session_user : 'User')->dict:
         # its needed anywhere (didn't see anything erroring with this commented out though)
         # if its still needed uncomment it :)
         # -dk
-        #'mentees': [str(m) for m in mentor.mentee_set.all()].join(",") + ",",
+        #'mentees': "",#",".join([str(m) for m in mentor._mentee_set.all()])+ ",",
         'current_mentees': mentor.mentee_set.count(),
         'max_mentees': mentor.int_max_mentees,
         'mentor_admin_flag': session_user.is_super_admin() #auto caches :)
@@ -386,33 +385,35 @@ def admin_user_management(request):
 
     print_debug(f"finished setup queries @ {get_runtime() - start_time}")
 
-    orgs = Organization.objects.all().prefetch_related(
-                                                        "admins",
-                                                        "mentor_set"
+    orgs = Organization.objects.all().select_related(
+                                                "admin_mentor"
+                                    ).prefetch_related(
+                                                        "mentor_set",
+                                                        "mentor_set___mentee_set",
+                                                        "mentor_set__account",
+                                                        "mentor_set___mentee_set__account",
+                                                        "mentor_set__administered_organizations"
                                                         )
     # Cycle through organizations
     for organization in orgs:
         # Inizilize empty list for mentors and admins
-        admin_list = []
+        org_admin = None
         mentor_list = []
+        
+        if organization.admin_mentor != None:
+            org_admin = get_mentor_data_from_mentor(organization.admin_mentor,session_user)
 
         organizations.append(
             {
                 'organization': organization,
                 'id': str(organization),
                 'name': organization.str_org_name,
-                'admin_list': [ get_mentor_data_from_mentor(m,session_user) 
-                                    for m in organization.admins.all().prefetch_related(
-                                                                                        "_mentee_set","account","_mentee_set__account"
-                                                                                        )
-                               ],
-                'mentor_list': [ get_mentor_data_from_mentor(m,session_user) 
-                                    for m in 
-                                        organization.mentor_set.exclude(
-                                                id__in=organization.admins.all()
-                                            ).prefetch_related(
-                                                "_mentee_set","account","_mentee_set__account"
-                                                )
+                'admin_list': [org_admin] if org_admin != None else [], #this def does not need to be a list now
+                                                                        #unless we want to re-listify admins which we could do
+                'mentor_list':  [
+                                            get_mentor_data_from_mentor(m,session_user) for m in 
+                                            organization.mentor_set.all() 
+                                            if org_admin == None or organization.admin_mentor.id != m.id
                                 ]
             }
         )
