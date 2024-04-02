@@ -1,3 +1,43 @@
+"""
+FILE NAME: reporting.py
+
+-------------------------------------------------------------------------------
+PART OF PROJECT: SVSU Mentorship Program App
+
+-------------------------------------------------------------------------------
+WRITTEN BY:
+DATE CREATED:
+
+-------------------------------------------------------------------------------
+FILE PURPOSE:
+Provide ways to compute and view statistics and generate reports.
+
+-------------------------------------------------------------------------------
+COMMAND LINE PARAMETER LIST (In Parameter Order):
+(NONE)
+
+-------------------------------------------------------------------------------
+ENVIRONMENTAL RETURNS:
+(NONE)
+
+-------------------------------------------------------------------------------
+SAMPLE INVOCATION:
+(NONE)
+
+-------------------------------------------------------------------------------
+GLOBAL VARIABLE LIST (Alphabetically):
+- strPepper (str): A pepper to add to passwords to increase security
+
+-------------------------------------------------------------------------------
+COMPILATION NOTES:
+
+-------------------------------------------------------------------------------
+MODIFICATION HISTORY:
+
+WHO     WHEN     WHAT
+WJL   3/27/2024  Added comments and updated everything to doc standards
+"""
+
 from django.http import HttpRequest, FileResponse
 from django.conf import settings
 from datetime import date, datetime, timedelta
@@ -9,10 +49,39 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 import os
 
-def get_project_time_statistics():
+def get_project_time_statistics() -> dict:
     """
-        Authors Andrew P. Jordan A.
-        Collect and synthesize data from Systemlogs and output results based on timespans
+    Description
+    -----------
+    Collect and synthesize data from Systemlogs and output results
+    based on timespans.
+
+    Parameters
+    ----------
+    (None)
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - dict: A dictionary of the tuples of the statistics
+
+    Example Usage
+    -------------
+    
+    >>> get_project_time_statistics()
+    {
+    "Daily": ...,
+    "Weekly": ...,
+    "Monthly": ...,
+    "Lifetime": ...,
+    }
+
+    Authors
+    -------
+    Andrew P. Jordan A.
     """
     week_ago_date = date.today() - timedelta(days=7)
     month_ago = date.today() - timedelta(days=30)
@@ -56,10 +125,38 @@ def get_project_time_statistics():
     return {"Daily":daily_stats, "Weekly":weekly_stats, "Monthly":monthly_stats, "Lifetime":lifetime_stats}
 
 # TODO sorry this look like this. If anyone got free time can you make this "feel" better thanks! -JA
-def get_project_overall_statistics():
+def get_project_overall_statistics() -> dict:
     """
-        Authors Andrew P. Jordan A.
-        Collect and synthesize data from Systemlogs based on general stats
+    Description
+    -----------
+    Collect and synthesize data from Systemlogs based on general stats.
+
+    Parameters
+    ----------
+    (None)
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - dict: A dictionary of generic stats
+
+    Example Usage
+    -------------
+    
+    >>> get_project_time_statistics()
+    {
+    "active_mentees": 5,
+    "unassigned_mentees": 1,
+    "inactive_mentees": 2,
+    ...
+    }
+
+    Authors
+    -------
+    Andrew P. Jordan A.
     """
 
     inactive_date = datetime.now() - timedelta(days=365)
@@ -114,10 +211,33 @@ def get_project_overall_statistics():
         "pending_mentor"              : User.objects.filter(str_role='MentorPending').count(),
     }
 
-def generate_report(req : HttpRequest):
+def generate_report(req : HttpRequest) -> FileResponse:
     """
-    Authors Andrew P. Jordan A.
-    Generate report (duh!)
+    Description
+    -----------
+    Generates a report in an excel sheet
+
+    Parameters
+    ----------
+    - req (HttpRequest): The request information. Unused in the function.
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - FileResponse: The resulting excel report
+
+    Example Usage
+    -------------
+    
+    >>> path('report/', reporting.generate_report, name='Reporting')
+    test.xlsx
+
+    Authors
+    -------
+    Andrew P. Jordan A.
     """
     workbook = Workbook()
     worksheet = workbook.active
@@ -176,7 +296,3 @@ def generate_report(req : HttpRequest):
     workbook.save(f'Program Statistics{date.today()}.xlsx')
     file_path = os.path.join(settings.MEDIA_ROOT, "test.xlsx")
     return FileResponse(open('test.xlsx', 'rb'), as_attachment=True, filename=file_path)
-
-
-
-
