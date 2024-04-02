@@ -169,7 +169,7 @@
             </div>
             <hr>
             <div class="row-overview">
-                <h2>Overview:</h2>
+                <h2 id="overview-title">Overview:</h2>
                 <textarea class="note" id="bio" name="bio" rows="20" cols="200"
                     readonly>{{page_owner_user.cleaned_bio}}</textarea>
             </div>
@@ -226,6 +226,43 @@
 {% include 'group_view/note_modal.html' %}
 <script src = "{% static 'js/backend_requests.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    //The max length that can be stored in the backend is 5000
+    const MAX_OVERVIEW_LENGTH = 5000;
+    const TOO_LONG_ERROR_MSG = 'Overview must be less than ' + MAX_OVERVIEW_LENGTH + ' characters'
+    var bioTextArea;
+    var saveButton;
+    var bioLength;
+    var overviewTitle;
+
+    saveButton = document.getElementById('button-save');
+    bioTextArea = document.getElementById('bio');
+    overviewTitle = document.getElementById('overview-title');
+
+    //when user types & overview's length is over max length, make overview text red and add warning in header
+    bioTextArea.addEventListener('input', function () {
+        var bioLength = bioTextArea.value.length;
+
+        if (bioLength > MAX_OVERVIEW_LENGTH) {
+            bioTextArea.style.color = 'red';
+            overviewTitle.innerText = 'Overview: ' + TOO_LONG_ERROR_MSG;
+        }
+        else {
+            bioTextArea.style.color = '';
+            overviewTitle.innerText = 'Overview:'
+        }
+    });
+
+    //when user clicks save button and overview's length is over max length, alert user and keep them on page
+    saveButton.addEventListener('click', function () {
+        bioLength = bioTextArea.value.length;
+
+        if (bioLength > MAX_OVERVIEW_LENGTH) {
+            alert('Overview exceeds 5000 characters. Please shorten Overview');
+            event.preventDefault();
+        }
+    });
+</script>
 <script>
     async function attempt_mentorship_request(mentee_id, mentor_id)
     {

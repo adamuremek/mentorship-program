@@ -94,7 +94,8 @@ def dashboard(req):
         ).annotate(
                 is_requested_by_session=Subquery(requests_count)
                 ).filter(
-            has_maxed_mentees=False,  # Exclude mentors who have maxed out their mentee slots
+            has_maxed_mentees=False,
+              bln_active = True,  # Exclude mentors who have maxed out their mentee slots
         ).filter(
             str_role='Mentor'
         ).select_related(
@@ -117,43 +118,48 @@ def dashboard(req):
 
 
     if opposite_role == "Mentee":
+
+        #sub query to count the number of requests for setting
+        requests = MentorshipRequest.objects.all().filter(mentee_id = OuterRef('pk'),mentor_id=session_user.id)
+        requests_count = requests.annotate(c=Count("*")).values('c')
+
         card_data = User.objects.filter(
             str_role='Mentee',
+            bln_active = True,
             mentee__mentor=None
         ).prefetch_related(
             'interests'  # Prefetch the interests of the associated User
         ).prefetch_related(
             'profile_img_query'
+        ).prefetch_related(
+                'mentee'
+        ).prefetch_related(
+                'mentor'
+        ).prefetch_related(
+                'mentee__mentor'
+        ).annotate(
+                is_requested_by_session=Subquery(requests_count)
+        ).order_by(
+                'is_requested_by_session' #make sure requested mentees appear first
         )
 
         users = [user.sanitize_black_properties() for user in card_data]
+        session_user.has_maxed_requests_as_mentee = False
+        print(f"finished mentee query as mentor @ {get_runtime()-start_time}")
     
-    #print("starting recomendation algorithm")
-    #recommended_users = session_user.get_recomended_users()
-    #print("ending recomendation algorithm")
-    #for p in recommended_users:
-    #    print((p.str_first_name,p.str_last_name,p.likeness))
-
-   # Retrieve a list of recommended users
+    # Retrieve a list of recommended users
     recommended_users = session_user.get_recomended_users()
-
-    # Get the IDs of recommended users
-    recommended_user_ids = [user.id for user in recommended_users]
-
-    # Retrieve a dictionary indicating whether the current user has requested each recommended user
-    requested_users = session_user.has_requested_user_all(recommended_user_ids)
-
-    # Set the is_requested_by_session property for each recommended user based on the dictionary
-    for user in recommended_users:
-        user.is_requested_by_session = requested_users.get(user.id, False)
-
-
+    #for u in recommended_users:
+    #    print(u.request_count)
 
     #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
-        card_data = card_data.exclude(mentee__mentor = session_user.mentor)
+        card_data = card_data.exclude(mentee__mentor__id = session_user.mentor.id)
     elif session_user.is_mentee() and session_user.mentee.mentor:
         card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
+
+
+    print(f"finished exlusion @ {get_runtime()-start_time}")
     
 
     interests_with_role_count = Interest.objects.annotate(
@@ -163,10 +169,6 @@ def dashboard(req):
     # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
     #set up the django users to include a property indicateing they have been reqeusted by the current user
 
-    # Get a list of user IDs
-    user_ids = [user.id for user in users]
-    # Retrieve a dictionary indicating whether the current user has requested each user
-    requested_users = session_user.has_requested_user_all(user_ids)
 
     #cache the result of this query so we are not using it in the rendered view
     context = {
@@ -179,7 +181,7 @@ def dashboard(req):
     }
 
     
-    print("Time for query: ", get_runtime()-start_time )
+    print("Time for query: ", get_runtime()-start_time)
     render = template.render(context, req)
 
     print("Time: " ,get_runtime()-start_time)
@@ -214,7 +216,6 @@ def admin_dashboard(req):
                "successful_match_rate"       : overall_stats["successful_match_rate"       ],
                "pending_mentors"             : overall_stats["pending_mentors"             ],
                "total_terminated_mentorships": overall_stats["total_terminated_mentorships"],
-               "mentees_reported"            : overall_stats["mentees_reported"            ],
                "unresolved_reports"          : overall_stats["unresolved_reports"          ],
                
                # Daily

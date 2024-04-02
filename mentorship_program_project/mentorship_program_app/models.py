@@ -468,7 +468,7 @@ class User(SVSUModelData,Model):
         last_name =  self.str_last_name if self.str_last_name != None else " "
         return first_name + " " + last_name
 
-    def get_recomended_users(self):
+    def get_recomended_users(self,limit : int =4):
         """
         Description
         ___________
@@ -486,14 +486,53 @@ class User(SVSUModelData,Model):
         David Kennamer >.>
         """
 
+
+
+        
+        #TODO: we should probably get this going specifically through djangos orm's
+        #       idk if thats possible tho since this is doing a self join on a table to 
+        #       get the data we need, def more research is required
+
+        sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
+        
+        #TODO: actually get this filtering
+        not_taken = f"""
+                        SELECT COUNT(*)=0 FROM 
+                                mentorship_program_app_mentee as ment 
+                            INNER JOIN 
+                                mentorship_program_app_mentor as m 
+                            ON 
+                                m.id = mentor_id 
+                            WHERE 
+                                ment.id = {self.id} AND m.id = tu.id
+                    """
+
+
+        if self.is_mentor():
+            sub_query = \
+                f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id=t1.user_id AND mentor_id={self.id}"
+
+            not_taken = f"SELECT COUNT(mentor_id)<1 FROM mentorship_program_app_mentee WHERE account_id = tu.id"
+        
         return User.objects.raw(
                     f"""
-                    SELECT DISTINCT t1.user_id AS id,str_first_name,str_last_name,COUNT(*) as likeness
-                       FROM mentorship_program_app_user_interests AS t1, mentorship_program_app_user_interests AS t2,mentorship_program_app_user AS tu
-                       WHERE t2.user_id={self.id} AND t1.interest_id = t2.interest_id AND t1.user_id = tu.id
-                             AND tu.str_role = '{self.get_opposite_database_role_string()}'
-                       GROUP BY t1.user_id,tu.str_first_name,tu.str_last_name
-                       ORDER BY likeness DESC;
+                    SELECT DISTINCT t1.user_id AS id,
+                                    str_first_name,
+                                    str_last_name,
+                                    COUNT(*) as likeness,
+                                    ({sub_query}) as is_requested_by_session
+                       FROM 
+                            mentorship_program_app_user_interests AS t1,
+                            mentorship_program_app_user_interests AS t2,
+                            mentorship_program_app_user AS tu
+                       WHERE t2.user_id={self.id} 
+                            AND t1.interest_id = t2.interest_id 
+                            AND t1.user_id = tu.id
+                            AND tu.str_role = '{self.get_opposite_database_role_string()}'
+                            AND ({not_taken})
+                       GROUP BY t1.user_id,tu.str_first_name,tu.str_last_name,tu.id
+                       ORDER BY likeness DESC
+                       LIMIT {limit};
                     """
                     )
 
@@ -1132,7 +1171,6 @@ class User(SVSUModelData,Model):
             "FirstName": self.str_first_name,
             "LastName": self.str_last_name,
             "PhoneNumber": self.str_phone_number,
-            "DateOfBirth": self.cls_date_of_birth,
             "Gender": self.str_gender,
             "PreferredPronouns": self.str_preferred_pronouns,
             "str_bio" : self.str_bio
@@ -1141,6 +1179,38 @@ class User(SVSUModelData,Model):
 
 
         return user_info
+    
+    @staticmethod
+    def make_user_inactive(user :"User"):
+        user.bln_active = False
+        
+        if user.is_mentee():
+            user.mentor = None
+            MentorshipRequest.objects.filter(mentee_id=user.id).delete()
+        if user.is_mentor():
+            mentor_account = Mentor.objects.get(account_id=user.id)
+            if mentor_account.is_admin_of_organization(mentor_account.organization):
+                Organization.find_new_org_admin()
+
+            MentorshipRequest.objects.filter(mentor_id=user.id).delete()
+            mentees_for_mentor = Mentee.objects.filter(mentor_id=user.id)
+            for mentee in mentees_for_mentor:
+                mentee.mentor = None
+            Mentee.objects.bulk_update(mentees_for_mentor, ['mentor'])
+        user.save()
+
+    @staticmethod
+    def reactivate_user(user: "User"):
+        if user.bln_account_disabled:
+            return "Account cannot be reactivated, user is banned"
+        user.bln_active = True
+        user.save()
+        
+    @staticmethod
+    def disable_user(user:"User"):
+        user.bln_account_disabled = True
+        user.save()
+        User.make_user_inactive(user)
     
     # @property
     # def img_user_profile(self):
@@ -1429,7 +1499,20 @@ class Organization(SVSUModelData,Model):
     str_org_name = CharField(max_length=100)
     str_industry_type = CharField(max_length=100)
 
-    admins = models.ManyToManyField('Mentor',related_name='administered_organizations') 
+    admin_mentor = OneToOneField('Mentor', related_name='administered_organizations', on_delete=models.CASCADE, null=True) 
+
+
+    @staticmethod
+    def find_new_org_admin(org_id : int):
+        # this might not work tbh
+        organization = Organization.objects.get(id=org_id)
+        # get all mentors within an organziation and order them by id
+        mentors = organization.mentor_set.all().order_by('id') 
+        # get the second oldest mentor in an org, who will become the new org admin
+        second_oldest_mentor = mentors[1:2].first()
+        # assign them as the new org admin
+        organization.admin_mentor = second_oldest_mentor
+        organization.save()
 
 class Mentor(SVSUModelData,Model):
     """
@@ -1497,11 +1580,10 @@ class Mentor(SVSUModelData,Model):
         """
         returns true if the given user administers the given organization
         """
-        try:
-            org.admins.get(id=self.id)
+        if org.admin_mentor.id==self.id:
             return True
-        except ObjectDoesNotExist:
-            return False
+        return False
+
 
     def get_shared_organizations(self,other : 'Mentor')->['Organization']:
         """
@@ -2426,6 +2508,8 @@ class Notes(SVSUModelData,Model):
             return True
         else:
             return False
+        
+        
     
     @staticmethod
     def update_note(note_id: int, new_title: str, new_pub_body: str, new_pvt_body: str) -> None:

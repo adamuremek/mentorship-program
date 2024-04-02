@@ -9,6 +9,14 @@
         {{ mentee.mentor }}
     </div>
 
+    <div id="session_user_flag">
+        {% if mentee.id == session_user_account %}
+            1
+        {% else %}
+            0
+        {% endif %}
+    </div>
+
     <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/>
 
         <p class="user_management_bar_name" id="admin_user_management_medium_text">  
@@ -66,7 +74,11 @@
             </button>
         {% endif %}
     {% endif %}
+
+    <hr>
+
 </div>
+
 <script>
     document.getElementById("{{ mentee.account.id }}").addEventListener("click", function() {
       window.location.href = "{% url 'universal_profile' mentee.account.id %}";

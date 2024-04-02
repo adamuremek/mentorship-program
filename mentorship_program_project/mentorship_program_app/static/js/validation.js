@@ -47,6 +47,7 @@
 document.addEventListener('DOMContentLoaded', winloaded => {
 
     const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Validates <{string}@{string}.{string}>
+    const regex_email_name = /[!#$%^&*()+\[\]{}|\\;:'",<>\/?=~`]/;
     const regex_svsu = /^[^\s@]+@svsu[.]edu$/ // Validates <{string}@{svsu}.{edu}>
     const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
 
@@ -103,9 +104,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             regex_custom = regex_email
 
         const regex_result = regex_custom.test(e.target.value)
+        const regex_email_name_result = regex_email_name.test(e.target.value)
 
         // Visually indicate Regex Success
-        if (regex_result)
+        if (regex_result && !regex_email_name_result)
             input_email.style.backgroundColor = GREEN
         else
             input_email.style.backgroundColor = RED

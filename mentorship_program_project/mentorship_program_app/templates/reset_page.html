@@ -37,6 +37,20 @@
 </div>
 <script>
 
+    // Assign focus to the first input field for user input
+    document.addEventListener('DOMContentLoaded', ()=>{
+        const new_pass_1 = document.getElementById('new-password');
+        
+        function focusInputPass1() {
+            // Use setTimeout to delay the focus action ~ allow for any potential rendering or modal display delays
+            setTimeout(() => {
+                new_pass_1.focus();
+            }, 0); // Adjust timing as necessary
+        }
+
+        // Focus the first input field for user input
+        focusInputPass1();
+    });
 
     var token
 

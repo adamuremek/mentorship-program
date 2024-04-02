@@ -1,8 +1,9 @@
 // Import functions from determiners.js and updaters.js
 import * as determiners from "./determiners.js";
 import * as updaters from "./updaters.js";
+import * as sorters from "./sorting.js";
 
-// Enum values for 
+// Enum values for event types
 const EVENT_TYPES = {
     ADD_MENTOR_MENTEE: 'ADD_MENTOR_MENTEE',
     ADD_MENTOR_MENTOR: 'ADD_MENTOR_MENTOR',
@@ -10,14 +11,16 @@ const EVENT_TYPES = {
     REMOVE_MENTOR_MENTOR: 'REMOVE_MENTOR_MENTOR',
     DISABLE: 'DISABLE',
     REABLE : 'REABLE',
-    // PROMOTE_SUPER: 'PROMOTE_SUPER',
+    PROMOTE_SUPER_FIRST: 'PROMOTE_SUPER_FIRST',
+    PROMOTE_SUPER_SECOND: 'PROMOTE_SUPER_SECOND',
     EDIT_ORGANIZATION_MENTOR: 'EDIT_ORGANIZATION_MENTOR',
     EDIT_ORGANIZATION_ORGANIZATION: 'EDIT_ORGANIZATION_ORGANIZATION',
     PROMOTE_ORGANIZATION_MENTOR: 'PROMOTE_ORGANIZATION_MENTOR',
     PROMOTE_ORGANIZATION_ORGANIZATION: 'PROMOTE_ORGANIZATION_ORGANIZATION',    
-    TRANSFER_ROLE: 'TRANSFER_ROLE',
-    TRANSFER_ROLE_DOUBLE_FIRST: 'TRANSFER_ROLE_DOUBLE_FIRST',
-    TRANSFER_ROLE_DOUBLE_SECOND: 'TRANSFER_ROLE_DOUBLE_SECOND',
+    TRANSFER_ROLE_ORGANIZATION_FIRST: 'TRANSFER_ROLE_ORGANIZATION_FIRST',
+    TRANSFER_ROLE_ORGANIZATION_SECOND: 'TRANSFER_ROLE_ORGANIZATION_SECOND',
+    TRANSFER_ROLE_SUPER_FIRST: 'TRANSFER_ROLE_SUPER_FIRST',
+    TRANSFER_ROLE_SUPER_SECOND: 'TRANSFER_ROLE_SUPER_SECOND',
     DECOUPLE_MENTOR: 'DECOUPLE_MENTOR',
     DECOUPLE_ORGANIZATION: 'DECOUPLE_ORGANIZATION',
     REMOVE_ORGANIZATION: 'REMOVE_ORGANIZATION'
@@ -76,14 +79,6 @@ class queue
     }
 }
 
-// Select and store bar elements
-const mentee_bar_container = document.querySelector("#mentee_bar_container");
-const mentor_bar_container = document.querySelector("#mentor_bar_container");
-
-const mentee_bars = mentee_bar_container.querySelectorAll(".mentee_management_bar");
-const mentor_bars = mentor_bar_container.querySelectorAll(".mentor_management_bar_container");
-const organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar_container");
-
 // Create flag storage, initlize all flags to false
 let add_mentor_flag = 0;
 let remove_mentor_flag = 0;
@@ -101,6 +96,11 @@ valid_mentor_bars = determiners.return_updated_mentor_list()
 
 // Create queue of events to be executed
 const event_queue = new queue;
+
+// Sort
+sorters.sort_all_bar_elements_alphabetically();
+
+
 
 function execute_events()
 {
@@ -202,11 +202,24 @@ function execute_events()
 
                 break;
 
-            // Check for promote super event
-            case EVENT_TYPES.PROMOTE_SUPER:
-                alert("promote super " + current_event.user_id);
+            // Check for promote super first event
+            case EVENT_TYPES.PROMOTE_SUPER_FIRST:
+                // Last event check
+                if (!last_event_flag)
+                {
+                    // Check if next event in queue is promote super second event
+                    if (event_queue.peek().type == EVENT_TYPES.PROMOTE_SUPER_SECOND)
+                    {
+                        // Set mentor id
+                        let mentor_id = event_queue.dequeue().user_id;
 
-                // TODO PROMOTE SUPER 
+                        // Remove promte organization organization event and promote mentor to organzation admin
+                        alert("Promoted mentor to super =" + current_event.user_id + " got promoted to super =" + mentor_id);
+
+                        // TODO PROMOTE SUPER 
+
+                    }
+                }
 
                 break;
 
@@ -259,26 +272,39 @@ function execute_events()
 
                 break;
 
-            // Check for transfer role event
-            case EVENT_TYPES.TRANSFER_ROLE:
-                alert("transfer role " + current_event.user_id);
-
-                // TODO TRANSFER ROLE
-
-                break;
-
-            case EVENT_TYPES.TRANSFER_ROLE_DOUBLE_FIRST:
+            // Check for transfer role organization first event
+            case EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_FIRST:
                 // Last event check
                 if (!last_event_flag)
                 {
-                    // Check if next event in queue is 
-                    if (event_queue.peek().type == EVENT_TYPES.TRANSFER_ROLE_DOUBLE_SECOND)
+                    // Check if next event in queue is transfer role organization second event
+                    if (event_queue.peek().type == EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_SECOND)
                     {
                         // Set second mentor id
                         let mentor_id = event_queue.dequeue().user_id;
 
-                        // Remove role from first mentor and
-                        alert("Transfer role from " + current_event.user_id + " to " + mentor_id);
+                        // Remove role from first mentor and add to second
+                        alert("Transfer role from " + current_event.user_id + " to " + mentor_id + "organization style");
+
+                       // TODO TRANSFER ROLE
+                    }
+                }
+
+                break;
+
+            // Check for transfer role super first event
+            case EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST:
+                // Last event check
+                if (!last_event_flag)
+                {
+                    // Check if next event in queue is 
+                    if (event_queue.peek().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_SECOND)
+                    {
+                        // Set second mentor id
+                        let mentor_id = event_queue.dequeue().user_id;
+
+                        // Remove role from first mentor and add to second
+                        alert("Transfer role from " + current_event.user_id + " to " + mentor_id + "super style");
 
                         // TODO TRANSFER ROLE
                     }
@@ -451,20 +477,20 @@ function check_cancel_event()
         if (transfer_role_flag)
         {
             // Check last event if transfer role double first event then remove it
-            if (event_queue.peek_end().type == EVENT_TYPES.TRANSFER_ROLE_DOUBLE_FIRST)
+            if (event_queue.peek_end().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST)
             {
                 // Determine prev user bar
                 const mentor_bar = determiners.return_mentor_bar_from_id(event_queue.peek_end().user_id);
 
-                // Determine prev user bar's add button
-                const transfer_role_button = determiners.determine_transfer_role_button(mentor_bar);
+                // Determine prev user bar's transfer button
+                const transfer_role_button = determiners.determine_transfer_role_super_admin_button(mentor_bar);
 
                 // Remove promote organzation event
                 event_queue.dequeue();
 
-                // Reset promote organzation flag
-                edit_organization_flag = 0;
-
+                // Reset transfer role flag
+                transfer_role_flag = 0;
+                
                 // Reset bar styles
                 updaters.update_reset_choice_bar_styles();
 
@@ -650,8 +676,17 @@ function remove_from_organization(mentor_bar)
     // Removing mentor bar from organization
     mentor_bar.remove();
 
+    // Determine mentor bar container
+    const mentor_bar_container = determiners.determine_mentor_bar_container();
+
     // Add mentor bar to unaffiliated mentors
     mentor_bar_container.appendChild(mentor_bar);
+
+    // Determine promote organization admin button
+    const promote_organization_button = determiners.determine_promote_organization_button(mentor_bar);
+
+    // Update to remove promote organization admin button
+    updaters.update_button_not_showing(promote_organization_button);
 
 }
 
@@ -678,6 +713,12 @@ function demote_organization_admins(organization_bar)
             // Add mentor to mentor list
             mentor_list.appendChild(current_admin);
 
+            // Determine promote organization admin button
+            const promote_organization_button = determiners.determine_promote_organization_button(current_admin);
+
+            // Update to have promote organization admin button
+            updaters.update_button_showing(promote_organization_button)
+
         });
     }
 }
@@ -694,6 +735,12 @@ function promote_organization_admin(organization_bar, mentor_bar)
     // Add mentor to admin list
     admin_list.appendChild(mentor_bar);
 
+    // Determine promote organization admin button
+    const promote_organization_button = determiners.determine_promote_organization_button(mentor_bar);
+
+    // Update to have promote organization admin button
+    updaters.update_button_not_showing(promote_organization_button)
+
 }
 
 // TODO NEED TESTING
@@ -708,6 +755,12 @@ function add_to_organization(organization_bar, mentor_bar)
 
     // Add mentor bar to orgnization mentee list
     mentor_list.appendChild(mentor_bar);
+
+    // Determine promote organization admin button
+    const promote_organization_button = determiners.determine_promote_organization_button(mentor_bar);
+
+    // Update to have promote organization admin button
+    updaters.update_button_showing(promote_organization_button)
 
 }
 
@@ -1109,7 +1162,7 @@ export function mentor_clicked_event(user_bar)
                         prev_user_bar = determiners.return_mentor_bar_from_id(prev_event.user_id);
 
                         // Determine transfer role button from mentor bar
-                        const transfer_role_button = determiners.determine_transfer_role_button(prev_user_bar);
+                        const transfer_role_button = determiners.determine_transfer_role_super_admin_button(prev_user_bar);
 
                         // Determine prev user bar to determine parent organization bar element
                         const prev_organitization_bar = determiners.determine_parent_organization_bar_element(prev_user_bar);
@@ -1118,26 +1171,34 @@ export function mentor_clicked_event(user_bar)
                         const organization_bar = determiners.determine_parent_organization_bar_element(user_bar);
 
                         // Determine if last event is an transfer role event and if mentors are within the same organization
-                        if (prev_event.type == EVENT_TYPES.TRANSFER_ROLE_DOUBLE_FIRST & prev_organitization_bar == organization_bar)
+                        if (prev_event.type == EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST & prev_organitization_bar == organization_bar)
                         {
                             // Determine if prev user bar is organization admin and current user bar is not organization admin or if prev user bar is not organization admin and current user bar is organization admin
-                            if ((determiners.determine_if_bar_organization_admin(organization_bar, prev_user_bar) && !determiners.determine_if_bar_organization_admin(organization_bar, user_bar)) ||
-                                (!determiners.determine_if_bar_organization_admin(organization_bar, prev_event) & determiners.determine_if_bar_organization_admin(organization_bar, user_bar)) ) 
+                            if (determiners.determine_if_bars_valid_transfer(organization_bar, prev_user_bar, user_bar)) 
                             {
                                 // Remove mentor bars from admin list to mentor list
                                 demote_organization_admins(organization_bar);
 
                                 // Prmote mentor bar from mentor list to admin list 
-                                promote_organization_admin(organization_bar, prev_user_bar);
+                                promote_organization_admin(organization_bar, user_bar);
 
                                 // Pass button and reset button to be off
                                 updaters.update_off_button_style(transfer_role_button);
 
+                                // Determine mentor list from organziation
+                                const organitization_mentor_list = determiners.determine_organization_mentor_list(organization_bar);
+
+                                // Pass mentor list and refresh sorting for mentor bar elements
+                                sorters.sort_mentor_bar_elements_alphabetically(organitization_mentor_list);
+
                                 // Reset bar styles
                                 updaters.update_reset_choice_bar_styles();
 
+                                // Update organization transfer buttons
+                                updaters.update_organization_transfer_buttons(organization_bar);
+
                                 // Create and store transfer role event in queue
-                                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_DOUBLE_SECOND, user_id);
+                                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_SUPER_SECOND, user_id);
 
                                 // Reset transfer role flag
                                 transfer_role_flag = 0;
@@ -1160,7 +1221,36 @@ export function mentor_clicked_event(user_bar)
     }
 }
 
-export function promote_organization_mentor_event(user_bar)
+// export function promote_super_mentor_event(user_bar)
+// {
+//     // Check if account is not disabled
+//     if (!determiners.determine_disabled_value(user_bar))
+//     {
+//         // Determine user id from hidden value in passed user bar
+//         const user_id = determiners.determine_user_id(user_bar);
+
+//         // Determine session user bar
+//         const session_user_bar = determiners.determine_session_user_bar();
+
+//         // Determine session user id
+//         const session_user_id = determiners.determine_user_id(session_user_bar);
+
+//         // Determine promote super button
+//         const promote_super_button = determiners.determine_promote_super_button(user_bar);
+
+//         // Hide promote super button from promoted user bar
+//         updaters.update_mentor_bar_remove_promote_super_button(promote_super_button);
+
+//         // Create and store promote organization mentor event in queue
+//         event_queue.enqueue(EVENT_TYPES.PROMOTE_SUPER_FIRST, session_user_id);
+
+//         // Create and store promote organization organzation event in queue
+//         event_queue.enqueue(EVENT_TYPES.PROMOTE_SUPER_SECOND, user_id);
+        
+//     }
+// }
+
+export function promote_mentor_organization_admin_event(user_bar)
 {
     // Check if account is not disabled
     if (!determiners.determine_disabled_value(user_bar))
@@ -1177,9 +1267,6 @@ export function promote_organization_mentor_event(user_bar)
         // Check and cancel last event if needed
         check_cancel_event();
 
-        // // Determine current organization bar
-        // const current_organization_bar = determiners.determine_parent_organization_bar_element(user_bar);
-
         // Check for user bar to be within organization bar
         if (organization_bar != null)
         {
@@ -1188,6 +1275,15 @@ export function promote_organization_mentor_event(user_bar)
 
             // Promote mentor bar from mentor list to admin list
             promote_organization_admin(organization_bar, user_bar);
+
+            // Update organization transfer buttons
+            updaters.update_organization_transfer_buttons(organization_bar);
+
+            // Determine mentor list from organziation
+            const organitization_mentor_list = determiners.determine_organization_mentor_list(organization_bar);
+
+            // Pass mentor list and refresh sorting for mentor bar elements
+            sorters.sort_mentor_bar_elements_alphabetically(organitization_mentor_list);
 
             // Create and store promote organization mentor event in queue
             event_queue.enqueue(EVENT_TYPES.PROMOTE_ORGANIZATION_MENTOR, user_id);
@@ -1267,15 +1363,68 @@ export function edit_organization_mentor_event(user_bar)
     // }
 }
 
-// TODO NEED TO SET UP ALONG WITH BUTTONS
 export function transfer_role_organization_admin_mentor_event(user_bar)
 {
-    // Create and store remove mentor mentor event in queue
-    event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE, user_id);
+    // Check if account is not disabled
+    if (!determiners.determine_disabled_value(user_bar))
+    {
+        // Determine user id from user bar
+        const user_id = determiners.determine_user_id(user_bar);
+
+        // Determine organization bar from user bar
+        const organization_bar = determiners.determine_parent_organization_bar_element(user_bar);
+
+        // Determine organization id of organization bar is included in
+        const organization_id = determiners.determine_organization_id(organization_bar);
+
+        // Check and cancel last event if needed
+        check_cancel_event();
+
+        // Check for user bar to be within organization bar
+        if (organization_bar != null)
+        {
+            // Determine session user bar
+            const session_user_bar = determiners.determine_session_user_bar();
+
+            // Determine session user id
+            const session_user_id = determiners.determine_user_id(session_user_bar);
+
+            // Determine organization bar from session user bar
+            const session_user_organization_bar = determiners.determine_parent_organization_bar_element(session_user_bar); 
+
+            // Check if user organization bar and session user organization bar are the same, the users are valid for transfer, 
+            // and the session user is organization admin for user bar's organization
+            if (organization_bar == session_user_organization_bar && 
+                determiners.determine_if_bars_valid_transfer(organization_bar, user_bar, session_user_bar) &&
+                determiners.determine_if_bar_organization_admin(organization_bar, session_user_bar)
+                )
+            {
+                // Demote organzation admin 
+                demote_organization_admins(organization_bar);
+
+                // Promote user bar to session
+                promote_organization_admin(organization_bar, user_bar);
+
+                // Determine mentor list from organziation
+                const organitization_mentor_list = determiners.determine_organization_mentor_list(organization_bar);
+
+                // Pass mentor list and refresh sorting for mentor bar elements
+                sorters.sort_mentor_bar_elements_alphabetically(organitization_mentor_list);
+                    
+                // Update organization transfer buttons
+                updaters.update_organization_transfer_buttons(organization_bar);
+
+                // Create and store transfer role organzation style event in queue
+                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_FIRST, session_user_id);
+                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_SECOND, user_id);
+
+                alert("transfer role org")
+
+            }
+        }
+    }
 }
 
-// SET UP FOR SUPER ADMINS WHERE IS 2 CLICKS BUT WILL NEED ORG ADMIN WHERE IS 1 CLICK
-// TODO NEED TESTING
 export function transfer_role_super_admin_mentor_event(user_bar)
 {
     // Check if account is not disabled
@@ -1291,13 +1440,13 @@ export function transfer_role_super_admin_mentor_event(user_bar)
         const user_id = determiners.determine_user_id(user_bar);
 
         // Determine transfer role button
-        const transfer_role_button = determiners.determine_transfer_role_button(user_bar);
+        const transfer_role_button = determiners.determine_transfer_role_super_admin_button(user_bar);
 
         // Check if queue is not empty
         if (!event_queue.isEmpty())
         {
             // Check if same button was already pressed before
-            toggle_flag = check_toggle_event(event_queue.peek_end(), EVENT_TYPES.TRANSFER_ROLE_DOUBLE_FIRST, user_id);
+            toggle_flag = check_toggle_event(event_queue.peek_end(), EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST, user_id);
 
         }
 
@@ -1341,13 +1490,18 @@ export function transfer_role_super_admin_mentor_event(user_bar)
                     // // Determine all but current user bar in organization mentor list
                     // valid_organization_mentors = determiners.return_mentor_list_all_but_passed_mentor_bars(current_organization_bar, user_bar);
                 }
+
+                // Determine mentor list from organziation
+                const organitization_mentor_list = determiners.determine_organization_mentor_list(current_organization_bar);
+
+                // Pass mentor list and refresh sorting for mentor bar elements
+                sorters.sort_mentor_bar_elements_alphabetically(organitization_mentor_list);
                 
                 // Style valid mentor bars
                 updaters.update_valid_choice_bar_styles(valid_organization_mentors);
-                // updaters.update_valid_choice_bar_styles(valid_organization_admins);
 
                 // Create and store transfer role event in queue
-                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_DOUBLE_FIRST, user_id);
+                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST, user_id);
 
             }
         }
@@ -1363,41 +1517,43 @@ export function transfer_role_super_admin_mentor_event(user_bar)
         } 
 
         // Transfers user account role to user
-        alert("transfer role");
+        alert("transfer role super");
 
     }
 }
 
-// TODO NEED TESTING
-export function decouple_mentor_event(user_bar)
-{
-    // // Check if account is not disabled
-    // if (!determiners.determine_disabled_value(user_bar))
-    // {
-        // Determine user id from hidden value in passed user bar
-        const user_id = determiners.determine_user_id(user_bar);
+// export function decouple_mentor_event(user_bar)
+// {
+//     // // Check if account is not disabled
+//     // if (!determiners.determine_disabled_value(user_bar))
+//     // {
+//         // Determine user id from hidden value in passed user bar
+//         const user_id = determiners.determine_user_id(user_bar);
 
-        // Determine organization bar from user
-        const organization_bar = determiners.determine_parent_organization_bar_element(user_bar);
+//         // Determine organization bar from user
+//         const organization_bar = determiners.determine_parent_organization_bar_element(user_bar);
 
-        // Determine orgnization id
-        const organization_id = determiners.determine_organization_id(organization_bar);
+//         // Determine orgnization id
+//         const organization_id = determiners.determine_organization_id(organization_bar);
 
-        // Create and store decouple organization event in queue
-        event_queue.enqueue(EVENT_TYPES.DECOUPLE_MENTOR, user_id);
-        event_queue.enqueue(EVENT_TYPES.DECOUPLE_ORGANIZATION, organization_id);
+//         // Check and cancel last event if needed
+//         check_cancel_event();
 
-        // Check and cancel last event if needed
-        check_cancel_event();
+//         // Remove mentor bar from organization to unaffiliated mentors
+//         remove_from_organization(user_bar);
 
-        // Remove mentor bar from organization to unaffiliated mentors
-        remove_from_organization(user_bar);
+//         // Update organization transfer buttons
+//         updaters.update_organization_transfer_buttons(organization_bar);
 
-        // Removes mentor from organization
-        alert("decouple");
+//         // Create and store decouple organization event in queue
+//         event_queue.enqueue(EVENT_TYPES.DECOUPLE_MENTOR, user_id);
+//         event_queue.enqueue(EVENT_TYPES.DECOUPLE_ORGANIZATION, organization_id);
 
-    // }
-}
+//         // Removes mentor from organization
+//         alert("decouple");
+
+//     // }
+// }
 
 // TODO NEED TESTING
 export function organization_clicked_event(organization_bar)
@@ -1417,19 +1573,16 @@ export function organization_clicked_event(organization_bar)
             // Find mentor bar from user id
             const mentor_bar = determiners.return_mentor_bar_from_id(prev_event.user_id);
 
-            // Determine prev organitization bar from mentor bar
-            const prev_organitization_bar = determiners.determine_parent_organization_bar_element(mentor_bar);
-
             // Check if mentor_bar is not undefined and it is not the same id as prev organitization
-            if (mentor_bar != undefined && determiners.determine_organization_id(prev_organitization_bar) != organization_id)
+            if (mentor_bar != undefined)
             {
-                // Determine edit organization button
-                const edit_organization_button = determiners.determine_edit_organization_button(mentor_bar);
-
-                // Determine if last event is an promote organzation mentor event
-                if (prev_event.type == EVENT_TYPES.EDIT_ORGANIZATION_MENTOR) 
+                // Determine if user bar is valid to transfer last event is an promote organzation mentor event and last event is an promote organzation mentor event
+                if (determiners.determine_if_bars_valid_edit_organzation(organization_bar, mentor_bar) && prev_event.type == EVENT_TYPES.EDIT_ORGANIZATION_MENTOR)
                 {
-                    // Determine parent organization if mentor is apart of another organization
+                    // Determine edit organization button
+                    const edit_organization_button = determiners.determine_edit_organization_button(mentor_bar);
+
+                    // Determine parent organization of prev event user
                     const prev_organization_bar = determiners.determine_parent_organization_bar_element(mentor_bar)
                     
                     // Check mentor was part of another organization
@@ -1446,8 +1599,17 @@ export function organization_clicked_event(organization_bar)
                     // Pass button and reset button to be off
                     updaters.update_off_button_style(edit_organization_button);
 
+                    // Determine mentor list from organziation
+                    const organitization_mentor_list = determiners.determine_organization_mentor_list(organization_bar);
+
+                    // Pass mentor list and refresh sorting for mentor bar elements
+                    sorters.sort_mentor_bar_elements_alphabetically(organitization_mentor_list);
+
                     // Reset bar styles
                     updaters.update_reset_choice_bar_styles();
+
+                    // Update organization transfer buttons
+                    updaters.update_organization_transfer_buttons(organization_bar);
 
                     // Create and store promote organzation organization event in queue
                     event_queue.enqueue(EVENT_TYPES.EDIT_ORGANIZATION_ORGANIZATION, organization_id);
@@ -1461,8 +1623,6 @@ export function organization_clicked_event(organization_bar)
             }
         }
     }
-
-    alert("org clicked");
 }
 
 export function remove_organization_event(organization_bar)

@@ -15,16 +15,16 @@
 {% block card_content %}
     <div class="sign-in-card-content">
         <div class="sign-in-card-element">
-            <h2 style="font-size: 2.5em">Select Role</h2>
+            <h2 style="font-size: 2.5em">Select Role</h2> <!-- TODO: Move CSS to different file! Sorry! -->
         </div>
         <div class="sign-in-card-element">
             <form method="get" action="/register/mentee">
-                <button class="sign-in-card-option-button" id="mentee-btn">Mentee</button>
+                <button class="sign-in-card-option-button btn-select-role" id="mentee-btn">Student Mentee</button>
             </form>
         </div>
         <div class="sign-in-card-element">
             <form method="get" action="/register/mentor">
-                <button class="sign-in-card-option-button" id="mentor-btn">Mentor</button>
+                <button class="sign-in-card-option-button btn-select-role" id="mentor-btn">Industry Mentor</button>
             </form>
         </div>
     </div>

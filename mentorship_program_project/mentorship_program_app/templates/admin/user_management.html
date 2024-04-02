@@ -30,13 +30,11 @@
                     <div class="user_management_bar_container" id="mentor_bar_container">
                         {% for mentor in unaffiliated_mentors %}
                             {% include 'admin/mentor_management_bar.html' %}
-                            <hr>
                         {% endfor %}
                         
                         
                         {% for organization in organizations %}
                             {% include 'admin/organization_management_bar.html' %}
-                            <hr>
                         {% endfor %}
                     </div>
                 </div>
@@ -51,7 +49,6 @@
                     <div class="user_management_bar_container" id="mentee_bar_container">
                         {% for mentee in mentees %}
                             {% include 'admin/mentee_managment_bar.html' %}
-                            <hr>
                         {% endfor %}
                     </div>
                 </div>
@@ -82,7 +79,7 @@
         <div class="user_board_button_container">
             <button class="admin_user_management_button" id="save_button">Save</button>
             <button class="admin_user_management_button" id="cancel_button">Cancel</button>
-            <button class="admin_user_management_button" id="experiment_delta_bravo">Experiment!</button>
+            <button class="admin_user_management_button" id="experiment_delta_bravo">Create Organization</button>
         </div>
     </div>
 
@@ -92,10 +89,10 @@
 
 <script src = "{% static 'js/backend_requests.js' %}"></script>
 
-<script type="module" src="{% static 'js/admin/user_management/filtering.js' %}"></script>
 <script type="module" src="{% static 'js/admin/user_management/determiners.js' %}"></script>
 <script type="module" src="{% static 'js/admin/user_management/updaters.js' %}"></script>
-
+<script type="module" src="{% static 'js/admin/user_management/filtering.js' %}"></script>
+<script type="module" src="{% static 'js/admin/user_management/sorting.js' %}"></script>
 <script type="module" src="{% static 'js/admin/user_management/event_queue.js' %}"></script>
 <script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script>
 

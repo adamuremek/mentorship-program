@@ -203,8 +203,8 @@ def register_mentee(req):
         
         'menteeEmailMessage': "You MUST use your SVSU.EDU email address.",
         
-        'pronounlist1': ['he', 'she', 'they'],
-        'pronounlist2': ['him', 'her', 'them'],
+        'pronounlist1': ['', 'he', 'she', 'they'],
+        'pronounlist2': ['', 'him', 'her', 'them'],
         
         'useragreement': 
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
@@ -226,8 +226,8 @@ def register_mentor(req):
     context = {
         'interestlist': Interest.objects.all(),
 
-        'pronounlist1': ['he', 'she', 'they'],
-        'pronounlist2': ['him', 'her', 'them'],
+        'pronounlist1': ['', 'he', 'she', 'they'],
+        'pronounlist2': ['', 'him', 'her', 'them'],
 
         'companytypelist': [
             'Manufacturing',
@@ -235,10 +235,10 @@ def register_mentor(req):
             'Math?'],
             
         'experiencelist': [
-            '0 years',
-            '0-2 years', 
-            '2-5 years',
-            '5+ years'],
+            '0-5 years',
+            '5-10 years', 
+            '15+ years',
+            ],
 
         'useragreement': 
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
@@ -319,15 +319,19 @@ def admin_user_management(request):
     organizations = []
     mentees = []
 
-    # Determine role of session user
-    role = session_user.str_role    
-
     # Preset flags to false
+    user_super_flag = False
     user_admin_flag = False
     user_organization_admin_flag = False
 
+    # Determine role of session user
+    role = session_user.str_role    
+
+    # Determine session user's id
+    session_user_id = str(session_user)
+
     # Load from database based on role
-    # Check if user is an admin
+    # Check if session user is an admin
     if (role == "Admin"):
         # Get all mentee, mentor, and organization data from database
         user_management_mentee_data = Mentee.objects
@@ -336,28 +340,36 @@ def admin_user_management(request):
         
         # Set role flag
         user_admin_flag = True
+
+        # Check and set user super flag if session user is a super admin
+        user_super_flag = session_user.is_super_admin()
     
     # Check if user is an organization admin
     elif (session_user.is_mentor() and Organization.objects.filter(admins=session_user.mentor).exists()):
         # TODO NEED TO SET UP TO GET ONLY DATA THAT IS NEEDED FOR THAT ORG, ONLY MENTORS WITHIN ORG AND METEES REALTED TO THEM
         # MAYBE FILTER MENTORS BY ORG AND METEES BY MENTORS WITHIN ORG
 
-        # Get all mentee data, only the admin's organization, and mentor data from within the organization
-        user_management_mentee_data = Mentee.objects
-        user_management_mentor_data = Mentor.objects
-
+        # Get only the organization admin's mentor and mentee data from within the organization
         organization = Organization.objects.get(admins=session_user.mentor)
-        mentees_with_mentors_in_organization = Mentee.objects.filter(mentor__organization=organization)
+        # mentees_with_mentors_in_organization = Mentee.objects.filter(mentor__organization=organization)
 
         user_management_organizations_data = organization
+
+        user_management_mentee_data = Mentee.objects.filter(mentor__organization=organization)
+        user_management_mentor_data = Mentor.objects.filter(organization=organization)
 
         # Set role flag
         user_organization_admin_flag = True
         
-        return HttpResponse(organization, mentees_with_mentors_in_organization)
+        # return HttpResponse(organization, mentees_with_mentors_in_organization)
 
     else:
-        return HttpResponse("Access Denied")
+        # Get no mentee, mentor, or organization data from database
+        user_management_mentee_data = []
+        user_management_mentor_data = []
+        user_management_organizations_data = []
+
+        # return HttpResponse("Access Denied")
 
     # Cycle through organizations
     for organization in user_management_organizations_data.all():
@@ -413,7 +425,11 @@ def admin_user_management(request):
                     # Check if mentor organization matches organization
                     if (mentor_organization == organization["organization"]):
                         # Check if organization admin
-                        if (mentor.is_admin_of_organization(mentor_organization)):
+                        if (mentor == mentor_organization.admin_mentor):
+
+                            print(mentor_organization.admin_mentor)
+
+                        # if (mentor.is_admin_of_organization(mentor_organization)):
                             # Attach mentor to admin list
                             organization["admin_list"].append(mentor_data)
 
@@ -437,6 +453,7 @@ def admin_user_management(request):
 
 
 
+    # print(session_user)
 
     # for org in organizations:
     #     print(org)
@@ -454,6 +471,8 @@ def admin_user_management(request):
         'unaffiliated_mentors': unaffiliated_mentors,
         'organizations': organizations,
         'role': role,
+        'session_user_account': session_user_id,
+        'user_super_flag': user_super_flag,
         'user_admin_flag': user_admin_flag,
         'user_organization_admin_flag': user_organization_admin_flag
     }
@@ -496,10 +515,17 @@ def login_uname_text(request):
         response.status_code = 401
         return response
 
+    if User.objects.get(cls_email_address=uname).bln_account_disabled:
+        response = HttpResponse(json.dumps({"warning":"Your account has been disabled"}))
+        response.status_code = 401
+        return response
+
     user = User.objects.get(cls_email_address=uname)
     user.str_last_login_date = date.today()
+    # if the user deactivated their own account, reactivate it
+    if not user.bln_active and not user.bln_account_disabled:
+        user.bln_active = True
     user.save()
-
     # record logs
     SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
 

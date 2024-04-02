@@ -4,7 +4,7 @@ import inspect
 from collections.abc import Callable
 from datetime import date
 
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseNotAllowed, HttpResponseRedirect
 from django.template import loader, Template
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -195,7 +195,7 @@ def register_mentor(req: HttpRequest):
         organization = None
         if(not Organization.objects.filter(str_org_name=req.POST["organization"]).exists()):
             organization = Organization.objects.create(str_org_name=req.POST["organization"])
-            organization.admins.add(pending_mentor_object)
+            organization.admin_mentor = pending_mentor_object
             organization.save()
 
         else:
@@ -329,6 +329,8 @@ def register_mentee(req: HttpRequest):
     else:
         return HttpResponse("Bad :(")
 
+
+@security.Decorators.require_login(bad_request_400)
 def view_pending_mentors(req: HttpRequest):
     '''
     Description
@@ -356,8 +358,12 @@ def view_pending_mentors(req: HttpRequest):
     Andrew P.
     '''
     
-    #TODO Verify youre an admin
+    session_user = User.from_session(req.session)
 
+    is_super_admin = session_user.is_super_admin()
+
+    if not(is_super_admin):
+        return redirect("/")
 
     template = loader.get_template('pending_mentors.html')
     # Get all mentors who are still pending
@@ -460,10 +466,8 @@ def disable_user(req:HttpRequest):
     
     # Get the user and set their disabled field to True
     user = User.objects.get(id=id)
-    user.bln_account_disabled = True
-    
-    # Save changes to user object
-    user.save()
+    User.disable_user(user)
+
     if(user.str_role == "Mentee"):
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
     else:
@@ -588,7 +592,7 @@ def update_profile_img(user_id, new_pfp):
 
 
 @security.Decorators.require_login(bad_request_400)
-def create_note (req : HttpRequest):
+def create_note(req : HttpRequest):
     """
     Description
     -----------
@@ -690,6 +694,8 @@ def view_mentor_by_admin(req: HttpRequest):
         mentor = Mentor.objects.get(account_id=mentor_id)
         organization = mentor.organization.get(mentor=mentor).str_org_name
         interests = user.interests.filter(user=user)
+        phone = user.cls_email_address
+        email = user.str_phone_number
         
         user_interests = []
         for interest in interests:
@@ -701,6 +707,8 @@ def view_mentor_by_admin(req: HttpRequest):
                    "organization": organization,
                    "user_interests": user_interests,
                    "experience" : mentor.str_experience,
+                   "phone" : phone,
+                   "email" : email,
                    "user" : user.sanitize_black_properties()
                    }
         return HttpResponse(template.render(context, req))
@@ -750,28 +758,69 @@ def group_view(req: HttpRequest):
 
 @security.Decorators.require_login(bad_request_400)
 def universalProfile(req : HttpRequest, user_id : int):
-    
+    '''
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object.
+    - user_id : int
+        The unique identifier of the user whose profile is to be displayed.
+
+    Returns
+    -------
+    HttpResponse
+        Renders and returns the universal profile page with context data including the user's details, interests, mentorship requests, and notes.
+
+    Raises
+    ------
+    - ObjectDoesNotExist
+        If no User object with the given `user_id` exists.
+
+    Example Usage
+    -------------
+    universalProfile(request, 42)
+    Displays the profile page for the user with id=42.
+
+    Authors
+    -------
+    - Andrew P
+    - Logan Z
+    - Adam U
+    - Jordan A
+'''
+   
     profile_page_owner = None
+    # Attempt to retrieve the profile page owner from the database
     try:
         profile_page_owner = User.objects.get(id=user_id)
     except ObjectDoesNotExist:
         return bad_request_400("user page does not exist")
 
+    # if the users account is disabled, you can't view their profile
+    if not profile_page_owner.bln_active:
+        return bad_request_400("user page does not exist")
+
+    # Load the template for the profile page
     template = loader.get_template('group_view/combined_views.html')
     signed_in_user = User.from_session(req.session)
+    signed_in_user = User.from_session(req.session)
+
     signed_in_user.has_requested_this_user = signed_in_user.has_requested_user(profile_page_owner)
   
     
     # the user object for the page owner
     page_owner_user = User.objects.get(id=user_id)
-
+    # Determine the role-based object for the page owner (mentee or mentor)
     page_owner_go_fuck_yourself = getattr(page_owner_user, 'mentee' if page_owner_user.is_mentee else 'mentor', None)
+    # Fetch interests linked to the user
     interests = page_owner_user.interests.filter(user=page_owner_user)
     is_page_owner = signed_in_user == page_owner_user
+    # Compile a list of user interests for the template context
     user_interests = []
     for interest in interests:
         user_interests.append(interest)
 
+    # all interests (used for editing profile)
     all_interests = Interest.objects.all()
     pendingList = []
     notes = None
@@ -854,11 +903,15 @@ def reject_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
 def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse:
     session_user = User.from_session(req.session)
     mentor_account = None
+    mentee_account = None
     try:
         mentor_account = User.objects.get(id=mentor_user_account_id)
+        mentee_account = User.objects.get(id=mentee_user_account_id)
     except ObjectDoesNotExist:
         return bad_request_400("mentor id is invalid!")
 
+    if not mentor_account.bln_active or not mentee_account.bln_active:
+        return bad_request_400("User is no longer active")
     
     if session_user.is_super_admin() or session_user.id == mentee_user_account_id or session_user.id == mentor_user_account_id:
         try:
@@ -952,6 +1005,40 @@ def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_us
 
 @security.Decorators.require_login(bad_request_400)
 def delete_mentorship(req: HttpRequest, mentee_user_account_id):
+    '''
+    Description
+    -----------
+    Function to dissociate a mentee from their current mentor based on the mentee's account ID. 
+    It sets the `mentor_id` of the specified Mentee object to None, thereby removing the mentor-mentee relationship.
+    After the operation, it redirects the user to the previous page.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing all details of the request.
+    - mentee_user_account_id : int
+        The account ID of the mentee whose mentorship is to be deleted.
+
+    Returns
+    -------
+    HttpResponseRedirect
+        Redirects the user to the page they came from, as indicated by the HTTP_REFERER header, 
+        or to the homepage if the referrer is not available.
+
+    Example Usage
+    -------------
+    Assuming a mentee with an account ID of 123 exists and is currently associated with a mentor:
+
+        >>> from django.http import HttpRequest
+        >>> request = HttpRequest()
+        >>> delete_mentorship(request, 123)
+
+        This will remove the mentee's current mentor association and redirect the user to the referring page.
+
+    Authors
+    -------
+    - Andrew P
+'''
     print(mentee_user_account_id)
     mentee = Mentee.objects.get(account_id=mentee_user_account_id)
     mentee.mentor_id = None
@@ -1014,6 +1101,9 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
         response = HttpResponse(json.dumps({"result":"unable to create request!"}))
         response.status_code = 400
         return response
+    
+    if not mentor_account.bln_active or not mentee_account.bln_active:
+        return bad_request_400("User is no longer active")
 
     mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id)
 
@@ -1027,12 +1117,33 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
 
 
 def change_password(req : HttpRequest):
+    '''
+    Description
+    -----------
+    Function to change the password of the currently logged-in user. It validates the old password, generates a new salt, hashes the new password with this salt, updates the user's password details, and saves these changes to the database.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the old and new passwords submitted through a form.
+
+    Returns
+    -------
+    HttpResponse
+        Renders the settings page with a message indicating whether the password was successfully updated or if the old password was invalid.
+
+    Authors
+    -------
+    - Andrew P
+    '''
+    # Retrieve old and new passwords from POST request
     old_password = req.POST["old-password"]
     new_password = req.POST["new-password"]
     user = User.from_session(req.session)
+    # Check if the old password is valid
     if not user.check_valid_password(old_password): 
            return render(req, 'settings.html', {'message':"Invalid Password"})
-    
+    # Hash the new password with the newly generated salt
     generated_user_salt = security.generate_salt()
     user.str_password_hash = security.hash_password(new_password, generated_user_salt)
     user.str_password_salt = generated_user_salt
@@ -1040,6 +1151,11 @@ def change_password(req : HttpRequest):
 
     # redirect to the page the request came from
     return render(req, 'settings.html', {'message':"Password Updated"})
+
+
+def deactivate_your_own_account(req : HttpRequest):
+    User.make_user_inactive(User.objects.get(id=User.from_session(req.session).id))
+    return redirect('/logout')
 
 
 @csrf_exempt
@@ -1083,9 +1199,6 @@ def reset_request(req: HttpRequest):
     reset_token_email(req, recipient=user.cls_email_address, token=token) # Pass req along with recipient email and token
     print("email sent to: "+email)
     return HttpResponse(True)
-
-
-
 
 
 
@@ -1181,26 +1294,52 @@ def check_email_for_password_reset(request):
 
 
 def available_mentees(req: HttpRequest):
-    template = loader.get_template('admin/available_mentees.html')
-    added_mentees = None
-    removed_mentees = None
-    context = {}
+    '''
+    Loads the page for the admin to upload a file to add/remove mentees who are eligible
 
+    - Andrew P
+    '''
+    template = loader.get_template('admin/available_mentees.html')
+    context = {}
     return HttpResponse(template.render(context,req))
 
-
 def process_file(req: HttpRequest):
+    '''
+    Description
+    -----------
+    Function to process an uploaded file containing email addresses, first names, and last names separated by tabs. It identifies emails that are both whitelisted and present in the file, emails in the file not whitelisted (considered as 'added users'), and whitelisted emails not found in the file (considered as 'removed users'). The function renders a template displaying these categorized emails and additional information.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object, which can carry the uploaded file in a POST request or handle a GET request to initially render the form.
+
+    Returns
+    -------
+    HttpResponse
+        Renders an HTML template with context data that includes lists of added, removed, and already whitelisted users found in the uploaded file, along with the file name and any error messages.
+
+    Authors
+    -------
+    - Andrew P
+    '''
+
     template = loader.get_template('admin/available_mentees.html')
     
+    # its a get request the first time you load the page
     if req.method == "GET":
         context = {'added': [], 'removed': [], 'file_name': ''}
         return HttpResponse(template.render(context, req))
-
+    # after you upload a file, it'll be a post request and all the fun stuff gets to happen
     if req.method == 'POST' and 'fileUpload' in req.FILES:
         imported_file = req.FILES['fileUpload']
+        # users whos accounts are still valid
         whitelisted_and_present = []
+        # users to be added
         added_users = []
+        # all the emails that exist already
         all_whitelisted_emails = set(WhitelistedEmails.objects.values_list('str_email', flat=True))
+        # set of all the emails and names in the file
         emails_in_file = set()
         try:
             # Read the content of the uploaded file
@@ -1213,15 +1352,17 @@ def process_file(req: HttpRequest):
                 email, first_name, last_name = parts[0], parts[1], parts[2]
                 user_tuple = (email, first_name, last_name)
                 emails_in_file.add(user_tuple)
-
+                # we kinda ignore these
                 if email in all_whitelisted_emails:
                     whitelisted_and_present.append(user_tuple)
+                # these users could be added if admin chooses
                 else:
                     added_users.append(user_tuple)
 
             
 
             # Determine which whitelisted emails were not found in the file
+            # the admin can chose to remove these users
             removed_emails = all_whitelisted_emails - {email for email, _, _ in emails_in_file}
             removed_users = [(email, '', '') for email in removed_emails]  
 
@@ -1243,6 +1384,26 @@ def process_file(req: HttpRequest):
 
 
 def add_remove_mentees_from_file(req : HttpRequest):
+    '''
+    Description
+    -----------
+    Function to add and remove mentee emails from a whitelist based on a provided list within a single HttpRequest. The request contains a string of mentee emails to be added or removed, formatted and separated by specific delimiters. Emails to be added are separated from those to be removed by a semicolon (";"), and individual emails within those groups are separated by commas (",").
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object carrying the payload with the list of mentees' emails.
+
+    Returns
+    -------
+    HttpResponseRedirect
+        Redirects to the "/available_mentees" URL after processing the list.
+
+    Authors
+    -------
+    - Andrew P
+    - Adam U.
+    '''
     list_of_mentees = json.loads(req.body)["list_of_mentees"]
     banana_split = list_of_mentees.split(";")
     added_mentees = banana_split[0].split(",") if len(banana_split) > 0 else []
@@ -1251,12 +1412,150 @@ def add_remove_mentees_from_file(req : HttpRequest):
     added_list = []
     for mentee_email in added_mentees:
         added_list.append(WhitelistedEmails(str_email=mentee_email))
-    print("CUM ",added_list)
+        
     WhitelistedEmails.objects.bulk_create(added_list)
     WhitelistedEmails.objects.filter(str_email__in=removed_mentees).delete()
 
     return redirect("/available_mentees")
 
+
+def promote_org_admin(req : HttpRequest, promoted_mentor_id):
+    '''
+    Description
+    -----------
+    Function to promote a new mentor to the position of organization admin. This action can be performed by a super admin or the current organization admin. It updates the designated organization's admin to the newly promoted mentor.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object, which should carry the session of the currently logged-in user.
+    - promoted_mentor_id : int
+        The ID of the mentor who is to be promoted to the organization admin.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome. If the operation is successful, it returns a confirmation message. If the operation fails due to permission issues, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Andrew P.
+    - Adam U.
+    '''
+
+    # gets the user from the session to check if theyre a super admin
+    user_from_session = User.from_session(req.session)
+    is_org_admin = False
+    # if user is not super admin, check if they're the org admin for the org being changed
+    if not user_from_session.is_super_admin():
+        mentor_account = Mentor.objects.get(id=user_from_session.id)
+        current_org_admin = Organization.objects.get(mentor=mentor_account).admin_mentor
+        is_org_admin = current_org_admin == mentor_account
+    if not user_from_session.is_super_admin() or not is_org_admin:
+        return bad_request_400("Permission denied")
+    
+    # promote them to super admin
+    new_org_admin= Mentor.objects.get(id=promoted_mentor_id)
+    org = Organization.objects.get(mentor=new_org_admin)
+    org.admin_mentor = new_org_admin
+    org.save()
+
+    return HttpResponse("Org Admin updated")
+    
+
+def edit_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
+    '''
+    Description
+    -----------
+    Function to assign a new organization to a mentor. This operation can only be performed by a super admin. It updates the organization associated with a specified mentor to a new organization based on the provided organization ID.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the session of the currently logged-in user. Used to check if the user has super admin privileges.
+    - mentor_id : int
+        The ID of the mentor whose organization affiliation is to be edited.
+    - org_id : int
+        The ID of the new organization to which the mentor will be assigned.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome of the operation. If successful, it confirms that the organization was updated. If the operation fails due to lack of permissions, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Andrew P.
+    '''
+    user_from_session = User.from_session(req.session)
+    if not user_from_session.is_super_admin():
+        return bad_request_400("Permission denied")
+    
+
+    #TODO next of kin for org admin
+    mentor_account = Mentor.objects.get(id=mentor_id)
+    new_org = Organization.objects.get(id=org_id)
+    mentor_account.organization = new_org
+    mentor_account.save()
+    return HttpResponse("Organization updated")
+
+
+def admin_create_new_org(req : HttpRequest, org_name : str):
+    '''
+    Description
+    -----------
+    Function to create a new organization. This action is restricted to super admins only. It creates an organization with the given name.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the session of the currently logged-in user. This is used to verify if the user has super admin privileges.
+    - org_name : str
+        The name of the new organization to be created.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome of the operation. If the operation is successful, it confirms that the organization was created. If the operation fails due to lack of permissions, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Andrew P.
+    '''
+    user_from_session = User.from_session(req.session)
+    if not user_from_session.is_super_admin():
+        return bad_request_400("Permission denied")
+    Organization.objects.create(str_org_name=org_name)
+    return HttpResponse("Organization created")
+
+def admin_delete_org(req: HttpRequest, org_id: int):
+    '''
+    Description
+    -----------
+    Function to delete an existing organization. This operation is restricted to super admins only, ensuring that only authorized users can remove organizations from the system. It deletes the organization corresponding to the provided organization ID.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the session of the currently logged-in user. Used to verify if the user possesses super admin privileges.
+    - org_id : int
+        The unique identifier of the organization to be deleted.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome of the operation. If successful, it confirms that the organization was deleted. If the operation fails due to lack of permissions or if the specified organization does not exist, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Andrew P.
+    '''
+    user_from_session = User.from_session(req.session)
+    if not user_from_session.is_super_admin():
+        return bad_request_400("Permission denied")
+    
+    Organization.objects.get(id=org_id).delete()
+    return HttpResponse("Organization deleted")
 
 @csrf_exempt
 def check_email(request):

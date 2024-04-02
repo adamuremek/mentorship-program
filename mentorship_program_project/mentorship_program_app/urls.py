@@ -114,6 +114,8 @@ urlpatterns = [
     path("available_mentees", under_development.available_mentees, name="available_mentees"),
     path("process_file", under_development.process_file, name="process_file"),
     path("add_remove_mentees_from_file", under_development.add_remove_mentees_from_file, name="add_remove_mentees_from_file"),
+    path("deactivate_your_own_account", under_development.deactivate_your_own_account, name="deactivate_your_own_account"),
+    path("promote_org_admin/<int:promoted_mentor_id>", under_development.promote_org_admin, name="promote_org_admin"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN
@@ -143,6 +145,7 @@ urlpatterns = [
     path('account_activation_mentee_valid/', views.account_activation_valid_mentee, name='account_activation_valid_mentee'),
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
     path('admin_user_management/', views.admin_user_management, name='admin_user_management'),
+
     # TEMP PATH FOR TESTBACKEND PROCESSING --ANTHONY PETERS
     # path('admin_user_management/addMentorshipRequest/', views.admin_user_managment_add_mentorship_request,  name='admin_user_management_add_mentorship_request'),
 
