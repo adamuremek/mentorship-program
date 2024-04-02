@@ -1256,3 +1256,16 @@ def add_remove_mentees_from_file(req : HttpRequest):
     WhitelistedEmails.objects.filter(str_email__in=removed_mentees).delete()
 
     return redirect("/available_mentees")
+
+
+@csrf_exempt
+def check_email(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        email = data.get('email')
+
+
+        exists = User.objects.filter(cls_email_address=email).exists()
+        return JsonResponse({'exists': exists})
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)

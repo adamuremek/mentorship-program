@@ -264,6 +264,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             case 2: // Email | Phone | Password
                 is_valid = regex_custom.test(input_email.value) &&
                     regex_phone.test(input_phone.value) &&
+                    !email_already_exist(input_email.value) &&
                     is_password_valid()
                 if(!is_valid)
                     display_error_message_for_email_phone_password()
@@ -311,6 +312,32 @@ document.addEventListener('DOMContentLoaded', winloaded => {
           
           
     }
+
+     async function email_already_exist(email){
+        try {
+            
+            const response = await fetch('/check-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                    
+                },
+                body: JSON.stringify({ email })
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            const data = await response.json();
+            
+            return data.exists; // Assuming the response contains a boolean indicating if the email exists
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
+            return false; // Return false in case of error
+        }
+    }
+   
 
 
 
@@ -398,7 +425,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             last_name_warning_message.innerText = ""
     }
 
-    function display_error_message_for_email_phone_password(){
+    async function display_error_message_for_email_phone_password(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
 
         if (input_password.value.length == 0) {
@@ -424,6 +451,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             email_warning_message.innerText = "Email cannot be blank!"
         else if(!regex_custom.test(input_email.value))
             email_warning_message.innerText = "You must enter a valid email address."
+        else if(await email_already_exist(input_email.value))
+            email_warning_message.innerText = "Account with this email already exist"
         else
             email_warning_message.innerText = ""
     }

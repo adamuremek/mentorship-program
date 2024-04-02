@@ -93,6 +93,7 @@ urlpatterns = [
     path("reset_password", under_development.reset_password, name="reset_password"),
     re_path(r'^request_reset_page(?:/(?P<token>\w{30}))?/$', under_development.request_reset_page, name="request_reset_page"),
     path('check_email_for_password_reset', under_development.check_email_for_password_reset, name='check_email_for_password_reset'),
+    path('check-email', under_development.check_email, name='check_email'),
 
 
     #ADAM + ANDREW + JORDAN TESTING
