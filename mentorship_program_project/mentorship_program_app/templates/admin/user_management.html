@@ -76,14 +76,14 @@
             </div>
         </div>
 
-        <div class="hidden_element" id="save_cancel_message">
+        <div class="user_management_message_bar" id="admin_user_management_medium_text">
             PLACEHOLDER MESSAGE
         </div>
-
+        
         <div class="user_board_button_container">
             <button class="admin_user_management_button" id="save_button">Save</button>
             <button class="admin_user_management_button" id="cancel_button">Cancel</button>
-            <button class="admin_user_management_button" id="add_new_orgnization">Create New Organization</button>
+            <button class="admin_user_management_button" id="add_new_organization_button">Create New Organization</button>
         </div>
     </div>
 
@@ -100,8 +100,7 @@
     </div>
 
     <!-- I will figure this out but im really stupid rn -->
-    <!-- <dialog class="modal" id="profile-viewing-modal">
-    </dialog> -->
+    {% include 'admin/create_organization_modal.html' %}
 
     <script src = "{% static 'js/backend_requests.js' %}"></script>
 
@@ -112,6 +111,20 @@
     <script type="module" src="{% static 'js/admin/user_management/event_queue.js' %}"></script>
     <script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script>
 
-    {% include 'admin/add_new_organization_modal.html' %}
+    <script>
+        const add_new_organization_button = document.getElementById('add_new_organization_button')
+        const modal_organization = document.getElementById('organization-modal');
+        const modal_exit = document.getElementById('modal-exit');
+    
+        if(add_new_organization_button)
+        add_new_organization_button.addEventListener('click', () => {
+                modal_organization.showModal()
+            })
+    
+        if(modal_exit)
+            modal_exit.addEventListener("click", () => {
+                modal_organization.close();
+            });
+    </script>    
 
 {% endblock %}

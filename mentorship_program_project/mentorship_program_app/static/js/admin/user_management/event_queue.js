@@ -21,8 +21,8 @@ const EVENT_TYPES = {
     TRANSFER_ROLE_ORGANIZATION_SECOND: 'TRANSFER_ROLE_ORGANIZATION_SECOND',
     TRANSFER_ROLE_SUPER_FIRST: 'TRANSFER_ROLE_SUPER_FIRST',
     TRANSFER_ROLE_SUPER_SECOND: 'TRANSFER_ROLE_SUPER_SECOND',
-    DECOUPLE_MENTOR: 'DECOUPLE_MENTOR',
-    DECOUPLE_ORGANIZATION: 'DECOUPLE_ORGANIZATION',
+    // DECOUPLE_MENTOR: 'DECOUPLE_MENTOR',
+    // DECOUPLE_ORGANIZATION: 'DECOUPLE_ORGANIZATION',
     CREATE_ORGANIZATION: 'CREATE_ORGANIZATION',
     REMOVE_ORGANIZATION: 'REMOVE_ORGANIZATION'
 
@@ -50,11 +50,9 @@ class queue
         // Check if not empty
         if (!this.isEmpty())
         {
-            // Decrease back index
-            // this.back_index--;
-
             // Shift and return first value
             return_event = this.events.shift();
+
         }
 
         return return_event;
@@ -95,30 +93,28 @@ let valid_mentor_bars = []
 // Update valid and invalid mentors
 valid_mentor_bars = determiners.return_updated_mentor_list()
 
-// Create queue of events to be executed
+// Create queues
 const event_queue = new queue;
+const execute_queue = new queue;
 
 // Sort
 sorters.sort_all_bar_elements_alphabetically();
 
 
 
-function execute_events()
+function execute_events(queue, execute_flag)
 {
     // Initlize last event and valid flags
     let last_event_flag = 0;
     let valid_flag = 1;
 
-    // Check and cancel last event if needed
-    check_cancel_event();
-
-    // Loop through event queue till empty
-    while (!event_queue.isEmpty()) {
+    // Loop through queue till empty
+    while (!queue.isEmpty()) {
         // Remove event from queue
-        let current_event = event_queue.dequeue()
+        let current_event = queue.dequeue()
 
         // Check and set flag if last event
-        if (event_queue.isEmpty())
+        if (queue.isEmpty())
         {
             last_event_flag = 1;
         }
@@ -132,17 +128,33 @@ function execute_events()
                 if (!last_event_flag)
                 {
                     // Check if the next event in queue is add mentor mentor event
-                    if (event_queue.peek().type == EVENT_TYPES.ADD_MENTOR_MENTOR)
+                    if (queue.peek().type == EVENT_TYPES.ADD_MENTOR_MENTOR)
                     {
                         // Set mentor id
-                        let mentor_id = event_queue.dequeue().data;
+                        let mentor_id = queue.dequeue().data;
 
-                        // Remove add mentor mentor event and create a mentorship between mentee and mentor
-                        alert("Create mentorship between mentee=" + current_event.data + " & mentor=" + mentor_id);
+                        // Check executing flag
+                        if (execute_flag)
+                        {
+                            // Executing events
 
-                        // TODO ADD MENTORSHIP
-                        // under_development.py - create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse
-                    
+                            // Remove add mentor mentor event and create a mentorship between mentee and mentor
+                            alert("Create mentorship between mentee=" + current_event.data + " & mentor=" + mentor_id);
+
+                            // TODO ADD MENTORSHIP
+                            // under_development.py - create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_user_account_id : int )->HttpResponse
+
+                        }
+                        else
+                        {
+                            // Testing events 
+                            // Create add mentor mentee event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.ADD_MENTOR_MENTEE, current_event.data);
+
+                            // Create add mentor mentor event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.ADD_MENTOR_MENTOR, mentor_id);
+                            
+                        }                    
                     }
                 }
                 else
@@ -151,7 +163,8 @@ function execute_events()
                     valid_flag = 0;
 
                     // Error in queue input will need to cancel rest of queue
-                    queue_input_error();
+                    // queue_input_error();
+                    cancel_events(current_event.type, current_event.data);
                 }
 
                 break;
@@ -162,16 +175,32 @@ function execute_events()
                 if (!last_event_flag)
                 {
                     // Check if the next event in queue is remove mentor mentor event
-                    if (event_queue.peek().type == EVENT_TYPES.REMOVE_MENTOR_MENTOR)
+                    if (queue.peek().type == EVENT_TYPES.REMOVE_MENTOR_MENTOR)
                     {
                         // Set mentor id
-                        let mentor_id = event_queue.dequeue().data;
+                        let mentor_id = queue.dequeue().data;
 
-                        // Remove remove mentor mentor event and remove mentorship between mentee and mentor
-                        alert("Remove mentorship between mentee=" + current_event.data + " & mentor=" + mentor_id);
+                        // Check executing flag
+                        if (execute_flag)
+                        {
+                            // Executing events
+                            // Remove remove mentor mentor event and remove mentorship between mentee and mentor
+                            alert("Remove mentorship between mentee=" + current_event.data + " & mentor=" + mentor_id);
 
-                        // TODO REMOVE MENTORSHIP
-                        // under_development.py - delete_mentorship(req: HttpRequest, mentee_user_account_id)
+                            // TODO REMOVE MENTORSHIP
+                            // under_development.py - delete_mentorship(req: HttpRequest, mentee_user_account_id)
+
+                        }
+                        else
+                        {
+                            // Testing events
+                            // Create remove mentor mentee event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, current_event.data);
+
+                            // Create remove mentor mentor event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, mentor_id);
+                            
+                        }
                     }
                 }
                 else
@@ -180,49 +209,87 @@ function execute_events()
                     valid_flag = 0;
 
                     // Error in queue input will need to cancel rest of queue
-                    queue_input_error();
+                    // queue_input_error();
+                    cancel_events(current_event.type, current_event.data);;
                 }
 
                 break;
                 
             // Check for disable event
             case EVENT_TYPES.DISABLE:
-                alert("disable " + current_event.data);
+                    // Check executing flag
+                    if (execute_flag)
+                    {
+                        // Executing events
+                        alert("disable " + current_event.data);
 
-                // TODO DISABLE 
-                // under_development.py - disable_user(req:HttpRequest)
+                        // TODO DISABLE 
+                        // under_development.py - disable_user(req:HttpRequest)
+
+                    }
+                    else
+                    {
+                        // Testing events 
+                        // Create disable event in execute queue
+                        execute_queue.enqueue(EVENT_TYPES.DISABLE, current_event.data);
+                        
+                    }
 
                 break;
 
             // Check for reable event
             case EVENT_TYPES.REABLE:
-                alert("reable " + current_event.data);
-
-                // TODO REABLE
-                // under_development.py - enable_user(req:HttpRequest)
-
-                break;
-
-            // Check for promote super first event
-            case EVENT_TYPES.PROMOTE_SUPER_FIRST:
-                // Last event check
-                if (!last_event_flag)
+                // Check executing flag
+                if (execute_flag)
                 {
-                    // Check if next event in queue is promote super second event
-                    if (event_queue.peek().type == EVENT_TYPES.PROMOTE_SUPER_SECOND)
-                    {
-                        // Set mentor id
-                        let mentor_id = event_queue.dequeue().data;
+                    // Executing events
+                    alert("reable " + current_event.data);
 
-                        // Remove promte organization organization event and promote mentor to organzation admin
-                        alert("Promoted mentor to super =" + current_event.data + " got promoted to super =" + mentor_id);
+                    // TODO REABLE
+                    // under_development.py - enable_user(req:HttpRequest)
+                }
+                else
+                {
+                    // Testing events 
+                    // Create reable event in execute queue
+                    execute_queue.enqueue(EVENT_TYPES.REABLE, current_event.data);
 
-                        // TODO PROMOTE SUPER 
-
-                    }
                 }
 
                 break;
+
+            // // Check for promote super first event
+            // case EVENT_TYPES.PROMOTE_SUPER_FIRST:
+            //     // Last event check
+            //     if (!last_event_flag)
+            //     {
+            //         // Check if next event in queue is promote super second event
+            //         if (queue.peek().type == EVENT_TYPES.PROMOTE_SUPER_SECOND)
+            //         {
+            //             // Check executing flag
+            //             if (execute_flag)
+            //             {
+            //                 // Executing events
+
+            //             }
+            //             else
+            //             {
+            //                 // Testing events 
+                            
+            //             }
+
+            //             // Set mentor id
+            //             let mentor_id = queue.dequeue().data;
+
+            //             // Remove promte organization organization event and promote mentor to organzation admin
+            //             alert("Promoted mentor to super =" + current_event.data + " got promoted to super =" + mentor_id);
+
+            //             // TODO PROMOTE SUPER 
+
+            //         }
+            //     }
+
+            //     break;
 
             // Check for promote organization mentor event
             case EVENT_TYPES.PROMOTE_ORGANIZATION_MENTOR:
@@ -230,16 +297,31 @@ function execute_events()
                 if (!last_event_flag)
                 {
                     // Check if next event in queue is promote organization organization event
-                    if (event_queue.peek().type == EVENT_TYPES.PROMOTE_ORGANIZATION_ORGANIZATION)
+                    if (queue.peek().type == EVENT_TYPES.PROMOTE_ORGANIZATION_ORGANIZATION)
                     {
                         // Set organization id
-                        let organization_id = event_queue.dequeue().data;
+                        let organization_id = queue.dequeue().data;
 
-                        // Remove promte organization organization event and promote mentor to organzation admin
-                        alert("Promote mentor=" + current_event.data + " to org admin of org=" + organization_id);
+                        // Check executing flag
+                        if (execute_flag)
+                        {
+                            // Executing events
+                            // Remove promte organization organization event and promote mentor to organzation admin
+                            alert("Promote mentor=" + current_event.data + " to org admin of org=" + organization_id);
 
-                        // TODO PROMOTE ORGANZATION 
+                            // TODO PROMOTE ORGANZATION 
 
+                        }
+                        else
+                        {
+                            // Testing events 
+                            // Create promote organization mentor event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.PROMOTE_ORGANIZATION_MENTOR, current_event.data);
+
+                            // Create promote organization organization event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.PROMOTE_ORGANIZATION_ORGANIZATION, organization_id);
+                            
+                        }
                     }
                 }
                 else
@@ -248,7 +330,8 @@ function execute_events()
                     valid_flag = 0;
 
                     // Error in queue input will need to cancel rest of queue
-                    queue_input_error();
+                    // queue_input_error();
+                    cancel_events(current_event.type, current_event.data);;
                 }
 
                 break;
@@ -259,15 +342,31 @@ function execute_events()
                 if (!last_event_flag)
                 {
                     // Check if next event in queue is edit organization organization event
-                    if (event_queue.peek().type == EVENT_TYPES.EDIT_ORGANIZATION_ORGANIZATION)
+                    if (queue.peek().type == EVENT_TYPES.EDIT_ORGANIZATION_ORGANIZATION)
                     {
                         // Set organization id
-                        let organization_id = event_queue.dequeue().data;
+                        let organization_id = queue.dequeue().data;
 
-                        // Remove edit organization organization event and edit organization
-                        alert("Edit org for mentor=" + current_event.data + " to org=" + organization_id);
+                        // Check executing flag
+                        if (execute_flag)
+                        {
+                            // Executing events
+                            // Remove edit organization organization event and edit organization
+                            alert("Edit org for mentor=" + current_event.data + " to org=" + organization_id);
 
-                        // TODO EDIT ORGANZATION
+                            // TODO EDIT ORGANZATION
+
+                        }
+                        else
+                        {
+                            // Testing events 
+                            // Create edit organization mentor event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.EDIT_ORGANIZATION_MENTOR, current_event.data);
+
+                            // Create edit organization organization event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.EDIT_ORGANIZATION_ORGANIZATION, organization_id);
+                                                        
+                        }
                     }
                 }
 
@@ -279,15 +378,31 @@ function execute_events()
                 if (!last_event_flag)
                 {
                     // Check if next event in queue is transfer role organization second event
-                    if (event_queue.peek().type == EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_SECOND)
+                    if (queue.peek().type == EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_SECOND)
                     {
                         // Set second mentor id
-                        let mentor_id = event_queue.dequeue().data;
+                        let mentor_id = queue.dequeue().data;
+                        
+                        // Check executing flag
+                        if (execute_flag)
+                        {
+                            // Executing events
+                            // Remove role from first mentor and add to second
+                            alert("Transfer role from " + current_event.data + " to " + mentor_id + "organization style");
 
-                        // Remove role from first mentor and add to second
-                        alert("Transfer role from " + current_event.data + " to " + mentor_id + "organization style");
+                            // TODO TRANSFER ROLE
 
-                       // TODO TRANSFER ROLE
+                        }
+                        else
+                        {
+                            // Testing events 
+                            // Create transfer role organization first event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_FIRST, current_event.data);
+
+                            // Create transfer role organization second event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_SECOND, organization_id);
+                            
+                        }
                     }
                 }
 
@@ -298,16 +413,32 @@ function execute_events()
                 // Last event check
                 if (!last_event_flag)
                 {
-                    // Check if next event in queue is 
-                    if (event_queue.peek().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_SECOND)
+                    // Check if next event in queue is transfer role super second event
+                    if (queue.peek().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_SECOND)
                     {
                         // Set second mentor id
-                        let mentor_id = event_queue.dequeue().data;
+                        let mentor_id = queue.dequeue().data;
 
-                        // Remove role from first mentor and add to second
-                        alert("Transfer role from " + current_event.data + " to " + mentor_id + "super style");
+                        // Check executing flag
+                        if (execute_flag)
+                        {
+                            // Executing events
+                            // Remove role from first mentor and add to second
+                            alert("Transfer role from " + current_event.data + " to " + mentor_id + "super style");
 
-                        // TODO TRANSFER ROLE
+                            // TODO TRANSFER ROLE
+
+                        }
+                        else
+                        {
+                            // Testing events 
+                            // Create transfer role super first event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST, current_event.data);
+
+                            // Create transfer role super second event in execute queue
+                            execute_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_SUPER_SECOND, organization_id);
+                                                        
+                        }
                     }
                 }
 
@@ -336,18 +467,45 @@ function execute_events()
 
             // Check for create organization event
             case EVENT_TYPES.CREATE_ORGANIZATION:
-                alert("create organization=" + current_event.data);
+                // Check executing flag
+                if (execute_flag)
+                {
+                    // Executing events
+                    alert("create organization=" + current_event.data);
 
-                // TODO CREATE ORGNIZATION
+                    // TODO CREATE ORGNIZATION
+
+                }
+                else
+                {
+                    // Testing events 
+                    // Create create organization event in execute queue
+                    execute_queue.enqueue(EVENT_TYPES.CREATE_ORGANIZATION, current_event.data);
+   
+                }
 
                 break;
 
             // Check for remove organization event
             case EVENT_TYPES.REMOVE_ORGANIZATION:
-                alert("remove organization=" + current_event.data);
+                // Check executing flag
+                if (execute_flag)
+                {
+                    // Executing events
+                    alert("remove organization=" + current_event.data);
 
-                // TODO REMOVE ORGANIZATION
+                    // TODO REMOVE ORGANIZATION
 
+
+                }
+                else
+                {
+                    // Testing events 
+                    // Create remove organization event in execute queue
+                    execute_queue.enqueue(EVENT_TYPES.CREATE_ORGANIZATION, current_event.data);
+                    
+                }
+            
                 break;
 
             // case EVENT_TYPES.ADD_MENTOR_MENTOR:
@@ -363,7 +521,8 @@ function execute_events()
                 valid_flag = 0;
 
                 // Error in queue input will need to cancel rest of queue
-                queue_input_error();
+                // queue_input_error();
+                cancel_events(current_event.type, current_event.data);;
 
                 break;
             
@@ -375,22 +534,36 @@ function execute_events()
 
 }
 
-// Will alert and cancel events in queue to keep from intended outcomes
-function queue_input_error()
-{
-    alert("invalid ordering of events for mentee then mentor");
-    cancel_events();
+// // Will alert and cancel events in queue to keep from intended outcomes
+// function queue_input_error()
+// {
+//     alert("invalid ordering of events for mentee then mentor");
+//     cancel_events();
 
-}
+// }
 
 // Empty queue of eventes without exeucting 
-function cancel_events()
+function cancel_events(cancel_type, cancel_data)
 {
+    // Determine user mangemenet message element
+    const user_management_message = determiners.determine_user_management_message();
+
+    // Update user mangement message to show invalid error
+    user_management_message.innerHTML = "Save error: type = " + cancel_type + ", value = " + cancel_data;
+    
     // Loop through event queue till empty
     while (!event_queue.isEmpty()) 
     {
-        // Remove event from queue
+        // Remove event from event queue
         event_queue.dequeue();
+
+    }
+
+    // Loop through execute queue till empty
+    while(!execute_queue.isEmpty())
+    {
+        // Remove event from execute queue
+        execute_queue.dequeue();
 
     }
 }
@@ -843,15 +1016,51 @@ function check_toggle_event(prev_event, new_event_type, new_event_id)
 // Exported functions
 export function save_event()
 {
-    // Exuecute queue
-    if (execute_events())
-    {
-        // Exeucution was successful
-        alert("save good")
+    // Intintlize valid flag to false
+    let valid_flag = false;
 
-    }
-    else 
+    // Determine user mangement message element
+    const user_management_message = determiners.determine_user_management_message();
+
+    // Check and cancel last event if needed
+    check_cancel_event();
+
+    // Check if all mentors are within organizations
+    // TODO
+
+    // Check event queue
+    if (execute_events(event_queue, 0))
     {
+        // Check execute queue
+        if (execute_events(execute_queue, 1))
+        {
+            // Set valid flag to true 
+            valid_flag = true;
+
+        }
+    }
+
+    // Check if valid execution
+    if (valid_flag)
+    {
+        // Update user management message with successful message
+        user_management_message.innerHTML = "Save Successful";
+
+        // Update user management to be visable
+        updaters.update_bar_visible(user_management_message);
+
+        // Exeucution was successful
+        alert("save good");
+        
+    }
+    else
+    {
+        // Update user management message with unsucessful message
+        user_management_message.innerHTML = "Save Unsuccessful";
+
+        // Update user management to be visable
+        updaters.update_bar_visible(user_management_message);
+
         // Exeucution was unsuccessful
         alert("save bad")
 
@@ -921,9 +1130,6 @@ export function add_mentor_mentee_event(user_bar)
             // Style valid mentor bars
             updaters.update_valid_choice_bar_styles(valid_mentor_bars);
 
-            // Filter mentors to just include valid mentor bars
-            // TODO TODO
-
             // Create and store add mentor mentee event in queue
             event_queue.enqueue(EVENT_TYPES.ADD_MENTOR_MENTEE, user_id);
 
@@ -934,8 +1140,8 @@ export function add_mentor_mentee_event(user_bar)
             // Pass button and reset button to be off 
             updaters.update_off_button_style(add_mentor_button);
 
-            // Remove event from queue
-            event_queue.dequeue();
+            // // Remove event from queue
+            // event_queue.dequeue();
 
         }
 
@@ -992,9 +1198,6 @@ export function remove_mentor_mentee_event(user_bar)
                 // Style mentee's mentor bar
                 updaters.update_remove_choice_bar_style(mentor_bar);
 
-                // Filter mentors to just include remove mentor bars
-                // TODO TODO
-
                 // Create and store remove mentor mentee event in queue
                 event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, user_id);
 
@@ -1006,8 +1209,8 @@ export function remove_mentor_mentee_event(user_bar)
             // Pass button and reset button to be off 
             updaters.update_off_button_style(remove_mentor_button);
 
-            // Remove event from queue
-            event_queue.dequeue();
+            // // Remove event from queue
+            // event_queue.dequeue();
 
         }
 
@@ -1029,7 +1232,10 @@ export function disable_event(user_bar)
         check_cancel_event();
 
         // Update bar to be disabled 
-        update_disable_bar(user_bar)
+        update_disable_bar(user_bar);
+
+        // Update valid mentor list
+        valid_mentor_bars = determiners.return_updated_mentor_list();
 
         // Create and store deactivate event in queue
         event_queue.enqueue(EVENT_TYPES.DISABLE, user_id);
@@ -1052,6 +1258,9 @@ export function reable_event(user_bar)
 
         // Update bar to be reable
         update_reable_bar(user_bar);
+
+        // Update valid mentor list
+        valid_mentor_bars = determiners.return_updated_mentor_list();
 
         // Create and store deactivate event in queue
         event_queue.enqueue(EVENT_TYPES.REABLE, user_id);
@@ -1616,6 +1825,9 @@ export function organization_clicked_event(organization_bar)
                     // Pass mentor list and refresh sorting for mentor bar elements
                     sorters.sort_mentor_bar_elements_alphabetically(organitization_mentor_list);
 
+                    // Sort all organiation bars
+                    sorters.sort_all_organization_bar_element_alphabetically();
+
                     // Reset bar styles
                     updaters.update_reset_choice_bar_styles();
 
@@ -1637,10 +1849,10 @@ export function organization_clicked_event(organization_bar)
 }
 
 // TODO NEED TO SET UP
-export function create_orgnization_event(orgnaization_name)
+export function create_orgnization_event()
 {
     // Determine error message element
-    const error_bar_element = determiners.determine_add_new_organization_error_bar();
+    const message_bar_element = determiners.determine_add_new_organization_message_bar();
 
     // Determine organization name element
     const new_organization_name_element = determiners.determine_add_new_organization_name();
@@ -1653,12 +1865,6 @@ export function create_orgnization_event(orgnaization_name)
     if (determiners.determine_if_organization_name_unique(new_organization_name))
     {
         // Name is unique
-        // Update error message to empty
-        error_bar_element.innerHTML = "";
-
-        // Hide non-unique message if visable
-        updaters.update_bar_hidden(error_bar_element);
-
         // Determine organization counter element
         const organization_counter = determiners.determine_organization_counter();
 
@@ -1677,34 +1883,53 @@ export function create_orgnization_event(orgnaization_name)
         // Sort all organiation bars
         sorters.sort_all_organization_bar_element_alphabetically();
 
+        // Update message to creation valid
+        message_bar_element.innerHTML = new_organization_name + " creation is valid";
+
+        // Show message if visable
+        updaters.update_bar_visible(message_bar_element);
+
         // Create and store add organzation organization event in queue
         event_queue.enqueue(EVENT_TYPES.CREATE_ORGANIZATION, new_organization_name);
     }
     else
     {
-        // Update error message to state non-unique error
-        error_bar_element.innerHTML = "Error: name is non-unique";
-
         // Name is not unique
-        updaters.update_bar_visible(error_bar_element);
+        // Update message to state non-unique error
+        message_bar_element.innerHTML = "Error: " + new_organization_name +" is non-unique";
+
+        // Show message is hidden
+        updaters.update_bar_visible(message_bar_element);
     }
 
 }
 
 export function remove_organization_event(organization_bar)
 {
-    // Determine user id from hidden value in passed user bar
+    // Determine organzation id value from hidden value in passed organzation bar
     const organization_id = determiners.determine_organization_id(organization_bar);
+
+    // Determine organization name value from passed organization bar
+    const organization_name = determiners.determine_organization_name_value(organization_bar);
+
+    // Determine user management message element
+    const message_bar_element = determiners.determine_user_management_message();
 
     // Check and cancel last event if needed
     check_cancel_event();
 
     // TODO NEED TO CHECK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // Check if organization bar is empty
-    if (determine_if_organization_is_empty(organization_bar))
+    if (determiners.determine_if_organization_is_empty(organization_bar))
     {
         // Updating mentors and organization bar for organization
         remove_organization(organization_bar);
+
+        // Update user management message to be empty
+        message_bar_element.innerHTML = "";
+
+        // Update user management message to hidden
+        updaters.update_bar_hidden(message_bar_element);
 
         // Create and store remove organzation organization event in queue
         event_queue.enqueue(EVENT_TYPES.REMOVE_ORGANIZATION, organization_id);
@@ -1715,6 +1940,14 @@ export function remove_organization_event(organization_bar)
     }
     else
     {
+        // Update user management message to state remove error
+        message_bar_element.innerHTML = "Error: " + organization_name + " is not empty";
+
+        // Update user management message to show
+        updaters.update_bar_visible(message_bar_element);
+
+        // Update users in red within organization
+
 
     }
 }

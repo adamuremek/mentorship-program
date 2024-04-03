@@ -34,14 +34,14 @@ save_button.addEventListener('click', event_queue.save_event);
 // Set cancel button listener
 cancel_button.addEventListener('click', event_queue.cancel_event);
 
-// Set add new organization button listener
-add_new_organization_button.addEventListener('click', function() { updaters.show_add_new_organization_modal(); });
+// // Set add new organization button listener
+// add_new_organization_button.addEventListener('click', function() { updaters.show_add_new_organization_modal(); });
 
 // Set create new organization button listner
 create_organization_button.addEventListener('click', function() { event_queue.create_orgnization_event(); });
 
-// Set exit add new organization button listener
-exit_add_new_organization_button.addEventListener('click', function() { updaters.hide_add_new_organization_modal(); });
+// // Set exit add new organization button listener
+// exit_add_new_organization_button.addEventListener('click', function() { updaters.hide_add_new_organization_modal(); });
 
 // Set up search bar selection to trigger attempt filter methods for users and organziation
 user_search_bar.addEventListener("input", function() { filters.attempt_user_filter(user_search_bar.value); });

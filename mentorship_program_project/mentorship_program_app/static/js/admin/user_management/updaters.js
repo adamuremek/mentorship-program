@@ -323,7 +323,7 @@ export function update_filter_organization_bars(user_input)
     // Cycle through organization bars
     organization_bars.forEach(organization_bar => {
         // Determine orgnaization bar name
-        current_organization_name = determiners.determine_organization_name_value(organization_bar);
+        current_organization_name = determiners.determine_organization_name_value(organization_bar).toLowerCase();
 
         // Check if orgnaization bar name doesn't match input
         if (!current_organization_name.includes(user_input.trim().toLowerCase()))
@@ -364,9 +364,7 @@ export function update_filter_all_mentee_bars_but_passed(passed_bars)
 
 
 
-
-// TODO NEED TO FIX !!!!!!!!!!!!!!!!!!!
-// Updates elements
+// Creates an organziation bar using the passed name, account, remove and clicked event methods, then attaches it to mentor bar container
 export function update_create_organization(organitization_name, organization_account_string, remove_organization_event, organization_clicked_event)
 {
     // Determine mentor bar container

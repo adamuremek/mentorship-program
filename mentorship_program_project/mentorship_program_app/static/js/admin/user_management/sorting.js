@@ -17,8 +17,8 @@ function alphabetical_user_name_order_comparator(bar1, bar2)
 function alphabetical_organization_name_order_comparator(bar1, bar2)
 {
     // Determine organization name values of bars
-    const name1 = detereminers.determine_organization_name_value(bar1);
-    const name2 = detereminers.determine_organization_name_value(bar2);
+    const name1 = detereminers.determine_organization_name_value(bar1).toLowerCase();
+    const name2 = detereminers.determine_organization_name_value(bar2).toLowerCase();
 
     // Compare name values and return value based on if bar1 name is higher alphabetical order than bar2
     return name1.localeCompare(name2)

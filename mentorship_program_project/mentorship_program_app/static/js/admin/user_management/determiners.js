@@ -13,14 +13,16 @@ const filter_organization_button = document.querySelector("#filter_organization_
 const user_search_bar = document.querySelector("#user_search_bar");
 const organization_search_bar = document.querySelector("#organization_search_bar");
 const session_user_organization_flag = document.querySelector("#session_user_organization_flag");
+const user_management_message = document.querySelector(".user_management_message_bar");
 
 // Determine and store organzition elements
 let organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar_container");
 const create_organization_button = document.getElementById("create_organization_button");
 const exit_add_new_organization_button = document.getElementById("exit_add_new_organization_button");
-const add_new_organization_modal = document.getElementById("add_new_organization_modal");
+const add_new_organization_modal = document.querySelector(".admin_user_management_modal");
+const add_new_organization_message_bar = add_new_organization_modal.querySelector(".create_organization_message_bar");
+const add_new_organization_name = add_new_organization_modal.querySelector(".user-input");
 let organization_counter = document.querySelector("#organization_counter");
-
 
 // From page elements
 // Return mentee bar element container from document
@@ -138,14 +140,21 @@ export function determine_organization_counter()
 // Find and returns name element within add new organizaition modal
 export function determine_add_new_organization_name()
 {
-    return add_new_organization_modal.querySelector(".organization_name_bar");
+    return add_new_organization_name;
 
 }
 
 // Find and return error message element within add new organization modal
-export function determine_add_new_organization_error_bar()
+export function determine_add_new_organization_message_bar()
 {
-    return add_new_organization_modal.querySelector(".add_new_organization_error_bar");
+    return add_new_organization_message_bar;
+
+}
+
+// Return 
+export function determine_user_management_message()
+{
+    return user_management_message;
 
 }
 
@@ -357,7 +366,7 @@ export function determine_user_name(passed_bar)
 // Returns organization value from passed bar
 export function determine_organization_name_value(passed_bar)
 {
-    return passed_bar.querySelector(".organization_management_bar_name").innerHTML.trim().toLowerCase();
+    return passed_bar.querySelector(".organization_management_bar_name").innerHTML.trim();
 
 }
 
@@ -547,8 +556,8 @@ export function return_updated_mentor_list()
         let current_mentees = determine_current_mentees_value(mentor_bar);
         let max_mentees = determine_max_mentees_value(mentor_bar);
 
-        // Determine if mentor is valid for new mentees
-        if (current_mentees < max_mentees)
+        // Determine if mentor is valid for new mentees and mentor is not disabled
+        if (current_mentees < max_mentees && !determine_disabled_value(mentor_bar))
         {
             // Add mentor bar to valid mentor bars
             valid_mentor_bars.push(mentor_bar);
@@ -812,7 +821,7 @@ export function determine_if_organization_name_unique(new_organization_name)
     for (let index = 0; index < all_roganization_bars.length; index++)
     {
         // Determine current organization name value
-        let current_organization_name = determine_organization_name_value(all_roganization_bars[index]);
+        let current_organization_name = determine_organization_name_value(all_roganization_bars[index]).toLowerCase();
 
         // Check if current organization is the same as passed new organization name
         if (current_organization_name == new_organization_name)
