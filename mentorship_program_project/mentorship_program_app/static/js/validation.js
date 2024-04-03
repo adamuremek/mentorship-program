@@ -230,8 +230,9 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     // Assign event listener to each button
     for (button of buttons) {
         button.addEventListener('click', async e => {
+            
             let valid = await is_page_valid(cur_id + 1)
-
+            console.log(valid)
             if (!valid )
                 return
             snippets[cur_id].style = 'display: none;'
