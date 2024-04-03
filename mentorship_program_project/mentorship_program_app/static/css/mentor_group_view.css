@@ -166,12 +166,13 @@ select:not([disabled]) {
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
     
     
-    background-color: grey;
+    background-color: rgb(66, 66, 66);
+
     color: #F5F5F5;
 }
 
 .user-interest-label {
-    background-color: grey;
+    background-color: rgb(66, 66, 66);
     color: #F5F5F5;
     
     font-size: 1rem;

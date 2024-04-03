@@ -608,7 +608,8 @@ select {
     border-radius: .5em;
     
 
-    background-color: grey;
+    background-color: rgb(66, 66, 66);
+
     color: #F5F5F5;
 }
 
