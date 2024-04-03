@@ -47,9 +47,11 @@
 document.addEventListener('DOMContentLoaded', winloaded => {
 
     const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Validates <{string}@{string}.{string}>
+    //const new_regex_email = /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/ 
     const regex_email_name = /[!#$%^&*()+\[\]{}|\\;:'",<>\/?=~`]/;
     const regex_svsu = /^[^\s@]+@svsu[.]edu$/ // Validates <{string}@{svsu}.{edu}>
     const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
+    const regex_name = /^[a-zA-Z]+([ \-']{0,1}[a-zA-Z]+){0,2}[.]{0,1}$/ //Validates name including hyphens, apostrophies, and suffix (with period)
 
     // const is_student = document.getElementById('register-form-mentee')
 
@@ -68,6 +70,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_interests = document.getElementById('interests')
 
     const btn_user_agree = document.getElementById('btnUserAgree')
+    
     const warning_message = document.getElementById('must-accept-agreement-error')
     const first_name_warning_message = document.getElementById('frm-first-name-warning-message')
     const last_name_warning_message = document.getElementById('frm-last-name-warning-message')
@@ -117,12 +120,26 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         const input_value = e.target.value.replace(/\d/g, ""); // Remove numeric characters
         // Set input to new value
         e.target.value = input_value;
+        const regex_result = regex_name.test(e.target.value)
+
+        // Visually indicate Regex Success
+        if(regex_result)
+            input_first_name.style.backgroundColor = GREEN
+        else
+            input_first_name.style.backgroundColor = RED
     })
 
     input_last_name.addEventListener("input", e => {
         const inputValue = e.target.value.replace(/\d/g, ""); // Remove numeric characters
         // Set input to new value
         e.target.value = inputValue;
+        const regex_result = regex_name.test(e.target.value)
+
+        // Visually indicate Regex Success
+        if(regex_result)
+            input_last_name.style.backgroundColor = GREEN
+        else
+            input_last_name.style.backgroundColor = RED
     })
 
 
@@ -255,7 +272,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         switch (form_idx) {
             case 1: // Name and Pronouns
                 is_valid = input_first_name.value.length > 0 &&
-                    input_last_name.value.length > 0
+                    input_last_name.value.length > 0 && regex_name.test(input_first_name.value)
+                    && regex_name.test(input_last_name.value)
                                 
                 if(!is_valid)
                     display_error_message_for_name()
@@ -418,11 +436,15 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
         if(input_first_name.value.length == 0)
             first_name_warning_message.innerText = "First name cannot be blank!"
+        else if(!regex_name.test(input_first_name.value))
+            first_name_warning_message.innerText = "Invalid first name."
         else
             first_name_warning_message.innerText = ""
         
         if(input_last_name.value.length == 0)
             last_name_warning_message.innerText = "Last name cannot be blank!"
+        else if(!regex_name.test(input_last_name.value))
+            last_name_warning_message.innerText = "Invalid last name."
         else
             last_name_warning_message.innerText = ""
     }
