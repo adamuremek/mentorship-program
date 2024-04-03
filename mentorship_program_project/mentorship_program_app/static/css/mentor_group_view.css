@@ -146,7 +146,8 @@ select:not([disabled]) {
 }
 
 .specialties label { /*input*/
-    color: white;
+    
+
     border-radius: 1rem;
     width: 10rem;
     margin: .25em;
@@ -162,12 +163,17 @@ select:not([disabled]) {
 
     border-color: transparent;
     border-radius: .5em;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-
-    background-color: rgb(100, 100, 100);
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+    
+    
+    background-color: grey;
+    color: #F5F5F5;
 }
 
 .user-interest-label {
+    background-color: grey;
+    color: #F5F5F5;
+    
     font-size: 1rem;
     font-weight: 300;
 
@@ -175,8 +181,8 @@ select:not([disabled]) {
     width: 10em;
     
     border-radius: .5em;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+    
     text-align: center;
 
     -webkit-user-select: none; /* Safari */
@@ -188,12 +194,19 @@ select:not([disabled]) {
 
 .specialties input {
     display: none;
+    
+
 }
 
 .specialties input:checked ~ .user-interest-label {
-    background-color: #464B4E;
-    border: #464B4E;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+    
+    border: #3e4c6c;
     border-width: 2px;
+    
+    background-color: #3e4c6c;
+    color: white;
+
 }
 
 /* .specialties input:hover ~ .user-interest-label {
@@ -201,7 +214,9 @@ select:not([disabled]) {
 } */
 
 .specialties .hover_interest:hover ~ .user-interest-label {
-    background-color:  #3d4247;
+    background-color:  lightgrey;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+
 }
 
 textarea {

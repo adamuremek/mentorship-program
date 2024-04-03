@@ -606,9 +606,10 @@ select {
     margin: 1%;
 
     border-radius: .5em;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    
 
-    background-color: #464B4E;
+    background-color: grey;
+    color: #F5F5F5;
 }
 
 .sign-in-card-interest:hover input[type=checkbox]~.sign-in-card-interest-label {
@@ -616,7 +617,11 @@ select {
 }
 
 .sign-in-card-interest input[type=checkbox]:checked~.sign-in-card-interest-label {
-    background-color: gray;
+    background-color: #3e4c6c;
+    color: white;
+
+
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
 .sign-in-card-interest-button {
@@ -624,7 +629,7 @@ select {
     font-weight: 300;
 
     height: fit-content;
-    width: max-content;
+    width: max-content;                                  
 
     padding: 2%;
 
