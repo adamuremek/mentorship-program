@@ -17,8 +17,8 @@ function alphabetical_user_name_order_comparator(bar1, bar2)
 function alphabetical_organization_name_order_comparator(bar1, bar2)
 {
     // Determine organization name values of bars
-    const name1 = detereminers.determine_organization_name(bar1);
-    const name2 = detereminers.determine_organization_name(bar2);
+    const name1 = detereminers.determine_organization_name_value(bar1);
+    const name2 = detereminers.determine_organization_name_value(bar2);
 
     // Compare name values and return value based on if bar1 name is higher alphabetical order than bar2
     return name1.localeCompare(name2)
@@ -37,6 +37,7 @@ function sort_bars_by_passed_compare(bar_elements, container, comparator)
 
 }
 
+// Function takes in container, determines mentor bars, then sorts them alphabetically
 export function sort_mentor_bar_elements_alphabetically(container)
 {
     // Determine all mentor bar elemetns within container
@@ -45,6 +46,19 @@ export function sort_mentor_bar_elements_alphabetically(container)
     // Pass elements to sort
     sort_bars_by_passed_compare(mentor_bars, container, alphabetical_user_name_order_comparator);
 
+}
+
+// Function determines organization bars, then sorts them alphabetically
+export function sort_all_organization_bar_element_alphabetically()
+{
+    // Determine mentor bar container
+    const mentor_bar_container = detereminers.determine_mentor_bar_container();
+
+    // Determine all organization bar bar elements within container
+    const organization_bars = detereminers.determine_all_organization_bars();
+
+    // Sort organizations bar elemenets
+    sort_bars_by_passed_compare(organization_bars, mentor_bar_container, alphabetical_organization_name_order_comparator);
 }
 
 // Function sorts all bar elemenets on the user management page, it will first do mentee bars, 
@@ -57,8 +71,8 @@ export function sort_all_bar_elements_alphabetically()
     // Determine all mentee bar elements within container
     const mentee_bars = detereminers.determine_mentee_bars(mentee_bar_container);
 
-    // Determine mentor bar container
-    const mentor_bar_container = detereminers.determine_mentor_bar_container();
+    // // Determine mentor bar container
+    // const mentor_bar_container = detereminers.determine_mentor_bar_container();
 
     // Determine all organization bar bar elements within container
     const organization_bars = detereminers.determine_all_organization_bars();
@@ -66,8 +80,11 @@ export function sort_all_bar_elements_alphabetically()
     // Sort mentee bars elements alphabetically
     sort_bars_by_passed_compare(mentee_bars, mentee_bar_container, alphabetical_user_name_order_comparator);
     
-    // Sort organizations bar elemenets
-    sort_bars_by_passed_compare(organization_bars, mentor_bar_container, alphabetical_organization_name_order_comparator);
+    // // Sort organizations bar elemenets
+    // sort_bars_by_passed_compare(organization_bars, mentor_bar_container, alphabetical_organization_name_order_comparator);
+
+    // Sort all organization bar elements
+    sort_all_organization_bar_element_alphabetically();
 
     // For loop organization bars
     organization_bars.forEach(organization_bar => {

@@ -472,6 +472,7 @@ def admin_user_management(request):
         'organizations': organizations,
         'role': role,
         'session_user_account': session_user_id,
+        'organization_counter': 999,
         'user_super_flag': user_super_flag,
         'user_admin_flag': user_admin_flag,
         'user_organization_admin_flag': user_organization_admin_flag

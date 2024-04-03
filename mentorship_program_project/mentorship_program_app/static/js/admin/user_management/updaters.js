@@ -106,31 +106,6 @@ export function update_reset_bar_filter_buttons()
     });
 }
 
-// Updates passed buttons class lists to hide enable button and show disable button
-export function update_bar_disable_button(disable_button, enable_button)
-{
-    // Remove disable button active class and add inactive class
-    disable_button.classList.remove("admin_user_management_button_clear_active");
-    disable_button.classList.add("admin_user_management_button_clear_inactive");
-    
-    // Remove enable button inactive class and add active class
-    enable_button.classList.remove("admin_user_management_button_clear_inactive");
-    enable_button.classList.add("admin_user_management_button_clear_active");
-}
-
-// Updates passed buttons class lists to hide disable button and show enable button
-export function update_bar_enable_button(disable_button, enable_button)
-{
-    // Remove disable button inactive class and add active class
-    disable_button.classList.remove("admin_user_management_button_clear_inactive");
-    disable_button.classList.add("admin_user_management_button_clear_active");
-
-    // Remove enable button active class and add inactive class
-    enable_button.classList.remove("admin_user_management_button_clear_active");
-    enable_button.classList.add("admin_user_management_button_clear_inactive");
-
-}
-
 // Updates mentee bar to show the add button and update mentor value to None
 export function update_mentee_bar_remove(user_bar)
 {
@@ -145,7 +120,8 @@ export function update_mentee_bar_remove(user_bar)
         const remove_button = determiners.determine_remove_button(user_bar);
 
         // Switch remove and add buttons
-        update_mentee_bar_show_add_button(remove_button, add_button);
+        update_buttons_toggle_off(remove_button, add_button);
+        // update_mentee_bar_show_add_button(remove_button, add_button);
 
     }
 }
@@ -161,33 +137,9 @@ export function update_mentee_bar_add(user_bar, mentor_id)
     const remove_button = determiners.determine_remove_button(user_bar);
 
     // Switch add and remove buttons
-    update_mentee_bar_remove_button(remove_button, add_button);
+    update_buttons_toggle_on(remove_button, add_button)
+    // update_mentee_bar_remove_button(remove_button, add_button);
 
-}
-
-// Updates passed button class lists to hide add button and show remove button
-export function update_mentee_bar_remove_button(remove_button, add_button)
-{
-    // Remove remove button inactive class and add active class
-    remove_button.classList.remove("admin_user_management_button_clear_inactive");
-    remove_button.classList.add("admin_user_management_button_clear_active");
-
-    // Remove add button active class and add inactive class
-    add_button.classList.remove("admin_user_management_button_clear_active");
-    add_button.classList.add("admin_user_management_button_clear_inactive");
-}
-
-// Updates passed button class lists to hide remove button and show add button
-export function update_mentee_bar_show_add_button(remove_button, add_button)
-{
-    // Remove remove button active class and add inactive class
-    remove_button.classList.remove("admin_user_management_button_clear_active");
-    remove_button.classList.add("admin_user_management_button_clear_inactive");
-
-    // Remove add button inactive class and add active class
-    add_button.classList.remove("admin_user_management_button_clear_inactive");
-    add_button.classList.add("admin_user_management_button_clear_active");
-    
 }
 
 // Updates passed organization bar user's transfer button to reflect new postitons
@@ -209,7 +161,7 @@ export function update_organization_transfer_buttons(organitization_bar)
         if (transfer_own_role_button != null)
         {
             // Update to not have transfer own role button
-            update_mentor_bar_remove_transfer_own_role_button(transfer_own_role_button);
+            update_button_not_showing(transfer_own_role_button);
 
         }
     });
@@ -226,44 +178,17 @@ export function update_organization_transfer_buttons(organitization_bar)
             if (organitization_mentor == session_user_bar)
             {
                 // Update to not have transfer own role button
-                update_mentor_bar_remove_transfer_own_role_button(transfer_own_role_button);
+                update_button_not_showing(transfer_own_role_button);
 
             } 
             else
             {
                 // Update to have transfer own role button
-                update_mentor_bar_show_transfer_own_role_button(transfer_own_role_button);
+                update_button_showing(transfer_own_role_button);
 
             }
         }
     });
-}
-
-// Updates transfer own role button to show
-export function update_mentor_bar_show_transfer_own_role_button(transfer_own_role_button)
-{
-    // Remove transfer own role button inactive class and add active class
-    transfer_own_role_button.classList.remove("admin_user_management_button_clear_inactive");
-    transfer_own_role_button.classList.add("admin_user_management_button_clear_active");
-
-}
-
-// Updates transfer own role button to not show
-export function update_mentor_bar_remove_transfer_own_role_button(transfer_own_role_button)
-{
-    // Remove transfer own role button inactive class and add active class
-    transfer_own_role_button.classList.remove("admin_user_management_button_clear_active");
-    transfer_own_role_button.classList.add("admin_user_management_button_clear_inactive");
-
-}
-
-// Updates promote super button to not show
-export function update_mentor_bar_remove_promote_super_button(promote_super_button)
-{
-    // Remove promote button inactive class and add active class
-    promote_super_button.classList.remove("admin_user_management_button_clear_active");
-    promote_super_button.classList.add("admin_user_management_button_clear_inactive");
-
 }
 
 // Updates promote organization admin button to show
@@ -282,6 +207,32 @@ export function update_button_not_showing(button)
     button.classList.remove("admin_user_management_button_clear_active");
     button.classList.add("admin_user_management_button_clear_inactive");
 
+}
+
+// Updates the first passed button class list to hide and the second passed button class list to show
+export function update_buttons_toggle_on(passed_button_1, passed_button_2)
+{
+    // Show passed button 1
+    passed_button_1.classList.remove("admin_user_management_button_clear_inactive");
+    passed_button_1.classList.add("admin_user_management_button_clear_active");
+
+    // Hide passed button 2
+    passed_button_2.classList.remove("admin_user_management_button_clear_active");
+    passed_button_2.classList.add("admin_user_management_button_clear_inactive");
+
+}
+
+// Updates the first passed button class list to show and the second passed button class list to hide
+export function update_buttons_toggle_off(passed_button_1, passed_button_2)
+{
+    // Hide passed button 1
+    passed_button_1.classList.remove("admin_user_management_button_clear_active");
+    passed_button_1.classList.add("admin_user_management_button_clear_inactive");
+
+    // Show passed button 2
+    passed_button_2.classList.remove("admin_user_management_button_clear_inactive");
+    passed_button_2.classList.add("admin_user_management_button_clear_active");
+    
 }
 
 
@@ -372,7 +323,7 @@ export function update_filter_organization_bars(user_input)
     // Cycle through organization bars
     organization_bars.forEach(organization_bar => {
         // Determine orgnaization bar name
-        current_organization_name = determiners.determine_organization_name(organization_bar);
+        current_organization_name = determiners.determine_organization_name_value(organization_bar);
 
         // Check if orgnaization bar name doesn't match input
         if (!current_organization_name.includes(user_input.trim().toLowerCase()))
@@ -408,4 +359,150 @@ export function update_filter_all_mentee_bars_but_passed(passed_bars)
             }
         }
     });
+}
+
+
+
+
+
+// TODO NEED TO FIX !!!!!!!!!!!!!!!!!!!
+// Updates elements
+export function update_create_organization(organitization_name, organization_account_string, remove_organization_event, organization_clicked_event)
+{
+    // Determine mentor bar container
+    const mentor_bar_container = determiners.determine_mentor_bar_container();
+
+    // Determine if session user is an organization admin
+    const organization_session_user = determiners.determine_session_user_organization_flag();
+
+    // Create organization management bar container element
+    const organization_management_bar_container = document.createElement("div");
+    organization_management_bar_container.classList.add("organization_management_bar_container");
+
+    // Create organization management bar element
+    const organization_management_bar = document.createElement("div");
+    organization_management_bar.classList.add("organization_management_bar");
+
+    // Attach managment bar to management bar container
+    organization_management_bar_container.appendChild(organization_management_bar);
+
+    // Create organization bar account element
+    const organization_account = document.createElement("div");
+    organization_account.id = ("organization_account");
+    organization_account.innerHTML = organization_account_string;
+
+    // Attach organization bar account to management bar container
+    organization_management_bar_container.appendChild(organization_account);
+
+    // Create organization bar name element
+    const organization_management_bar_name = document.createElement("div");
+    organization_management_bar_name.classList.add("organization_management_bar_name");
+    organization_management_bar_name.id = "admin_user_management_small_text";
+    organization_management_bar_name.innerHTML = organitization_name;
+
+    // Attach managment bar name to organization mangement bar
+    organization_management_bar.appendChild(organization_management_bar_name);
+
+    // Check if session user is not an organization admin
+    if (!organization_session_user)
+    {
+        // Create remove organiation button element
+        const remove_organization_button = document.createElement("button");
+        remove_organization_button.classList.add("admin_user_management_word_button_active");
+        remove_organization_button.id = "remove_organization_button";
+
+        // Create remove organiation button text element
+        const remove_button_text = document.createElement("p");
+        remove_button_text.id = "admin_user_management_small_text";
+        remove_button_text.innerHTML = "REMOVE";
+
+        // Attach remove organization button text to remove organization button
+        remove_organization_button.appendChild(remove_button_text);
+
+        // Attach remove organization button to organization mangement bar
+        organization_management_bar.appendChild(remove_organization_button);
+
+        // Attach button listner for remove organization button
+        remove_organization_button.addEventListener('click', function() { remove_organization_event(organization_management_bar_container) });
+        
+    }
+
+    // Attach organization mangement bar to mentor bar container
+    organization_management_bar_container.appendChild(organization_management_bar);
+
+    // Craete admin list element
+    const admin_list = document.createElement("div");
+    admin_list.id = "admin_list";
+
+    // Create admin list title element
+    const admin_list_title = document.createElement("p");
+    admin_list_title.id = "admin_user_management_small_text";
+    admin_list_title.innerHTML = "Admins";
+
+    // Attach admin list title to admin list
+    admin_list.appendChild(admin_list_title);
+
+    // Create line break element
+    const admin_list_line_break = document.createElement("hr");
+
+    // Attach line break element to admin list
+    admin_list.appendChild(admin_list_line_break);
+
+    // Attach admin list to mentor bar container
+    organization_management_bar_container.appendChild(admin_list);
+
+    // Create mentor list element
+    const mentor_list = document.createElement("div");
+    mentor_list.id = "mentor_list";
+
+    // Create mentor list title element
+    const mentor_list_title = document.createElement("p");
+    mentor_list_title.id = "admin_user_management_small_text";
+    mentor_list_title.innerHTML = "Mentors"
+
+    // Attach mentor list title to mentor list
+    mentor_list.appendChild(mentor_list_title);
+
+    // Create line break element
+    const mentor_list_line_break = document.createElement("hr");
+
+    // Attach line break element to admin list
+    mentor_list.appendChild(mentor_list_line_break);
+
+    // Attach mentor list to mentor bar container
+    organization_management_bar_container.appendChild(mentor_list);
+
+    // Create line break element
+    const organization_line_break = document.createElement("hr");
+
+    // Attach line break element to mentor bar container
+    organization_management_bar_container.appendChild(organization_line_break);
+
+    // Attach organization mangement bar to mentor bar container
+    mentor_bar_container.appendChild(organization_management_bar_container);
+
+    // Attach listener for organization clicked
+    organization_management_bar_container.addEventListener('click', function() { organization_clicked_event(organization_management_bar_container); });
+
+}
+
+// Function updates modal class list to make it visable
+export function show_add_new_organization_modal()
+{
+    // Determine add new organization modal
+    const add_new_organization_modal = determiners.determine_add_new_organization_modal();
+
+    // Update modal style to visable
+    add_new_organization_modal.style.display = "block";
+
+}
+
+// Function updates modal class list to make it not visable
+export function hide_add_new_organization_modal()
+{
+    // Determine add new organization modal
+    const add_new_organization_modal = determiners.determine_add_new_organization_modal();
+
+    // Update modal style to not visable
+    add_new_organization_modal.style.display = "none";
 }
