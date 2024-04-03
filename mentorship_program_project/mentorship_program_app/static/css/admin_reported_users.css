@@ -1,0 +1,114 @@
+h1 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    font-size: 2.5em;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+h3 {
+    display: inline-block;
+}
+
+.hero {
+    width: 90%;
+}
+
+.search-name-container {
+    display: flex;
+    width: 100%;
+}
+
+.search-name {
+    margin-left: auto;
+}
+
+.search-icon {
+    position: relative;
+    height: 1.125rem;
+    top: 0.25rem;
+    pointer-events: none;
+}
+
+.search-name input::placeholder {
+    color: white;
+    opacity: 1;
+}
+
+.search-name input {
+    font-size: 0.9375rem;
+    background-color: #393B3E;
+    border: 0px;
+    color: white;
+    outline: none;
+    padding: 0.5em;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.filter {
+    background-color: #2C2C2C;
+    display: flex;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.filter span {
+    font-size: 1rem;
+    padding: 0.5em;
+}
+
+.card {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 1em
+}
+
+.reported-users-area {
+    margin-top: 1em;
+    display: grid;
+    grid-gap: 0.5em;
+}
+
+.report-subcard {
+    padding-left: 0.5em;
+}
+
+.user-report {
+    display: flex;
+    border-radius: 10px;
+    margin-top: 0.5em;
+}
+
+.user-report:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.report-controls {
+    margin-left: auto;
+}
+
+.hidden {
+    display: none;
+}
+
+.report-body {
+    padding: 0.5em 0.5em 0.5em 0.0;
+}
+
+.resolve-report {
+    background-color: #2C2C2C;
+    text-align: center;
+    width: min-content;
+    padding: 0.5em;
+    border-radius: 10px;
+    float: right;
+}
+
+.resolve-report:hover {
+    cursor: pointer;
+}

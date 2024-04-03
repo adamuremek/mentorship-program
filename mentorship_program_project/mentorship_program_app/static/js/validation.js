@@ -47,6 +47,7 @@
 document.addEventListener('DOMContentLoaded', winloaded => {
 
     const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Validates <{string}@{string}.{string}>
+    const regex_email_name = /[!#$%^&*()+\[\]{}|\\;:'",<>\/?=~`]/;
     const regex_svsu = /^[^\s@]+@svsu[.]edu$/ // Validates <{string}@{svsu}.{edu}>
     const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
 
@@ -67,8 +68,14 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_interests = document.getElementById('interests')
 
     const btn_user_agree = document.getElementById('btnUserAgree')
-
-    let warning_message = document.getElementById('must-accept-agreement-error')
+    const warning_message = document.getElementById('must-accept-agreement-error')
+    const first_name_warning_message = document.getElementById('frm-first-name-warning-message')
+    const last_name_warning_message = document.getElementById('frm-last-name-warning-message')
+    const email_warning_message = document.getElementById('frm-email-warning-message')
+    const phone_warning_message = document.getElementById('frm-phone-warning-message')
+    const password_warning_message = document.getElementById('frm-password-warning-message')
+    const company_warning_message = document.getElementById('frm-company-warning-message')
+    const job_title_warning_message = document.getElementById('frm-job-title-warning-message')
 
     var regex_custom = /^/
 
@@ -97,9 +104,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             regex_custom = regex_email
 
         const regex_result = regex_custom.test(e.target.value)
+        const regex_email_name_result = regex_email_name.test(e.target.value)
 
         // Visually indicate Regex Success
-        if (regex_result)
+        if (regex_result && !regex_email_name_result)
             input_email.style.backgroundColor = GREEN
         else
             input_email.style.backgroundColor = RED
@@ -168,46 +176,37 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         }
     });
 
+    // -------------------- --------------------------------------- -------------------- \\
+    // -------------------- <<< VISUAL CARD PROGRESSION SECTION >>> -------------------- \\
+    // -------------------- --------------------------------------- -------------------- \\
     
-
     // Get all snippets being rendered
     const snippets = document.getElementsByClassName('sign-in-card-content')
 
-    // Hide all code snippets by default
-    for (i of snippets)
-        i.style = 'display: none;'
-
-    // Display first snippet
-    snippets[0].style = 'display: flex'
-
     // Get progression buttons
     const buttons = document.getElementsByClassName('sign-in-card-option-button')
-
     const page_count = buttons.length
 
     // Get Header Corner Element list
     const corner_guy = document.getElementsByClassName('sign_in_top_left_element')[0]
     corner_guy.onclick = null
 
-    console.log('corner guy')
-    console.log(cur_id)
+    // Hide all code snippets by default
+    for (i of snippets)
+        i.style = 'display: none;'
 
-    corner_guy.innerText = `<- Step ${(cur_id + 1)} of ${page_count}`
+    // Display first snippet
+    display_snippets_at_idx(cur_id)
 
     corner_guy.addEventListener('click', e => {
         snippets[cur_id].style = 'display: none;'
 
         cur_id -= 1
-        console.log('corner guy')
-        console.log(cur_id)
 
         if (cur_id === -1)
-            window.location.href = is_student ? "/role_selection" : "/register/mentor";
-        else {
-            snippets[cur_id].style = 'display: flex;'
-
-            corner_guy.innerText = `<- Step ${(cur_id + 1)} of ${page_count}`
-        }
+            window.location.href = "/role_selection";
+        else 
+            display_snippets_at_idx(cur_id)
 
     })
 
@@ -220,21 +219,14 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
             // When button is clicked, progress displayed card
             cur_id += 1
-            console.log('corner guy')
-            console.log(cur_id)
 
             // Submit at the end
             if (cur_id >= snippets.length) {
                 // Do nothing?
                 // form_submit()
             }
-            else {
-                snippets[cur_id].style = 'display: flex;'
-
-                corner_guy.innerText = `<- Step ${(cur_id + 1)} of ${page_count}`
-
-                console.log(`Current ID: ${cur_id}`)
-            }
+            else 
+                display_snippets_at_idx(cur_id)
         })
     }
 
@@ -246,7 +238,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             btn_user_agree.style.visibility = 'Hidden'
     })
 
+    // -------------------- ------------------- -------------------- \\
     // -------------------- <<< FORM SUBMIT >>> -------------------- \\
+    // -------------------- ------------------- -------------------- \\
+
 
     /**
      * @param {int} form_idx Index of current page of registration form
@@ -255,7 +250,6 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     function is_page_valid(form_idx) {
         // Use form validation for ? mentee | mentor
         const form_function = is_student ? is_mentee_page_valid : is_mentor_page_valid
-        console.log(`Form_Index: ${form_idx}`)
         let is_valid = true
 
         switch (form_idx) {
@@ -263,18 +257,21 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                 is_valid = input_first_name.value.length > 0 &&
                     input_last_name.value.length > 0
                                 
-                is_valid = input_first_name.value.length > 1 &&
-                    input_last_name.value.length > 1
                 if(!is_valid)
                     display_error_message_for_name()
+                else
+                    reset_error_messages(form_idx)
                 break
 
             case 2: // Email | Phone | Password
                 is_valid = regex_custom.test(input_email.value) &&
                     regex_phone.test(input_phone.value) &&
-                    input_password.value.length > 1
+                    !email_already_exist(input_email.value) &&
+                    is_password_valid()
                 if(!is_valid)
                     display_error_message_for_email_phone_password()
+                else
+                    reset_error_messages(form_idx)
                 break
 
             default:
@@ -283,6 +280,68 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
         return is_valid
     }
+
+
+    function is_password_valid(){
+       
+            // Requirement 1: Password should contain 12 or more characters
+            if (input_password.value.length < 12) {
+              return false;
+            }
+          
+            // Requirement 2: Password should contain 36 or less characters
+            if (input_password.value.length > 36) {
+              return false;
+            }
+          
+            // Requirement 3: Password should contain a combination of uppercase letters, lowercase letters, at least one number, and at least one symbol
+            const uppercaseRegex = /[A-Z]/;
+            const lowercaseRegex = /[a-z]/;
+            const numberRegex = /[0-9]/;
+            const symbolRegex = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+          
+            if (
+              !uppercaseRegex.test(input_password.value) ||
+              !lowercaseRegex.test(input_password.value) ||
+              !numberRegex.test(input_password.value) ||
+              !symbolRegex.test(input_password.value)
+            ) {
+              return false;
+            }
+          
+            return true;
+          
+          
+          
+    }
+
+     async function email_already_exist(email){
+        try {
+            
+            const response = await fetch('/check-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                    
+                },
+                body: JSON.stringify({ email })
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            const data = await response.json();
+            
+            return data.exists; // Assuming the response contains a boolean indicating if the email exists
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
+            return false; // Return false in case of error
+        }
+    }
+   
+
+
 
 
     function is_mentee_page_valid(form_idx) {
@@ -320,7 +379,9 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     input_job_title.value.length > 0
                 //input_company-type.value != none ??
                 //input_expeience.value != none    ??
-                if(!is_valid)
+                if(is_valid)
+                    reset_error_messages(form_idx)
+                else
                     display_error_message_for_mentor()
                 break
 
@@ -344,38 +405,42 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         return is_valid
     }
 
+    // This is not good but at least removes some redundancy :)
+    function display_snippets_at_idx(id) {
+        snippets[id].style = 'display: flex;'
+        snippets[id].getElementsByTagName('input')[0].focus()
+
+        corner_guy.innerText = `<- Step ${(id + 1)} of ${page_count}`
+    }
+
     function display_error_message_for_name(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
-        let first_name_warning_message = document.getElementById('frm-first-name-warning-message')
-        let last_name_warning_message = document.getElementById('frm-last-name-warning-message')
 
         if(input_first_name.value.length == 0)
             first_name_warning_message.innerText = "First name cannot be blank!"
-        else if(input_first_name.value.length == 1)
-            first_name_warning_message.innerText = "First name must be longer than one character."
         else
             first_name_warning_message.innerText = ""
         
         if(input_last_name.value.length == 0)
             last_name_warning_message.innerText = "Last name cannot be blank!"
-        else if(input_last_name.value.length == 1)
-            last_name_warning_message.innerText = "Last name must be longer than one character."
         else
             last_name_warning_message.innerText = ""
     }
 
-    function display_error_message_for_email_phone_password(){
+    async function display_error_message_for_email_phone_password(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
-        let email_warning_message = document.getElementById('frm-email-warning-message')
-        let phone_warning_message = document.getElementById('frm-phone-warning-message')
-        let password_warning_message = document.getElementById('frm-password-warning-message')
-        
-        if(input_password.value.length == 0)
-            password_warning_message.innerText = "Password cannot be blank!"
-        else if(input_password.value.length == 1)
-            password_warning_message.innerText = "Password must be longer than one character."
-        else
-            password_warning_message.innerText = ""
+
+        if (input_password.value.length == 0) {
+            password_warning_message.innerText = "Password cannot be blank!";
+        } else if (input_password.value.length < 12) {
+            password_warning_message.innerText = "Password must be 12 or more characters.";
+        } else if (input_password.value.length > 36) {
+            password_warning_message.innerText = "Password must be 36 or fewer characters.";
+        } else if (!/[A-Z]/.test(input_password.value) || !/[a-z]/.test(input_password.value) || !/[0-9]/.test(input_password.value) || !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(input_password.value)) {
+            password_warning_message.innerText = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.";
+        } else {
+            password_warning_message.innerText = "";
+        }
         
         if(input_phone.value.length == 0)
             phone_warning_message.innerText = "Phone number cannot be blank!"
@@ -388,16 +453,14 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             email_warning_message.innerText = "Email cannot be blank!"
         else if(!regex_custom.test(input_email.value))
             email_warning_message.innerText = "You must enter a valid email address."
+        else if(await email_already_exist(input_email.value))
+            email_warning_message.innerText = "Account with this email already exist"
         else
             email_warning_message.innerText = ""
     }
 
     function display_error_message_for_mentor(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
-        let company_warning_message = document.getElementById('frm-company-warning-message')
-        //let company_type_warning_message = document.getElementById('frm-company-type-warning-message')
-        //let experience_warning_message = document.getElementById('frm-experience-warning-message')
-        let job_title_warning_message = document.getElementById('frm-job-title-warning-message')
 
         if(input_company.value.length == 0)
             company_warning_message.innerText = "Company cannot be blank!"
@@ -413,6 +476,28 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         else
             job_title_warning_message.innerText = ""
         
+    }
+
+    function reset_error_messages(form_idx){
+        //Resets the innerText values of the error messages based on the form index 
+        //(so that if you go back, the error messages do not continue to show)
+        switch (form_idx){
+            case 1:
+                first_name_warning_message.innerText = ""
+                last_name_warning_message.innerText = ""
+                break;
+            case 2:
+                password_warning_message.innerText = ""
+                phone_warning_message.innerText = ""
+                email_warning_message.innerText = ""
+                break;
+            case 3:
+                company_warning_message.innerText = ""
+                job_title_warning_message.innerText = ""
+                break;
+            default:
+                break;
+        }
     }
 
 }) // DOM listener

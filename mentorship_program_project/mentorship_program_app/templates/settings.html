@@ -12,60 +12,81 @@ Settings
 
 {% block main_content %}
 
-
-<div class="grid-container">
-    <!-- container for back arrow -->
-    <div class="link-container">
-        <a href="/" class="return-link">
-            <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
-            Back
-        </a>
-    
-        <div class="title">
-            Settings
+<div class="sign-in-card">
+    <div class="grid-container">
+        <!-- container for back arrow -->
+        <div class="link-container" style="margin: 2em; border-bottom: 2px solid white;">
+            <a href="" class="return-link" onclick="event.preventDefault(); history.back();">
+                <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
+                Back
+            </a>
+        
+            <div class="title">
+                Settings
+            </div>
         </div>
-    </div>
 
-    <!-- container for change password -->
-    <div class="accordion-container">
-        <input type="checkbox" id="chk-change-password" class="accordion-input">
-        <label for="chk-change-password" class="accordion-header">
-            Change Password
-        </label>
-        <div class="accordion-content">
-            <form action="">               
-                <input type="password" class="password-field" placeholder="Old Password" id="old-password">
-                <input type="password" class="password-field" placeholder="New Password" id="new-password1">
-                <input type="password" class="password-field" placeholder="Confirm Password" id="new-password2">
-                <input type="submit" value="Confirm" class="btn-change-password"> 
+        <!-- container for change password -->
+        <div class="accordion-container">
+            <input type="checkbox" id="chk-change-password" class="accordion-input">
+            {% if message %}
+            <p id="message" style="color:red;">{{message}}</p>
+            {% else %}
+            <p id="message" style="display:none; color:red;">Passwords must match!</p>
+            {% endif %}
+            <label for="chk-change-password" class="accordion-header">
+                Change Password
+            </label>
+
+            <div class="accordion-content">
+
+                 <form action="/change_password" method="post" id="pass-change-form" onsubmit="validateForm(event)" >
+                    {% csrf_token %}
+                    <input type="password" class="password-field" placeholder="Old Password" id="old-password" name="old-password" required>
+                    <input type="password" class="password-field" placeholder="New Password" id="new-password1" name="new-password" required>
+                    <input type="password" class="password-field" placeholder="New Password" id="new-password2" required>
+                    <input type="submit" value="Confirm" class="btn-change-password" id="btnSubmit"> 
+                 </form> 
+            </div>
+        </div>
+
+        <!-- container for lightmode/darkmode toggle -->
+        <div class="theme-toggle-container">
+            <h1>Dark / Light</h1>
+            <label class="switch">
+                <input type="checkbox" id="toggler">
+                <span class="slider" id="slider"></span> 
+            </label>
+        </div>
+
+        <!-- container for deactivating account -->
+        <div class="deactivate-account-container">
+            <form action="/deactivate_your_own_account" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Deactivate Account" class="btn-deactivate-account" id="deactivate-btn">
             </form>
         </div>
+        
     </div>
-
-    <!-- container for lightmode/darkmode toggle -->
-    <div class="theme-toggle-container">
-        <h1>Dark / Light</h1>
-        <label class="switch">
-            <input type="checkbox" id="toggler">
-            <span class="slider" id="slider"></span> 
-        </label>
-    </div>
-
-    <!-- container for deactivating account -->
-    <div class="deactivate-account-container">
-        <form action="">
-            <input type="submit" value="Deactivate Account" class="btn-deactivate-account">
-        </form>
-    </div>
-
-
 
 </div>
 
-
-
-
 <script src="{% static 'js/toggle_darkmode.js' %}"></script>
+
+<script>
+function validateForm(event) {
+        let newPassword1 = document.getElementById("new-password1").value;
+        let newPassword2 = document.getElementById("new-password2").value;
+        let message = document.getElementById("message")
+        
+        // Check if new passwords match
+        if (newPassword1 !== newPassword2) {
+            event.preventDefault()
+            message.innerHTML = "Passwords don't match"
+            message.style.display = "inline-block"
+        }
+}
+</script>
 
 
 {% endblock %}

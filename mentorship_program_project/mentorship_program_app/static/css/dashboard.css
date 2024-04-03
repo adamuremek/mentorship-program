@@ -10,13 +10,6 @@ h1 {
     margin-bottom: 1rem;
 }
 
-.goFuckYourself {
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    text-align: -webkit-center;
-}
-
 .recommended-cards,
 .available-cards {
     display: grid;
@@ -176,7 +169,8 @@ h1 {
     margin-bottom: 12px;
 }
 
-@media screen and (max-width: 1150px) {
+@media screen and (max-width: 1000px) {
+
     .recommended-cards,
     .available-cards {
         grid-template-columns: repeat(2, 1fr);
@@ -184,6 +178,7 @@ h1 {
 }
 
 @media screen and (max-width: 420px) {
+
     .recommended-cards,
     .available-cards {
         grid-template-columns: 1fr;

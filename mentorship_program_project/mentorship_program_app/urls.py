@@ -38,7 +38,8 @@ WHO     WHEN     WHAT
 WJL   3/3/2024   Added file header comment
 """
 
-from django.urls import path
+from django.urls import include,path, re_path
+
 from django.conf import settings
 from django.conf.urls.static import static
 from mentorship_program_app import views
@@ -51,6 +52,11 @@ from .view_routes import development as development_views
 
 ##All created urls need to go here
 urlpatterns = [
+
+
+    
+    path("__debug__/", include("debug_toolbar.urls")),
+
     #path('home/', views.home, name='home'),
     #path('login/', views.login, name='login'),
     #path('login/success', views.success, name='success'),  ## some urls dont currently have html to go with them
@@ -82,6 +88,14 @@ urlpatterns = [
     #=================================================#
 
     
+    ##RESETTING PASSWORD ROUTE feel free to move to better spot in file - Tanner 🦞
+    path("reset_request", under_development.reset_request, name="reset_request"),
+    path("reset_password", under_development.reset_password, name="reset_password"),
+    re_path(r'^request_reset_page(?:/(?P<token>\w{30}))?/$', under_development.request_reset_page, name="request_reset_page"),
+    path('check_email_for_password_reset', under_development.check_email_for_password_reset, name='check_email_for_password_reset'),
+    path('check-email', under_development.check_email, name='check_email'),
+
+
     #ADAM + ANDREW + JORDAN TESTING
     path("view_pending", under_development.view_pending_mentors, name="view_pending"),
     path("change_mentor_status", under_development.change_mentor_status, name="change_mentor_status"),
@@ -92,6 +106,16 @@ urlpatterns = [
     path("generate_report", navigation.generate_report, name="generate_report"),
     path("group_view", under_development.group_view, name="group_view"),
     path("universal_profile/<int:user_id>", under_development.universalProfile, name="universal_profile"),
+    path("delete_mentorship/<int:mentee_user_account_id>", under_development.delete_mentorship, name="delete_mentorship"),
+    path("change_password", under_development.change_password, name="change_password"),
+    path("create_note", under_development.create_note, name="create_note"),
+    path("update_note", under_development.update_note, name="update_note"),
+    path("remove_note", under_development.remove_note, name="remove_note"),
+    path("available_mentees", under_development.available_mentees, name="available_mentees"),
+    path("process_file", under_development.process_file, name="process_file"),
+    path("add_remove_mentees_from_file", under_development.add_remove_mentees_from_file, name="add_remove_mentees_from_file"),
+    path("deactivate_your_own_account", under_development.deactivate_your_own_account, name="deactivate_your_own_account"),
+    path("promote_org_admin/<int:promoted_mentor_id>", under_development.promote_org_admin, name="promote_org_admin"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN
@@ -102,7 +126,11 @@ urlpatterns = [
     # CURRENTLY STATIC ROUTE TO CHANGE SETTINGS FROM BEN
     path('settings', views.change_settings, name='change_settings'),
     
-    
+    # CURRENTLY STATIC ROUTE -JASON
+    path('admin_reported_users/', views.admin_reported_users, name='admin_reported_users'),
+    path('admin_reported_users/resolve_report/', backend_requests.resolve_report, name='admin_resolve_report'),
+    path('report_user/', backend_requests.report_user, name='report_user'),
+
     path('dashboard/', navigation.dashboard, name='dashboard'),
     path('faq/', views.faq, name='faq'),
     path('profile-card/', views.profileCard, name='profile-card'),
@@ -117,6 +145,7 @@ urlpatterns = [
     path('account_activation_mentee_valid/', views.account_activation_valid_mentee, name='account_activation_valid_mentee'),
     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
     path('admin_user_management/', views.admin_user_management, name='admin_user_management'),
+
     # TEMP PATH FOR TESTBACKEND PROCESSING --ANTHONY PETERS
     # path('admin_user_management/addMentorshipRequest/', views.admin_user_managment_add_mentorship_request,  name='admin_user_management_add_mentorship_request'),
 
@@ -137,7 +166,8 @@ urlpatterns = [
     path('dev/delete_users'               , development_views.delete_users                    ,name='delete users'),
     path('dev/test_login'                 , development_views.test_login_page                 ,name='test login'),
     path('dev/is_logged_in'               , development_views.is_logged_in_test               ,name='logged in test'),
-    path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships")
+    path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships"),
+    path('dev/test_database_join'         , development_views.test_database_speed, name='test database joins' )
 ]
 
 if settings.DEBUG:

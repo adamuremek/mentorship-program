@@ -50,13 +50,25 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse,HttpRequest # for typing
 
+
+
 #standard python imports
 from datetime import date
 import os
 from typing import Callable
+import random
+import string
+from enum import Enum
+from typing import List, Dict
+from functools import reduce
+
+from django.db.models import Q
 
 #project imports
 from utils import security
+from django.utils import timezone
+from datetime import timedelta
+from typing import Tuple
 
 
 # Create your models here.
@@ -197,7 +209,136 @@ class Interest(SVSUModelData,Model):
     isDefaultInterest = BooleanField(default=False)
 
 
+    @staticmethod
+    def create_interest(str_interest : str, bool_default : bool = False) -> 'Interest' :
+        """
+        Description
+        -----------
+        Creates an interest given a name and boolean value to determine 
+        if the interest is a default interest.
 
+
+        Example Usage
+        _____________
+        >>> my_interest = create_interest("Computer Science")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
+        #Create the interest and save it to the database in one line.
+        try:
+            return Interest.objects.create(
+                strInterest = str_interest,
+                isDefaultInterest = bool_default
+            )
+        except :
+            return None
+        
+    
+    @staticmethod
+    def get_interest(str_interest_name : str ) -> 'Interest' :
+        """
+        Description
+        -----------
+        Gets an interest by name.
+
+
+        Example Usage
+        _____________
+        >>> my_interest = get_interest("Computer Science")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
+        
+        try:
+            #Find the first instance of the interest in the database and return the object.
+            return Interest.objects.filter(str_interest = str_interest_name).first()
+        except:
+            return None
+    
+    @staticmethod
+    def update_interest(str_interest_name : str, bool_default : bool, str_new_interest_name : str = None) -> 'Interest' :
+        """
+        Description
+        -----------
+        Updates an interest with a new default value or interest name.
+
+
+        Example Usage
+        _____________
+        >>> my_interest = update_interest("Netwoking", True, "Networking")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
+        try:
+            #Find the first instance of the interest in the database and return the object.
+            interest : 'Interest' = Interest.objects.filter(str_interest = str_interest_name)
+            
+            if str_new_interest_name != None :
+                interest.strInterest = str_new_interest_name
+            
+            interest.isDefaultInterest = bool_default
+
+            #save the instance to the database
+            interest.save()
+
+            return interest
+        except:
+            return None
+        
+    @staticmethod
+    def create_default_interests():
+        
+        default_interests = [
+            'Artificial Intelligence', 
+            'Computer Graphics', 
+            'Data Structures & Algorithms',
+            'Networking',
+            'Operating Systems',
+            'Embedded Systems',
+            'Cloud Computing',
+            'Software Engineering',
+            'Distrubuted Systems',
+            'Game Development',
+            'Cybersecurity',
+            'System Analysis']
+        
+        for interest in default_interests:
+            Interest.get_or_create_interest(interest)
+    
+    @staticmethod
+    def delete_interest(str_interest_name : str) -> 'Interest' :
+        """
+        Description
+        -----------
+        Removes an interest from the database.
+
+
+        Example Usage
+        _____________
+        >>> my_interest = delete_interest("Compter Science")
+
+
+        Authors
+        -------
+        Justin Goupil
+        """
+        try:
+            #Find the first instance of the interest in the database and return the object.
+            interest : 'Interest' = Interest.objects.filter(str_interest = str_interest_name)
+            interest.delete()
+
+            return interest
+        except:
+            return None
 
     @staticmethod
     def get_or_create_interest(str_interest : str) -> 'Interest':
@@ -308,9 +449,111 @@ class User(SVSUModelData,Model):
 
     """
 
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs) #let django cook
+        
+        #mark cached functions so we don't over query the database
+        self.cache = security.Decorators.FunctionCache()
+        
+        #decorate cachable functions on the init level so python understands when to remove
+        #the cached data
+        self.is_mentee = self.cache.create_cached_function(self.is_mentee)
+        self.is_mentor = self.cache.create_cached_function(self.is_mentor)
+
+
+
     @property 
     def str_full_name(self):
-        return self.str_first_name + " " + self.str_last_name
+        first_name = self.str_first_name if self.str_first_name != None else " "
+        last_name =  self.str_last_name if self.str_last_name != None else " "
+        return first_name + " " + last_name
+
+    def get_recomended_users(self,limit : int =4):
+        """
+        Description
+        ___________
+        query that returns opposite users in the database that are ordered base on their 
+        interest similarity to the current user
+
+        Notes
+        _____
+        the idea here is to keep the number crunching as much on the databse side of things as possible
+        so the query first computes your likely score to the current user on the db in a subquery, 
+        and then uses that to order on after the sub query finishes
+
+        Authors
+        _______
+        David Kennamer >.>
+        """
+
+
+
+        
+        #TODO: we should probably get this going specifically through djangos orm's
+        #       idk if thats possible tho since this is doing a self join on a table to 
+        #       get the data we need, def more research is required
+
+        sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
+        
+        #TODO: actually get this filtering
+        not_taken = f"""
+                        SELECT COUNT(*)=0 FROM 
+                                mentorship_program_app_mentee as ment 
+                            INNER JOIN 
+                                mentorship_program_app_mentor as m 
+                            ON 
+                                m.id = mentor_id 
+                            WHERE 
+                                ment.id = {self.id} AND m.id = tu.id
+                    """
+
+
+        if self.is_mentor():
+            sub_query = \
+                f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id=t1.user_id AND mentor_id={self.id}"
+
+            not_taken = f"SELECT COUNT(mentor_id)<1 FROM mentorship_program_app_mentee WHERE account_id = tu.id"
+        
+        return User.objects.raw(
+                    f"""
+                    SELECT DISTINCT t1.user_id AS id,
+                                    str_first_name,
+                                    str_last_name,
+                                    COUNT(*) as likeness,
+                                    ({sub_query}) as is_requested_by_session
+                       FROM 
+                            mentorship_program_app_user_interests AS t1,
+                            mentorship_program_app_user_interests AS t2,
+                            mentorship_program_app_user AS tu
+                       WHERE t2.user_id={self.id} 
+                            AND t1.interest_id = t2.interest_id 
+                            AND t1.user_id = tu.id
+                            AND tu.str_role = '{self.get_opposite_database_role_string()}'
+                            AND ({not_taken})
+                       GROUP BY t1.user_id,tu.str_first_name,tu.str_last_name,tu.id
+                       ORDER BY likeness DESC
+                       LIMIT {limit};
+                    """
+                    )
+
+        
+        #quick and dirty method
+        #pings the database a lil' more than I would like
+        #this method fails to work properly since it does not accout for every item in the database
+        #due to pagination from django, we need this query to run on the server
+        
+        #q_obj = User.objects.filter(str_role=self.get_opposite_database_role_string())
+        #ret_val =  []
+        #for u in q_obj:
+        #    u.likeness = float((u.interests.all() & self.interests.all()).count())
+        #    ret_val.append(u)
+        #ret_val.sort(key = lambda x : x.likeness,reverse=True)
+
+        #ret_val = ret_val
+
+
+        #return ret_val
+
 
     def get_backend_only_properties(self)-> list[str]:
         """
@@ -441,6 +684,50 @@ class User(SVSUModelData,Model):
             return False
 
 
+    def has_requested_user_all(self, user_ids: List[int]) -> Dict[int, bool]:
+        """
+        Retrieve MentorshipRequest objects involving the current user and any of the specified user IDs.
+
+        Parameters:
+        - user_ids (List[int]): List of user IDs to check for MentorshipRequests.
+
+        Returns:
+        - Dict[int, bool]: A dictionary indicating whether a MentorshipRequest exists between each user and the current user.
+        """
+    
+
+
+        # Initialize a query that combines all individual conditions using logical OR (|)
+        combined_query = Q()
+        for user_id in user_ids:
+            combined_query |= Q(mentor=self, mentee_id=user_id) | Q(mentee=self, mentor_id=user_id)
+
+        # Fetch all mentorship requests matching any of the combined conditions in one query
+        mentorship_requests = MentorshipRequest.objects.filter(combined_query)
+
+        # Initialize dictionary to track requested users
+        requested_users = {}
+
+        # Loop through each user ID
+        for user_id in user_ids:
+            # Check if any mentorship request exists for the user
+            user_query = Q(mentor=self, mentee_id=user_id) | Q(mentee=self, mentor_id=user_id)
+            user_requests = mentorship_requests.filter(user_query)
+            user_exists = user_requests.exists()
+            
+            
+
+            if user_exists:
+                requested_users[user_id] = True  # Mark the user as involved
+            else:
+                requested_users[user_id] = False  # Mark the user as not involved
+
+        return requested_users
+
+
+
+
+
     def get_opposite_database_role_string(self)->str:
         """
         Description
@@ -472,6 +759,7 @@ class User(SVSUModelData,Model):
         -------
         
         """
+
         return User.Role.MENTEE if  self.is_mentor()  else User.Role.MENTOR
 
     def get_database_role_string(self)->str:
@@ -505,8 +793,10 @@ class User(SVSUModelData,Model):
         Authors
         -------
         David Kennamer ._.
+        Jordan Anodjo
         
         """
+        
         return User.Role.MENTOR if self.is_mentor()  else User.Role.MENTEE
 
 
@@ -573,7 +863,7 @@ class User(SVSUModelData,Model):
         
         """
         try:
-            self.mentee 
+            self.mentee
             return self.str_role == User.Role.MENTEE
         except ObjectDoesNotExist:
             return False
@@ -583,8 +873,9 @@ class User(SVSUModelData,Model):
         convinece function that returns true if the given user has super admin privleges in the database
         """
         try:
-            return self.admin_entry.bool_enabled
+            return  self.str_role == "Admin" or self.admin_entry.bool_enabled
         except ObjectDoesNotExist:
+            
             return False
 
     def get_shared_organizations(self,other : 'User')->['Organization']:
@@ -880,7 +1171,6 @@ class User(SVSUModelData,Model):
             "FirstName": self.str_first_name,
             "LastName": self.str_last_name,
             "PhoneNumber": self.str_phone_number,
-            "DateOfBirth": self.cls_date_of_birth,
             "Gender": self.str_gender,
             "PreferredPronouns": self.str_preferred_pronouns,
             "str_bio" : self.str_bio
@@ -889,6 +1179,38 @@ class User(SVSUModelData,Model):
 
 
         return user_info
+    
+    @staticmethod
+    def make_user_inactive(user :"User"):
+        user.bln_active = False
+        
+        if user.is_mentee():
+            user.mentor = None
+            MentorshipRequest.objects.filter(mentee_id=user.id).delete()
+        if user.is_mentor():
+            mentor_account = Mentor.objects.get(account_id=user.id)
+            if mentor_account.is_admin_of_organization(mentor_account.organization):
+                Organization.find_new_org_admin()
+
+            MentorshipRequest.objects.filter(mentor_id=user.id).delete()
+            mentees_for_mentor = Mentee.objects.filter(mentor_id=user.id)
+            for mentee in mentees_for_mentor:
+                mentee.mentor = None
+            Mentee.objects.bulk_update(mentees_for_mentor, ['mentor'])
+        user.save()
+
+    @staticmethod
+    def reactivate_user(user: "User"):
+        if user.bln_account_disabled:
+            return "Account cannot be reactivated, user is banned"
+        user.bln_active = True
+        user.save()
+        
+    @staticmethod
+    def disable_user(user:"User"):
+        user.bln_account_disabled = True
+        user.save()
+        User.make_user_inactive(user)
     
     # @property
     # def img_user_profile(self):
@@ -1177,7 +1499,20 @@ class Organization(SVSUModelData,Model):
     str_org_name = CharField(max_length=100)
     str_industry_type = CharField(max_length=100)
 
-    admins = models.ManyToManyField('Mentor',related_name='administered_organizations')
+    admin_mentor = OneToOneField('Mentor', related_name='administered_organizations', on_delete=models.CASCADE, null=True) 
+
+
+    @staticmethod
+    def find_new_org_admin(org_id : int):
+        # this might not work tbh
+        organization = Organization.objects.get(id=org_id)
+        # get all mentors within an organziation and order them by id
+        mentors = organization.mentor_set.all().order_by('id') 
+        # get the second oldest mentor in an org, who will become the new org admin
+        second_oldest_mentor = mentors[1:2].first()
+        # assign them as the new org admin
+        organization.admin_mentor = second_oldest_mentor
+        organization.save()
 
 class Mentor(SVSUModelData,Model):
     """
@@ -1245,11 +1580,10 @@ class Mentor(SVSUModelData,Model):
         """
         returns true if the given user administers the given organization
         """
-        try:
-            org.admins.get(id=self.id)
+        if org.admin_mentor.id==self.id:
             return True
-        except ObjectDoesNotExist:
-            return False
+        return False
+
 
     def get_shared_organizations(self,other : 'Mentor')->['Organization']:
         """
@@ -1355,6 +1689,13 @@ class Mentee(SVSUModelData,Model):
     -------
 
     """
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+
+        self.function_cache = security.Decorators.FunctionCache()
+        self.has_maxed_request_count = self.function_cache.create_cached_function(self.has_maxed_request_count)
+
 
     #limits the number of requests that any given mentee can have
     MAXIMUM_REQUEST_COUNT = 5
@@ -1535,7 +1876,7 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Authors
         _______
-        David Kennamer \*^*/
+        David Kennamer 
         """
         MentorshipRequest.objects.filter(mentee=mentee.account).delete()
 
@@ -1561,7 +1902,19 @@ class MentorshipRequest(SVSUModelData,Model):
             return False
 
 
-    
+    class ErrorCode:
+        MENTOR_MAXED_MENTEES = -1
+        MENTEE_MAXED_REQUEST_AMOUNT = -2
+        DATABASE_ERROR = -3
+        
+        @staticmethod
+        def error_code_to_string(code : int)->str:
+            return [
+             "MENTOR_MAXED_MENTEES",
+             "MENTEE_MAXED_REQUEST_AMOUNT",
+             "DATABASE_ERROR"
+            ][-(code+1)]
+
     @staticmethod
     def create_request(int_mentor_user_id: int, int_mentee_user_id: int, requester_id: int):
         """
@@ -1580,15 +1933,19 @@ class MentorshipRequest(SVSUModelData,Model):
 
         Returns
         -------
-        - True (boolean): IF the mentorship request was sucessfully created.
-        - False (boolean): IF the mentorship request was NOT created.
+        either the request object or an error code indicating what occured
+        while making the request
+
+        you can find these error codes under MentorshipRequest.ErrorCode
 
         Example Usage
         -------------
-        >>> boolFlag = create_request(13, 16)
-        boolFlag = False
-        >>> boolFlag = create_request(5, 24)
-        boolFlag = True
+        >>> error_code = create_request(13, 16)
+        error_code = MentorshipRequest.ErrorCode.MENTEE_MAXED_REQUEST_AMOUNT
+        >>> request_object = create_request(5, 24)
+        request_object = valid request object
+
+        
 
         Authors
         -------
@@ -1603,11 +1960,13 @@ class MentorshipRequest(SVSUModelData,Model):
             #prevent requests for mentors that have their mentee count maxed
             mentor_user_account = User.objects.get(id=int_mentor_user_id)
             if mentor_user_account.mentor.has_maxed_mentees():
-                return False
+                return MentorshipRequest.ErrorCode.MENTOR_MAXED_MENTEES
 
-            mentee_user_account = User.objects.get(id=int_mentee_user_id)
-            if mentee_user_account.mentee.has_maxed_request_count():
-                return False
+            #prevent mentees from creating too many requests
+            requester_user_account = User.objects.get(id=requester_id)
+            if requester_user_account.is_mentee() \
+            and requester_user_account.mentee.has_maxed_request_count():
+                return MentorshipRequest.ErrorCode.MENTEE_MAXED_REQUEST_AMOUNT
 
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,
@@ -1617,7 +1976,7 @@ class MentorshipRequest(SVSUModelData,Model):
             return mentor_ship_request
         except Exception as e:
             print(e)
-            return False
+            return MentorshipRequest.ErrorCode.DATABASE_ERROR
 
     def get_request_id(int_request_id: int) -> 'MentorshipRequest':
         """
@@ -1796,26 +2155,27 @@ class MentorshipReferral(SVSUModelData,Model):
         on_delete = models.CASCADE
     )
 
-class MentorReports(SVSUModelData,Model):
+class UserReport(SVSUModelData,Model):
     """
     Description
     -----------
-    MentorshipReports is a database access object.
-    This class represents a report for a mentor.
+    UserReport is a database access object.
+    This class represents a report for a user.
 
     Properties
     ----------
-    - mentor (ForeignKey): Represents a user who is a mentor.
+    - user (ForeignKey): Represents a user being reported.
 
     Instance Functions
     ------------------
-    - create_mentor_report: Creates a report in the database using the report type, body,and mentor's ID.
+    - create_user_report: Creates a report in the database using the report type, body,and user's ID.
     - get_report_id: Returns a specified report using an ID.
     - get_reoort_info: Returns a dictionary containing the fields of the report.
 
     Static Functions
     ----------------
-    - NONE -
+    - get_unresolved_reports_grouped_by_user: Returns a dictionary of all users with unresolved reports.
+    - resolve_report: Marks a report as resolved in the database.
 
     Magic Functions
     ---------------
@@ -1824,6 +2184,7 @@ class MentorReports(SVSUModelData,Model):
     Authors
     -------
     Adam C.
+    Jordan A.
     """
     class ReportType(TextChoices):
         """
@@ -1851,26 +2212,34 @@ class MentorReports(SVSUModelData,Model):
         -------
         Adam C.
         """
-        BEHAVIOR : 'Behavior'
+        CONDUCT = 'Conduct'
+        PROFILE = 'Profile'
+        RESPONSIVENESS = 'Responsiveness'
+        OTHER = 'Other'
 
-    mentor = ForeignKey(
-        Mentor,
+
+        # TODO: Add different issue
+
+    user = ForeignKey(
+        User,
         on_delete = models.CASCADE
     )
-    str_report_type = CharField(max_length=10, choices=ReportType.choices, default='')
-    str_report_body = CharField(max_length = 3500)
 
-    def create_mentor_report(str_provided_report_type: str, str_provided_report_body: str, int_mentor_id: int) -> bool:
+    str_report_type = CharField(max_length=15, choices=ReportType.choices, default='')
+    str_report_body = CharField(max_length = 3500)
+    bln_resolved = BooleanField(default=False)
+
+    def create_user_report(str_provided_report_type: str, str_provided_report_body: str, int_user_id: int) -> bool:
         """
         Description
         -----------
-        Creates a mentor report using the report type, body, and mentor's ID.
+        Creates a user report using the report type, body, and user's ID.
 
         Parameters
         ----------
         - str_provided_report_type (str): The type of report.
         - str_provided_report_body (str): The body of the report.
-        - int_mentor_id (int): User ID that is the mentor.
+        - int_user_id (int): ID of user being reported.
 
         Optional Parameters
         -------------------
@@ -1878,14 +2247,14 @@ class MentorReports(SVSUModelData,Model):
 
         Returns
         -------
-        - True (boolean): IF the mentor report was sucessfully created.
-        - False (boolean): IF the mentor report was NOT created.
+        - True (boolean): IF the user report was sucessfully created.
+        - False (boolean): IF the user report was NOT created.
 
         Example Usage
         -------------
-        >>> boolFlag = create_mentor_report('Accidentally', '', 24)
+        >>> boolFlag = create_user_report('Accidentally', '', 24)
         boolFlag = False
-        >>> boolFlag = create_mentor_report('Incident', 'Mentor was rude', 4)
+        >>> boolFlag = create_user_report('Incident', 'Mentor was rude', 4)
         boolFlag = True
 
         Authors
@@ -1893,20 +2262,22 @@ class MentorReports(SVSUModelData,Model):
         Adam C.
         """
         try:
-            MentorReports.objects.create(
+            user = User.objects.get(id=int_user_id)
+            UserReport.objects.create(
                 str_report_type = str_provided_report_type,
                 str_report_body = str_provided_report_body,
-                mentor = int_mentor_id
-            )
+                user = user,
+                bln_resolved = False,
+            ).save()
             return True
         except Exception as e:
             return False
         
-    def get_report_id(int_report_id: int) -> 'MentorReports':
+    def get_report_id(int_report_id: int) -> 'UserReport':
         """
         Description
         -----------
-        - Gets a MentorReport object specified by it's ID.
+        - Gets a UserReport object specified by it's ID.
 
         Parameters
         ----------
@@ -1918,32 +2289,32 @@ class MentorReports(SVSUModelData,Model):
 
         Returns
         -------
-        - A MentorReport object.
-        - Nothing if the requested MentorReport object does not exist.
+        - A UserReport object.
+        - Nothing if the requested UserReport object does not exist.
 
         Example Usage
         -------------
         >>> cls_Report = get_report_id(2)
         cls_Report.str_report_type = 'Incident'
         cls_Report.str_report_body = 'Mentor was rude'
-        cls_Report.mentor_id = 4
+        cls_Report.user_id = 4
 
         Authors
         -------
         Adam C.
         """
-        return MentorReports.objects.get(id = int_report_id)
+        return UserReport.objects.get(id = int_report_id)
     
-    def get_mentor_report_info(int_report_id: int) -> dict:
+    def get_user_report_info(int_report_id: int) -> dict:
         """
         Description
         -----------
-        - Gets a specified MentorReport by it's ID.
-        - Returns a dictionary containing the report type, body, and mentor's ID.
+        - Gets a specified UserReport by it's ID.
+        - Returns a dictionary containing the report type, body, user's ID, and resolved status.
 
         Parameters
         ----------
-        - int_report_id (int): Integer specifying the id of a MentorReport in
+        - int_report_id (int): Integer specifying the id of a UserReport in
             the database.
 
         Optional Parameters
@@ -1952,26 +2323,99 @@ class MentorReports(SVSUModelData,Model):
 
         Returns
         -------
-        - dict_Report (Dictionary, String): containing the report type, body, and mentorID.
+        - dict_Report (Dictionary, String): containing the report type, body, userID and resolved status.
 
         Example Usage
         -------------
         >>> dict_Report = get_report_id(2)
-        dict_Report = {'reportType': 'Incident', 'reportBody': 'Mentor was rude', 'mentorID': 4}
+        dict_Report = {'reportType': 'Incident', 'reportBody': 'Mentor was rude', 'user_id': 4, 'is_resolved': False}
 
         Authors
         -------
         Adam C.
         """
-        cls_Report =  MentorReports.get_report_id(int_report_id)
+        cls_Report =  UserReport.get_report_id(int_report_id)
 
         dict_Report = {
             "report_type" : cls_Report.str_report_type,
             "report_body" : cls_Report.str_report_body,
-            "mentor_id" : cls_Report.mentor_id
+            "user_id"     : cls_Report.user_id,
+            "is_resolved" : cls_Report.bln_resolved
         }
 
         return dict_Report
+    
+    @staticmethod
+    def get_unresolved_reports_grouped_by_user() -> dict[User, list]:
+        """
+        Description
+        -----------
+        - Gets a list of all UserReports
+        - Returns a dictionary of user: list[reports].
+
+        Parameters
+        ----------
+        - NONE -
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+         - dict[User, list[UserReport]]
+            A dictionary where the keys are Users and the values are lists of UserReports.
+
+        Example Usage
+        -------------
+        >>> user_reports_dict = get_reports_grouped_by_user()
+        user_reports_dict = {
+            <User object>: [<UserReport object (3)>, <UserReport object (4)>],
+            <User object>: [<UserReport object (1)>, <UserReport object (2)>],
+            ...
+        }
+
+        Authors
+        -------
+        Quinn F.
+        """
+
+        # TODO: make this less cursed
+        users_with_reports = User.objects.annotate(report_count=Count('userreport', filter=Q(userreport__bln_resolved=False))).filter(report_count__gt=0).prefetch_related('userreport_set')
+        user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all().filter(bln_resolved=False)) for user in users_with_reports}
+        return user_reports_dict
+    
+    @staticmethod
+    def resolve_report(int_report_id: int):
+        """
+        Description
+        -----------
+        - Marks a report as resolved in the database.
+
+        Parameters
+        ----------
+        - int_report_id (int): The ID of the report to be resolved.
+
+        Optional Parameters
+        -------------------
+        - NONE -
+
+        Returns
+        -------
+        - NONE -
+
+        Example Usage
+        -------------
+        >>> resolve_report(2)
+
+        Authors
+        -------
+        Quinn F.
+        """
+
+        report = UserReport.get_report_id(int_report_id)
+        report.bln_resolved = True
+        report.save()
 
 
 class Notes(SVSUModelData,Model):
@@ -2005,16 +2449,15 @@ class Notes(SVSUModelData,Model):
     """
 
     str_title = CharField(max_length=100)
-    str_body = CharField(max_length=7000)
+    str_public_body = CharField(max_length=7000, null=True, blank=True)
+    str_private_body = CharField(max_length=7000, null=True, blank=True)
     cls_created_on = DateField(default=date.today)
 
 
-    user = ForeignKey(
-        User,
-        on_delete = models.CASCADE
-    )
+    user = ForeignKey(User, on_delete = models.CASCADE)
 
-    def create_note(int_user_id: int, str_title_: str, str_body_: str):
+    @staticmethod
+    def create_note(user_id: int, str_title: str, str_public_body: str, str_private_body: str):
         """
         Description
         -----------
@@ -2041,25 +2484,69 @@ class Notes(SVSUModelData,Model):
         Authors
         -------
         Justin G.
+        Adam U.
 
         Changes
         -------
         """
-        try:
-            #create and save the entry in the database.
-            Notes.objects.create(
-                str_title = str_title_,
-                str_body = str_body_,
-                cls_created_on = date.now(),
-                user = int_user_id
-            )
-            #Operation was a success.
-            return True
-        except Exception as e:
-            print(e)
-            #Operation failed.
-            return False
+        str_title = None if str_title == "" else str_title
+        str_public_body = None if str_public_body == "" else str_public_body
+        str_private_body = None if str_private_body == "" else str_private_body
+        user = User.objects.get(id=user_id)
 
+        if not str_title:
+            return False
+        elif str_public_body or str_private_body:
+            Notes.objects.create(
+                str_title = str_title,
+                str_public_body = str_public_body,
+                str_private_body = str_private_body,
+                cls_created_on = date.today(),
+                user = user
+            )
+            print("Note created")
+            return True
+        else:
+            return False
+        
+        
+    
+    @staticmethod
+    def update_note(note_id: int, new_title: str, new_pub_body: str, new_pvt_body: str) -> None:
+        note = Notes.objects.get(id=note_id)
+
+        note.str_title = new_title
+        note.str_public_body = new_pub_body
+        note.str_private_body = new_pvt_body
+        note.save()
+
+    @staticmethod
+    def remove_note(note_id: int):
+        note = Notes.objects.get(id=note_id)
+        note.delete()
+        
+    @staticmethod
+    def get_all_mentor_notes(mentor: Mentor):
+        pub_notes = Notes.objects.filter(user=mentor)
+        return [{
+            "id" : note.id,
+            "title" : note.str_title,
+            "date_created" : note.cls_created_on,
+            "public_note" : note.str_public_body,
+            "private_note" : note.str_private_body
+        } for note in pub_notes]
+
+    @staticmethod
+    def get_public_mentor_notes(mentor_id: int):
+         pvt_notes = Notes.objects.filter(user=mentor_id, str_private_body__isnull=False)
+         return [{
+            "title" : note.str_title,
+            "date_created" : note.cls_created_on,
+            "public_note" : note.str_public_body
+        } for note in pvt_notes]
+            
+
+        
 class SystemLogs(SVSUModelData,Model):
     """
     Description
@@ -2224,3 +2711,123 @@ class ProfileImg(SVSUModelData,Model):
 
             self.save(update_fields=['file_size'])
         return self.file_size
+
+
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=30, unique=True)  
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def create_reset_token(user_id):
+        try:
+            # Get the user instance
+            user_instance = User.objects.get(pk=user_id)
+
+          # Check if the user already has a token, delete it if it exists
+            try:
+                existing_token = PasswordResetToken.objects.get(user=user_id)
+                existing_token.delete()
+            except ObjectDoesNotExist:
+                # No existing token for the user, proceed with creating a new one
+                print("Existing link deleted")
+                pass
+
+
+
+            
+
+            duplicate = True
+            token = ""
+            while duplicate:
+                # Define the pool of characters to choose from (only uppercase letters and digits)
+                characters = string.ascii_uppercase + string.digits
+
+                # Generate a random string of length 6
+                token = ''.join(random.choice(characters) for _ in range(30))
+
+                #checks to see if token exist already
+                duplicate = PasswordResetToken.objects.filter(token=token).exists()
+            
+            reset_token_instance = PasswordResetToken(user=user_instance, token=token)
+            # Save the new instance of PasswordResetToken model
+            reset_token_instance.save()
+
+            return True, "Reset link created successfully", token
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            return False, f"An error occurred creating your link", token
+        
+
+    
+    def is_valid_token(self) -> Tuple[bool, str]: #this deletes a token if its not valid
+        try:
+            expiration_time = 10 ## time for a token to expire in minutes
+
+            # Get the current time
+            current_time = timezone.now()
+        
+            # Calculate the timestamp ten minutes ago
+            ten_minutes_ago = current_time - timedelta(minutes=expiration_time)
+        
+            # Check if the token timestamp is greater than or equal to ten minutes ago
+            if self.timestamp >= ten_minutes_ago:
+                # Token is valid
+                return True , "found"
+            else:
+                # Token expired
+                self.delete() #delete expired tokens
+                return False, "expired"
+        except Exception as e:
+            # Log or handle the exception
+            return False, "ex"
+    
+    #deletes all expired tokens by validating them
+    @staticmethod
+    def delete_all_expired_reset_tokens():
+        tokens = PasswordResetToken.objects.all()
+
+        for token_record in tokens:
+            if not token_record.is_valid_token(token_record):
+                print(f"Expired token deleted: {token_record}")
+            else:
+                print(f"Token is still valid: {token_record}")
+
+    @staticmethod
+    def validate_and_reset_password(token: str, new_password: str) -> Tuple[bool, str]:
+        try:
+            # Retrieve the token instance based on user ID and token
+
+          
+            token_instance = PasswordResetToken.objects.get(token=token)
+            
+            
+            valid, message = token_instance.is_valid_token()
+            # Check if the token is valid
+            if not valid:
+                if message == "expired":
+                    return False,  "Link expired, attempt reset again!"
+                if message == "ex":
+                    return False, "An error occoured verifying your link."
+            # Delete the token since it was correct and is no longer needed
+            
+
+            user = User.objects.get(id=token_instance.user.id)
+            generated_user_salt = security.generate_salt()
+            user.str_password_hash = security.hash_password(new_password, generated_user_salt)
+            user.str_password_salt = generated_user_salt
+            user.save()
+            token_instance.delete()
+
+            
+            return True, "Password successfully reset, Rerouting you to home page."  # Password reset successful
+        except PasswordResetToken.DoesNotExist:
+            return False,  "Invalid Link"
+
+
+
+   
+class WhitelistedEmails(SVSUModelData,Model):
+    # 320 is max length of an email address
+    str_email = CharField(max_length = 320)

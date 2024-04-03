@@ -9,6 +9,11 @@ from datetime import datetime
 
 def run():
     print("Hello, creating a list of users. Please wait.")
+    #remove all users from the database
+    User.objects.all().delete()
+    Mentee.objects.all().delete()
+    Mentor.objects.all().delete()
+
     list_of_users = []
     list_of_users.append( 
         create_user( "fryan3@svsu.edu", "Qwerty123!@#", User.Role.MENTEE, datetime.now(), True, False, "Frank", "Ryan", "(256) 365-1024", datetime(2000,9,27), "Male", "Him/He"))
@@ -32,8 +37,21 @@ def run():
     print(list_of_users[0].cls_email_address)
     #print(User.objects.get())
 
-    #for users in list_of_users:
-    #    users.save()
+    for user in list_of_users:
+
+        user.save()
+
+        if User.Role.MENTEE :
+            mentee = Mentee.objects.create(
+                account = user
+            )
+            mentee.save()
+        
+        if User.Role.MENTOR :
+            mentor = Mentor.objects.create(
+                account = user
+            )
+            mentor.save()
 
     print("Users have been created.")
 

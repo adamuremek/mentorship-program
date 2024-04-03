@@ -43,20 +43,21 @@
 const togglebox = document.getElementById('toggler');
 
 //check localstorage for a theme
-const theme = localStorage.getItem('theme');
+if(localStorage.getItem('theme')) 
+{
+    const theme = localStorage.getItem('theme');
 
-if (theme) {
-    document.body.classList.add(theme);
+    if (theme)
+        document.body.classList.add(theme);
+
+    //when checkbox is changed, update values
+    togglebox.addEventListener('change', (event)=>{
+        if (event.currentTarget.checked) {
+            localStorage.setItem('theme','light-mode');
+            document.body.classList.add('light-mode');
+        } else {
+            localStorage.removeItem('theme');
+            document.body.classList.remove('light-mode');
+        }
+    });
 }
-
-
-//when checkbox is changed, update values
-togglebox.addEventListener('change', (event)=>{
-    if (event.currentTarget.checked) {
-        localStorage.setItem('theme','light-mode');
-        document.body.classList.add('light-mode');
-    } else {
-        localStorage.removeItem('theme');
-        document.body.classList.remove('light-mode');
-    }
-});

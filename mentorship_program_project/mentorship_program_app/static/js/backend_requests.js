@@ -63,7 +63,6 @@ async function attempt_login_uname_password(username,password) {
  *
  * status code 200 means succesful logout
  * status code 500 means that you were already logged in
- *
  * */
 async function attempt_logout_request() {
 	const req = new Request("/logout/",{
@@ -128,7 +127,6 @@ async function attempt_mentor_report(mentor_id) {
 */
 async function attempt_mentorship_request(mentee_id, mentor_id)
 {
-
 	// NEED TO TEST
     const req = new Request("request_mentor/" + mentee_id + "/" + mentor_id, {
                             method: "POST",
@@ -143,8 +141,70 @@ async function attempt_mentorship_request(mentee_id, mentor_id)
 	// return response;
 }
 
+
+// async function attempt_login_uname_password(username,password) {
+// 	let login_request = {type:"username_password",username:username,password:password};
+	
+// 	const req = new Request("/login/",{
+// 							method:"POST",
+// 							body: JSON.stringify(login_request),
+// 							headers: {
+// 									"Content-type": "application/json; charset=UTF-8",
+// 									'X-CSRFToken': csrftoken
+// 								},
+// 							mode: 'same-origin'
+// 	});
+	
+// 	let response = await fetch(req);
+// 	return response;
+// }
+
+
+
+
+
+
 /*
 * requests that the back end removes a mentorship request for the given mentee then adds one for the mentee and mentor
 */
+async function attempt_reject_mentorship_request(mentor_id,mentee_id = null) {
+	let request_url = "/reject_mentorship_request/" + mentor_id;
+	
 
-// TODO 
+	if (mentee_id)
+		request_url += "/"+mentee_id;
+
+	const req = new Request(request_url,{
+							method: "POST",
+							headers: {
+									"Content-type": "application/json; charset=UTF-8",
+									'X-CSRFToken': csrftoken
+							},
+							mode: "same-origin"
+	});
+
+	let response = await fetch(req);
+	return response;
+}
+
+async function attempt_query_session_user(request=null,data=null) {
+   let query_string = "/api/get_session_data?"
+   if (request) {
+      query_string += "request=" + request.join(",");
+   }
+   if (data) {
+      query_string += "data=" + data.join(",");
+   }
+
+   const req = new Request(query_string,{
+      method: "GET",
+      headers: {
+                  "Content-type": "application/json; charset=UTF-8",
+                  'X-CSRFToken': csrftoken
+      },
+      mode: "same-origin"
+   });
+   
+   let response = await fetch(req);
+   return response;
+}

@@ -15,65 +15,103 @@
 {% block main_content %}
     <div class="admin_user_management_container">
         <div>
-            <p class="admin_user_management_header_elements" id="admin_user_management_small_text"><img src="{% static 'images/white-dropdown-arrow.png' %}" id="address_arrow"> Admin Dashboard / User Management</p>
+            <a href="/dashboard" class="return-link">
+                <p class="admin_user_management_header_elements" id="admin_user_management_small_text"><img src="{% static 'images/white-dropdown-arrow.png' %}" id="address_arrow"> Admin  Dashboard / User Management</p>
+            </a>
             <h1 class="admin_user_management_header_elements" id="admin_user_management_large_text">Mentor Applications</h1>
         </div>
         <div class="dual_user_board_container">
             <div class="user_board_container">
                 <div class="user_board_title_container">
-                    <h2 id="admin_user_management_medium_text">Mentees</h2>
-                    <div class="user_board_search_container">
-                        <button class="admin_user_management_button_clear_active">
-                            <img src="{% static 'images/search-icon.png' %}" id="search_icon">
-                        </button>
-
-                        <input type="text" class="search_bar" placeholder="Search by name"></input>
-                    </div>
-                </div>
-
-                <div class="user_board">
-                    <div class="user_management_bar_container">
-                        {% for mentee in mentees %}
-                            {% include 'admin/mentee_managment_bar.html' %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="user_board_container">
-                <div class="user_board_title_container">
                     <h2 id="admin_user_management_medium_text">Mentors</h2>
-                    <div class="user_board_search_container">
-                        <button class="admin_user_management_button_clear_active">
-                            <img src="{% static 'images/search-icon.png' %}" id="search_icon">
-                        </button>
-
-                        <input type="text" class="search_bar" placeholder="Search by name"></input>
-                    </div>
                 </div>
 
                 <div class="user_board">
-                    <div class="user_management_bar_container">
+                    <div class="user_management_bar_container" id="mentor_bar_container">
                         {% for mentor in unaffiliated_mentors %}
                             {% include 'admin/mentor_management_bar.html' %}
                         {% endfor %}
-
+                        
+                        
                         {% for organization in organizations %}
                             {% include 'admin/organization_management_bar.html' %}
                         {% endfor %}
                     </div>
                 </div>
+
+            </div>
+            <div class="user_board_container">
+                <div class="user_board_title_container">
+                    <h2 id="admin_user_management_medium_text">Mentees</h2>
+                </div>
+
+                <div class="user_board">
+                    <div class="user_management_bar_container" id="mentee_bar_container">
+                        {% for mentee in mentees %}
+                            {% include 'admin/mentee_managment_bar.html' %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
             </div>
         </div>
-        <button class="admin_user_management_button" id="save_button">Save</button>
-        <button class="admin_user_management_button" id="cancel_button">Cancel</button>
+
+        <div class="user_board_search_container">
+            <div class="user_board_search_bar_container">
+                <button class="admin_user_management_word_button_active" id="filter_users_button">
+                    <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                    <h2 class="admin_user_management_medium_text">Search by user</h2>
+                </button>
+
+                <input type="text" class="search_bar" id="user_search_bar" placeholder="Search by name">
+            </div>
+
+            <div class="user_board_search_bar_container">
+                <button class="admin_user_management_word_button_active" id="filter_organization_button">
+                    <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                    <h2 class="admin_user_management_medium_text">Search by organization</h2>
+                </button>
+
+                <input type="text" class="search_bar" id="organization_search_bar" placeholder="Search by name">
+            </div>
+        </div>
+
+        <div class="user_board_button_container">
+            <button class="admin_user_management_button" id="save_button">Save</button>
+            <button class="admin_user_management_button" id="cancel_button">Cancel</button>
+            <button class="admin_user_management_button" id="experiment_delta_bravo">Create Organization</button>
+        </div>
     </div>
 
-<!-- <script src="{% static 'js/admin/user_management/save_queue.js' %}"></script>
-<script src="{% static 'js/admin/user_management/managment_requests.js' %}"></script>
-<script src="{% static 'js/admin/user_management/button_listeners.js' %}"></script> -->
+    <!-- I will figure this out but im really stupid rn -->
+<!-- <dialog class="modal" id="profile-viewing-modal">
+</dialog> -->
 
 <script src = "{% static 'js/backend_requests.js' %}"></script>
-<script type="module" src="{% static 'js/admin/user_management/save_queue.js' %}"></script>
-<!-- <script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script> -->
-<script type="module" src="{% static 'js/admin/user_management/events.js' %}"></script>
+
+<script type="module" src="{% static 'js/admin/user_management/determiners.js' %}"></script>
+<script type="module" src="{% static 'js/admin/user_management/updaters.js' %}"></script>
+<script type="module" src="{% static 'js/admin/user_management/filtering.js' %}"></script>
+<script type="module" src="{% static 'js/admin/user_management/sorting.js' %}"></script>
+<script type="module" src="{% static 'js/admin/user_management/event_queue.js' %}"></script>
+<script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script>
+
+<!-- Move to separate file later?? -->
+<!-- Loads profile inside of modal -->
+<script>
+    const btn_experiment = document.getElementById('experiment_delta_bravo')
+    const modal_profile = document.getElementById('profile-viewing-modal');
+    const modal_exit = document.getElementById('modal-exit');
+
+    if(btn_experiment)
+        btn_experiment.addEventListener('click', () => {
+            modal_profile.showModal()
+        })
+
+    if(modal_exit)
+        modal_exit.addEventListener("click", () => {
+            note_modal_create.close();
+        });
+</script>
+
 {% endblock %}

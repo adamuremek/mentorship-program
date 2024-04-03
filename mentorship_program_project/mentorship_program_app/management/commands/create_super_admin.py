@@ -39,3 +39,7 @@ class Command(BaseCommand):
 
         super_admin_entry = SuperAdminEntry.objects.create(user_account=admin_user_account,bool_enabled=True)
         super_admin_entry.save()
+
+
+
+

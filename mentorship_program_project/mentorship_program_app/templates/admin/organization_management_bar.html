@@ -1,17 +1,45 @@
 <div class="organization_management_bar_container">
     <div class="organization_management_bar">
-        <p id="admin_user_management_small_text">
+        <div id="organization_account">
+            {{ organization.id }}
+        </div>
+
+        <p class="organization_management_bar_name" id="admin_user_management_small_text">
             {{ organization.name }}
         </p>
         
-        <button class="admin_user_management_word_button_clear_inactive" id="remove_organization_button">
-            <p id="admin_user_management_small_text">
-                REMOVE
-            </p>
-        </button>
+        {% if user_admin_flag %}
+            <button class="admin_user_management_word_button_active" id="remove_organization_button">
+                <p id="admin_user_management_small_text">
+                    REMOVE
+                </p>
+            </button>
+        {% endif %}
     </div>
 
-    {% for mentor in admin_list %}
-        {% include 'admin/organization_management_bar.html' %}
-    {% endfor %}
+    <div id="admin_list">
+        <p id="admin_user_management_small_text">
+            Admins
+        </p>
+
+        <hr>
+
+        {% for mentor in organization.admin_list %}
+            {% include 'admin/mentor_management_bar.html' %}
+        {% endfor %}
+    </div>
+
+    <div id="mentor_list">
+        <p id="admin_user_management_small_text">
+            Mentors
+        </p>
+
+        <hr>
+
+        {% for mentor in organization.mentor_list %}
+            {% include 'admin/mentor_management_bar.html' %}
+        {% endfor %}
+    </div>
+
+    <hr>
 </div>

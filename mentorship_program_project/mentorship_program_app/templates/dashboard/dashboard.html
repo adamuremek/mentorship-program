@@ -15,15 +15,16 @@ Dashboard
 <section class="hero">
     <div class="hero-container">
 
-        <h2 style="text-align:center;">My Account</h2>
+        <!-- OLD DEBUG CODE FOR MY PROFILE -->
+        <!-- <h2 style="text-align:center;">My Account</h2>
         <form action="/universal_profile/{{session_user.id}}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ session_user.pk }}" />
             <input type="image" class="card-profile-image" alt="Login" src="{{ session_user.profile_img.img.url }}" />
-        </form>
+        </form> -->
 
         <div class="section-recommended">
-            {% if role == 'Mentee' %}
+             {% if session_user.is_mentee %} <!--  role.value == 'Mentee' -->
                 <h1>Recommended Mentors</h1>
             {% else %}
                 <h1>Recommended Mentees</h1>
@@ -39,7 +40,7 @@ Dashboard
 
         <div class="section-available">
 
-            {% if role == 'Mentee' %}
+            {% if session_user.is_mentee %}
                 <h1>Available Mentors</h1>
             {% else %}
                 <h1>Available Mentees</h1>
@@ -68,8 +69,8 @@ Dashboard
 
                                     {% for interest in interests %}
                                         <div class="popup-checkbox-item {{ interest.strInterest }}">
-                                            <input type="checkbox" id="cb1" name="{{ interest.strInterest }}" onchange="filterInterests()">
-                                            <label for="cb1">{{interest.strInterest}} ({{interest.mentor_count}})</label>
+                                            <input type="checkbox" id="cb{{forloop.counter}}" name="{{ interest.strInterest }}" onchange="filterInterests()">
+                                            <label for="cb{{forloop.counter}}">{{interest.strInterest}} ({{interest.mentor_count}})</label>
                                         </div>
                                     {% endfor %}
 
@@ -87,7 +88,7 @@ Dashboard
 
             <div class="available-cards">
                     {% for user in all_users %}
-                    <div class="goFuckYourself{% for interest in user.interests.all %} {{interest.strInterest}}{% endfor %}">
+                    <div class="card available-card {% for interest in user.interests.all %} {{interest.strInterest}}{% endfor %}">
                         {% include 'dashboard/profile-card/mentee_card.html' %}
                     </div>
                     {% endfor %}
@@ -110,7 +111,6 @@ Dashboard
 	//start by giving the js script context from djangos back end
 	let session_user_id = "{{ session_user.id }}";
 	let is_mentee_str = "{{ role }}";
-
 	let is_mentee = is_mentee_str == 'Mentee';
 </script>
 <script src = "{% static 'js/dashboard/dashboard_request_button.js' %}"></script>
@@ -121,62 +121,57 @@ Dashboard
     var popup = document.getElementById('popup')
     var popupContent = document.getElementById('inner-popup-content')
     popupRoot.addEventListener("mouseup", event => {
-        if (event.target != popupContent && (event.target == popupRoot || event.target.parentNode == popup)) {
+        if (event.target != popupContent && (event.target == popupRoot || event.target.parentNode == popup))
             popup.classList.toggle('show')
-            
-        }
     })
 
-  
-    filterInterests = () => {
-        const users = document.getElementsByClassName('goFuckYourself')
+
+    /**
+    * Returns an array of the currently selected interests
+    */
+    function getInterestFilters() {
+
         const filter_tags = document.getElementsByClassName('popup-checkbox-item')
-
-        const search_bar = document.getElementById('searchByNameField')
-        const search_query = search_bar.value
-
-
-        // Some Experimental Bullshit
-        for(const user of users) {
-            user.style.display = 'none'
-        }
-
         const selected_filters = []
-        for(const interest_filter of filter_tags) {
-            if(interest_filter.querySelector('input').checked) {
+        for(const interest_filter of filter_tags)
+            if(interest_filter.querySelector('input').checked) 
+            {
                 const class_of_interest = Array.from(interest_filter.classList).pop(0)
-                console.log('hello?')
                 selected_filters.push(class_of_interest)
             }
-        }
 
-        console.log(selected_filters)
-        if(selected_filters.length == 0) {
-            for(const user of users)
-                if(user.getElementsByClassName('card-name')[0].innerHTML.includes(search_query))
-                user.style.display = 'block'
-            return
-        }
-            
-
-        for (const user of users) {
-            console.log('name:' + user.classList)
-            // if(Array.from(user.classList).some(i => selected_filters.some(j => j==i)))
-            if(Array.from(user.classList).some(className => selected_filters.includes(className))) {
-                console.log('this dude roicks')
-                user.style.display = 'block'
-            }
-                
-        }
-        
-        
-        
+        return selected_filters;
     }
-    
-    const value = JSON.parse(document.getElementById("interests-dictionary").textContent);
-    console.log(value)
+  
 
-    
+    /**
+    * Filters the displayed user cards based on selected interests and 
+    * Username. User fields must match both criteria in order to be 
+    * shown.
+    */
+    filterInterests = () => {
+        const users = document.getElementsByClassName('available-card')
+        const search_bar = document.getElementById('searchByNameField')
+
+        // params
+        const search_query = search_bar.value.toLowerCase()
+        const selected_filters = getInterestFilters();
+
+        for(const user of users) {
+
+            const username = user.getElementsByClassName('card-name')[0].innerHTML.toLowerCase();
+
+            const does_username_match = username.includes(search_query);
+            // i.e. User interests are a subset of selected interests
+            const do_interests_match = Array.from(selected_filters).every(filter => Array.from(user.classList).includes(filter));
+
+            if(!does_username_match || !do_interests_match) {
+                user.style.display = 'none';
+            } else {
+                user.style.display = 'block';
+            }
+        }
+    }
 </script>
 
 
