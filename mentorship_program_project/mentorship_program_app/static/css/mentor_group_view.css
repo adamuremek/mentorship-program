@@ -37,6 +37,30 @@ hr {
     display: inline-block;
 }
 
+/* container holds back to dashboard link, arrow and title */
+.link-container {
+    position: relative;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+}
+
+.left-arrow {
+    overflow: auto;
+    height: 1rem;
+}
+
+.title {
+    font-size: 2rem;
+    align-self: left;
+}
+
+.return-link {
+    text-decoration: none;
+}
+
+/* End of section */
+
 .column-right {
     padding-left: 0rem 2rem;
     margin-right: 2rem;
@@ -551,6 +575,8 @@ select option {
 #btn-create-note:focus-visible {
     background-color: var(--clr-btn-submit-highlight);
 }
+
+
 
 @media screen and (max-width: 1000px) {
     .hero-container {
