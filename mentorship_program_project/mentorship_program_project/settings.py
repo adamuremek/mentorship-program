@@ -320,7 +320,8 @@ SAML_CONFIG = {
   # where the remote metadata is stored, local, remote or mdq server.
   # One metadatastore or many ...
   'metadata': {
-      'local': [path.join(BASE_DIR, 'saml/remote_metadata.xml')],
+      #'local': [path.join(BASE_DIR, 'saml/remote_metadata.xml')],
+      'remote': [{"url": os.environ.get('SAML_IDP_METADATA_URL')}],
       },
 
   # set to 1 to output debugging information
