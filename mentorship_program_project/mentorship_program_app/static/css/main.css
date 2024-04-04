@@ -64,27 +64,38 @@ main {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(105, 105, 105, 0.5); /* Semi-transparent white background */
-    z-index: 1000; /* Make sure it's on top of other elements */
-    display: none; /* Initially hidden */
+    background-color: rgba(105, 105, 105, 0.5);
+    /* Semi-transparent white background */
+    z-index: 1000;
+    /* Make sure it's on top of other elements */
+    display: none;
+    /* Initially hidden */
 }
-  
+
 .loading {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border: 4px solid rgba(0, 0, 0, 0.1); /* Light border */
-    border-top: 4px solid #333; /* Darker top border */
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    /* Light border */
+    border-top: 4px solid #333;
+    /* Darker top border */
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    animation: spin 1s linear infinite; /* Spin animation */
+    animation: spin 1s linear infinite;
+    /* Spin animation */
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 
@@ -309,6 +320,10 @@ nav li:first-child {
     padding-right: 10px;
 }
 
+.wings-logo {
+    padding-left: 10px;
+}
+
 /* Make navigation responsive for mobile/tablet */
 @media(max-width:1000px) {
     .primary-navbar {
@@ -507,7 +522,7 @@ footer {
 }
 
 button {
-     cursor: pointer;
+    cursor: pointer;
 }
 
 select {
@@ -606,7 +621,7 @@ select {
     margin: 1%;
 
     border-radius: .5em;
-    
+
 
     background-color: rgb(66, 66, 66);
 
@@ -630,7 +645,7 @@ select {
     font-weight: 300;
 
     height: fit-content;
-    width: max-content;                                  
+    width: max-content;
 
     padding: 2%;
 
@@ -767,24 +782,24 @@ select {
 /* width */
 ::-webkit-scrollbar {
     width: 10px;
-  }
-  
-  /* Track */
-  ::-webkit-scrollbar-track {
+}
+
+/* Track */
+::-webkit-scrollbar-track {
     background: #333;
     /* border-radius: 5px; */
-  }
-  
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
     background: #999;
     border-radius: 20px;
-  }
-  
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
     background: #888;
-  }
+}
 
 @media screen and (max-width: 1200px) {
     .sign-in-card {
