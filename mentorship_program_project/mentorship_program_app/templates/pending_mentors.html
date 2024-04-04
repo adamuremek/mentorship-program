@@ -32,9 +32,10 @@ Mentor Applicant Approval
     {% for user in pending_mentors %}
     <div class="mentor-applicant" mentor-id="{{user.id}}">
 
-        <div class="profile-picture-container">
+        <!-- If profile pictures are added again, uncomment below and in .mentor-applicant in pending_mentors.css -->
+        <!-- <div class="profile-picture-container">
             <img src="../static/images/ex-pfp.jpg" alt="" class="profile-picture">
-        </div>
+        </div> -->
 
         <div class="mentor-name">
             {{user.str_first_name}} {{user.str_last_name}}
