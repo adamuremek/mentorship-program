@@ -172,3 +172,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'wingsmentorapp@gmail.com'
 EMAIL_HOST_PASSWORD = 'rjrl aldq kjee ybfv'
 
+#Mentor MFA
+PASSCODE_EXPIRATION_MINUTES = 5
+

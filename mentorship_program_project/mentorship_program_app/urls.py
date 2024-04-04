@@ -163,7 +163,10 @@ urlpatterns = [
     path('dev/test_login'                 , development_views.test_login_page                 ,name='test login'),
     path('dev/is_logged_in'               , development_views.is_logged_in_test               ,name='logged in test'),
     path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships"),
-    path('dev/test_database_join'         , development_views.test_database_speed, name='test database joins' )
+    path('dev/test_database_join'         , development_views.test_database_speed, name='test database joins' ), 
+
+    path('mentor/2fa', under_development.mentor_mfa_request), #Test Route for Mentor MFA. 
+    path('mentor/2fa/otp', under_development.mentor_mfa_validate)
 ]
 
 if settings.DEBUG:

@@ -4,6 +4,7 @@ import inspect
 from collections.abc import Callable
 from datetime import date
 
+
 from django.http import HttpResponse, HttpRequest, HttpResponseNotAllowed, HttpResponseRedirect
 from django.template import loader, Template
 from django.shortcuts import render, redirect
@@ -17,6 +18,12 @@ from .emails import *
 from ..views import login_uname_text
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+
+from datetime import datetime, timedelta
+import pyotp
+import time
+from django.core.mail import send_mail
+from django.conf import settings
 
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
@@ -1262,3 +1269,71 @@ def add_remove_mentees_from_file(req : HttpRequest):
     WhitelistedEmails.objects.filter(str_email__in=removed_mentees).delete()
 
     return redirect("/available_mentees")
+
+def mentor_mfa_request(req : HttpRequest):
+
+    #otp infromation
+    int_minutes = settings.PASSCODE_EXPIRATION_MINUTES
+    int_interval_seconds = 60 * int_minutes #seconds * number = desired minutes
+
+    str_otp_secret_key = None
+    str_otp_valid_date = str(datetime.now() + timedelta(minutes=int_minutes))
+    str_otp = None
+    str_recipient = None #Replace with your email for testing. TODO: REMOVE
+
+    #Get the user from the session infromation.
+    #user = User.from_session(req.session) TODO: UNCOMMENT
+    
+    #Create the pyotp class, generate a random number, 
+    # set the interval the otp is valid for.
+    cls_otp = pyotp.TOTP(pyotp.random_base32(), interval=int_interval_seconds)
+
+    str_otp = cls_otp.now() #create otp
+    str_otp_secret_key = cls_otp.secret #get the secret key
+
+    #Add infromation to session data.
+    req.session['str_otp_secret_key'] = str_otp_secret_key
+    req.session['str_otp_valid_date'] = str_otp_valid_date
+
+    #Assign who the message is meant for.
+    #str_recipient = user.cls_email_address
+
+   
+    mentor_mfa_send_passcode(str_recipient, str_otp)
+
+
+    req.session['str_otp'] = str_otp #TODO: REMOVE
+
+    return redirect('2fa/otp')
+
+def mentor_mfa_validate(req: HttpRequest):
+
+    str_otp_secret_key = req.session['str_otp_secret_key']
+    str_otp_valid_date = req.session['str_otp_valid_date']
+    str_valid_until = None
+
+    int_interval_seconds = 60 * settings.PASSCODE_EXPIRATION_MINUTES
+
+    cls_otp = None
+
+    #if req.method == "POST":
+    if True: #TODO: REMOVE
+
+        if str_otp_secret_key and str_otp_valid_date is not None:
+            str_valid_until = datetime.fromisoformat(str_otp_valid_date)
+
+            if str_valid_until > datetime.now():
+                cls_otp = pyotp.TOTP(str_otp_secret_key, interval=int_interval_seconds)
+
+                #TODO: REPLACE
+                if cls_otp.verify(req.session['str_otp']):
+                    return HttpResponse("Welcome to WINGS")
+                
+                else:
+                    return HttpResponse("Passcode is incorrect, please try again.")            
+            else:
+                return HttpResponse("Passcode has expired, please try again.")
+        else: 
+            return HttpResponse("No Secret Key or valid date, please try again.")
+    else:
+        return HttpResponse("Not a POST request, please try again.")

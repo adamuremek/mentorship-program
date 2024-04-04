@@ -67,6 +67,14 @@ def mentor_accepted_email(recipient : str):
 	"""
 	send_mail(subject, message, from_email, [recipient])
 
+def mentor_mfa_send_passcode(str_recipient : str, str_otp : str):
+
+	#Email Information
+	str_title = "WINGS Verification"
+	str_body = "Your verification code is "
+	send_mail(str_title, str_body + str_otp, settings.DEFAULT_FROM_EMAIL, [str_recipient])
+
+
 
 def reset_token_email(request: HttpRequest, recipient: str, token: str):
     subject = "WINGS Password Reset Link"

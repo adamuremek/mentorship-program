@@ -28,8 +28,3 @@ def run():
 
     #print(MentorshipRequest.get_request_info(1))
     #print(MentorshipRequest.removeRequest(4, 5))
-
-
-    
-
-    
