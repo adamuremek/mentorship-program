@@ -76,42 +76,55 @@
             </div>
         </div>
 
+        <div class="user_management_message_bar" id="admin_user_management_medium_text">
+            PLACEHOLDER MESSAGE
+        </div>
+        
         <div class="user_board_button_container">
             <button class="admin_user_management_button" id="save_button">Save</button>
             <button class="admin_user_management_button" id="cancel_button">Cancel</button>
-            <button class="admin_user_management_button" id="experiment_delta_bravo">Create Organization</button>
+            <button class="admin_user_management_button" id="add_new_organization_button">Create New Organization</button>
         </div>
     </div>
 
+    <div class="hidden_element" id="organization_counter">
+        {{ organization_counter }}
+    </div>
+
+    <div class="hidden_element" id="session_user_organization_flag">
+        {% if user_organization_admin_flag %}
+            1
+        {% else %}
+            0
+        {% endif %}
+    </div>
+
     <!-- I will figure this out but im really stupid rn -->
-<!-- <dialog class="modal" id="profile-viewing-modal">
-</dialog> -->
+    {% include 'admin/create_organization_modal.html' %}
 
-<script src = "{% static 'js/backend_requests.js' %}"></script>
+    <script src = "{% static 'js/backend_requests.js' %}"></script>
 
-<script type="module" src="{% static 'js/admin/user_management/determiners.js' %}"></script>
-<script type="module" src="{% static 'js/admin/user_management/updaters.js' %}"></script>
-<script type="module" src="{% static 'js/admin/user_management/filtering.js' %}"></script>
-<script type="module" src="{% static 'js/admin/user_management/sorting.js' %}"></script>
-<script type="module" src="{% static 'js/admin/user_management/event_queue.js' %}"></script>
-<script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/determiners.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/updaters.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/filtering.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/sorting.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/event_queue.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script>
 
-<!-- Move to separate file later?? -->
-<!-- Loads profile inside of modal -->
-<script>
-    const btn_experiment = document.getElementById('experiment_delta_bravo')
-    const modal_profile = document.getElementById('profile-viewing-modal');
-    const modal_exit = document.getElementById('modal-exit');
-
-    if(btn_experiment)
-        btn_experiment.addEventListener('click', () => {
-            modal_profile.showModal()
-        })
-
-    if(modal_exit)
-        modal_exit.addEventListener("click", () => {
-            note_modal_create.close();
-        });
-</script>
+    <script>
+        const add_new_organization_button = document.getElementById('add_new_organization_button')
+        const modal_organization = document.getElementById('organization-modal');
+        const modal_exit = document.getElementById('modal-exit');
+    
+        if(add_new_organization_button)
+        add_new_organization_button.addEventListener('click', () => {
+                modal_organization.showModal()
+            })
+    
+        if(modal_exit)
+            modal_exit.addEventListener("click", () => {
+                modal_organization.close();
+            });
+    </script>    
 
 {% endblock %}

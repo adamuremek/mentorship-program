@@ -46,6 +46,45 @@
     width: 46vw;
 }
 
+.admin_user_management_modal{
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 0.5em;
+    margin: 0.25em;
+
+    border-radius: 15px;
+
+    /* Below allows modals to be centered in the screen */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+
+    &>* {
+        margin: 0 0 0.5rem 0;
+    }
+}
+
+.admin_user_management_modal::backdrop {
+    backdrop-filter: blur(.25em);
+    background: rgba(125, 125, 125, 0.1);
+}
+
+.admin_user_management_modal_container {
+    width: fit-content;
+    height: fit-content;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#organization-input {
+    color: black;
+}
+
 .search_bar {
     height: 3vh;
     width: 30vw;
@@ -57,6 +96,22 @@
 #search_icon {
     height: 2.5vh;
     width: 1.5vw;
+}
+
+#add_new_organization_modal {
+    display: none;
+}
+
+.hidden_element {
+    display: none;
+}
+
+.organization_name_bar {
+    color: black;
+}
+
+.create_organization_message_bar, .user_management_message_bar {
+    display: none;
 }
 
 #address_arrow {
@@ -96,9 +151,13 @@
 }
 
 .admin_user_management_word_button_active {
-    /* background: none; */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
     border: none;
-    width: 25%;
+    width: fit-content;
+    height: 5vw;
 
     background-color: rgba(128, 128, 128, 0.25);
     border-radius: 15px;
@@ -153,7 +212,7 @@ input[type="file"] {
 
     display: flex;
     flex-direction: column;
-    flex-wrap: nowrap;
+    /* flex-wrap: nowrap; */
     justify-content: center;
 }
 

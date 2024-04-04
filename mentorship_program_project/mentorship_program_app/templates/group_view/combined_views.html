@@ -17,6 +17,12 @@
     <div class="hero-container">
 
         <div class="column-left">
+            <div class="link-container">
+                <a href="" class="return-link" id="return-btn" onclick="event.preventDefault(); history.back();">
+                    <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
+                    Back
+                </a>
+            </div>
             <div class="profile-container">
                 <img src="{{page_owner_user.profile_img.img.url}}" id="profile_pic" class="profile-picture">
                 <div id="edit_profile_overlay" class="profile-picture-edit-overlay" style="display: none;">
@@ -52,12 +58,12 @@
                             <h4>{{mentee.str_last_name}}</h4>
                          </a>
                         {% if is_page_owner and signed_in_user.is_mentee %}
-                    <a class="a-user-remove" href="{% url 'delete_mentorship' page_owner_user.id %}">
+                    <a class="a-user-remove" id="remove-btn" href="{% url 'delete_mentorship' page_owner_user.id %}">
                         <button type="button" style="width:2em" class="button-user-remove">&#10007;</button>
                     </a>
                         {% endif %}
                         {% if is_page_owner and signed_in_user.is_mentor %}
-                        <a class="a-user-remove" href="{% url 'delete_mentorship' mentee.id %}">
+                        <a class="a-user-remove" id="remove-btn" href="{% url 'delete_mentorship' mentee.id %}">
                             <button type="button" style="width:2em" class="button-user-remove">&#10007;</button>
                         </a>
                             {% endif %}
@@ -226,6 +232,8 @@
 {% include 'group_view/note_modal.html' %}
 <script src = "{% static 'js/backend_requests.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!--Script tag for overview logic-->
 <script>
     //The max length that can be stored in the backend is 5000
     const MAX_OVERVIEW_LENGTH = 5000;
@@ -263,6 +271,23 @@
         }
     });
 </script>
+
+<!--Script tag for warning user before removing mentor/mentee-->
+<script>
+    var removeButton;
+    var confirmationBln;
+
+    removeButton = document.getElementById('remove-btn');
+
+    removeButton.addEventListener('click', function () {
+        confirmationBln = confirm('Are you sure you want to remove this user?');
+
+        if (!confirmationBln) {
+            event.preventDefault();
+        }
+    });
+</script>
+
 <script>
     async function attempt_mentorship_request(mentee_id, mentor_id)
     {
