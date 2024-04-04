@@ -235,9 +235,9 @@ def register_mentor(req):
             'Math?'],
             
         'experiencelist': [
-            '0-5 years',
-            '5-10 years', 
-            '15+ years',
+            '0-4 years',
+            '5-9 years', 
+            '10+ years',
             ],
 
         'useragreement': 
