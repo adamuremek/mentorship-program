@@ -192,24 +192,33 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
+# Redirect here to log in with saml
 LOGIN_URL = '/saml2/login'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
+# Redirects for after sucessful saml login and logout
 LOGIN_REDIRECT_URL = '/saml/login'
+ACS_DEFAULT_REDIERCT_URL = '/saml/login'
+LOGOUT_REDIRECT_URL = '/logout'
 
+# Create a new django user if they don't exist
 SAML_CREATE_UNKNOWN_USER = True
 
+# Attribute to check against existing django users
 SAML_DJANGO_USER_MAIN_ATTRIBUTE = 'email'
 SAML_DJANGO_USER_MAIN_ATTRIBUTE_LOOKUP = '__iexact'
-ACS_DEFAULT_REDIERCT_URL = '/saml/login'
+
+SAML_LOGOUT_REQUEST_PREFERRED_BINDING = saml2.BINDING_HTTP_REDIRECT
+SAML_IGNORE_LOGOUT_ERRORS = True
 
 SAML_ATTRIBUTE_MAPPING = {
-    'email': ('email', ),
-    'firstName': ('firstName', ),
-    'lastName': ('lastName', ),
-    'id': ('objectIdentifier', ),
+    'emailAddress': ('email', ),
+    'givenName': ('firstName', ),
+    'surname': ('lastName', ),
+    'objectidentifier': ('id', ),
 }
 
+# From djangosaml2 docs
 SAML_CONFIG = {
     # full path to the xmlsec1 binary programm
   'xmlsec_binary': '/usr/bin/xmlsec1',
@@ -286,7 +295,7 @@ SAML_CONFIG = {
           # When set to true, the SP will consume unsolicited SAML
           # Responses, i.e. SAML Responses for which it has not sent
           # a respective SAML Authentication Request.
-          'allow_unsolicited': False,
+          'allow_unsolicited': True,
 
           # in this section the list of IdPs we talk to are defined
           # This is not mandatory! All the IdP available in the metadata will be considered instead.
