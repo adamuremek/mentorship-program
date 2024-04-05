@@ -20,12 +20,36 @@
     box-shadow:  2px 2px 2px 2px rgba(47, 47, 47, 0.6);
 }
 
+/* container holds back to dashboard link, arrow and title */
+.link-container {
+    position: relative;
+    top: -25%;
+    left: 0%;
+    width: 100%;
+}
+
+.left-arrow {
+    overflow: auto;
+    height: 1rem;
+}
+
+.title {
+    font-size: 2rem;
+    align-self: left;
+}
+
+.return-link {
+    text-decoration: none;
+}
+/* End of link container section */
+
 /* .profile-picture-container {
     position: absolute;
     height: 30%;
     left: 34%;
     top: 6%;
 } */
+
 
 .profile-picture {
     height: 100%;

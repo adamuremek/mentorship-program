@@ -9,7 +9,16 @@
 
 {% block main_content %}
 
+
+
     <div class = "card-body" mentor-id="{{user.id}}">
+
+        <div class="link-container">
+            <a href="" class="return-link" id="return-btn-combined-views" onclick="event.preventDefault(); history.back();">
+                <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
+                Back
+            </a>
+        </div>
 
         <!-- <div class="profile-picture-container">
             <img class="profile-picture" src="{% static 'images/my-channel.jpeg' %}">
