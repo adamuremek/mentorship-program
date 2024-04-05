@@ -109,7 +109,7 @@ def dashboard(req):
         ).select_related(
                 'mentee'
         ).order_by(
-                'is_requested_by_session' #make sure all mentors who we can cancel get displayed up top
+                'is_requested_by_session','str_last_name' #make sure all mentors who we can cancel get displayed up top
         )
 
         users = [user.sanitize_black_properties() for user in card_data]
@@ -140,7 +140,7 @@ def dashboard(req):
         ).annotate(
                 is_requested_by_session=Subquery(requests_count)
         ).order_by(
-                'is_requested_by_session' #make sure requested mentees appear first
+                'is_requested_by_session','str_last_name' #make sure requested mentees appear first
         )
 
         users = [user.sanitize_black_properties() for user in card_data]
