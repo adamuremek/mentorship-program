@@ -20,5 +20,5 @@ btnLogin.onclick = async () => {
 };
 
 btnSAMLLogin.onclick = () => {
-	window.location.replace("/saml2/login");
+	window.location.href = "/saml2/login";
 };
