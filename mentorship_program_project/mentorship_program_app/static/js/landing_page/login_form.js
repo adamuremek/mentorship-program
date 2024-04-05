@@ -1,5 +1,4 @@
 let btnLogin = document.getElementById("li-btn");
-let btnSAMLLogin = document.getElementById("saml-li-btn");
 
 let txtUname = document.getElementById("email");
 let txtPassword = document.getElementById("password");
@@ -17,8 +16,4 @@ btnLogin.onclick = async () => {
 		let server_response_json = await response.json();
 		window.location.replace(server_response_json.new_web_location);
 	}
-};
-
-btnSAMLLogin.onclick = () => {
-	window.location.href = "/saml2/login";
 };
