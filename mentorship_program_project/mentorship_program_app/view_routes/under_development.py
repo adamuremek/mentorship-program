@@ -1304,7 +1304,10 @@ def mentor_mfa_request(req : HttpRequest):
 
     req.session['str_otp'] = str_otp #TODO: REMOVE
 
-    return redirect('2fa/otp')
+    #return redirect('2fa/otp')
+    template = loader.get_template('mentor_mfa.html')
+    context = {}
+    return HttpResponse(template.render(context, req))
 
 def mentor_mfa_validate(req: HttpRequest):
 

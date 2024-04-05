@@ -476,6 +476,13 @@ def logout(request):
 #login stuff
 
 def login_uname_text(request):
+
+    """
+    Updates
+    -------
+    2024-04-04 | Justin Goupil | 
+    """
+
     login_data = json.loads(request.body.decode("utf-8"))
 
     uname    = login_data["username"] if "username" in login_data else None
@@ -503,9 +510,12 @@ def login_uname_text(request):
     # record logs
     SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
 
+    if user.str_role == User.Role.MENTOR:
+        response = HttpResponse(json.dumps({"new_web_location":"mentor/2fa"}))
 
+    
+    #response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
 
-    response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
     
 
