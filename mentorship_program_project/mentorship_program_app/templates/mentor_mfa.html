@@ -28,16 +28,12 @@
                     <div class="line"></div>
 
                     <div class="email-password-fields">
-                        <input type="email" id="email" name="email" placeholder="Email">
                         <input type="password" id="password" name="password" placeholder="Password">
 								<p id="frm-warning-message" class="error-message"></p>
-                        <div id="forgot-password-container">
-                            <p><span class="text-btn" id="forgot-pass-btn" tabindex="0">Forgot Password?</span></p>
-                        </div>
                     </div>
                     <!-- DONT CHANGE THIS ID. CRUCIAL FOR JAVASCRIPT EXECUTION -->
                     <!-- FUTHERMORE, DONT CHANGE ANY ID WITHOUT THOROUGHLY CHECKING FOR OTHER CRITICAL OCCURANCES -->
-                    <button type="button" class="login-buttons" id="li-btn">Login</button>
+                    <button type="button" class="login-buttons" id="mfa-btn">Login</button>
                     <p id="su-p"><span id="su-span">Don't have an account?</span> <span class="text-btn" tabindex="0"><a class="text-btn" id="su-link" href="/role_selection">Sign Up</a></span></p>
                 </form>
             </div>
@@ -48,7 +44,7 @@
 {% include 'password-modals/forgot-pass-modal-1.html' %}
 
 <script src = '{% static "js/backend_requests.js" %}'></script>
-<script src = '{% static "js/landing_page/login_form.js" %}'></script>
+<script src = '{% static "js/mentor_mfa/mentor_verify.js" %}'></script>
 <script src = '{% static "js/landing_page/forgot_pass_modals.js" %}'></script>
 <script>
     var input = document.getElementById("frm-login");

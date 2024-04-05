@@ -512,9 +512,8 @@ def login_uname_text(request):
 
     if user.str_role == User.Role.MENTOR:
         response = HttpResponse(json.dumps({"new_web_location":"mentor/2fa"}))
-
-    
-    #response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
+    else:
+        response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
 
     return response
     

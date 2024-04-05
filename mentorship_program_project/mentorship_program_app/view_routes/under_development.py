@@ -1282,7 +1282,7 @@ def mentor_mfa_request(req : HttpRequest):
     str_recipient = None #Replace with your email for testing. TODO: REMOVE
 
     #Get the user from the session infromation.
-    #user = User.from_session(req.session) TODO: UNCOMMENT
+    user = User.from_session(req.session) #TODO: UNCOMMENT
     
     #Create the pyotp class, generate a random number, 
     # set the interval the otp is valid for.
@@ -1296,13 +1296,14 @@ def mentor_mfa_request(req : HttpRequest):
     req.session['str_otp_valid_date'] = str_otp_valid_date
 
     #Assign who the message is meant for.
-    #str_recipient = user.cls_email_address
+    str_recipient = user.cls_email_address
 
-   
+    print("Email sent?")
+    print("OTP: " + str_otp)
     mentor_mfa_send_passcode(str_recipient, str_otp)
 
 
-    req.session['str_otp'] = str_otp #TODO: REMOVE
+    #req.session['str_otp'] = str_otp #TODO: REMOVE
 
     #return redirect('2fa/otp')
     template = loader.get_template('mentor_mfa.html')
@@ -1311,6 +1312,11 @@ def mentor_mfa_request(req : HttpRequest):
 
 def mentor_mfa_validate(req: HttpRequest):
 
+    passcode_data = json.loads(req.body.decode("utf-8"))
+    
+
+    passcode = passcode_data["password"] if "password" in passcode_data else None
+
     str_otp_secret_key = req.session['str_otp_secret_key']
     str_otp_valid_date = req.session['str_otp_valid_date']
     str_valid_until = None
@@ -1318,6 +1324,8 @@ def mentor_mfa_validate(req: HttpRequest):
     int_interval_seconds = 60 * settings.PASSCODE_EXPIRATION_MINUTES
 
     cls_otp = None
+
+    #return HttpResponse(json.dumps({"new_web_location":"/"}))
 
     #if req.method == "POST":
     if True: #TODO: REMOVE
@@ -1329,14 +1337,22 @@ def mentor_mfa_validate(req: HttpRequest):
                 cls_otp = pyotp.TOTP(str_otp_secret_key, interval=int_interval_seconds)
 
                 #TODO: REPLACE
-                if cls_otp.verify(req.session['str_otp']):
-                    return HttpResponse("Welcome to WINGS")
+                if cls_otp.verify(passcode):
+                    response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
+                    return response
                 
                 else:
-                    return HttpResponse("Passcode is incorrect, please try again.")            
+                    response = HttpResponse(json.dumps({"warning":"Passcode is incorrect."}))
+                    response.status_code = 401
+                    return response            
             else:
-                return HttpResponse("Passcode has expired, please try again.")
+                response = HttpResponse(json.dumps({"warning":"Passcode has expired, please try again."}))
+                response.status_code = 401
+                return response
+                
         else: 
-            return HttpResponse("No Secret Key or valid date, please try again.")
+            response = HttpResponse(json.dumps({"warning":"Please resend the passcode."}))
+            response.status_code = 401
+            return response
     else:
         return HttpResponse("Not a POST request, please try again.")
