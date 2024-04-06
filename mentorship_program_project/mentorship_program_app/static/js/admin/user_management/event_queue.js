@@ -105,7 +105,7 @@ sorters.sort_all_bar_elements_alphabetically();
 
 
 
-function execute_events(queue)
+function execute_events()
 {
     // Initlize last event and valid flags
     let last_event_flag = 0;
@@ -220,9 +220,8 @@ function execute_events(queue)
                         alert("Promote mentor=" + current_event.data + " to org admin of org=" + organization_id);
 
                         // Promote organization admin
-                        // TODO NEED TO FIX, NOT LETTING SUPER ADMIN PROMOTE
                         // Determine id from passed string and promote mentor to organization admin
-                        attempt_promote_mentor_to_organization_admin(determiners.determine_id_from_string(current_event.data));
+                        execution_queue.push(attempt_promote_mentor_to_organization_admin(determiners.determine_id_from_string(current_event.data)));
 
                     }
                 }
@@ -251,11 +250,10 @@ function execute_events(queue)
                         // Remove edit organization organization event and edit organization
                         alert("Edit org for mentor=" + current_event.data + " to org=" + organization_id);
 
-                        // TODO NEED TO FIX ERRORING ON BACKEND, LOOKS LIKE IDS MIGHT BE OFF BELOW
-                        // TODO EDIT ORGANZATION
-                        // Determine id from strings and edit mentor organization
-                        attempt_edit_mentor_organization(determiners.determine_id_from_string(current_event.data),
-                            determiners.determine_id_from_string(organization_id));
+                        // Equivlent to promoting, there is only one organization admin, will be reaplaced by second mentor id
+                        // Determine id from passed string and promote mentor to organization admin
+                        execution_queue.push(attempt_edit_mentor_organization(determiners.determine_id_from_string(current_event.data),
+                            determiners.determine_id_from_string(organization_id)));
 
                     }
                 }
@@ -285,11 +283,11 @@ function execute_events(queue)
                         // alert("Transfer role from " + current_event.data + " to " + mentor_id + "organization style");
                         alert("Promote " + mentor_id + " to organization admin, demote " + current_event.data + " to mentor");
 
-                        // Promote organization admin
-                        // TODO NEED TO FIX, NOT LETTING SUPER ADMIN PROMOTE
+    
+                        // TODO NEED TESTING BUT ABOVE WORKS FINE
                         // Equivlent to promoting, there is only one organization admin, will be reaplaced by second mentor id
                         // Determine id from passed string and promote mentor to organization admin
-                        attempt_promote_mentor_to_organization_admin(determiners.determine_id_from_string(mentor_id));
+                        execution_queue.push(attempt_promote_mentor_to_organization_admin(determiners.determine_id_from_string(mentor_id)));
                         
                     }
                 }
@@ -311,11 +309,9 @@ function execute_events(queue)
                         // alert("Transfer role from " + current_event.data + " to " + mentor_id + "super style");
                         alert("Promote " + mentor_id + " to organization admin, demote " + current_event.data + " to mentor");
 
-                        // Promote organization admin
-                        // TODO NEED TO FIX, NOT LETTING SUPER ADMIN PROMOTE
                         // Equivlent to promoting, there is only one organization admin, will be reaplaced by second mentor id
                         // Determine id from passed string and promote mentor to organization admin
-                        attempt_promote_mentor_to_organization_admin(determiners.determine_id_from_string(mentor_id));
+                        execution_queue.push(attempt_promote_mentor_to_organization_admin(determiners.determine_id_from_string(mentor_id)));
 
                     }
                 }
@@ -336,8 +332,9 @@ function execute_events(queue)
                         // Remove decouple organziation event and decouple mentor from organization
                         alert("decouple mentor=" + current_event.data + " from organization= " + organization_id);
 
-                        // TODO DECOUPLE MENTOR FROM ORGANIZATION
-                        attempt_decouple_mentor(current_event.data, organization_id);
+                        // Remove orgaization relationship from mentor
+                        execution_queue.push(attempt_remove_mentors_org(determiners.determine_id_from_string(current_event.data),
+                            determiners.determine_id_from_string(organization_id)));
 
                     }
                 }
@@ -578,6 +575,9 @@ function edit_organization_event(organization_bar)
 
             // Add mentor bar to organization bar
             updaters.update_add_to_organization(organization_bar, mentor_bar);
+
+            // Add decouple button to mentor bar
+            updaters.update_button_showing(determiners.determine_decouple_button(mentor_bar));
 
             // Determine and pass edit organization button to be set off
             updaters.update_off_button_style(determiners.determine_edit_organization_button(mentor_bar));
@@ -1469,6 +1469,9 @@ export function decouple_mentor_event(user_bar)
 
     // Remove mentor bar from organization to unaffiliated mentors
     updaters.update_remove_from_organization(user_bar);
+
+    // Remove decouple button from mentor bar
+    updaters.update_button_not_showing(determiners.determine_decouple_button(user_bar));
 
     // Update organization transfer buttons
     updaters.update_organization_transfer_buttons(organization_bar);

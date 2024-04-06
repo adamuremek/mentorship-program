@@ -1511,6 +1511,44 @@ def edit_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
     mentor_account = Mentor.objects.get(id=mentor_id)
     new_org = Organization.objects.get(id=org_id)
     mentor_account.organization.set([new_org])
+    # mentor_account.organization.remove(new_org)
+
+    return HttpResponse("Organization updated")
+
+def remove_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
+    '''
+    Description
+    -----------
+    Function to remove a organization from a mentor. This operation can be performed by organization admins. It updates the organization associated with a specified mentor to remove the mentor based on the provided mentor ID.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the session of the currently logged-in user. Used to check if the user has organization admin privileges.
+    - mentor_id : int
+        The ID of the mentor whose organization affiliation is to be edited.
+    - org_id : int
+        The ID of the new organization to which the mentor will be removed.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome of the operation. If successful, it confirms that the organization was updated. If the operation fails due to lack of permissions, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Anthony P.
+    '''
+    user_from_session = User.from_session(req.session)
+    if not (user_from_session.is_an_org_admin() or user_from_session.is_super_admin()) :
+        return bad_request_400("Permission denied")
+    
+
+    #TODO next of kin for org admin
+    mentor_account = Mentor.objects.get(id=mentor_id)
+    new_org = Organization.objects.get(id=org_id)
+    mentor_account.organization.remove(new_org)
+
     return HttpResponse("Organization updated")
 
 

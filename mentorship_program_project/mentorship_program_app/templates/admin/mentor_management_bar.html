@@ -34,6 +34,10 @@
             {{ mentor.account.account.str_first_name }} {{ mentor.account.account.str_last_name }}
         </p>
 
+    </div>
+
+    <div class="mentor_management_bar">
+
         <div class="mentee_counter_container" title="View mentees">
             <p id="current_mentees">{{ mentor.current_mentees }}</p>/<p id="max_mentees">{{ mentor.max_mentees }}</p>
         </div>
@@ -59,70 +63,45 @@
                 <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
             </button>
         {% endif %}
-    </div>
-
-    <div class="mentor_management_bar">
-        <!-- {% if user_super_flag %}
-            {% if mentor.id == session_user_account %}
-                <button class="admin_user_management_word_button_inactive" id="super_promote_button">
-                    <p id="admin_user_management_small_text">
-                        Promote Super Admin
-                    </p>
-                </button>
-            {% else %}
-                <button class="admin_user_management_word_button_active" id="super_promote_button">
-                    <p id="admin_user_management_small_text">
-                        Promote Super Admin
-                    </p>
-                </button>
-            {% endif %}
-        {% endif %} -->
 
         {% if organization.id %}
-            <button class="admin_user_management_word_button_active" id="organization_promote_button" title="Promote to organization admin">
-                <p id="admin_user_management_small_text">
-                    Promote Organization Admin
-                </p>
+            <button class="admin_user_management_button_clear_active" id="organization_promote_button" title="Promote to organization admin">
+                <img class="user_management_icon" src="{% static 'images/icons/arrow-up-icon.png' %}">
             </button>
         {% else %}
-            <button class="admin_user_management_word_button_inactive" id="organization_promote_button" title="Promote to organization admin">
-                <p id="admin_user_management_small_text">
-                    Promote Organization Admin
-                </p>
+            <button class="admin_user_management_button_clear_inactive" id="organization_promote_button" title="Promote to organization admin">
+                <img class="user_management_icon" src="{% static 'images/icons/arrow-up-icon.png' %}">
             </button>
         {% endif %}
 
-        <button class="admin_user_management_word_button_active" id="edit_organization_button" title="Edit organization">
-            <p id="admin_user_management_small_text">
-                Edit Organization
-            </p>
+        <button class="admin_user_management_button_clear_active" id="edit_organization_button" title="Edit organization">
+            <img class="user_management_icon" src="{% static 'images/icons/pencil-icon.png' %}">
         </button>
 
         {% if user_admin_flag %}
-            <button class="admin_user_management_word_button_active" id="transfer_role_super_admin_button" title="Transfer roles">
-                <p id="admin_user_management_small_text">
-                    Transfer Role
-                </p>
+            <button class="admin_user_management_button_clear_active" id="transfer_role_super_admin_button" title="Transfer roles">
+                <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
             </button>
         {% elif user_organization_admin_flag and mentor.id != session_user_account %}
-            <button class="admin_user_management_word_button_active" id="transfer_role_organization_admin_button" title="Transfer own role">
-                <p id="admin_user_management_small_text">
-                    Transfer Own Role
-                </p>
+            <button class="admin_user_management_button_clear_active" id="transfer_role_organization_admin_button" title="Transfer own role">
+                <img class="user_management_icon" src="{% static 'images/icons/transfer-icon-alt.png' %}">
             </button>
         {% elif user_organization_admin_flag and mentor.id == session_user_account %}
-            <button class="admin_user_management_word_button_inactive" id="transfer_role_organization_admin_button" title="Transfer own role">
-                <p id="admin_user_management_small_text">
-                    Transfer Own Role
-                </p>
+            <button class="admin_user_management_button_clear_inactive" id="transfer_role_organization_admin_button" title="Transfer own role">
+                <img class="user_management_icon" src="{% static 'images/icons/transfer-icon-alt.png' %}">
             </button>
         {% endif %}
 
-        <button class="admin_user_management_word_button_active" id="decouple_button">
-            <p id="admin_user_management_small_text">
-                Decouple Mentor
-            </p>
-        </button>
+        {% if organization.id %}
+            <button class="admin_user_management_button_clear_active" id="decouple_button" title="Decouple from organization">
+                <img class="user_management_icon" src="{% static 'images/icons/remove-icon-alt.png' %}">
+            </button>
+        {% else %}
+            <button class="admin_user_management_button_clear_inactive" id="decouple_button" title="Decouple from organization">
+                <img class="user_management_icon" src="{% static 'images/icons/remove-icon-alt.png' %}">
+            </button>
+        {% endif %}
+
     </div>
 
     <!-- <hr> -->
