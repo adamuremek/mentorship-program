@@ -1,7 +1,7 @@
 // Determnine and store mentee bar elements and container elements
 const mentee_bar_container = document.querySelector("#mentee_bar_container");
 const mentor_bar_container = document.querySelector("#mentor_bar_container");
-const mentee_bars = mentee_bar_container.querySelectorAll(".mentee_management_bar");
+const mentee_bars = mentee_bar_container.querySelectorAll(".mentee_management_bar_container");
 const mentor_bars = mentor_bar_container.querySelectorAll(".mentor_management_bar_container");
 
 // Determine static page elements
@@ -270,7 +270,7 @@ export function determine_mentor_bars(passed_bar)
 // Returns all mentee bars from passed bar
 export function determine_mentee_bars(passed_bar)
 {
-    return passed_bar.querySelectorAll(".mentee_management_bar");
+    return passed_bar.querySelectorAll(".mentee_management_bar_container");
 
 }
 

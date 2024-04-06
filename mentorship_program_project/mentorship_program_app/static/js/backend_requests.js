@@ -161,7 +161,6 @@ function attempt_remove_organization(orgnaization_id)
 */
 function attempt_edit_mentor_organization(mentor_id, orgnaization_id)
 {
-	// fetch(
 	return new Request("/edit_mentor_organization/" + mentor_id + "/" + orgnaization_id, {
 			method: "POST",
 			headers: {
@@ -170,7 +169,21 @@ function attempt_edit_mentor_organization(mentor_id, orgnaization_id)
 			},
 			mode: 'same-origin'
 	});
-	// );
+}
+
+/*
+* requests that the back end removes the organization of passed mentor, based on the passed organization id --ANTHONY PETERS
+*/
+function attempt_remove_mentors_org(mentor_id, orgnaization_id)
+{
+	return new Request("/remove_mentors_org/" + mentor_id + "/" + orgnaization_id, {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': csrftoken
+			},
+			mode: 'same-origin'
+	});
 }
 
 /*

@@ -355,8 +355,7 @@ def admin_user_management(request):
         user_management_mentee_data = Mentee.objects
         user_management_mentor_data = Mentor.objects
         user_management_organizations_data = Organization.objects
-        
-    
+
     # Check if user is an organization admin
     elif (session_user.is_an_org_admin()):
         print_debug("hello from the organization admin side of things UwU")
@@ -422,7 +421,7 @@ def admin_user_management(request):
             'id': str(mentee),
             'mentor': mentee.mentor
         })
-
+        
 #   for mentor in Mentor.objects.all():
 #         print(mentor.account.str_first_name + mentor.account.str_last_name + ", " + str(mentor))
 
