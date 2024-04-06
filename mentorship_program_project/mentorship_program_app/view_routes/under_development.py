@@ -1281,8 +1281,8 @@ def mentor_mfa_request(req : HttpRequest):
     str_otp = None
     str_recipient = None #Replace with your email for testing. TODO: REMOVE
 
-    #Get the user from the session infromation.
-    user = User.from_session(req.session) #TODO: UNCOMMENT
+    #Get the user_name from the session infromation.
+    user_name = req.session["user_name"] #TODO: UNCOMMENT
     
     #Create the pyotp class, generate a random number, 
     # set the interval the otp is valid for.
@@ -1296,7 +1296,7 @@ def mentor_mfa_request(req : HttpRequest):
     req.session['str_otp_valid_date'] = str_otp_valid_date
 
     #Assign who the message is meant for.
-    str_recipient = user.cls_email_address
+    str_recipient = user_name
 
     print("Email sent?")
     print("OTP: " + str_otp)
@@ -1320,6 +1320,9 @@ def mentor_mfa_validate(req: HttpRequest):
     str_otp_secret_key = req.session['str_otp_secret_key']
     str_otp_valid_date = req.session['str_otp_valid_date']
     str_valid_until = None
+    str_user_name = req.session["user_name"]
+
+    req.session["user_name"] = None #Clear the user_name from the session
 
     int_interval_seconds = 60 * settings.PASSCODE_EXPIRATION_MINUTES
 
@@ -1327,32 +1330,40 @@ def mentor_mfa_validate(req: HttpRequest):
 
     #return HttpResponse(json.dumps({"new_web_location":"/"}))
 
-    #if req.method == "POST":
-    if True: #TODO: REMOVE
 
-        if str_otp_secret_key and str_otp_valid_date is not None:
-            str_valid_until = datetime.fromisoformat(str_otp_valid_date)
+    if str_otp_secret_key and str_otp_valid_date is not None:
+        str_valid_until = datetime.fromisoformat(str_otp_valid_date)
 
-            if str_valid_until > datetime.now():
-                cls_otp = pyotp.TOTP(str_otp_secret_key, interval=int_interval_seconds)
+        if str_valid_until > datetime.now():
+            cls_otp = pyotp.TOTP(str_otp_secret_key, interval=int_interval_seconds)
 
-                #TODO: REPLACE
-                if cls_otp.verify(passcode):
-                    response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
-                    return response
-                
-                else:
-                    response = HttpResponse(json.dumps({"warning":"Passcode is incorrect."}))
+            if cls_otp.verify(passcode):
+                #valid login
+                if not security.set_logged_in(req.session,User.objects.get(cls_email_address=str_user_name)):
+                    response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
                     response.status_code = 401
-                    return response            
-            else:
-                response = HttpResponse(json.dumps({"warning":"Passcode has expired, please try again."}))
-                response.status_code = 401
+                    return response
+
+                user = User.objects.get(cls_email_address=str_user_name)
+                user.str_last_login_date = date.today()
+                user.save()
+
+                # record logs
+                SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
+
+                response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
                 return response
                 
-        else: 
-            response = HttpResponse(json.dumps({"warning":"Please resend the passcode."}))
+            else:
+                response = HttpResponse(json.dumps({"warning":"Passcode is incorrect."}))
+                response.status_code = 401
+                return response            
+        else:
+            response = HttpResponse(json.dumps({"warning":"Passcode has expired, please try again."}))
             response.status_code = 401
             return response
-    else:
-        return HttpResponse("Not a POST request, please try again.")
+                
+    else: 
+        response = HttpResponse(json.dumps({"warning":"Please resend the passcode."}))
+        response.status_code = 401
+        return response

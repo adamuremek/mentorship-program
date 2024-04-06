@@ -496,23 +496,36 @@ def login_uname_text(request):
         response = HttpResponse(json.dumps({"warning":"The username/password you have entered is incorrect."}))
         response.status_code = 401
         return response
- 
-    #valid login
-    if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
-        response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
-        response.status_code = 401
-        return response
-
+    
     user = User.objects.get(cls_email_address=uname)
-    user.str_last_login_date = date.today()
-    user.save()
 
-    # record logs
-    SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
 
     if user.str_role == User.Role.MENTOR:
+
+        #Check if the user is approved.
+        if not user.str_role in ['Mentor','Mentee','Admin']:
+            response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
+            response.status_code = 401
+            return response
+        
+        request.session["user_name"] = user.cls_email_address
+
+        #Login process continues in mentor_mfa_validate
         response = HttpResponse(json.dumps({"new_web_location":"mentor/2fa"}))
+
     else:
+        #valid login
+        if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
+            response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
+            response.status_code = 401
+            return response
+
+        user = User.objects.get(cls_email_address=uname)
+        user.str_last_login_date = date.today()
+        user.save()
+
+        # record logs
+        SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
         response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
 
     return response
