@@ -60,7 +60,8 @@ button:focus, input:focus{
 /* mentor information and buttons */
 .mentor-applicant {
     display: grid;
-    grid-template-columns: .5fr 1fr 1fr 1fr 1fr;
+    /* Uncomment out the .5fr if adding back profile pictures */
+    grid-template-columns: /*.5fr*/ 1fr 1fr 1fr 1fr;
     align-items: center;
     padding: 1rem;
 }

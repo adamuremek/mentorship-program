@@ -18,7 +18,8 @@ def get_project_time_statistics():
         Collect and synthesize data from Systemlogs and output results based on timespans
     """
     week_ago_date = date.today() - timedelta(days=7)
-    month_ago = date.today() - timedelta(days=30)
+    month_ago_date = date.today() - timedelta(days=30)
+
 
     daily_stats = (
         SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on=date.today()).count(),
@@ -27,6 +28,7 @@ def get_project_time_statistics():
         SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on=date.today()).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on=date.today()).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on=date.today()).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, cls_log_created_on=date.today()).count()
     )
 
     weekly_stats = (
@@ -36,15 +38,17 @@ def get_project_time_statistics():
         SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on__gte=week_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on__gte=week_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on__gte=week_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, cls_log_created_on=week_ago_date).count()
     )
 
     monthly_stats = (
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on__gte=month_ago).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=month_ago).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=month_ago).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on__gte=month_ago).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on__gte=month_ago).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on__gte=month_ago).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, cls_log_created_on=month_ago_date).count()
     )
 
     lifetime_stats = (
@@ -54,6 +58,7 @@ def get_project_time_statistics():
         SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT,).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT,).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT).count()
     )
 
     return {"Daily":daily_stats, "Weekly":weekly_stats, "Monthly":monthly_stats, "Lifetime":lifetime_stats}
@@ -84,9 +89,6 @@ def get_project_overall_statistics():
     unassigned_mentees = Mentee.objects.filter(mentor=None).count()
     assigned_mentors = User.objects.all().filter(str_role='Mentor').annotate(mentee_count=Count('mentor___mentee_set')).exclude(mentee_count=0).count()
 
-    # count number of unresolved reports
-    unresolved_reports = UserReport.objects.filter(bln_resolved = False).count()
-
     return {
         "active_mentees"               : User.objects.filter(str_role='Mentee', bln_active=True).count(),
         "assigned_mentees"             : total_mentees - unassigned_mentees,
@@ -100,15 +102,10 @@ def get_project_overall_statistics():
 
         "mentees_per_mentor"           : f"{round(total_mentees/total_mentors,2)}" if total_mentors != 0 else 'N/A',
         "mentor_retention_rate"        : f"{round(100 - ((inactive_mentors_count / total_mentors) * 100))}%" if total_mentors != 0 else 'N/A',
-        "mentor_turnover_rate"         : f"{round((inactive_mentors_count / total_mentors ) * 100)}%" if total_mentors != 0 else 'N/A',
         "successful_match_rate"        : f"{round(total_approved_mentorships / total_requested_mentorships * 100)}%" if total_requested_mentorships != 0 else "N/A",
         
-        "total_approved_mentorships"   : total_approved_mentorships,  # Not nessisary
-        "total_requested_mentorships"  : total_requested_mentorships, # Not nessisary 
-        "total_terminated_mentorships" : SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT).count(),
-
         "pending_mentors"              : User.objects.filter(str_role='MentorPending').count(),
-        "unresolved_reports"           : unresolved_reports,
+        "unresolved_reports"           : UserReport.objects.filter(bln_resolved = False).count()
     }
 
 def generate_report(req : HttpRequest):
@@ -175,8 +172,7 @@ def generate_report(req : HttpRequest):
 
     response = HttpResponse(
         buffer,
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',   
     )
     
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'

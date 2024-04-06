@@ -17,6 +17,12 @@
     <div class="hero-container">
 
         <div class="column-left">
+            <div class="link-container">
+                <a href="" class="return-link" id="return-btn-combined-views" onclick="event.preventDefault(); history.back();">
+                    <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
+                    Back
+                </a>
+            </div>
             <div class="profile-container">
                 <img src="{{page_owner_user.profile_img.img.url}}" id="profile_pic" class="profile-picture">
                 <div id="edit_profile_overlay" class="profile-picture-edit-overlay" style="display: none;">
@@ -46,7 +52,7 @@
             
             <ul>
                     {% for mentee in mentees_or_mentor %}
-                    <li class="mentee-manager">
+                    <li class="mentee-manager" id="current-mentee">
                         <a href="{% url 'universal_profile' mentee.id %}">
                             <h4>{{mentee.str_first_name}}</h4>
                             <h4>{{mentee.str_last_name}}</h4>
@@ -82,7 +88,7 @@
                             <!-- I SWEAR TO GOD, DO NOT TOUCH THIS. -->
                             <div class="please-fuck-off-and-die">
                             <a class="button-pending-action-container" href="{% if signed_in_user.is_mentee %}{% url 'accept_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'accept_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
-                                <button type="button" class="button-pending-action">&#10003;</button>
+                                <button type="button" class="button-pending-action" id="accept-mentee-btn">&#10003;</button>
                             </a>
                             <a class="button-pending-action-container" href="{% if signed_in_user.is_mentee %}{% url 'reject_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'reject_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
                                 <button type="button" class="button-pending-action">&#10007;</button>
@@ -278,6 +284,28 @@
 
         if (!confirmationBln) {
             event.preventDefault();
+        }
+    });
+</script>
+
+<!--Script to alert mentor when they have reached their max mentee limit-->
+<script>
+    var max_mentees_value = "{{ max_mentees }}";
+    var cur_num_mentees;
+    var acceptButton;
+
+    acceptButton = document.getElementById('accept-mentee-btn');
+    cur_num_mentees = document.querySelectorAll('#current-mentee').length;
+
+
+    acceptButton.addEventListener('click', function () {
+        //message for if user just filled their capacity
+        if (cur_num_mentees == (max_mentees_value - 1)) {
+            alert('You are now at your max capacity for mentees. To continue adding mentees, edit your Max Mentees');
+        } 
+        //message for if user already is at their capacity
+        else if (cur_num_mentees > (max_mentees_value - 1)) {
+            alert('You have already reached your max capactity for mentees. To continue adding mentees, edit your Max Mentees');
         }
     });
 </script>
