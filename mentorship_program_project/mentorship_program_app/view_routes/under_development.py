@@ -17,6 +17,7 @@ from .emails import *
 from ..views import login_uname_text
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.utils import timezone
 
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
@@ -357,7 +358,6 @@ def view_pending_mentors(req: HttpRequest):
     Adam U. ♣
     Andrew P.
     '''
-    
     session_user = User.from_session(req.session)
 
     is_super_admin = session_user.is_super_admin()

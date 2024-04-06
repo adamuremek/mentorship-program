@@ -470,7 +470,7 @@ class User(SVSUModelData,Model):
     
     def is_an_org_admin(self)->bool:
         try:
-            self.administered_organizations
+            Organization.objects.get(admin_mentor_id=self.mentor.id)
             return True
         except:
             return False
@@ -642,15 +642,15 @@ class User(SVSUModelData,Model):
     str_password_hash =  CharField(max_length=1000, null=True, blank=False)
     str_password_salt =  CharField(max_length=1000, null=True, blank=False)
     str_role = CharField(max_length=15, choices=Role.choices, default='')
-    cls_date_joined = DateField(default=date.today)
-    cls_active_changed_date = DateField(default=date.today)
+    cls_date_joined = DateField(default=timezone.now().date())
+    cls_active_changed_date = DateField(default=timezone.now().date())
     bln_active = BooleanField(default=True)
     bln_account_disabled =  BooleanField(default=False)
 
     str_first_name : CharField =  CharField(max_length=747,null=True)
     str_last_name : CharField =  CharField(max_length=747, null=True) 
     str_phone_number : CharField = CharField(max_length=15, null=True)
-    str_last_login_date = DateField(default=date.today)
+    str_last_login_date = DateField(default=timezone.now().date())
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
     str_bio = CharField(max_length=5000, default='')
@@ -2459,7 +2459,7 @@ class Notes(SVSUModelData,Model):
     str_title = CharField(max_length=100)
     str_public_body = CharField(max_length=7000, null=True, blank=True)
     str_private_body = CharField(max_length=7000, null=True, blank=True)
-    cls_created_on = DateField(default=date.today)
+    cls_created_on = DateField(default=timezone.now().date())
 
 
     user = ForeignKey(User, on_delete = models.CASCADE)
@@ -2509,7 +2509,7 @@ class Notes(SVSUModelData,Model):
                 str_title = str_title,
                 str_public_body = str_public_body,
                 str_private_body = str_private_body,
-                cls_created_on = date.today(),
+                cls_created_on = timezone.now().date(),
                 user = user
             )
             print("Note created")
@@ -2625,7 +2625,7 @@ class SystemLogs(SVSUModelData,Model):
         
 
     str_event = CharField(max_length=500, choices=Event.choices, default='')
-    cls_log_created_on = DateField(default=date.today)
+    cls_log_created_on = DateField(default=timezone.now().date())
     specified_user = models.ForeignKey('User', on_delete=models.CASCADE, null=True)
 
     

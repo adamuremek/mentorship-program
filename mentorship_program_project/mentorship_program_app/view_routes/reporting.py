@@ -9,6 +9,7 @@ from ..models import SystemLogs
 from ..models import UserReport
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
+from django.utils import timezone
 import os
 from io import BytesIO
 
@@ -17,18 +18,18 @@ def get_project_time_statistics():
         Authors Andrew P. Jordan A.
         Collect and synthesize data from Systemlogs and output results based on timespans
     """
-    week_ago_date = date.today() - timedelta(days=7)
-    month_ago_date = date.today() - timedelta(days=30)
+    week_ago_date = timezone.now().date() - timedelta(days=7)
+    month_ago_date = timezone.now().date() - timedelta(days=30)
 
 
     daily_stats = (
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, cls_log_created_on=date.today()).count()
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on=timezone.now().date()).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on=timezone.now().date()).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, cls_log_created_on=timezone.now().date()).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on=timezone.now().date()).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on=timezone.now().date()).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on=timezone.now().date()).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, cls_log_created_on=timezone.now().date()).count()
     )
 
     weekly_stats = (

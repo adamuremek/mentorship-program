@@ -7,7 +7,8 @@ Dashboard
 {% endblock %}
 
 {% block style %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mentee_card.css' %}">
 {% endblock %}
 
 {% block main_content %}
@@ -172,6 +173,19 @@ Dashboard
             }
         }
     }
+
+
+    // -------------------- <<< MAKE CARDS CLICKABLE >>> -------------------- \\
+    document.addEventListener('DOMContentLoaded', () => {
+        const cards = document.getElementsByClassName('card')
+        if(cards)
+            for (card of cards)
+            {
+                const profile_form = card.getElementsByTagName('form')[0]
+                card.addEventListener('click', () => profile_form.submit())
+            }
+    })
+    
 </script>
 
 

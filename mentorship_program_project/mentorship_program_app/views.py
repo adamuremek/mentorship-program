@@ -48,7 +48,7 @@ from django.http import HttpResponse, HttpRequest
 from django.template import loader
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect
-
+from django.utils import timezone
 
 from utils import development
 from utils.development import print_debug
@@ -370,7 +370,7 @@ def admin_user_management(request):
         #TODO: you can be admin of more than one organization so get will error since it expects a single return value,
         #this should be a filter instead of a git, ill chage it if I get to it in time with optimization, but ima leave this note
         #here for others or incase I forget -dk
-        organization = Organization.objects.get(admins=session_user.mentor)
+        organization = Organization.objects.get(admin_mentor_id=session_user.mentor)
         mentees_with_mentors_in_organization = Mentee.objects.filter(mentor__organization=organization)
 
         user_management_organizations_data = organization
@@ -498,7 +498,9 @@ def login_uname_text(request):
         return response
 
     user = User.objects.get(cls_email_address=uname)
-    user.str_last_login_date = date.today()
+    print(timezone.now().date())
+    print(timezone.now())
+    user.str_last_login_date = timezone.now().date()
     # if the user deactivated their own account, reactivate it
     if not user.bln_active and not user.bln_account_disabled:
         user.bln_active = True
