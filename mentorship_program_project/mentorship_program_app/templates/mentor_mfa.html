@@ -14,27 +14,26 @@
 <section class="hero">
     <div class="hero-container">
         <div class="column-left">
-            <h1>Empower the Next Generation of Tech Innovators</h1>
-            <p>Join a thriving community of professionals dedicated to shaping the future of computer science. 
-            Your experience can inspire, guide, and empower the next generation of innovators.</p>   
+            <!-- Left Empty -->   
         </div>
         <div class="column-right">
             <div class="portal">
                 <form id="frm-login" action="/landing-post/" method="POST">
                     {% csrf_token %}
                     <div class="prompt-login">
-                        <h1>Login to start your journey</h1>
+                        <h1>WINGS Authentication</h1>
                     </div>
                     <div class="line"></div>
 
                     <div class="email-password-fields">
-                        <input type="password" id="password" name="password" placeholder="Password">
+                        <p>We've sent an email containing your verification code.</p>
+                        <input type="password" id="password" name="password" placeholder="Please enter your verification code">
 								<p id="frm-warning-message" class="error-message"></p>
                     </div>
                     <!-- DONT CHANGE THIS ID. CRUCIAL FOR JAVASCRIPT EXECUTION -->
                     <!-- FUTHERMORE, DONT CHANGE ANY ID WITHOUT THOROUGHLY CHECKING FOR OTHER CRITICAL OCCURANCES -->
-                    <button type="button" class="login-buttons" id="mfa-btn">Login</button>
-                    <p id="su-p"><span id="su-span">Don't have an account?</span> <span class="text-btn" tabindex="0"><a class="text-btn" id="su-link" href="/role_selection">Sign Up</a></span></p>
+                    <button type="button" class="login-buttons" id="mfa-btn">Verify</button>
+                    <p id="su-p"><span id="su-span">Resend passcode:</span> <span class="text-btn" tabindex="0"><a class="text-btn" id="su-link" href="/mentor/2fa">click here</a></span></p>
                 </form>
             </div>
         </div>
@@ -45,7 +44,7 @@
 
 <script src = '{% static "js/backend_requests.js" %}'></script>
 <script src = '{% static "js/mentor_mfa/mentor_verify.js" %}'></script>
-<script src = '{% static "js/landing_page/forgot_pass_modals.js" %}'></script>
+
 <script>
     var input = document.getElementById("frm-login");
     input.addEventListener("keypress", function (event) {
