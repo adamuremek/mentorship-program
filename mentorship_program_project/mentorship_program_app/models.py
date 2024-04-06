@@ -467,6 +467,13 @@ class User(SVSUModelData,Model):
         first_name = self.str_first_name if self.str_first_name != None else " "
         last_name =  self.str_last_name if self.str_last_name != None else " "
         return first_name + " " + last_name
+    
+    def is_an_org_admin(self)->bool:
+        try:
+            self.administered_organizations
+            return True
+        except:
+            return False
 
     def get_recomended_users(self,limit : int =4):
         """

@@ -310,175 +310,151 @@ def account_activation_mentor(request):
     
 from django.shortcuts import get_object_or_404
 
+def get_mentor_data_from_mentor(mentor : 'Mentor',session_user : 'User')->dict:
+    """
+    convinece function that returns mentor data for the front end to use,
+    I would muchly recommend going through the mentor objects themselfs if possible, but if this 
+    is the prefered method this function makes it easier to work with :)
+    """
+    mentor_data = {
+        'account': mentor,
+        'id': str(mentor),
+        #if you need the id mentor.account.id has it built in, so you don't need to pass it around twice,
+        #still if you feel its better here uncomment :)
+        #'id': str(mentor.account.id), #str(mentor.account), 
+        
+        #TODO:
+        # we didn't see any usage usage of this while exploring, we also simplified the python
+        # a bit to make it clearer what exactly this was passing over, we left the trailing , if
+        # its needed anywhere (didn't see anything erroring with this commented out though)
+        # if its still needed uncomment it :)
+        # -dk
+        'mentees': ",".join([str(m.account) for m in mentor._mentee_set.all()]),
+        'current_mentees': mentor.mentee_set.count(),
+        'max_mentees': mentor.int_max_mentees,
+
+        # 'mentees': mentee_list,
+        'mentor_admin_flag': session_user.is_super_admin() #auto caches :)
+    }
+    return mentor_data
+
 def admin_user_management(request):
+
     template = loader.get_template('admin/user_management.html')
     session_user = User.from_session(request.session)
 
     # Create storge for list
-    unaffiliated_mentors = []
     organizations = []
     mentees = []
 
-    # Preset flags to false
-    user_super_flag = False
-    user_admin_flag = False
-    user_organization_admin_flag = False
-
-    # Determine role of session user
-    role = session_user.str_role    
-
-    # Determine session user's id
-    session_user_id = str(session_user)
-
     # Load from database based on role
-    # Check if session user is an admin
-    if (role == "Admin"):
+    # Check if user is an admin
+    if (session_user.is_super_admin()):
+        print_debug("loading with role admin")
         # Get all mentee, mentor, and organization data from database
         user_management_mentee_data = Mentee.objects
         user_management_mentor_data = Mentor.objects
         user_management_organizations_data = Organization.objects
         
-        # Set role flag
-        user_admin_flag = True
-
-        # Check and set user super flag if session user is a super admin
-        user_super_flag = session_user.is_super_admin()
     
     # Check if user is an organization admin
-    elif (session_user.is_mentor() and Organization.objects.filter(admins=session_user.mentor).exists()):
+    elif (session_user.is_an_org_admin()):
+        print_debug("hello from the organization admin side of things UwU")
         # TODO NEED TO SET UP TO GET ONLY DATA THAT IS NEEDED FOR THAT ORG, ONLY MENTORS WITHIN ORG AND METEES REALTED TO THEM
         # MAYBE FILTER MENTORS BY ORG AND METEES BY MENTORS WITHIN ORG
 
-        # Get only the organization admin's mentor and mentee data from within the organization
+        # Get all mentee data, only the admin's organization, and mentor data from within the organization
+        user_management_mentee_data = Mentee.objects
+        user_management_mentor_data = Mentor.objects
+
+        #TODO: you can be admin of more than one organization so get will error since it expects a single return value,
+        #this should be a filter instead of a git, ill chage it if I get to it in time with optimization, but ima leave this note
+        #here for others or incase I forget -dk
         organization = Organization.objects.get(admins=session_user.mentor)
-        # mentees_with_mentors_in_organization = Mentee.objects.filter(mentor__organization=organization)
+        mentees_with_mentors_in_organization = Mentee.objects.filter(mentor__organization=organization)
 
         user_management_organizations_data = organization
-
-        user_management_mentee_data = Mentee.objects.filter(mentor__organization=organization)
-        user_management_mentor_data = Mentor.objects.filter(organization=organization)
-
-        # Set role flag
-        user_organization_admin_flag = True
         
-        # return HttpResponse(organization, mentees_with_mentors_in_organization)
+        return HttpResponse(organization, mentees_with_mentors_in_organization)
 
     else:
-        # Get no mentee, mentor, or organization data from database
-        user_management_mentee_data = []
-        user_management_mentor_data = []
-        user_management_organizations_data = []
+        return bad_request_400("Access Denied")
 
-        # return HttpResponse("Access Denied")
-
+    orgs = Organization.objects.all().select_related(
+                                                "admin_mentor"
+                                    ).prefetch_related(
+                                                        "mentor_set",
+                                                        "mentor_set___mentee_set",
+                                                        "mentor_set__account",
+                                                        "mentor_set___mentee_set__account",
+                                                        "mentor_set__administered_organizations"
+                                                        )
     # Cycle through organizations
-    for organization in user_management_organizations_data.all():
+    for organization in orgs:
         # Inizilize empty list for mentors and admins
-        admin_list = []
+        org_admin = None
         mentor_list = []
+        
+        if organization.admin_mentor != None:
+            org_admin = get_mentor_data_from_mentor(organization.admin_mentor,session_user)
 
         organizations.append(
             {
                 'organization': organization,
                 'id': str(organization),
                 'name': organization.str_org_name,
-                'admin_list': admin_list,
-                'mentor_list': mentor_list
+                'admin_list': [org_admin] if org_admin != None else [], #this def does not need to be a list now
+                                                                        #unless we want to re-listify admins which we could do
+                'mentor_list':  [
+                                            get_mentor_data_from_mentor(m,session_user) for m in 
+                                            organization.mentor_set.all() 
+                                            if org_admin == None or organization.admin_mentor.id != m.id
+                                ]
             }
         )
 
-    # Cycle through mentors
-    for mentor in user_management_mentor_data.all():
-        # Inizlize empty list 
-        mentee_list = ""
-
-        # Get mentees set from mentor object
-        mentee_set = mentor.mentee_set.all()
-
-        # Check if mentee set is not empty then create a string that is comma seperated from queryset
-        if (mentee_set.count() > 0):
-            for mentee in mentee_set:
-                mentee_list = mentee_list + str(mentee.account) + ","
-
-        # Determine if mentor is a admin and set flag
-        if (role == User.Role.ADMIN):
-            mentor_admin_flag = True
-        else:
-            mentor_admin_flag = False
-
-        # Create mentor data
-        mentor_data = {
-            'account': mentor.account,
-            'id': str(mentor.account),
-            'mentees': mentee_list,
-            'current_mentees': mentee_set.count(),
-            'max_mentees': mentor.int_max_mentees,
-            'mentor_admin_flag': mentor_admin_flag
-        }
-
-        # Check if mentor is a part of any organizations
-        if (mentor.organization.count() > 0):
-            # Cycle and attach mentor to organizations they are part of
-            for mentor_organization in mentor.organization.all():
-                # Cycle thorugh organization list searching for organization that matches mentor's
-                for organization in organizations:
-                    # Check if mentor organization matches organization
-                    if (mentor_organization == organization["organization"]):
-                        # Check if organization admin
-                        if (mentor == mentor_organization.admin_mentor):
-
-                            print(mentor_organization.admin_mentor)
-
-                        # if (mentor.is_admin_of_organization(mentor_organization)):
-                            # Attach mentor to admin list
-                            organization["admin_list"].append(mentor_data)
-
-                        else: 
-                            # Attach mentor to mentor list
-                            organization["mentor_list"].append(mentor_data)
-
-                        break
-        else:
-            # Attach mentor to unaffiliated list
-            unaffiliated_mentors.append(mentor_data)
-
-    # Cycle through mentees
-    for mentee in user_management_mentee_data.all():
+    #TODO dk:  make this prefetch data so we don't query like a horse in the desert without water that gets to an oasis its currently midnight he;p
+    mentee_query = user_management_mentee_data.all().prefetch_related("account","mentor")
+    for mentee in mentee_query:
         # Add needed mentee info to mentees list
         mentees.append({
-            'account': mentee.account,
-            'id': str(mentee.account),
+            'account': mentee,
+            'id': str(mentee),
             'mentor': mentee.mentor
         })
 
+#   for mentor in Mentor.objects.all():
+#         print(mentor.account.str_first_name + mentor.account.str_last_name + ", " + str(mentor))
 
-
-    # print(session_user)
-
-    # for org in organizations:
-    #     print(org)
-
-    # for mentor in unaffiliated_mentors:
-    #     print(mentor)
-
-    # for mentee in mentees:
-    #     print(mentee)
-
-
+#     for org in Organization.objects.all():
+#         print(org.str_org_name + ", " + str(org))  
+        
+    # user = User.objects.get(id=187)
+    # print(user.str_first_name + " " + user.str_last_name + ", " + str(user))
+    # print(user.bln_account_disabled)
 
     context = {
         'mentees': mentees,
-        'unaffiliated_mentors': unaffiliated_mentors,
+        'unaffiliated_mentors': [
+                                    get_mentor_data_from_mentor(m,session_user) for m in 
+                                    
+                                    Mentor.objects.annotate(org_count=Count("organization")).filter(org_count=0).prefetch_related(
+                                        "mentee_set","account","mentee_set__account"
+                                        )
+                                 ],
         'organizations': organizations,
-        'role': role,
-        'session_user_account': session_user_id,
-        'organization_counter': 999,
-        'user_super_flag': user_super_flag,
-        'user_admin_flag': user_admin_flag,
-        'user_organization_admin_flag': user_organization_admin_flag
+        'role': session_user.str_role,
+
+        'session_user_account': str(session_user),
+        'organization_counter': Organization.objects.count(),
+
+        'user_admin_flag': session_user.is_super_admin(),
+        'user_organization_admin_flag': session_user.is_an_org_admin()
     }
 
-    return HttpResponse(template.render(context,request))
+    render = template.render(context,request)
+
+    return HttpResponse(render)
 
 
 

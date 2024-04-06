@@ -2,8 +2,12 @@
 
 <div class="mentor_management_bar_container">
     <div class="mentor_management_bar">
-        <div id="user_account">
+        <div id="account">
             {{ mentor.id }}
+        </div>
+
+        <div id="user_account">
+            {{ mentor.account.account }}
         </div>
 
         <div id="user_mentees">
@@ -17,42 +21,41 @@
                 0
             {% endif %}
         </div>
-       
-
-        <p class="user_management_bar_name" id="admin_user_management_medium_text">
-            {{ mentor.account.str_first_name }} {{ mentor.account.str_last_name }}
-        </p>
-
-        <div class="mentee_counter_container">
-            <p id="current_mentees">{{ mentor.current_mentees }}</p>/<p id="max_mentees">{{ mentor.max_mentees }}</p>
-        </div>
-
-        <button class="admin_user_management_button_clear_active" id="{{mentor.account.id}}">
-            <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
-        </button>
 
         <div id="user_account_disabled">
-            {% if mentor.account.bln_account_disabled %}
+            {% if mentor.account.account.bln_account_disabled %}
                 1
             {% else %}
                 0
             {% endif %}
         </div>
 
+        <p class="user_management_bar_name" id="admin_user_management_medium_text">
+            {{ mentor.account.account.str_first_name }} {{ mentor.account.account.str_last_name }}
+        </p>
+
+        <div class="mentee_counter_container" title="View mentees">
+            <p id="current_mentees">{{ mentor.current_mentees }}</p>/<p id="max_mentees">{{ mentor.max_mentees }}</p>
+        </div>
+
+        <button class="admin_user_management_button_clear_active" id="{{mentor.account.id}}" title="View account page">
+            <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
+        </button>
+
         {% if not mentor.deactivated %}
-            <button class="admin_user_management_button_clear_active" id="trashcan_button">
+            <button class="admin_user_management_button_clear_active" id="trashcan_button" title="Disable account">
                 <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
             </button>
 
-            <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button">
+            <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button" title="Enable account">
                 <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
             </button>
         {% else %}
-            <button class="admin_user_management_button_clear_inactive" id="trashcan_button">
+            <button class="admin_user_management_button_clear_inactive" id="trashcan_button" title="Disable account">
                 <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
             </button>
 
-            <button class="admin_user_management_button_clear_active" id="trashcan_off_button">
+            <button class="admin_user_management_button_clear_active" id="trashcan_off_button" title="Enable account">
                 <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
             </button>
         {% endif %}
@@ -75,46 +78,54 @@
             {% endif %}
         {% endif %} -->
 
-        <button class="admin_user_management_word_button_active" id="organization_promote_button">
-            <p id="admin_user_management_small_text">
-                Promote Organization Admin
-            </p>
-        </button>
+        {% if organization.id %}
+            <button class="admin_user_management_word_button_active" id="organization_promote_button" title="Promote to organization admin">
+                <p id="admin_user_management_small_text">
+                    Promote Organization Admin
+                </p>
+            </button>
+        {% else %}
+            <button class="admin_user_management_word_button_inactive" id="organization_promote_button" title="Promote to organization admin">
+                <p id="admin_user_management_small_text">
+                    Promote Organization Admin
+                </p>
+            </button>
+        {% endif %}
 
-        <button class="admin_user_management_word_button_active" id="edit_organization_button">
+        <button class="admin_user_management_word_button_active" id="edit_organization_button" title="Edit organization">
             <p id="admin_user_management_small_text">
                 Edit Organization
             </p>
         </button>
 
-        {% if user_super_flag or user_admin_flag %}
-            <button class="admin_user_management_word_button_active" id="transfer_role_super_admin_button">
+        {% if user_admin_flag %}
+            <button class="admin_user_management_word_button_active" id="transfer_role_super_admin_button" title="Transfer roles">
                 <p id="admin_user_management_small_text">
                     Transfer Role
                 </p>
             </button>
         {% elif user_organization_admin_flag and mentor.id != session_user_account %}
-            <button class="admin_user_management_word_button_active" id="transfer_role_organization_admin_button">
+            <button class="admin_user_management_word_button_active" id="transfer_role_organization_admin_button" title="Transfer own role">
                 <p id="admin_user_management_small_text">
                     Transfer Own Role
                 </p>
             </button>
         {% elif user_organization_admin_flag and mentor.id == session_user_account %}
-            <button class="admin_user_management_word_button_inactive" id="transfer_role_organization_admin_button">
+            <button class="admin_user_management_word_button_inactive" id="transfer_role_organization_admin_button" title="Transfer own role">
                 <p id="admin_user_management_small_text">
                     Transfer Own Role
                 </p>
             </button>
         {% endif %}
 
-        <!-- <button class="admin_user_management_word_button_active" id="decouple_button">
+        <button class="admin_user_management_word_button_active" id="decouple_button">
             <p id="admin_user_management_small_text">
                 Decouple Mentor
             </p>
-        </button> -->
+        </button>
     </div>
 
-    <hr>
+    <!-- <hr> -->
 
 </div>
 <script>

@@ -1004,7 +1004,7 @@ def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_us
     return HttpResponse("created request sucessfully")
 
 @security.Decorators.require_login(bad_request_400)
-def delete_mentorship(req: HttpRequest, mentee_user_account_id):
+def delete_mentorship(req: HttpRequest, mentee_user_account_id : int):
     '''
     Description
     -----------
@@ -1419,7 +1419,7 @@ def add_remove_mentees_from_file(req : HttpRequest):
     return redirect("/available_mentees")
 
 
-def promote_org_admin(req : HttpRequest, promoted_mentor_id):
+def promote_org_admin(req : HttpRequest, promoted_mentor_id : int):
     '''
     Description
     -----------
@@ -1446,6 +1446,7 @@ def promote_org_admin(req : HttpRequest, promoted_mentor_id):
     # gets the user from the session to check if theyre a super admin
     user_from_session = User.from_session(req.session)
     is_org_admin = False
+    
     # if user is not super admin, check if they're the org admin for the org being changed
     if not user_from_session.is_super_admin():
         mentor_account = Mentor.objects.get(id=user_from_session.id)
