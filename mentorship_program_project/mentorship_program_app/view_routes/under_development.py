@@ -1456,6 +1456,7 @@ def promote_org_admin(req : HttpRequest, promoted_mentor_id : int):
 
     # gets the user from the session to check if theyre a super admin
     user_from_session = User.from_session(req.session)
+    print(user_from_session.str_role)
     is_org_admin = False
     
     # if user is not super admin, check if they're the org admin for the org being changed
@@ -1465,7 +1466,7 @@ def promote_org_admin(req : HttpRequest, promoted_mentor_id : int):
         is_org_admin = current_org_admin == mentor_account
     else:
         print(True)
-    if not user_from_session.is_super_admin() or not is_org_admin:
+    if not user_from_session.is_super_admin() and not is_org_admin:
         return bad_request_400("Permission denied")
     
     # promote them to super admin
