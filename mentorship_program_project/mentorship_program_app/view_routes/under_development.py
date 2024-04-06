@@ -232,8 +232,8 @@ def register_mentor(req: HttpRequest):
 
 
         pending_mentor_object.save()
-
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentor.id))
+        
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, specified_user=user_mentor)
         mentor_signup_email(pending_mentor_object.account.cls_email_address)
         template: Template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
         ctx = {}

@@ -24,7 +24,7 @@ def get_project_time_statistics():
     daily_stats = (
         SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on=date.today()).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on=date.today()).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, cls_log_created_on=date.today()).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on=date.today()).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on=date.today()).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on=date.today()).count(),
@@ -34,7 +34,7 @@ def get_project_time_statistics():
     weekly_stats = (
         SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on__gte=week_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=week_ago_date).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=week_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, cls_log_created_on__gte=week_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on__gte=week_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on__gte=week_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on__gte=week_ago_date).count(),
@@ -44,7 +44,7 @@ def get_project_time_statistics():
     monthly_stats = (
         SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on__gte=month_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=month_ago_date).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, cls_log_created_on__gte=month_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on__gte=month_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on__gte=month_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on__gte=month_ago_date).count(),
@@ -54,7 +54,7 @@ def get_project_time_statistics():
     lifetime_stats = (
         SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT,).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT,).count(),
