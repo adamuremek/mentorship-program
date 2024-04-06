@@ -1,0 +1,34 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
+
+<dialog id="interests-modal">
+    <header class="modal-header">
+        <button class="admin_user_management_button_clear_active" id="exit_add_new_organization_button" tabindex="0">
+            <img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit">
+        </button>
+    </header>
+
+    <div class="modal-container">
+        <form id="note-form" action="{% url 'update_interests' %}" class="frm-note-creator" method="post">
+            {% csrf_token %}
+            
+            <div class="container">
+                <h3 class="heading">Interests:</h3>
+                {% for interest in interest_list %}
+                    <input type="text" value="{{ interest }}" class="user-input">
+                    <button type="image" id="btn-add-interest" src="{% static 'images/x-16.png' %}"></button>
+                {% endfor %}
+            </div>
+            
+            <div class="container">
+                <h3 class="heading">Add Interest:</h3>
+                <input type="text" value="{{ interest }}" class="user-input">
+                <button type="image" id="btn-add-interest" src="{% static 'images/icons/add-icon.png' %}"></button>
+            </div>
+
+            <button type="submit" id="btn-update-interests">Apply Changes</button>
+        </form>
+    </div>
+
+</dialog>

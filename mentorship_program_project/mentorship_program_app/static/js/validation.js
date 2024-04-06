@@ -324,12 +324,13 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             const lowercaseRegex = /[a-z]/;
             const numberRegex = /[0-9]/;
             const symbolRegex = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
-          
+            const asciiRegex = /[^\x00-\x7F]/;
             if (
               !uppercaseRegex.test(input_password.value) ||
               !lowercaseRegex.test(input_password.value) ||
               !numberRegex.test(input_password.value) ||
-              !symbolRegex.test(input_password.value)
+              !symbolRegex.test(input_password.value) ||
+              !asciiRegex.test(asciiRegex)
             ) {
               return false;
             }

@@ -167,6 +167,10 @@ def generate_report(req : HttpRequest):
 
     file_name = f"Mentorship-Program-statistics-{datetime.now().strftime('%Y.%m.%d.%H.%M.%S')}.xlsx"
 
+    report_logs = workbook.create_sheet("Report Logs")
+    report
+
+
     buffer = BytesIO()
     workbook.save(buffer)
     buffer.seek(0)
@@ -179,6 +183,5 @@ def generate_report(req : HttpRequest):
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
     # response['Refresh'] = '0; url=' + req.path
     return response
-
 
 
