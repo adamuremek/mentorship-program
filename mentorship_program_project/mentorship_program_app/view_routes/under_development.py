@@ -890,7 +890,17 @@ def reject_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
                                         mentee_id=mentee_user_account_id
                                         )
             try:
+                # if a mentee denies the request, send the email to the mentor
+                if mentorship_request.mentee.id == mentorship_request.requester:
+                    send_to = User.objects.get(id=mentorship_request.mentor.id)
+                    email_for_mentorship_rejection(send_to.cls_email_address)
+                # if a mentor denies the request, send the email to the mentee
+                if mentorship_request.mentor.id == mentorship_request.requester:
+                    send_to = User.objects.get(id=mentorship_request.account.id)
+                    email_for_mentorship_rejection(send_to.cls_email_address)
+
                 mentorship_request.delete()
+                
                 return redirect(f"/universal_profile/{User.from_session(req.session).id}")
             except:
                 return bad_request_400("unable to create request!")
@@ -929,6 +939,7 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
             sucessful = None
             try:
                 sucessful = mentorship_request.accept_request(session_user)
+                email_for_mentorship_acceptance(mentor_account.cls_email_address, mentee_account.cls_email_address)
             except ValidationError:
                 #this mentor has max mentees
                 return redirect(f"/universal_profile/{User.from_session(req.session).id}")
@@ -1451,6 +1462,8 @@ def promote_org_admin(req : HttpRequest, promoted_mentor_id):
         mentor_account = Mentor.objects.get(id=user_from_session.id)
         current_org_admin = Organization.objects.get(mentor=mentor_account).admin_mentor
         is_org_admin = current_org_admin == mentor_account
+    else:
+        print(True)
     if not user_from_session.is_super_admin() or not is_org_admin:
         return bad_request_400("Permission denied")
     
@@ -1495,8 +1508,7 @@ def edit_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
     #TODO next of kin for org admin
     mentor_account = Mentor.objects.get(id=mentor_id)
     new_org = Organization.objects.get(id=org_id)
-    mentor_account.organization = new_org
-    mentor_account.save()
+    mentor_account.organization.set([new_org])
     return HttpResponse("Organization updated")
 
 
