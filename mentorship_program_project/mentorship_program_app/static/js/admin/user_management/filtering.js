@@ -65,7 +65,7 @@ function check_cancel_filter()
     }
 }
 
-// Function to toggle the user button between on and off state
+// Function toggles the user button between on and off state
 export function toggle_user_filter(user_input) 
 {
     // Check if user filter is active
@@ -85,7 +85,7 @@ export function toggle_user_filter(user_input)
     }   
 }
 
-// Function to toggle the organization button between on and off state
+// Function toggles the organization button between on and off state
 export function toggle_organization_filter(user_input) 
 {
     // Check if organization is active
@@ -105,7 +105,7 @@ export function toggle_organization_filter(user_input)
     }
 }
 
-// Function to filter user bars for passed input
+// Function filters user bars for passed input
 export function attempt_user_filter(user_input)
 {
     // Check and cancel last filter if needed
@@ -133,7 +133,7 @@ export function attempt_user_filter(user_input)
     }
 }
 
-// Function to filter organization bars for passed input
+// Function filters organization bars for passed input
 export function attempt_organziation_filter(user_input)
 {
     // Check and cancel last filter if needed
@@ -161,11 +161,7 @@ export function attempt_organziation_filter(user_input)
 
     }
 }
-
-
-// PRESSSING A MENTOR MENTEE BUTTON AND BAR FLAG ALREADY IS ACTIVE SHOULD RESET FILTERS
-
-// Function to filter mentee bars for mentee value from passed bar
+// Function filters mentee bars for mentee value from passed bar
 export function attempt_mentor_mentee_filter(user_bar)
 {
     // Check if account is not disabled

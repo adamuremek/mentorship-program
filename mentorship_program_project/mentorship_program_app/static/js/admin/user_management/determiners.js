@@ -7,19 +7,19 @@ const mentor_bars = mentor_bar_container.querySelectorAll(".mentor_management_ba
 // Determine static page elements
 const save_button = document.getElementById("save_button");
 const cancel_button = document.getElementById("cancel_button");
-const add_new_organization_button = document.getElementById("add_new_orgnization");
+const add_new_organization_button = document.getElementById("add_new_organization_button");
 const filter_user_button = document.querySelector("#filter_users_button");
 const filter_organization_button = document.querySelector("#filter_organization_button");
 const user_search_bar = document.querySelector("#user_search_bar");
 const organization_search_bar = document.querySelector("#organization_search_bar");
-const session_user_organization_flag = document.querySelector("#session_user_organization_flag");
+const session_user_admin_flag = document.querySelector("#session_user_admin_flag");
 const user_management_message = document.querySelector(".user_management_message_bar");
 
 // Determine and store organzition elements
 let organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar_container");
 const create_organization_button = document.getElementById("create_organization_button");
 const exit_add_new_organization_button = document.getElementById("exit_add_new_organization_button");
-const add_new_organization_modal = document.querySelector(".admin_user_management_modal");
+const add_new_organization_modal = document.querySelector("#organization-modal");
 const add_new_organization_message_bar = add_new_organization_modal.querySelector(".create_organization_message_bar");
 const add_new_organization_name = add_new_organization_modal.querySelector(".user-input");
 let organization_counter = document.querySelector("#organization_counter");
@@ -165,9 +165,9 @@ export function determine_user_management_message()
 // From page elements
 // Returns values
 // Returns session user organization flag value
-export function determine_session_user_organization_flag()
+export function determine_session_user_admin_flag()
 {
-    return session_user_organization_flag.textContent.trim();
+    return session_user_admin_flag.textContent.trim();
 
 }
 
@@ -330,25 +330,7 @@ export function determine_mentor_mentee(passed_bar)
 
 }
 
-// Returns filter buttons from bars
-export function determine_bar_filter_buttons() 
-{
-    // Initltize list for filter buttons
-    let filter_buttons = [];
 
-    // Determine all mentor bars
-    const mentor_bars = determine_all_mentor_bars();
-
-    // Cycle through mentor bars
-    mentor_bars.forEach(mentor_bar => {
-        // Determine mentee filter button
-        filter_buttons.push(determine_mentor_mentee(mentor_bar));
-
-    });
-
-    return filter_buttons;
-
-}
 
 
 
@@ -391,7 +373,14 @@ export function determine_max_mentees_value(passed_bar)
 
 }
 
-// Returns user id value from passed bar
+// Returns account id value from passed bar
+export function determine_id(passed_bar)
+{
+    return passed_bar.querySelector("#account").textContent.trim();
+
+}
+
+// Returns user id vlaue from passed bar
 export function determine_user_id(passed_bar)
 {
     return passed_bar.querySelector("#user_account").textContent.trim();
@@ -607,11 +596,11 @@ export function determine_if_bars_valid_transfer(organization_bar, passed_bar_1,
 {
     // Determine if passed bar 1 is organization admin and passed bar 2 is not organization admin or if passed bar 1 is not organization admin and passed bar 2 is organization admin
     return ((determine_if_bar_organization_admin(organization_bar, passed_bar_1) && !determine_if_bar_organization_admin(organization_bar, passed_bar_2)) ||
-    (!determine_if_bar_organization_admin(organization_bar, passed_bar_1) & determine_if_bar_organization_admin(organization_bar, passed_bar_2)) );
+    (!determine_if_bar_organization_admin(organization_bar, passed_bar_1) && determine_if_bar_organization_admin(organization_bar, passed_bar_2)) );
 
 }
 
-// Returns value based on if the passed mentor bar and organization bars
+// Returns value based on if the passed mentor bar's organization bar and the passed organization bars match
 export function determine_if_bars_valid_edit_organzation(organitization_bar, mentor_bar)
 {
     // Inintlize return value to false
@@ -691,7 +680,7 @@ export function return_admin_list_all(organitization_bar)
 }
 
 // Cycle through mentee bars and return bar matching mentee id
-export function return_mentee_bar_from_id(user_id)
+export function return_mentee_bar_from_user_id(user_id)
 {
     // Initlize return value as undefined
     let return_bar = undefined;
@@ -702,7 +691,7 @@ export function return_mentee_bar_from_id(user_id)
     // Cycle through mentee bars
     for (let index = 0; index < mentee_bars.length; index++)
     {
-        // Determine user id and mentor from hidden value in passed user bar
+        // Determine id and mentor from hidden value in passed user bar
         const mentee_id = determine_user_id(mentee_bars[index]);
 
         // Check if user id field is the same as passed id
@@ -733,7 +722,40 @@ export function return_mentor_bar_from_id(user_id)
         // Cycle through mentee bars
         for (let index = 0; index < mentor_bars.length; index++)
         {
-            // Determine user id and mentor from hidden value in passed user bar
+            // Determine id and mentor from hidden value in passed user bar
+            const mentor_id = determine_id(mentor_bars[index])
+
+            // Check if user id field is the same as passed id
+            if (user_id == mentor_id)
+            {
+                // Set return bar
+                return_bar = mentor_bars[index];
+
+                // Break loop
+                break;
+
+            }
+        }
+    }
+
+    return return_bar;
+
+}
+
+
+// Cycle through mentor bars and return bars matching user id
+export function return_mentor_bar_from_user_id(user_id)
+{
+    // Initlize return value as undefined
+    let return_bar = undefined;
+
+    // Check if passed id doesn't equal None
+    if (user_id != "None")
+    {
+        // Cycle through mentee bars
+        for (let index = 0; index < mentor_bars.length; index++)
+        {
+            // Determine id and mentor from hidden value in passed user bar
             const mentor_id = determine_user_id(mentor_bars[index])
 
             // Check if user id field is the same as passed id
@@ -767,7 +789,8 @@ export function return_mentee_bars_from_ids(user_ids)
     {
         // Cycle through mentee bars
         mentee_bars.forEach(mentee_bar => {
-            // Determine user id and mentor from hidden value in passed user bar
+            // Determine id and mentor from hidden value in passed user bar
+            // const mentor_id = determine_id(mentee_bar);
             const mentor_id = determine_user_id(mentee_bar);
 
             // Cycle through all passed user ids
@@ -841,7 +864,7 @@ export function determine_if_organization_name_unique(new_organization_name)
 }
 
 // Refresh the determiner variable for all organization bars 
-export function refresh_all_organization_bars()
+export function deteremine_and_refresh_all_organization_bars()
 {
     organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar_container");
 
@@ -866,6 +889,115 @@ export function determine_if_organization_is_empty(passed_organiation)
     return !(admin_bars.length > 0 || mentor_bars.length > 0);
 
 }
+
+// Returns value based on if passed button element is a word
+export function determine_if_word_button(passsed_button)
+{
+    // Checks passed button's class list and check if it has an active or inactive class for word buttons
+    return (passsed_button.classList.contains("admin_user_management_word_button_active") || passsed_button.classList.contains("admin_user_management_word_button_inactive"))
+
+}
+
+// Returns id value based on numbers within id string
+export function determine_id_from_string(id_string)
+{
+    // Replace all letters, spaces, and () char
+    return id_string.replaceAll(/[a-zA-Z ()]*/g,"");
+    
+}
+
+// Return value based on if prev_event is the same event type and user id, Else will return 0
+export function deteremine_if_event_toggle(prev_event, new_event_type, new_event_id)
+{
+    // Initlize return number value to 0
+    let return_flag = 0;
+
+    // Check and set if prev event is the same as the new event
+    if (prev_event.type == new_event_type & prev_event.data == new_event_id)
+    {
+        return_flag = 1;
+    }
+
+    return return_flag;
+}
+
+// Function returns values based on if passed mentor is included in passed mentor bars
+export function determine_if_mentor_included_in_passed_bars(valid_mentor_bars, mentor_bar)
+{
+    // Initilize found flag to 0
+    let found_flag = 0;
+
+    // Cycle through valid mentor bars
+    for (let index = 0; index < valid_mentor_bars.length; index++) 
+    {
+        // Check if passed user bar is same as the valid mentor bar
+        if (mentor_bar == valid_mentor_bars[index])
+        {
+            // Set found flag to 1
+            found_flag = 1;
+
+            break;
+        }
+    }
+
+    return found_flag;
+}
+
+// Function returns filter buttons from bars
+export function determine_bar_filter_buttons() 
+{
+    // Initltize list for filter buttons
+    let filter_buttons = [];
+
+    // Determine all mentor bars
+    const mentor_bars = determine_all_mentor_bars();
+
+    // Cycle through mentor bars
+    mentor_bars.forEach(mentor_bar => {
+        // Determine mentee filter button
+        filter_buttons.push(determine_mentor_mentee(mentor_bar));
+
+    });
+
+    return filter_buttons;
+
+}
+
+
+
+// // Returns value based on if there is not unaffiliated mentors in the mentor bar container
+// export function determine_if_no_unaffiliated_mentors()
+// { 
+//     // Initlize no unaffiliated mentors flag to true
+//     let no_unaffiliated_mentors_flag = true;
+
+//     // Detrmine mentor bars within mentor bar container
+//     const mentor_bars = determine_mentor_bars(mentor_bar_container);
+
+//     // Cycle through mentor bars
+//     for (let index = 0; index < mentor_bars.length; index++) {
+//     // mentor_bars.forEach(mentor_bar => {
+//         // Check if mentor bars bar's parent element class list if it is a oragnization bar
+//         if (mentor_bars[index].parentNode.parentNode.classList.contains("organization_management_bar_container"))
+//         {
+//             // Set no unaffiliated mentors flag to true
+//             no_unaffiliated_mentors_flag = true;
+
+//         }
+//         else 
+//         {
+//             // Set no unaffiliated mentors flag to false
+//             no_unaffiliated_mentors_flag = false;
+
+//             // Break loop
+//             break;
+
+//         }
+//     };
+
+//     return no_unaffiliated_mentors_flag;
+
+// }
 
 
 

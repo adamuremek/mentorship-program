@@ -2,7 +2,6 @@
 import * as event_queue from './event_queue.js';
 import * as filters from './filtering.js';
 import * as detereminers from './determiners.js';
-import * as updaters from './updaters.js';
 
 // Determine and store bar elements
 const mentee_bars = detereminers.determine_all_mentee_bars();
@@ -28,20 +27,21 @@ const add_new_organization_modal = detereminers.determine_add_new_organization_m
 
 
 
+
 // Set save button listener
 save_button.addEventListener('click', event_queue.save_event);
 
 // Set cancel button listener
 cancel_button.addEventListener('click', event_queue.cancel_event);
 
-// // Set add new organization button listener
-// add_new_organization_button.addEventListener('click', function() { updaters.show_add_new_organization_modal(); });
+// Set add new organization button listener
+add_new_organization_button.addEventListener('click', () => { add_new_organization_modal.showModal(); });
 
 // Set create new organization button listner
 create_organization_button.addEventListener('click', function() { event_queue.create_orgnization_event(); });
 
-// // Set exit add new organization button listener
-// exit_add_new_organization_button.addEventListener('click', function() { updaters.hide_add_new_organization_modal(); });
+// Set exit add new organization button listener
+exit_add_new_organization_button.addEventListener("click", () => { add_new_organization_modal.close(); });
 
 // Set up search bar selection to trigger attempt filter methods for users and organziation
 user_search_bar.addEventListener("input", function() { filters.attempt_user_filter(user_search_bar.value); });
@@ -126,8 +126,8 @@ for (let mentor_bar of mentor_bars)
 
     }
 
-    // // Set button listener for decouple button
-    // detereminers.determine_decouple_button(mentor_bar).addEventListener('click', function() { event_queue.decouple_mentor_event(mentor_bar) });
+    // Set button listener for decouple button
+    detereminers.determine_decouple_button(mentor_bar).addEventListener('click', function() { event_queue.decouple_mentor_event(mentor_bar) });
 
 }
 
@@ -145,5 +145,3 @@ for (let organization_bar of organization_bars)
 
     }
 }
-
-alert("JS activatd");

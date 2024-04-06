@@ -87,6 +87,16 @@ urlpatterns = [
    # path('profile_pic/<int:user_id>')
     #=================================================#
 
+            # ROUTES FOR USER MANGAGEMENT PAGE
+    path('create_new_orgnization/<str:org_name>', under_development.admin_create_new_org, name='create new organization'),
+    path('delete_orgnization/<int:org_id>', under_development.admin_delete_org, name='delete organization'),
+    path('edit_mentor_organization/<int:mentor_id>/<int:org_id>', under_development.edit_mentors_org, name='edit mentor organization'),
+    path('promote_organization_admin/<int:promoted_mentor_id>', under_development.promote_org_admin, name='prmote mentor to organization admin'),
+    path('disable_user', under_development.disable_user, name='disable user'),
+    path('enable_user', under_development.enable_user, name='enable user'),
+    path('create_mentorship/<int:mentee_user_account_id>/<int:mentor_user_account_id>', under_development.create_mentorship, name='add mentorship'),
+    path('delete_mentorship/<int:mentee_user_account_id>', under_development.delete_mentorship, name='remove mentorship'),
+
     
     ##RESETTING PASSWORD ROUTE feel free to move to better spot in file - Tanner 🦞
     path("reset_request", under_development.reset_request, name="reset_request"),

@@ -54,8 +54,12 @@
 
     border-radius: 15px;
 
+    width: 40vw;
+    height: 40vh;
+
     /* Below allows modals to be centered in the screen */
-    position: fixed;
+    
+    /* position: fixed; */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -72,8 +76,8 @@
 }
 
 .admin_user_management_modal_container {
-    width: fit-content;
-    height: fit-content;
+    width: 100%;
+    height: 85%;
 
     display: flex;
     flex-direction: column;
@@ -82,6 +86,8 @@
 }
 
 #organization-input {
+    width: 90%;
+
     color: black;
 }
 
@@ -154,15 +160,19 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: center;
 
     border: none;
     width: fit-content;
-    height: 5vw;
+    height: fit-content;
 
     background-color: rgba(128, 128, 128, 0.25);
     border-radius: 15px;
     padding: 0.5%;
     margin: 0.5%;
+
+    width: 13vw;
+    height: 6vh;
 }
 
 .admin_user_management_word_button_inactive {
@@ -291,12 +301,16 @@ input[type="file"] {
 }
 
 #user_account, #user_mentor, #user_mentees, 
-#user_account_disabled, #organization_account, #session_user_flag {
+#user_account_disabled, #organization_account, #session_user_flag,
+#account {
     display: none;
 }
 
 .user_management_bar_name {
     flex-basis: 55%;
+
+    width: 50%;
+    word-break: break-all;
 }
 
 .mentee_counter_container {
@@ -323,23 +337,11 @@ input[type="file"] {
     width: 40%;
 }
 
-#plus_button {
-    /* display: none; */
-}
-
-#remove_button {
-    /* display: none; */
-}
-
-#eye_button {
-
-}
-
-#trashcan_button {
-
-}
-
 @media screen and (max-width: 1000px) {
+    .admin_user_management_word_button_active {
+        height: 8vh;
+    }
+
     .user_board_container {
         width: 46vw;
         margin: 0.5vw;
@@ -350,15 +352,18 @@ input[type="file"] {
     }
 
     #admin_user_management_small_text {
-        font-size: 1.5vw
+        font-size: 1.25vw
+        /* font-size: 1vw; */
     }
     
     #admin_user_management_medium_text {
         font-size: 2.5vw
+        /* font-size: 1.5vw; */
     }
     
     #admin_user_management_large_text {
         font-size: 3.5vw
+        /* font-size: 2vw; */
     }
 
     #search_icon {
@@ -381,6 +386,18 @@ input[type="file"] {
 }
 
 @media screen and (max-width: 600px) {
+    /* .user_board_search_bar_container{
+        flex-direction: column;
+    } */
+
+    .admin_user_management_word_button_active {
+        height: 7vh;
+    }
+
+    .user_board_search_container {
+        flex-direction: column;
+    }
+
     .user_board_container {
         width: 48vw;
         margin: 0.5vw;
@@ -407,20 +424,10 @@ input[type="file"] {
         width: 3vw;
     }
 
-    .mentee_management_bar, .mentor_management_bar {
+    /* .mentee_management_bar, .mentor_management_bar {
         display: inherit;
 
-        /* margin-bottom: 5%;
-        margin-top: 5%;
-        margin-top: 1%;
-        margin-bottom: 1%; */
-    }
-
-    .admin_user_management_button_clear_inactive {
-        /* width: 30%; */
-
-        display: none;
-    }
+    } */
 
     .admin_user_management_button_clear_active {   
         width: 30%;

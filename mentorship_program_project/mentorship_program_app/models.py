@@ -467,6 +467,13 @@ class User(SVSUModelData,Model):
         first_name = self.str_first_name if self.str_first_name != None else " "
         last_name =  self.str_last_name if self.str_last_name != None else " "
         return first_name + " " + last_name
+    
+    def is_an_org_admin(self)->bool:
+        try:
+            self.administered_organizations
+            return True
+        except:
+            return False
 
     def get_recomended_users(self,limit : int =4):
         """
@@ -1000,11 +1007,6 @@ class User(SVSUModelData,Model):
 
         #make sure to remove all MentorShipRequests that are in the database still, since this mentee now has a mentor
         MentorshipRequest.remove_all_from_mentee(mentee_account)
-
-        # record logs
-        # record the mentee since the mentor can be gathered from it later
-        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, 
-                                  specified_user= User.objects.get(id=mentee_user_account_id))
 
         return (mentee_account,mentee_account.mentor)
 
@@ -1859,10 +1861,11 @@ class MentorshipRequest(SVSUModelData,Model):
             
             return False
 
+        # record logs
+        # record the mentee since the mentor can be gathered from it later
         SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
                                   specified_user=mentee.account)
-
-       
+        
         MentorshipRequest.remove_all_from_mentee(mentee)
         print("AHH GOOD")
         return True
@@ -1973,6 +1976,11 @@ class MentorshipRequest(SVSUModelData,Model):
                 mentee_id = int_mentee_user_id,
                 requester = requester_id
             )
+
+            # record logs
+            SystemLogs.objects.create(str_event=SystemLogs.Event.REQUEST_MENTORSHIP_EVENT, 
+                                    specified_user= User.objects.get(id=requester_id))
+
             return mentor_ship_request
         except Exception as e:
             print(e)
