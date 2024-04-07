@@ -1073,8 +1073,8 @@ def delete_mentorship(req: HttpRequest, mentee_user_account_id : int):
     Authors
     -------
     - Andrew P
-    '''
-    print(mentee_user_account_id)
+    - Anthony P. (small fix checking id to checking account for mentee object)
+'''
     mentee = Mentee.objects.get(account_id=mentee_user_account_id)
     mentee.mentor_id = None
     mentee.save()
@@ -1507,9 +1507,11 @@ def promote_org_admin(req : HttpRequest, promoted_mentor_id : int):
     
     # if user is not super admin, check if they're the org admin for the org being changed
     if not user_from_session.is_super_admin():
-        mentor_account = Mentor.objects.get(id=user_from_session.id)
+
+        mentor_account = Mentor.objects.get(account=user_from_session.id)
         current_org_admin = Organization.objects.get(mentor=mentor_account).admin_mentor
         is_org_admin = current_org_admin == mentor_account
+
     else:
         print(True)
     if not user_from_session.is_super_admin() and not is_org_admin:

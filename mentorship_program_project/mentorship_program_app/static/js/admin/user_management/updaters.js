@@ -449,11 +449,17 @@ export function update_all_disable_bar_style_on()
         // Check if user bar is disable
         if (determiners.determine_disabled_value(mentor_bars[index]))
         {
+            // Determine disable and enable button
             disable_button = determiners.determine_disable_button(mentor_bars[index]);
             enable_button = determiners.determine_enable_button(mentor_bars[index]);
 
-            // Switch disable button to enable
-            update_buttons_toggle_off(disable_button, enable_button);
+            // Check if disable and enable button are null
+            if (disable_button != null & enable_button != null)
+            {
+                // Switch disable button to enable
+                update_buttons_toggle_off(disable_button, enable_button);
+
+            }
 
             // Change background color to disabled (grey)
             // .style.background = "darkgray";
@@ -480,6 +486,23 @@ export function update_all_disable_bar_style_on()
         }
     }
     
+}
+
+// Function will cycle through all organization admin
+export function update_all_organization_admin_bars()
+{
+    // Determine all organization bars
+    const organization_bars = determiners.determine_all_organization_bars();
+
+    // Cycle through organization bars
+    organization_bars.forEach(organization_bar => {
+        // Determine mentors within admin list
+        determiners.determine_mentor_bars(determiners.determine_organization_admin_list(organization_bar)).forEach(admin_bar => {
+            // Determine and hide promote organization button
+            update_button_not_showing(determiners.determine_promote_organization_button(admin_bar));
+
+        });
+    });
 }
 
 
@@ -643,7 +666,7 @@ export function update_create_organization(organitization_name, organization_acc
     // Create organization bar name element
     const organization_management_bar_name = document.createElement("div");
     organization_management_bar_name.classList.add("organization_management_bar_name");
-    organization_management_bar_name.id = "admin_user_management_small_text";
+    organization_management_bar_name.id = "admin_user_management_medium_text";
     organization_management_bar_name.innerHTML = organitization_name;
 
     // Attach managment bar name to organization mangement bar

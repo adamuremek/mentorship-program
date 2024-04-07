@@ -15,7 +15,7 @@
         </div>
 
         <div id="session_user_flag">
-            {% if mentor.id == session_user_account %}
+            {% if mentor.account.account == session_user_account %}
                 1
             {% else %}
                 0
@@ -46,24 +46,6 @@
             <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
         </button>
 
-        {% if not mentor.deactivated %}
-            <button class="admin_user_management_button_clear_active" id="trashcan_button" title="Disable account">
-                <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
-            </button>
-
-            <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button" title="Enable account">
-                <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
-            </button>
-        {% else %}
-            <button class="admin_user_management_button_clear_inactive" id="trashcan_button" title="Disable account">
-                <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
-            </button>
-
-            <button class="admin_user_management_button_clear_active" id="trashcan_off_button" title="Enable account">
-                <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
-            </button>
-        {% endif %}
-
         {% if organization.id %}
             <button class="admin_user_management_button_clear_active" id="organization_promote_button" title="Promote to organization admin">
                 <img class="user_management_icon" src="{% static 'images/icons/arrow-up-icon.png' %}">
@@ -74,22 +56,44 @@
             </button>
         {% endif %}
 
-        <button class="admin_user_management_button_clear_active" id="edit_organization_button" title="Edit organization">
-            <img class="user_management_icon" src="{% static 'images/icons/pencil-icon.png' %}">
-        </button>
-
         {% if user_admin_flag %}
-            <button class="admin_user_management_button_clear_active" id="transfer_role_super_admin_button" title="Transfer roles">
-                <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
+            {% if not mentor.deactivated %}
+                <button class="admin_user_management_button_clear_active" id="trashcan_button" title="Disable account">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+                </button>
+
+                <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button" title="Enable account">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+                </button>
+            {% else %}
+                <button class="admin_user_management_button_clear_inactive" id="trashcan_button" title="Disable account">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+                </button>
+
+                <button class="admin_user_management_button_clear_active" id="trashcan_off_button" title="Enable account">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+                </button>
+            {% endif %}
+
+            <button class="admin_user_management_button_clear_active" id="edit_organization_button" title="Edit organization">
+                <img class="user_management_icon" src="{% static 'images/icons/pencil-icon.png' %}">
             </button>
-        {% elif user_organization_admin_flag and mentor.id != session_user_account %}
-            <button class="admin_user_management_button_clear_active" id="transfer_role_organization_admin_button" title="Transfer own role">
-                <img class="user_management_icon" src="{% static 'images/icons/transfer-icon-alt.png' %}">
-            </button>
-        {% elif user_organization_admin_flag and mentor.id == session_user_account %}
-            <button class="admin_user_management_button_clear_inactive" id="transfer_role_organization_admin_button" title="Transfer own role">
-                <img class="user_management_icon" src="{% static 'images/icons/transfer-icon-alt.png' %}">
-            </button>
+        
+            {% if mentor.account.account != session_user_account %}
+                <button class="admin_user_management_button_clear_active" id="transfer_role_super_admin_button" title="Transfer roles">
+                    <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
+                </button>
+            {% endif %}
+        {% elif user_organization_admin_flag %}
+            {% if mentor.account.account == session_user_account %}
+                <button class="admin_user_management_button_clear_inactive" id="transfer_role_organization_admin_button" title="Transfer own role">
+                    <img class="user_management_icon" src="{% static 'images/icons/transfer-icon-alt.png' %}">
+                </button>
+            {% else %}
+                <button class="admin_user_management_button_clear_active" id="transfer_role_organization_admin_button" title="Transfer own role">
+                    <img class="user_management_icon" src="{% static 'images/icons/transfer-icon-alt.png' %}">
+                </button>
+            {% endif %}
         {% endif %}
 
         {% if organization.id %}

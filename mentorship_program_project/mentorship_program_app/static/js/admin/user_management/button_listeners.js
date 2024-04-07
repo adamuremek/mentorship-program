@@ -34,14 +34,18 @@ save_button.addEventListener('click', event_queue.save_event);
 // Set cancel button listener
 cancel_button.addEventListener('click', event_queue.cancel_event);
 
-// Set add new organization button listener
-add_new_organization_button.addEventListener('click', () => { add_new_organization_modal.showModal(); });
+// Check if create new organization button is null
+if (add_new_organization_button != null)
+{
+    // Set add new organization button listener
+    add_new_organization_button.addEventListener('click', () => { add_new_organization_modal.showModal(); });
 
-// Set create new organization button listner
-create_organization_button.addEventListener('click', function() { event_queue.create_orgnization_event(); });
+    // Set create new organization button listner
+    create_organization_button.addEventListener('click', function() { event_queue.create_orgnization_event(); });
 
-// Set exit add new organization button listener
-exit_add_new_organization_button.addEventListener("click", () => { add_new_organization_modal.close(); });
+    // Set exit add new organization button listener
+    exit_add_new_organization_button.addEventListener("click", () => { add_new_organization_modal.close(); });
+}
 
 // Set up search bar selection to trigger attempt filter methods for users and organziation
 user_search_bar.addEventListener("input", function() { filters.attempt_user_filter(user_search_bar.value); });
@@ -98,18 +102,15 @@ for (let mentor_bar of mentor_bars)
         detereminers.determine_enable_button(mentor_bar).addEventListener('click', function() { event_queue.reable_event(mentor_bar) });
     }
 
-    // // Check if there super promote button 
-    // if (detereminers.determine_promote_super_button(mentor_bar) != null)
-    // {
-    //     // Set button listner for super promote button
-    //     detereminers.determine_promote_super_button(mentor_bar).addEventListener('click', function() { event_queue.promote_super_mentor_event(mentor_bar) });
-    // }
-
     // Set button listener for organization promote button
     detereminers.determine_promote_organization_button(mentor_bar).addEventListener('click', function() { event_queue.promote_mentor_organization_admin_event(mentor_bar) });
 
-    // Set button listener for edit organization button
-    detereminers.determine_edit_organization_button(mentor_bar).addEventListener('click', function() { event_queue.edit_organization_mentor_event(mentor_bar) } );
+    // Check if there is edit organization button
+    if (detereminers.determine_edit_organization_button(mentor_bar) != null)
+    {
+        // Set button listener for edit organization button
+        detereminers.determine_edit_organization_button(mentor_bar).addEventListener('click', function() { event_queue.edit_organization_mentor_event(mentor_bar) } );
+    }
 
     // Check if there is transfer role super admin button
     if (detereminers.determine_transfer_role_super_admin_button(mentor_bar) != null)

@@ -95,7 +95,9 @@
         <div class="user_board_button_container">
             <button class="admin_user_management_button" id="save_button" title="Save events">Save</button>
             <button class="admin_user_management_button" id="cancel_button" title="Cancel events">Cancel</button>
-            <button class="admin_user_management_button" id="add_new_organization_button" title="Open create organization panel">Create New Organization</button>
+            {% if user_admin_flag %}
+                <button class="admin_user_management_button" id="add_new_organization_button" title="Open create organization panel">Create New Organization</button>
+            {% endif %}
         </div>
     </div>
 
