@@ -110,8 +110,8 @@ def dashboard(req):
                 'is_requested_by_session','str_last_name' #make sure all mentors who we can cancel get displayed up top
         )
 
-    users = [user.sanitize_black_properties() for user in card_data]
-    session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
+        users = [user.sanitize_black_properties() for user in card_data]
+        session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
 
     if opposite_role == "Mentee":
 
