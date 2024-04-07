@@ -47,6 +47,7 @@ def global_nav_data(req):
     if authenticated:
         session_user = User.from_session(req.session)
         context['user'] = session_user
+        context['org_admin'] = session_user.is_an_org_admin()
 
     return context
 

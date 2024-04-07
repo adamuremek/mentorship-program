@@ -81,6 +81,13 @@
                         </li>
                         {% endif %}
                     {% endif %}
+
+                    {% if org_admin == True %}
+                        <li>
+                            <a href="{% url 'admin_user_management' %}">User Management</a>
+                        </li>
+                    {% endif %}
+
                     <hr class="section-divider">
                     <li>
                         <a href="{% url 'change_settings' %}">
@@ -128,6 +135,12 @@
                         </li>
                         {% endif %}
                     {% endif %}
+
+                    {% if org_admin == True %}
+                        <li>
+                            <a href="{% url 'admin_user_management' %}">User Management</a>
+                        </li>
+                    {% endif %}
                     <!-- user-icon with click event to control sidebar -->
                     <li class="account-menu-btn" id="menu-btn-pnav">
                         <a href="#">
@@ -136,7 +149,7 @@
                             </svg>
                         </a>
                     </li>
-
+                </ul>
 
             {% elif authenticated == False %}
                 <ul class="mobile-navbar">
