@@ -339,13 +339,21 @@ def get_mentor_data_from_mentor(mentor : 'Mentor',session_user : 'User')->dict:
     return mentor_data
 
 def admin_user_management(request):
-
+    '''
+    Modified: 04/06/2024 Tanner K.
+    -   Added functionality for org admins to access page. Primary change is organization 
+        creation is directly tied to the boolean bl_user_org_admin and an if/elif block. 
+    '''
+    
     template = loader.get_template('admin/user_management.html')
     session_user = User.from_session(request.session)
 
     # Create storge for list
     organizations = []
     mentees = []
+
+    # Create var for checking if user is org admin
+    bl_user_org_admin = False
 
     # Load from database based on role
     # Check if user is an admin
@@ -361,11 +369,54 @@ def admin_user_management(request):
         print_debug("hello from the organization admin side of things UwU")
         # TODO NEED TO SET UP TO GET ONLY DATA THAT IS NEEDED FOR THAT ORG, ONLY MENTORS WITHIN ORG AND METEES REALTED TO THEM
         # MAYBE FILTER MENTORS BY ORG AND METEES BY MENTORS WITHIN ORG
+        
+        bl_user_org_admin = True
 
         # Get all mentee data, only the admin's organization, and mentor data from within the organization
         user_management_mentee_data = Mentee.objects
         user_management_mentor_data = Mentor.objects
+        
+        # return HttpResponse(organization, mentees_with_mentors_in_organization)
 
+    else:
+        return bad_request_400("Access Denied")
+
+    # Run if the user is not an org admin (i.e. a super-admin)
+    if not bl_user_org_admin: 
+        orgs = Organization.objects.all().select_related(
+                                                    "admin_mentor"
+                                        ).prefetch_related(
+                                                            "mentor_set",
+                                                            "mentor_set___mentee_set",
+                                                            "mentor_set__account",
+                                                            "mentor_set___mentee_set__account",
+                                                            "mentor_set__administered_organizations"
+                                                            )
+        # Cycle through organizations
+        for organization in orgs:
+            # Inizilize empty list for mentors and admins
+            org_admin = None
+            mentor_list = []
+
+            if organization.admin_mentor != None:
+                org_admin = get_mentor_data_from_mentor(organization.admin_mentor,session_user)
+
+            organizations.append(
+                {
+                    'organization': organization,
+                    'id': str(organization),
+                    'name': organization.str_org_name,
+                    'admin_list': [org_admin] if org_admin != None else [], #this def does not need to be a list now
+                                                                            #unless we want to re-listify admins which we could do
+                    'mentor_list':  [
+                                                get_mentor_data_from_mentor(m,session_user) for m in 
+                                                organization.mentor_set.all() 
+                                                if org_admin == None or organization.admin_mentor.id != m.id
+                                    ]
+                }
+            )
+    # Run if the user is an org admin
+    elif bl_user_org_admin:
         #TODO: you can be admin of more than one organization so get will error since it expects a single return value,
         #this should be a filter instead of a git, ill chage it if I get to it in time with optimization, but ima leave this note
         #here for others or incase I forget -dk
@@ -373,27 +424,9 @@ def admin_user_management(request):
         mentees_with_mentors_in_organization = Mentee.objects.filter(mentor__organization=organization)
 
         user_management_organizations_data = organization
-        
-        return HttpResponse(organization, mentees_with_mentors_in_organization)
 
-    else:
-        return bad_request_400("Access Denied")
-
-    orgs = Organization.objects.all().select_related(
-                                                "admin_mentor"
-                                    ).prefetch_related(
-                                                        "mentor_set",
-                                                        "mentor_set___mentee_set",
-                                                        "mentor_set__account",
-                                                        "mentor_set___mentee_set__account",
-                                                        "mentor_set__administered_organizations"
-                                                        )
-    # Cycle through organizations
-    for organization in orgs:
-        # Inizilize empty list for mentors and admins
         org_admin = None
-        mentor_list = []
-        
+
         if organization.admin_mentor != None:
             org_admin = get_mentor_data_from_mentor(organization.admin_mentor,session_user)
 
