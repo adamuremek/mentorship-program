@@ -15,7 +15,7 @@
         </div>
 
         <div id="session_user_flag">
-            {% if mentee.id == session_user_account %}
+            {% if mentor.account.account == session_user_account %}
                 1
             {% else %}
                 0
@@ -35,7 +35,7 @@
         </p>
 
     </div>
-    
+
     <div class="mentee_management_bar" >
         {% if not mentee.mentor %}
             <button class="admin_user_management_button_clear_active" id="plus_button" title="Add mentor">

@@ -283,16 +283,27 @@ function attempt_decouple_mentor(mentor_id, orgaization_id)
 */
 async function execute_request(request_array)
 {
+	// Inintlizae valid flag to true
+	let valid_flag = true;
+
 	// Cycles through passed request array and exeuctes them in order
 	for (let index = 0; index < request_array.length; index++) {
 
-		// TODO TESTING REMOVE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		console.log(request_array[index]);
-		
-		// Fetch request and wait for response
-		await fetch(request_array[index]);
+		// Determine response to request
+		let response = await fetch(request_array[index]);
 
+		// Fetch request and wait for response
+		if (String(response.status) != "200")
+		{
+			// Update valid flag to false
+			valid_flag = false;
+			
+			break;
+		}
 	}
+
+	return valid_flag;
+
 }
 
 

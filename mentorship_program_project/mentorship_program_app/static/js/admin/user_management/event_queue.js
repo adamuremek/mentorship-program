@@ -90,12 +90,14 @@ let valid_mentor_bars = []
 // Style disabled users bars
 updaters.update_all_disable_bar_style_on();
 
+// Style admin bars to remove promote to organization admin button
+updaters.update_all_organization_admin_bars();
+
 // Update valid and invalid mentors
-valid_mentor_bars = determiners.return_updated_mentor_list()
+valid_mentor_bars = determiners.return_updated_mentor_list();
 
 // Create queues for events 
 const event_queue = new queue;
-
 const execution_queue = new Array;
 
 // Sort all bar elements
@@ -410,30 +412,24 @@ function check_cancel_event()
             cancel_add_mentor_event();
 
         }
-
         // Check if remove event is in progress and last event is a remove mentor event
-        if (remove_mentor_flag & event_queue.peek_end().type == EVENT_TYPES.REMOVE_MENTOR_MENTEE)
+        else if (remove_mentor_flag & event_queue.peek_end().type == EVENT_TYPES.REMOVE_MENTOR_MENTEE)
         {
             cancel_remove_mentor_event();
 
         }
-        
-
         // Check if edit organization is in progess and last event is a edit organization mentor event
-        if (edit_organization_flag & event_queue.peek_end().type == EVENT_TYPES.EDIT_ORGANIZATION_MENTOR)
+        else if (edit_organization_flag & event_queue.peek_end().type == EVENT_TYPES.EDIT_ORGANIZATION_MENTOR)
         {
             cancel_edit_organization_event();
 
         }
-    
-
         // Check if transfer role is in progress and last event is a transfer role super first event
-        if (transfer_role_flag & event_queue.peek_end().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST)
+        else if (transfer_role_flag & event_queue.peek_end().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST)
         {
             cancel_transfer_role_event();
 
         }
-        
     }
 }
 
@@ -813,7 +809,7 @@ function transfer_role_event(user_bar)
 // Exported event functions
 // Function will cancel in progress event creation, attempt to execute events in event queue, if valid then will update user management page
 // message to successful save message, else will update user management message to unsucessful save message and remove and queue elements.
-export function save_event()
+export async function save_event()
 {
     // Intintlize valid flag to false
     let valid_flag = false;
@@ -830,9 +826,18 @@ export function save_event()
         // Set valid flag to true 
         valid_flag = true;
 
-        // Execute request queue
+        // Set valid flag execute request queue value
         // TODO TESTING UNCOMMENT WHEN READY TO EXECUTE
-        execute_request(execution_queue);
+        valid_flag = await execute_request(execution_queue);
+
+        // Check if not valid reponse
+        if (!valid_flag)
+        {
+            // Create and store error event in queue
+            event_queue.enqueue("Database error", "Invalid request to database");
+
+        }
+
     }
 
     // Check if valid execution
@@ -1482,9 +1487,6 @@ export function decouple_mentor_event(user_bar)
     // Create and store decouple organization event in queue
     event_queue.enqueue(EVENT_TYPES.DECOUPLE_MENTOR, user_id);
     event_queue.enqueue(EVENT_TYPES.DECOUPLE_ORGANIZATION, organization_id);
-
-    // Removes mentor from organization
-    alert("decouple");
 
 }
 

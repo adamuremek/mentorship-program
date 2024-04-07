@@ -356,6 +356,16 @@ def admin_user_management(request):
         user_management_mentor_data = Mentor.objects
         user_management_organizations_data = Organization.objects
 
+        orgs = user_management_organizations_data.select_related(
+                                            "admin_mentor"
+                                ).prefetch_related(
+                                                    "mentor_set",
+                                                    "mentor_set___mentee_set",
+                                                    "mentor_set__account",
+                                                    "mentor_set___mentee_set__account",
+                                                    "mentor_set__administered_organizations"
+                                                    )
+
     # Check if user is an organization admin
     elif (session_user.is_an_org_admin()):
         print_debug("hello from the organization admin side of things UwU")
@@ -363,31 +373,26 @@ def admin_user_management(request):
         # MAYBE FILTER MENTORS BY ORG AND METEES BY MENTORS WITHIN ORG
 
         # Get all mentee data, only the admin's organization, and mentor data from within the organization
-        user_management_mentee_data = Mentee.objects
-        user_management_mentor_data = Mentor.objects
+        # user_management_mentee_data = Mentee.objects
+        # user_management_mentor_data = Mentor.objects
 
         #TODO: you can be admin of more than one organization so get will error since it expects a single return value,
         #this should be a filter instead of a git, ill chage it if I get to it in time with optimization, but ima leave this note
         #here for others or incase I forget -dk
         organization = Organization.objects.get(admin_mentor_id=session_user.mentor)
-        mentees_with_mentors_in_organization = Mentee.objects.filter(mentor__organization=organization)
+        user_management_mentee_data = Mentee.objects.filter(mentor__organization=organization)
+        user_management_mentor_data = Mentor.objects.filter(organization=organization)
 
         user_management_organizations_data = organization
-        
-        return HttpResponse(organization, mentees_with_mentors_in_organization)
+
+        orgs = [organization]
+
+        # return HttpResponse(organization, mentees_with_mentors_in_organization)
 
     else:
         return bad_request_400("Access Denied")
 
-    orgs = Organization.objects.all().select_related(
-                                                "admin_mentor"
-                                    ).prefetch_related(
-                                                        "mentor_set",
-                                                        "mentor_set___mentee_set",
-                                                        "mentor_set__account",
-                                                        "mentor_set___mentee_set__account",
-                                                        "mentor_set__administered_organizations"
-                                                        )
+
     # Cycle through organizations
     for organization in orgs:
         # Inizilize empty list for mentors and admins
@@ -421,30 +426,20 @@ def admin_user_management(request):
             'id': str(mentee),
             'mentor': mentee.mentor
         })
-        
-#   for mentor in Mentor.objects.all():
-#         print(mentor.account.str_first_name + mentor.account.str_last_name + ", " + str(mentor))
-
-#     for org in Organization.objects.all():
-#         print(org.str_org_name + ", " + str(org))  
-        
-    # user = User.objects.get(id=187)
-    # print(user.str_first_name + " " + user.str_last_name + ", " + str(user))
-    # print(user.bln_account_disabled)
 
     context = {
         'mentees': mentees,
         'unaffiliated_mentors': [
                                     get_mentor_data_from_mentor(m,session_user) for m in 
                                     
-                                    Mentor.objects.annotate(org_count=Count("organization")).filter(org_count=0).prefetch_related(
+                                    user_management_mentor_data.annotate(org_count=Count("organization")).filter(org_count=0).prefetch_related(
                                         "mentee_set","account","mentee_set__account"
                                         )
                                  ],
         'organizations': organizations,
         'role': session_user.str_role,
 
-        'session_user_account': str(session_user),
+        'session_user_account': session_user,
         'organization_counter': Organization.objects.count(),
 
         'user_admin_flag': session_user.is_super_admin(),

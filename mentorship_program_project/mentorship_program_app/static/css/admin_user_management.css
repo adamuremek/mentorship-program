@@ -87,6 +87,10 @@
     align-items: center;
 }
 
+#create_organization_button {
+    width: 90%;
+}
+
 #organization-input {
     width: 90%;
 
