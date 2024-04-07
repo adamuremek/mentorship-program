@@ -70,8 +70,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_interests = document.getElementById('interests')
 
     const btn_user_agree = document.getElementById('btnUserAgree')
-    
-    const warning_message = document.getElementById('must-accept-agreement-error')
+
+    const agreement_warning_message = document.getElementById('must-accept-agreement-error')
     const first_name_warning_message = document.getElementById('frm-first-name-warning-message')
     const last_name_warning_message = document.getElementById('frm-last-name-warning-message')
     const email_warning_message = document.getElementById('frm-email-warning-message')
@@ -383,7 +383,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     document.getElementById('register-form-mentee').submit()
                 else 
                 {
-                    warning_message.innerText = "You must accept the user agreement\
+                    agreement_warning_message.innerText = "You must accept the user agreement\
                     in order to register."
                 } 
                 break
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     document.getElementById('register-form-mentor').submit()
                 else
                 {
-                    warning_message.innerText = "You must accept the user agreement\
+                    agreement_warning_message.innerText = "You must accept the user agreement\
                     in order to register."
                 } 
                 break

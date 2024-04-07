@@ -251,6 +251,11 @@ textarea[readonly] {
     outline: none; /* Remove default focus outline */
 }
 
+textarea::placeholder{
+    color: var(--clr-font-secondary);
+    opacity: 0.6;
+}
+
 input:read-only {
     outline: none; /* Remove default focus outline */
 }
