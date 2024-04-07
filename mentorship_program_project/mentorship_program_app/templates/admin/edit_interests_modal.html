@@ -1,0 +1,76 @@
+{% load static %}
+
+<dialog class="modal" id="interests-modal">
+    <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
+
+    <div class="modal-container">
+        <form id="note-form" action="{% url 'update_interests' %}" class="frm-note-creator" method="post">
+            {% csrf_token %}
+            
+            <div id="modal_interests" class="container">
+                <h3 class="heading">Interests:</h3>
+                {% for interest in interests %}
+                    <input type="text" value="{{ interest.strInterest }}" class="interest-input user-input">
+                    <button type="button" class="btn-remove-interest">&#10007;</button>
+                {% endfor %}
+            </div>
+            
+            <div class="container">
+                <h3 class="heading">Add Interest:</h3>
+                <input type="text" id="new_interest" value="{{ interest }}" class="user-input">
+                <button type="button" id="btn-add-interest">+</button>
+            </div>
+            <button type="submit" class="btn-modal-submit" id="btn-update-interests">Apply Changes</button>
+        </form>
+    </div>
+
+</dialog>
+
+<script>
+    const btn_add_interest = document.getElementById('btn-add-interest')
+    let list_input_interest = document.getElementsByClassName('interest-input')
+    let list_btn_remove_interest = document.getElementsByClassName('btn-remove-interest')
+
+    if(list_btn_remove_interest)
+    for (let idx = 0; idx < list_btn_remove_interest.length; idx++) 
+    {
+        const input = list_input_interest[idx]
+        const button =  list_btn_remove_interest[idx]
+        list_btn_remove_interest[idx].addEventListener('click', () => 
+        {
+            input.remove()
+            button.remove()
+        })
+    }
+    
+    
+    btn_add_interest.addEventListener('click', () => {
+        const input_interest = document.getElementById('new_interest')
+        if(input_interest.value.length > 1) {
+            const interest_list = document.getElementById('modal_interests')
+            
+            // Create new input element
+            const input = document.createElement('input');
+            input.setAttribute('type', 'text');
+            input.setAttribute('class', 'interest-input user-input');
+            input.value = input_interest.value // set input value
+            input_interest.value = ''
+
+            
+            // Create new button element
+            const button = document.createElement('button');
+            button.setAttribute('type', 'button');
+            button.setAttribute('class', 'btn-remove-interest');
+            button.innerHTML = '&#10007;'; // 'X' symbol
+            button.addEventListener('click', () => 
+            {
+                button.remove()
+                input.remove()
+            })
+            
+            // Append input and button to the container
+            interest_list.appendChild(input);
+            interest_list.appendChild(button);
+        }
+    })
+</script>

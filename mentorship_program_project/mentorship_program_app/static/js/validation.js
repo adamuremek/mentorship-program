@@ -70,8 +70,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_interests = document.getElementById('interests')
 
     const btn_user_agree = document.getElementById('btnUserAgree')
-    
-    const warning_message = document.getElementById('must-accept-agreement-error')
+
+    const agreement_warning_message = document.getElementById('must-accept-agreement-error')
     const first_name_warning_message = document.getElementById('frm-first-name-warning-message')
     const last_name_warning_message = document.getElementById('frm-last-name-warning-message')
     const email_warning_message = document.getElementById('frm-email-warning-message')
@@ -324,20 +324,18 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             const lowercaseRegex = /[a-z]/;
             const numberRegex = /[0-9]/;
             const symbolRegex = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
-          
+            const emojiRegex = /([\u{1F600}-\u{1F64F}|\u{1F300}-\u{1F5FF}|\u{1F680}-\u{1F6FF}|\u{1F700}-\u{1F77F}|\u{1F780}-\u{1F7FF}|\u{1F800}-\u{1F8FF}|\u{1F900}-\u{1F9FF}|\u{1FA00}-\u{1FA6F}|\u{1FA70}-\u{1FAFF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}|\u{231A}-\u{231B}|\u{23E9}-\u{23EC}|\u{23F0}|\u{23F3}|\u{25FD}-\u{25FE}|\u{2614}-\u{2615}|\u{2648}-\u{2653}|\u{267F}|\u{2693}|\u{26A1}|\u{26AA}-\u{26AB}|\u{26BD}-\u{26BE}|\u{26C4}-\u{26C5}|\u{26CE}|\u{26D4}|\u{26EA}-\u{26EB}|\u{26F2}-\u{26F3}|\u{26F5}|\u{26FA}|\u{26FD}|\u{2705}|\u{270A}-\u{270B}|\u{2728}|\u{274C}|\u{274E}|\u{2753}-\u{2755}|\u{2757}|\u{2795}-\u{2797}|\u{27B0}|\u{27BF}|\u{2934}-\u{2935}|\u{2B05}-\u{2B07}|\u{2B1B}-\u{2B1C}|\u{2B50}|\u{2B55}|\u{3030}|\u{303D}|\u{3297}|\u{3299}|\u{FE0F}|\u{200D}|\u{20E3}|\u{E0020}-\u{E007F}]+|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]|\uD83D[\uDE80-\uDEFF])/gu;
             if (
               !uppercaseRegex.test(input_password.value) ||
               !lowercaseRegex.test(input_password.value) ||
               !numberRegex.test(input_password.value) ||
-              !symbolRegex.test(input_password.value)
+              !symbolRegex.test(input_password.value) ||
+              emojiRegex.test(input_password.value)
             ) {
               return false;
             }
           
             return true;
-          
-          
-          
     }
 
      async function email_already_exist(email){
@@ -385,7 +383,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     document.getElementById('register-form-mentee').submit()
                 else 
                 {
-                    warning_message.innerText = "You must accept the user agreement\
+                    agreement_warning_message.innerText = "You must accept the user agreement\
                     in order to register."
                 } 
                 break
@@ -421,7 +419,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     document.getElementById('register-form-mentor').submit()
                 else
                 {
-                    warning_message.innerText = "You must accept the user agreement\
+                    agreement_warning_message.innerText = "You must accept the user agreement\
                     in order to register."
                 } 
                 break
@@ -458,6 +456,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
     async function display_error_message_for_email_phone_password(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
+        const emojiRegex = /([\u{1F600}-\u{1F64F}|\u{1F300}-\u{1F5FF}|\u{1F680}-\u{1F6FF}|\u{1F700}-\u{1F77F}|\u{1F780}-\u{1F7FF}|\u{1F800}-\u{1F8FF}|\u{1F900}-\u{1F9FF}|\u{1FA00}-\u{1FA6F}|\u{1FA70}-\u{1FAFF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}|\u{231A}-\u{231B}|\u{23E9}-\u{23EC}|\u{23F0}|\u{23F3}|\u{25FD}-\u{25FE}|\u{2614}-\u{2615}|\u{2648}-\u{2653}|\u{267F}|\u{2693}|\u{26A1}|\u{26AA}-\u{26AB}|\u{26BD}-\u{26BE}|\u{26C4}-\u{26C5}|\u{26CE}|\u{26D4}|\u{26EA}-\u{26EB}|\u{26F2}-\u{26F3}|\u{26F5}|\u{26FA}|\u{26FD}|\u{2705}|\u{270A}-\u{270B}|\u{2728}|\u{274C}|\u{274E}|\u{2753}-\u{2755}|\u{2757}|\u{2795}-\u{2797}|\u{27B0}|\u{27BF}|\u{2934}-\u{2935}|\u{2B05}-\u{2B07}|\u{2B1B}-\u{2B1C}|\u{2B50}|\u{2B55}|\u{3030}|\u{303D}|\u{3297}|\u{3299}|\u{FE0F}|\u{200D}|\u{20E3}|\u{E0020}-\u{E007F}]+|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]|\uD83D[\uDE80-\uDEFF])/gu;
 
         if (input_password.value.length == 0) {
             password_warning_message.innerText = "Password cannot be blank!";
@@ -465,7 +464,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             password_warning_message.innerText = "Password must be 12 or more characters.";
         } else if (input_password.value.length > 36) {
             password_warning_message.innerText = "Password must be 36 or fewer characters.";
-        } else if (!/[A-Z]/.test(input_password.value) || !/[a-z]/.test(input_password.value) || !/[0-9]/.test(input_password.value) || !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(input_password.value)) {
+        } else if (!/[A-Z]/.test(input_password.value) || !/[a-z]/.test(input_password.value) || !/[0-9]/.test(input_password.value) || !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(input_password.value) || emojiRegex.test(input_password.value)) {
             password_warning_message.innerText = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.";
         } else {
             password_warning_message.innerText = "";

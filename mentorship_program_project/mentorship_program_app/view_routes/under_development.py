@@ -112,6 +112,23 @@ decorator is typically only used on route callback functions \
 that need one or more of its body's string values verified."
 
 def __validate_request_body(req_callback: Callable, *body_args: str, **kwargs) -> Callable:
+    '''
+    Description
+    -----------
+    
+    This is a decorator function that is used with callback routes receiveding a POST request
+    and verifies the values of data keys passed in with the post request
+
+    Example Usage
+    -------------
+
+    *see "validate_request_body" decorator below
+
+    Authors
+    -------
+    Adam U.
+    '''
+    
     def wrapper(*args,**kwargs):
         #The calling function should have at least one argument.
         if len(args) < 1:
@@ -136,7 +153,7 @@ def __validate_request_body(req_callback: Callable, *body_args: str, **kwargs) -
             #Validate each parameter's value
             for value in body_dict.values():
                 err_mssg = is_ascii(value)
-                err_mssg = contains_sql_injection_risk(value)
+                #err_mssg = contains_sql_injection_risk(value)
                 
                 if err_mssg != "":
                     return bad_request_400(f"{err_mssg} | problem_string: {value}")
@@ -146,6 +163,31 @@ def __validate_request_body(req_callback: Callable, *body_args: str, **kwargs) -
     return wrapper
 
 def validate_request_body(*args: str,**kwargs):
+    '''
+    Description
+    -----------
+    Wrapper decorator for the main validation decorator
+
+    Parameters
+    ----------
+
+    folded string list: a parameter list of POST request data keys as strings whose values neeed to be checked
+
+    Example Usage
+    -------------
+
+    @validate_request_body("key1", "key2")
+    def route(req: HttpRequest):
+        --content--
+
+    *when the route is called, the keys' data will be validated based on conditions set in the decorator
+    and will return a 400 error if the validation fails*
+
+    
+    Authors
+    -------
+    Adam U.
+    '''
     return lambda func: __validate_request_body(func, *args,**kwargs)
 
 @validate_request_body("fname", "lname", "pronouns", "email", "phone-number", "password")
@@ -718,45 +760,6 @@ def view_mentor_by_admin(req: HttpRequest):
 
 
 @security.Decorators.require_login(bad_request_400)
-def group_view(req: HttpRequest):
-    template = loader.get_template('group_view/mentor_group_view.html')
-    signed_in_user = User.from_session(req.session)
-    mentor_id = req.POST["id"]
-    # the user object for the page owner
-    page_owner_user = User.objects.get(id=mentor_id)
-    # the mentor object for the page owner 
-    page_owner_mentor = page_owner_user.mentor
-
-    organization = page_owner_mentor.organization.get(mentor=page_owner_mentor).str_org_name
-
-    interests = page_owner_user.interests.filter(user=page_owner_user)
-
-    is_page_owner = signed_in_user == page_owner_user
-
-    user_interests = []
-    for interest in interests:
-        user_interests.append(interest.strInterest)
-
-    # had to preform a ritual to get this to work
-    # give me the big bucks
-    # honestly a christmas miracle this works, wowza
-    # DO NOT TOUCH, ITS DANGEROUS
-    mentees_for_mentor = page_owner_mentor.mentee_set.all()
-    mentees_users_accounts = [mentee.account for mentee in mentees_for_mentor]
-
-
-
-    context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
-               "is_page_owner": is_page_owner,
-               "page_owner_user":page_owner_user,
-               "page_owner_mentor" : page_owner_mentor,
-               "organization": organization,
-               "interests": user_interests,
-               "mentees" : mentees_users_accounts
-               }
-    return HttpResponse(template.render(context,req))
-
-@security.Decorators.require_login(bad_request_400)
 def universalProfile(req : HttpRequest, user_id : int):
     '''
     Parameters
@@ -837,7 +840,7 @@ def universalProfile(req : HttpRequest, user_id : int):
             mentees_or_mentor.append(User.objects.get(id=mentee.mentor.account_id))
         except Exception:
             mentees_or_mentor = None
-       
+        
         for pending in pendingRequests:
             if pending.mentee_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentor_id))
@@ -890,14 +893,10 @@ def reject_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
                                         mentee_id=mentee_user_account_id
                                         )
             try:
-                # if a mentee denies the request, send the email to the mentor
-                if mentorship_request.mentee.id == mentorship_request.requester:
-                    send_to = User.objects.get(id=mentorship_request.mentor.id)
-                    email_for_mentorship_rejection(send_to.cls_email_address)
-                # if a mentor denies the request, send the email to the mentee
-                if mentorship_request.mentor.id == mentorship_request.requester:
-                    send_to = User.objects.get(id=mentorship_request.account.id)
-                    email_for_mentorship_rejection(send_to.cls_email_address)
+                # send a declined email to whoever requested the mentorship
+                send_to = User.objects.get(id=mentorship_request.requester)
+                email_for_mentorship_rejection(send_to.cls_email_address)
+
 
                 mentorship_request.delete()
                 
@@ -940,6 +939,18 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
             try:
                 sucessful = mentorship_request.accept_request(session_user)
                 email_for_mentorship_acceptance(mentor_account.cls_email_address, mentee_account.cls_email_address)
+                mentor = Mentor.objects.get(account_id=mentor_account.id)
+                number_of_mentees_this_mentor_has= mentor.mentee_set.all()
+                max_number_of_mentees = mentor.int_max_mentees
+
+                if number_of_mentees_this_mentor_has == max_number_of_mentees:
+                    delete_these_requests = MentorshipRequest.objects.get(mentor_id=mentee_account.id)
+                    for request in delete_these_requests:
+                        user_to_send_to = User.objects.get(id=request.requester)
+                        email_for_mentorship_rejection(user_to_send_to)
+                    delete_these_requests.delete()
+                        
+                    
             except ValidationError:
                 #this mentor has max mentees
                 return redirect(f"/universal_profile/{User.from_session(req.session).id}")
@@ -1054,6 +1065,10 @@ def delete_mentorship(req: HttpRequest, mentee_user_account_id : int):
     mentee = Mentee.objects.get(account_id=mentee_user_account_id)
     mentee.mentor_id = None
     mentee.save()
+
+    session_user = User.from_session(req.session)
+    SystemLogs.objects.create(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, specified_user=session_user)
+
     # redirect to the page the request came from
     return HttpResponseRedirect(req.META.get('HTTP_REFERER', '/'))
 
@@ -1622,3 +1637,8 @@ def check_email(request):
         return JsonResponse({'exists': exists})
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+
+def update_interests(request):
+    pass
+#Idk what the fuck to do here.

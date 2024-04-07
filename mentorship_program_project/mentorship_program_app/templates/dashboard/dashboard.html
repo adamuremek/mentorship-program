@@ -182,7 +182,7 @@ Dashboard
             for (card of cards)
             {
                 const profile_form = card.getElementsByTagName('form')[0]
-                card.addEventListener('click', () => profile_form.submit())
+                card.getElementsByClassName('profile-view-zone')[0].addEventListener('click', () => profile_form.submit())
             }
     })
     

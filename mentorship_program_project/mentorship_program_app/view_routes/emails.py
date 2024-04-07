@@ -110,13 +110,11 @@ def email_for_mentorship_rejection(recipient: str):
 	message = """
 	Hello,
 
-	This email is to inform you of a new mentorship!
-
-	Please visit the application and navigate to view your new mentorship
+	This email is to inform you of that one of your mentorships has been declined. This may be for a number of reasons. Please visit the app to explore other potential mentorships.
 
 	Thanks,
 
 	WINGS
 	"""
-	send_mail(subject, message, from_email, [mentor_email, mentee_email])
+	send_mail(subject, message, from_email, [recipient])
 

@@ -2623,7 +2623,6 @@ class SystemLogs(SVSUModelData,Model):
         MENTEE_DEACTIVATED_EVENT = "Mentee deactivated"
         MENTOR_DEACTIVATED_EVENT = "Mentor deactivated"
         
-
     str_event = CharField(max_length=500, choices=Event.choices, default='')
     cls_log_created_on = DateField(default=timezone.now().date())
     specified_user = models.ForeignKey('User', on_delete=models.CASCADE, null=True)

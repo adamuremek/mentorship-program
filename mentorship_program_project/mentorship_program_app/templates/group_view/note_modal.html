@@ -37,9 +37,9 @@
                 {% if note %}
                     <input style="display: none" name="note-id" value="{{note.id}}">
                     <!-- CLASS 'btn-update-note' IS USED IN JAVASCRIPT | BE VERY CAREFUL WHEN CHANGING-->
-                    <button type="submit" class="btn-update-note" id="btn-create-note">Apply Changes</button> 
+                    <button type="submit" class="btn-update-note btn-modal-submit" id="btn-create-note">Apply Changes</button> 
                 {% else %}
-                    <button type="submit" id="btn-create-note">Create Note</button>
+                    <button type="submit" class="btn-modal-submit" id="btn-create-note">Create Note</button>
                 {% endif %}
             {% endif %}
         </form>

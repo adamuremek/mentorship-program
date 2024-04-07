@@ -339,13 +339,21 @@ def get_mentor_data_from_mentor(mentor : 'Mentor',session_user : 'User')->dict:
     return mentor_data
 
 def admin_user_management(request):
-
+    '''
+    Modified: 04/06/2024 Tanner K.
+    -   Added functionality for org admins to access page. Primary change is organization 
+        creation is directly tied to the boolean bl_user_org_admin and an if/elif block. 
+    '''
+    
     template = loader.get_template('admin/user_management.html')
     session_user = User.from_session(request.session)
 
     # Create storge for list
     organizations = []
     mentees = []
+
+    # Create var for checking if user is org admin
+    bl_user_org_admin = False
 
     # Load from database based on role
     # Check if user is an admin
@@ -371,6 +379,8 @@ def admin_user_management(request):
         print_debug("hello from the organization admin side of things UwU")
         # TODO NEED TO SET UP TO GET ONLY DATA THAT IS NEEDED FOR THAT ORG, ONLY MENTORS WITHIN ORG AND METEES REALTED TO THEM
         # MAYBE FILTER MENTORS BY ORG AND METEES BY MENTORS WITHIN ORG
+        
+        bl_user_org_admin = True
 
         # Get all mentee data, only the admin's organization, and mentor data from within the organization
         # user_management_mentee_data = Mentee.objects
