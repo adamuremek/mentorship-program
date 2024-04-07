@@ -6,8 +6,13 @@ from ..models import User
 
 from_email = "wingsmentorapp@gmail.com"
 
-def send_email_test():
-	send_mail("WELCOME!", "welcome to da app", from_email, ["aruemek3@gmail.com"])
+def notifications_on(email : str):
+	user = User.objects.get(cls_email_address=email)
+	if user.bln_notifications:
+		return True
+	else:
+		return False
+	
 
 
 def mentor_signup_email(recipient : str):
@@ -91,6 +96,14 @@ def alert_admins_of_reported_user():
 
 
 def email_for_mentorship_acceptance(mentor_email : str, mentee_email : str):
+	recipients = [mentor_email, mentee_email]
+	if not notifications_on(mentor_email):
+		recipients.remove(mentor_email)
+	if not notifications_on(mentee_email):
+		recipients.remove(mentee_email)
+
+	if len(recipients) == 0:
+		return
 	subject = "Mentorship Created!"
 	message = """
 	Hello,
@@ -103,14 +116,16 @@ def email_for_mentorship_acceptance(mentor_email : str, mentee_email : str):
 
 	WINGS
 	"""
-	send_mail(subject, message, from_email, [mentor_email, mentee_email])
+	send_mail(subject, message, from_email, recipients)
 
 def email_for_mentorship_rejection(recipient: str):
-	subject = "Mentorship Created!"
+	if not notifications_on(recipient):
+		return
+	subject = "Mentorship Rejected!"
 	message = """
 	Hello,
 
-	This email is to inform you of that one of your mentorships has been declined. This may be for a number of reasons. Please visit the app to explore other potential mentorships.
+	This email is to inform you of that one of your mentorships has been declined. This may be for a number of reasons. Please visit the WINGS app to explore other potential mentorships.
 
 	Thanks,
 
@@ -118,3 +133,33 @@ def email_for_mentorship_rejection(recipient: str):
 	"""
 	send_mail(subject, message, from_email, [recipient])
 
+def your_mentor_quit(recipient: str, opposite_role: str):
+		if not notifications_on(recipient):
+			return
+		subject = "Important Info"
+		message =f"""
+		Hello,
+
+		This email is to inform you that your	{opposite_role} is no longer apart of the WINGS program. If you wish to start a new mentorship, please visit the WINGS app to find a new {opposite_role}.
+
+		Thanks,
+
+		WINGS
+	"""
+		send_mail(subject, message, from_email, [recipient])
+		
+def you_have_a_new_request(recipient: str):
+		if not notifications_on(recipient):
+			return
+		subject = "You have a new mentorship request!"
+		message =f"""
+		Hello,
+
+		This email is to inform you that have a new mentorship request! Visit the WINGS app to check it out!
+
+		Thanks,
+
+		WINGS
+	"""
+		send_mail(subject, message, from_email, [recipient])
+		

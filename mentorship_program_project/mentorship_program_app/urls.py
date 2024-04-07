@@ -127,6 +127,7 @@ urlpatterns = [
     path("add_remove_mentees_from_file", under_development.add_remove_mentees_from_file, name="add_remove_mentees_from_file"),
     path("deactivate_your_own_account", under_development.deactivate_your_own_account, name="deactivate_your_own_account"),
     path("promote_org_admin/<int:promoted_mentor_id>", under_development.promote_org_admin, name="promote_org_admin"),
+    path("toggle_notifications/<status>", under_development.toggle_notifications, name="toggle_notifications"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN

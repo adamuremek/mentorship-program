@@ -183,3 +183,12 @@
     border-radius: 25px;
     width: 2em;
 }
+
+#modal_deleted_interests {
+    display: none;
+}
+
+.modal .interest-id {
+    width: 3em;
+    text-align: center;
+}

@@ -4,73 +4,203 @@
     <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
 
     <div class="modal-container">
-        <form id="note-form" action="{% url 'update_interests' %}" class="frm-note-creator" method="post">
-            {% csrf_token %}
-            
+        <!-- <form id="note-form" action="{% url 'update_interests' %}" class="frm-note-creator" method="post"> -->            
             <div id="modal_interests" class="container">
-                <h3 class="heading">Interests:</h3>
+                <h3 class="heading">Active Interests:</h3>
                 {% for interest in interests %}
-                    <input type="text" value="{{ interest.strInterest }}" class="interest-input user-input">
-                    <button type="button" class="btn-remove-interest">&#10007;</button>
+                    <div class="modal-interest-container active_interest">
+                        <input type="text" value="{{ interest.strInterest }}" class="user-input interest-input">
+                        <input disabled type="text" value="{{ interest.pk }}" class="user-input interest-id">
+                        <button type="button" class="btn-remove-interest">&#10007;</button>
+                    </div>
                 {% endfor %}
+            </div>
+            
+            <div id="modal_deleted_interests" class="container">
+                <h3 class="heading">Deleted Interests:</h3>
             </div>
             
             <div class="container">
                 <h3 class="heading">Add Interest:</h3>
-                <input type="text" id="new_interest" value="{{ interest }}" class="user-input">
+                <input type="text" id="input_new_interest" value="{{ interest }}" class="user-input">
                 <button type="button" id="btn-add-interest">+</button>
             </div>
-            <button type="submit" class="btn-modal-submit" id="btn-update-interests">Apply Changes</button>
-        </form>
+            <button type="button" class="btn-modal-submit" id="btn-update-interests">Apply Changes</button>
+        <!-- </form> -->
     </div>
 
 </dialog>
-
+<script src = "{% static 'js/backend_requests.js' %}"></script>
 <script>
-    const btn_add_interest = document.getElementById('btn-add-interest')
-    let list_input_interest = document.getElementsByClassName('interest-input')
-    let list_btn_remove_interest = document.getElementsByClassName('btn-remove-interest')
+    const active_interests_container = document.getElementById('modal_interests')
+    const btn_add_interest           = document.getElementById('btn-add-interest')
+    const input_interest             = document.getElementById('input_new_interest')
+    const deleted_interests          = document.getElementById('modal_deleted_interests')
+    let list_interest_inputs         = document.getElementsByClassName('interest-input')
+    let list_interest_IDs            = document.getElementsByClassName('interest-id')
+    let list_btn_remove_interest     = document.getElementsByClassName('btn-remove-interest')
+    //let active_interests = document.getElementsByClassName('active-interests')
 
-    if(list_btn_remove_interest)
-    for (let idx = 0; idx < list_btn_remove_interest.length; idx++) 
-    {
-        const input = list_input_interest[idx]
-        const button =  list_btn_remove_interest[idx]
-        list_btn_remove_interest[idx].addEventListener('click', () => 
-        {
-            input.remove()
-            button.remove()
+    
+// Add event listener to active_interests container
+active_interests_container.addEventListener('click', (e) => {
+    // If remove button was clicked...
+    if (e.target.classList.contains('btn-remove-interest') && !e.target.classList.contains('btn-revert') && e.target.parentElement.classList.contains('active_interest')) {
+        const idx = Array.from(list_btn_remove_interest).indexOf(e.target)
+        const input = list_interest_inputs[idx]
+        const button = e.target
+        const id = list_interest_IDs[idx]
+        
+        const new_container = document.createElement('div')
+        // Button is complicated. Sue me. This code sucks and I genuinely don't care.
+        // I'm overworked and tired as hell
+        // The point of this is to make it so the button will re-add a deleted entry to the 'active' list
+        const btn_revert = button.cloneNode(true)
+        btn_revert.classList.add('btn-revert')
+        btn_revert.innerHTML='+' // Make button visually indicate re-entry
+
+        new_container.setAttribute('class', 'modal-interest-container active_interest')
+        new_container.appendChild(input.cloneNode(true));
+        new_container.appendChild(id.cloneNode(true));
+        new_container.appendChild(btn_revert); 
+
+        // Allow deleted entries to be re-added
+        // Again, I know this is confusing and I'm sorry.
+        btn_revert.addEventListener('click', () => {
+            btn_revert.innerHTML = '&#10007;'
+            const interest_list = document.getElementById('modal_interests')
+            //deleted_interests.removeChild(new_container)
+            new_container.remove()
+            btn_revert.classList.remove('btn-revert')
+            interest_list.appendChild(new_container);
+            //list_btn_remove_interest = document.getElementsByClassName('btn-remove-interest')
         })
+
+        deleted_interests.appendChild(new_container)
+        deleted_interests.style.display = 'block'
+    
+        button.parentElement.remove()
+        /*input.remove()
+        id.remove()
+        button.remove()*/
     }
+}); 
+
+    input_interest.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault()
+            btn_add_interest.click()
+        }
+    });
     
-    
+    // Add a new interest to the list
     btn_add_interest.addEventListener('click', () => {
-        const input_interest = document.getElementById('new_interest')
         if(input_interest.value.length > 1) {
             const interest_list = document.getElementById('modal_interests')
+            const new_container = document.createElement('div')
+            new_container.setAttribute('class', 'modal-interest-container new_interest')
             
             // Create new input element
             const input = document.createElement('input');
             input.setAttribute('type', 'text');
-            input.setAttribute('class', 'interest-input user-input');
+            input.setAttribute('class', 'user-input interest-input');
             input.value = input_interest.value // set input value
             input_interest.value = ''
-
             
             // Create new button element
             const button = document.createElement('button');
             button.setAttribute('type', 'button');
             button.setAttribute('class', 'btn-remove-interest');
             button.innerHTML = '&#10007;'; // 'X' symbol
+
+            const id = document.createElement('input')
+            id.setAttribute('type', 'text');
+            id.setAttribute('class', 'user-input interest-id');
+            id.disabled = true
+            id.value = '#'
+
             button.addEventListener('click', () => 
             {
                 button.remove()
+                id.remove()
                 input.remove()
             })
             
             // Append input and button to the container
-            interest_list.appendChild(input);
-            interest_list.appendChild(button);
+            new_container.appendChild(input);
+            new_container.appendChild(id);
+            new_container.appendChild(button);
+            interest_list.appendChild(new_container);
         }
+        // added [name:Str]
+        // edited [id:int, name:Str]
+        // removed [id:int]
     })
+
+    document.getElementById('btn-update-interests').addEventListener('click', () => {
+        const new_list = document.querySelectorAll('#modal_interests .new_interest .interest-input');
+        //const new_list = document.getElementById('modal_interests').getElementsByClassName('new_interest').getElementsByClassName('interest-input')
+        const deleted_list = document.getElementById('modal_deleted_interests').getElementsByClassName('interest-id')
+        const edited_list = document.getElementById('modal_interests').getElementsByClassName('active_interest')
+    
+        console.log(new_list)
+        console.log(deleted_list)
+        console.log(edited_list)
+
+        // Prepare data to be sent to the server
+        const form_data = {
+            added:     [], // str
+            deleted: [], // id
+            edited:  []  // id, str
+        };
+    
+        // Add new string values to new_items
+        new_list.forEach(item => form_data.added.push(item.value));
+    
+        console.log('hello')
+        for(item of deleted_list)
+            form_data.deleted.push(item.value)
+    
+        for (item of edited_list) 
+        {
+            const inputs = Array.from(item.getElementsByTagName('input')).reverse() // List reversed for backend function
+            const edited_interest_data = []
+            for (input of inputs)
+                edited_interest_data.push(input.value)
+            form_data.edited.push(edited_interest_data)
+        }
+
+        console.log(form_data.added)
+        console.log(form_data.deleted)
+        console.log(form_data.edited)
+        console.log(JSON.stringify(form_data))
+    
+        
+        // Send interest information post
+        fetch('/update_interests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(form_data)
+        })
+        .then(response => {
+            if (response.ok) {
+                // Handle successful response
+                console.log('Lists submitted successfully');
+                //document.getElementById('interests-modal').close()
+                window.location.href = '/dashboard'
+
+            } else {
+                // Handle error response
+                console.error('Failed to submit lists');
+            }
+        })
+        /*.catch(error => {
+            // Handle network errors
+            console.error('Network error:', error);
+        });*/
+    })
+    
 </script>

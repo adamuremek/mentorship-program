@@ -512,8 +512,19 @@ def disable_user(req:HttpRequest):
 
     if(user.str_role == "Mentee"):
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
+        if not user.account.mentor == None:
+           mentor = User.objects.get(id=Mentor.objects.get(id=user.account.mentor).account_id)
+           send_to = mentor.cls_email_address
+           your_mentor_quit(send_to , "Mentee")
     else:
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
+        mentees_for_mentor = user.mentor.mentee_set.all()
+        for mentee in mentees_for_mentor:
+            send_to = User.objects.get(id=mentee.account_id)
+            email_address = send_to.cls_email_address
+            your_mentor_quit(send_to, "Mentor")
+
+
     return HttpResponse(f"user {id}'s status has been changed to disabled")
 
 
@@ -895,7 +906,9 @@ def reject_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
             try:
                 # send a declined email to whoever requested the mentorship
                 send_to = User.objects.get(id=mentorship_request.requester)
-                email_for_mentorship_rejection(send_to.cls_email_address)
+                # if you cancel your own request, don't get an email for it
+                if not session_user.id == send_to.id:
+                    email_for_mentorship_rejection(send_to.cls_email_address)
 
 
                 mentorship_request.delete()
@@ -1180,6 +1193,24 @@ def change_password(req : HttpRequest):
 
 
 def deactivate_your_own_account(req : HttpRequest):
+    user = User.from_session(req.session)
+    if(user.str_role == "Mentee"):
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
+        if not user.mentee.mentor == None:
+           mentor = User.objects.get(id=Mentor.objects.get(id=user.mentee.mentor_id).account_id)
+           send_to = mentor.cls_email_address
+           your_mentor_quit(send_to , "Mentee")
+    else:
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
+        mentees_for_mentor = user.mentor.mentee_set.all()
+        for mentee in mentees_for_mentor:
+            send_to = User.objects.get(id=mentee.account_id)
+            email_address = send_to.cls_email_address
+            print(email_address)
+            your_mentor_quit(email_address, "Mentor")
+
+
+
     User.make_user_inactive(User.objects.get(id=User.from_session(req.session).id))
     return redirect('/logout')
 
@@ -1629,14 +1660,59 @@ def check_email(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         email = data.get('email')
-
-
         exists = User.objects.filter(cls_email_address=email).exists()
         return JsonResponse({'exists': exists})
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
     
 
-def update_interests(request):
-    pass
-#Idk what the fuck to do here.
+def update_interests(req : HttpRequest):
+    if req.method == "POST":
+        post_data = json.loads(req.body.decode("utf-8"))
+        print("request " , post_data)
+        user_from_session = User.from_session(req.session)
+        if not user_from_session.is_super_admin():
+            return bad_request_400("Permission denied")
+        
+        # strings (names)
+        add_list = post_data["added"]
+        # id's
+        delete_list = post_data["deleted"]
+        # id's and names
+        edit_list = post_data["edited"]
+
+        print("request " , req.body)
+        print("Add ", add_list)
+        print("delete ", delete_list)
+        print("edit " , edit_list)
+        # add new interests
+        added_instances = []
+        for interest in add_list:
+            added_instances.append(Interest(strInterest=interest, isDefaultInterest=False))
+        Interest.objects.bulk_create(added_instances)
+
+        # edit existing interests
+        ids_to_edit = [int(interest[0]) for interest in edit_list]
+        interests_to_edit = Interest.objects.filter(id__in=ids_to_edit)
+
+        for interest_object in interests_to_edit:
+            new_interest = next((interest[1] for interest in edit_list if str(interest_object.id) == interest[0]), None)
+            if new_interest is not None:
+                interest_object.strInterest = new_interest
+
+        Interest.objects.bulk_update(interests_to_edit, ['strInterest'])
+        # delete interests
+        Interest.objects.filter(id__in=delete_list).delete()
+        return HttpResponse("Updated")
+    return HttpResponse("Needs to be POST")
+
+
+def toggle_notifications(req : HttpRequest, status : bool):
+    user = User.from_session(req.session)
+    if status == "true":
+        user.bln_notifications = True
+    elif status == "false":
+        user.bln_notifications = False
+    user.save()
+
+    return HttpResponse("Status Updated")

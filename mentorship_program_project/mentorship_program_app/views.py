@@ -66,7 +66,7 @@ from .models import MentorshipRequest
 from .models import SystemLogs
 from .models import ProfileImg
 from .models import Organization
-
+from .models import *
 # from .models import MentorReports # (Deprecated??)
 
 
@@ -544,14 +544,14 @@ def login_uname_text(request):
 
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
-    
+
 
 # view goes to currently static approve/delete mentors page
 @security.Decorators.require_login(invalid_request_401)
 def change_settings(request):
-    
+    user = User.from_session(request.session)
     template = loader.get_template('settings.html')
-    context = {}
+    context = {"bln_notifications_on": user.bln_notifications}
     return HttpResponse(template.render(context,request))
 
 # view goes to currently static view reported users page

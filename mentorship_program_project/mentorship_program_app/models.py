@@ -642,18 +642,19 @@ class User(SVSUModelData,Model):
     str_password_hash =  CharField(max_length=1000, null=True, blank=False)
     str_password_salt =  CharField(max_length=1000, null=True, blank=False)
     str_role = CharField(max_length=15, choices=Role.choices, default='')
-    cls_date_joined = DateField(default=timezone.now().date())
-    cls_active_changed_date = DateField(default=timezone.now().date())
+    cls_date_joined = DateField(default=timezone.now)
+    cls_active_changed_date = DateField(default=timezone.now)
     bln_active = BooleanField(default=True)
     bln_account_disabled =  BooleanField(default=False)
 
     str_first_name : CharField =  CharField(max_length=747,null=True)
     str_last_name : CharField =  CharField(max_length=747, null=True) 
     str_phone_number : CharField = CharField(max_length=15, null=True)
-    str_last_login_date = DateField(default=timezone.now().date())
+    str_last_login_date = DateField(default=timezone.now)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
     str_bio = CharField(max_length=5000, default='')
+    bln_notifications = BooleanField(default=True)
     #foregn key fields
     interests = models.ManyToManyField(Interest)
         
@@ -1187,15 +1188,14 @@ class User(SVSUModelData,Model):
         user.bln_active = False
         
         if user.is_mentee():
-            user.mentor = None
+            mentee_account = Mentee.objects.get(account_id=user.id)
+            mentee_account.mentor = None
+            mentee_account.save()
             MentorshipRequest.objects.filter(mentee_id=user.id).delete()
         if user.is_mentor():
             mentor_account = Mentor.objects.get(account_id=user.id)
-            if mentor_account.is_admin_of_organization(mentor_account.organization):
-                Organization.find_new_org_admin()
-
             MentorshipRequest.objects.filter(mentor_id=user.id).delete()
-            mentees_for_mentor = Mentee.objects.filter(mentor_id=user.id)
+            mentees_for_mentor = Mentee.objects.filter(mentor_id=mentor_account.id)
             for mentee in mentees_for_mentor:
                 mentee.mentor = None
             Mentee.objects.bulk_update(mentees_for_mentor, ['mentor'])
@@ -1503,18 +1503,6 @@ class Organization(SVSUModelData,Model):
 
     admin_mentor = OneToOneField('Mentor', related_name='administered_organizations', on_delete=models.CASCADE, null=True) 
 
-
-    @staticmethod
-    def find_new_org_admin(org_id : int):
-        # this might not work tbh
-        organization = Organization.objects.get(id=org_id)
-        # get all mentors within an organziation and order them by id
-        mentors = organization.mentor_set.all().order_by('id') 
-        # get the second oldest mentor in an org, who will become the new org admin
-        second_oldest_mentor = mentors[1:2].first()
-        # assign them as the new org admin
-        organization.admin_mentor = second_oldest_mentor
-        organization.save()
 
 class Mentor(SVSUModelData,Model):
     """
@@ -2459,7 +2447,7 @@ class Notes(SVSUModelData,Model):
     str_title = CharField(max_length=100)
     str_public_body = CharField(max_length=7000, null=True, blank=True)
     str_private_body = CharField(max_length=7000, null=True, blank=True)
-    cls_created_on = DateField(default=timezone.now().date())
+    cls_created_on = DateField(default=timezone.now)
 
 
     user = ForeignKey(User, on_delete = models.CASCADE)
@@ -2509,7 +2497,6 @@ class Notes(SVSUModelData,Model):
                 str_title = str_title,
                 str_public_body = str_public_body,
                 str_private_body = str_private_body,
-                cls_created_on = timezone.now().date(),
                 user = user
             )
             print("Note created")
@@ -2624,7 +2611,7 @@ class SystemLogs(SVSUModelData,Model):
         MENTOR_DEACTIVATED_EVENT = "Mentor deactivated"
         
     str_event = CharField(max_length=500, choices=Event.choices, default='')
-    cls_log_created_on = DateField(default=timezone.now().date())
+    cls_log_created_on = DateField(default=timezone.now)
     specified_user = models.ForeignKey('User', on_delete=models.CASCADE, null=True)
 
     

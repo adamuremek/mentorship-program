@@ -52,9 +52,9 @@ Settings
 
         <!-- container for lightmode/darkmode toggle -->
         <div class="theme-toggle-container">
-            <h1>Dark / Light</h1>
+            <h1>Notifications Off/On</h1>
             <label class="switch">
-                <input type="checkbox" id="toggler">
+                <input type="checkbox" id="toggler" {% if bln_notifications_on %}checked{% endif %}>
                 <span class="slider" id="slider"></span> 
             </label>
         </div>
@@ -70,9 +70,7 @@ Settings
     </div>
 
 </div>
-
-<script src="{% static 'js/toggle_darkmode.js' %}"></script>
-
+<script src = "{% static 'js/backend_requests.js' %}"></script>
 <script>
 function validateForm(event) {
         let newPassword1 = document.getElementById("new-password1").value;
@@ -85,6 +83,32 @@ function validateForm(event) {
             message.innerHTML = "Passwords don't match"
             message.style.display = "inline-block"
         }
+}
+
+const togglebox = document.getElementById('toggler');
+togglebox.addEventListener('change', (event)=>{
+        if (event.currentTarget.checked) {
+            attempt_notification_status_change(true)
+        } else {
+            attempt_notification_status_change(false)
+        }
+    });
+
+
+
+async function attempt_notification_status_change(status) {
+	let request_url = "/toggle_notifications/"+ status ;
+	const req = new Request(request_url,{
+							method: "GET",
+							headers: {
+									"Content-type": "application/json; charset=UTF-8",
+									'X-CSRFToken': csrftoken
+							},
+							mode: "same-origin"
+	});
+	let response = await fetch(req);
+	console.log(response)
+	return response
 }
 </script>
 
