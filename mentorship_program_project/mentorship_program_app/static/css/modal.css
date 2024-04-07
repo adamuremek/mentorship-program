@@ -145,7 +145,7 @@
     overflow: scroll;
 }
 
-#btn-create-note {
+.btn-modal-submit {
     font-family: var(--ff-primary);
     font-size: 2rem;
     font-weight: var(--fw-medium);
@@ -169,5 +169,10 @@
 
 #btn-create-note:hover,
 #btn-create-note:focus-visible {
+    background-color: var(--clr-btn-submit-highlight);
+}
+
+.btn-modal-submit:hover,
+.btn-modal-submit:focus-visible {
     background-color: var(--clr-btn-submit-highlight);
 }

@@ -168,7 +168,11 @@ def generate_report(req : HttpRequest):
     file_name = f"Mentorship-Program-statistics-{datetime.now().strftime('%Y.%m.%d.%H.%M.%S')}.xlsx"
 
     report_logs = workbook.create_sheet("Report Logs")
-    report
+
+
+    all_system_logs = SystemLogs.objects.all()
+    print(all_system_logs)
+    # report_logs
 
 
     buffer = BytesIO()

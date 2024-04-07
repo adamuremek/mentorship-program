@@ -8,6 +8,7 @@ SVSU Mentoring
 
 {% block style %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/admin_dashboard.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
 {% endblock %}
 
 {% block main_content %}
@@ -129,11 +130,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewReportedUsersBtn = document.getElementById('view-reported-users');
     const buttonDiv = document.getElementById('mentorApplications');
     const editInterestsBtn = document.getElementById('btn-edit-interests');
+    const interests_modal = document.getElementById('interests-modal')
     
     userManagementBtn.addEventListener('click', () => window.location.href = '/admin_user_management');
     viewReportedUsersBtn.addEventListener('click', () => window.location.href = '/admin_reported_users');
     buttonDiv.addEventListener('click', () => window.location.href = '/view_pending');
-    editInterestsBtn.addEventListener('click', () => document.getElementById('interests-modal').showModal());
+    if(interests_modal)
+    {
+        editInterestsBtn.addEventListener('click', () => interests_modal.showModal());
+        document.getElementById('close-interests-modal').addEventListener('click', () => interests_modal.close())
+    }
+    
 
     var generateButton = document.getElementById("generate-reports-button");
     var generateForm = document.getElementById("generate-reports-form");

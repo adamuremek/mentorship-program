@@ -1,13 +1,7 @@
 {% load static %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
-
-<dialog id="interests-modal">
-    <header class="modal-header">
-        <button class="admin_user_management_button_clear_active" id="exit_add_new_organization_button" tabindex="0">
-            <img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit">
-        </button>
-    </header>
+<dialog class="modal" id="interests-modal">
+    <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
 
     <div class="modal-container">
         <form id="note-form" action="{% url 'update_interests' %}" class="frm-note-creator" method="post">
@@ -27,7 +21,7 @@
                 <button type="image" id="btn-add-interest" src="{% static 'images/icons/add-icon.png' %}"></button>
             </div>
 
-            <button type="submit" id="btn-update-interests">Apply Changes</button>
+            <button type="submit" class="btn-modal-submit" id="btn-update-interests">Apply Changes</button>
         </form>
     </div>
 
