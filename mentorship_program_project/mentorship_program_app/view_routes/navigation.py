@@ -73,12 +73,9 @@ def dashboard(req):
     role = session_user.get_database_role_string()
     opposite_role = session_user.get_opposite_database_role_string()
 
-
     if session_user.is_super_admin():
         return admin_dashboard(req)
-
         
-
     if opposite_role == "Mentor":
         requests = MentorshipRequest.objects.all().filter(mentor_id = OuterRef('pk'),mentee_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
@@ -112,10 +109,8 @@ def dashboard(req):
                 'is_requested_by_session','str_last_name' #make sure all mentors who we can cancel get displayed up top
         )
 
-        users = [user.sanitize_black_properties() for user in card_data]
-        session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
-
-
+    users = [user.sanitize_black_properties() for user in card_data]
+    session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
 
     if opposite_role == "Mentee":
 
@@ -199,6 +194,8 @@ def admin_dashboard(req):
     overall_stats = get_project_overall_statistics()
     timespan_stats = get_project_time_statistics()
 
+    interests = Interest.objects.all()
+
     context = {
                "active_mentees"              : overall_stats["active_mentees"              ],
                "assigned_mentees"            : overall_stats["assigned_mentees"            ],
@@ -215,6 +212,8 @@ def admin_dashboard(req):
                "pending_mentors"             : overall_stats["pending_mentors"             ],
               
                "unresolved_reports"          : overall_stats["unresolved_reports"          ],
+               
+               "interests"                   : interests,
                
                # Daily
                "daily_visitors"                  : timespan_stats["Daily"][0],
