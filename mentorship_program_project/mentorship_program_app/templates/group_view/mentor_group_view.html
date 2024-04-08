@@ -24,7 +24,7 @@ Mentor Group View
                     
                     <p>{{mentee.str_first_name}} {{mentee.str_last_name}}</p>
                     {% if is_page_owner == True %}
-                        <button class="button-mentee-remove">Remove</button>
+                        <button class="button-user-remove">Remove</button>
                     {% endif  %}
                 </li>
                 {% endfor %}
@@ -42,9 +42,6 @@ Mentor Group View
                     <button class="button-edit">Edit Page</button>
                     {% endif %}
                 </div>
-
-                
-
 
                 <h2>{{page_owner_mentor.str_job_title}}</h2> 
                 <h3>{{organization}}</h3> 

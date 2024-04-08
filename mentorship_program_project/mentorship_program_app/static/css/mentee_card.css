@@ -1,10 +1,10 @@
 .card {
-    width: 100%;
+    width: 22vw;
     height: 100%;
 
-    max-width: 25em;
+    /* max-width: 20em; */
     max-height: 20em;
-    
+
     background-color: rgb(44, 44, 44);
     background-size: contain;
     border-radius: 20px;
@@ -18,11 +18,16 @@
     border-top-left-radius: inherit;
 }
 
+.profile-view-zone {
+    border-top-right-radius: inherit;
+    border-top-left-radius: inherit;
+    cursor: pointer;
+}
+
 .card-gray-part {
     position: relative;
     justify-items: center;
     width: 100%;
-    height: 76%;
     margin-top: .25em;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
@@ -44,6 +49,7 @@
 .card-name {
     text-align: center;
     font-size: 1rem;
+    overflow: hidden;
 }
 
 .card-interests-header {
@@ -82,7 +88,15 @@
     gap: 5px;
     text-align: center;
     min-height: 5rem;
+    max-height: 5rem;
+    overflow: hidden; /* overlay - Use for scroll support */
 }
+
+/* Don't get rid of this you FUCKING SAVAGES */
+/* .card-interests::-webkit-scrollbar {
+    width: 5px;
+    border-radius: 20px;
+} */
 
 .card-interests p {
     font-size: 0.8rem;
@@ -94,10 +108,21 @@
     overflow: hidden;
 }
 
+.card-organization {
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+.card-job-title {
+    text-align: center;
+    font-size: 0.8rem;
+}
+
 .card-button {
     position: relative;
     background-color: #27446D;
     text-align: center;
+    margin-top: 0.25em;
     margin-left: 10%;
     margin-right: 10%;
     border-radius: 20px;
@@ -120,4 +145,20 @@
  * priority */
 div.card-button-disabled , div.card-button-disabled:hover , div.card-button-disabled:active {
     background-color: #363f4d;
+}
+div.card-button-cancel, div.card-button-cancel:hover , div.card-button-cancel:active {
+   background-color: #ddbb22;
+   color: black;
+}
+
+@media screen and (max-width: 1000px) {
+    .card {
+        width: 44vw;
+    }
+}
+
+@media screen and (max-width: 420px) {
+    .card {
+        width: 95vw;
+    }
 }

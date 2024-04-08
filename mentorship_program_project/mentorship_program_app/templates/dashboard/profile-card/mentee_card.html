@@ -1,9 +1,5 @@
 {% load static %}
 
-{% block style %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/mentee_card.css' %}">
-{% endblock %}
-
 {% block main_content %}
 
 <!-- <form action="/group_view" method="POST">
@@ -14,44 +10,80 @@
 
 
 <div class="card">
-	<form action="{% if user.is_mentee %}/mentee_profile{% else %}/group_view{% endif %}" method="POST">
-    	{% csrf_token %}
-    	<input type="hidden" name="id" value="{{ user.id }}" />
-    	<input type="image" class="card-profile-image" alt="Login" src="{{ user.profile_img.img.url }}" />
-	</form>
+	<!-- <form action="{% if user.is_mentee %}/mentee_profile{% else %}/group_view{% endif %}" method="POST"> -->
+
+	<!-- DO NOT TOUCH THIS DIV -->
+	<!-- YOU WILL EXPLODE AND DIE -->
+	<!-- YOU WILL RUIN EVERYTHING -->
+	<!-- This div allows an entire card to be clickable to view a profile -->
+	<div class="profile-view-zone">
+		<form action="/universal_profile/{{user.id}}" method="POST">
+			{% csrf_token %}
+			<input type="hidden" name="id" value="{{ user.id }}" />
+			<input type="image" class="card-profile-image" alt="Login" src="{{ user.profile_img.img.url }}" />
+		</form>
 	
-    <div class="card-gray-part">		  
+	
+		<div class="card-gray-part">		  
 
-		  <p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
+			<p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
 
-        <div class="card-line-divider-2"></div>
+			<!--adds the job title to mentor cards, not sure if we'll need/want this
+			<div class = "card-job-title" id = "card-job-title">
+				{% if user.is_mentor %}
+					{{ user.get_job_title }}
+				{% endif %}
+			</div>-->
 
-        <p class="card-interests-header">Interests</p>
+			<div class = "card-organization" id = "card-organization">
+				{% if user.is_mentor %}
+					{% for org in user.get_organization %}
+						{{ org }} 
+					{% endfor %}
+				{% endif %}
+			</div>
 
-        <div class="card-interests">
-			  {% for interest in user.interests.all %}
-			  <p>{{ interest.strInterest }}</p>
-			  {% endfor %}
-		  </div>
+			<div class="card-line-divider-2"></div>
 
-		  <div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
-		  {% if user.is_requested_by_session %}
-		  card-button-disabled
-		  {% endif %}
+			<p class="card-interests-header">Interests</p>
+
+			<div class="card-interests">
+				{% for interest in user.interests.all %}
+					<p>{{ interest.strInterest }}</p>
+				{% endfor %}
+			</div>
+			
+			
+		</div>
+	</div>
+
+		<div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
+                            {% if user.is_requested_by_session %}
+                            	card-button-cancel
+                            {% elif session_user.has_maxed_requests_as_mentee or session_user.mentor.has_maxed_mentees %}
+                            	card-button-disabled
+		                    {% endif %}
 		  ">
 		  {% if not user.is_requested_by_session %}
-			  {% if role == 'Mentee' %}
-				Request Mentor
+			  {% if role.value == 'Mentee' %}
+				{% if session_user.has_maxed_requests_as_mentee %}
+					Maximum Request Amount Reached
+				{% else %}
+					Request Mentor
+				{% endif %}
 			  {% else %}
-				Request Mentee
+			  	{% if session_user.mentor.has_maxed_mentees %}
+					Maximum Request Amount Reached
+				{% else %}
+					Request Mentee
+				{% endif %}
 			  {% endif %}
 		  {% else %}
-		  		requested!
+        	Cancel Request
 		  {% endif %}
+		</div>
+	
 
-			
-			</div>
-    </div>
 </div>
 
 {% endblock %}

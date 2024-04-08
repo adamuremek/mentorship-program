@@ -12,17 +12,25 @@ Mentor Applicant Approval
 
 {% block main_content%}
 
-<!-- link with back-arrow, currenlty does nothing -->
+
 <div class="link-container">
-    <a href="/admin_dashboard" class="return-link">
+    <a href="/dashboard" class="return-link" id="return-btn">
         <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
-        Admin Dashboard / Mentor Applications
+        Administrator Dashboard
     </a>
 
     <div class="title">
-        Mentor Application
+        Mentor Applications
     </div>
 </div>
+
+
+
+<div class="pending-container">
+    <!-- FILTER SECTION -->
+    <div class="available-filters">
+            <input type="text" placeholder="Search..." id="searchByNameField" oninput="filterInterests()">
+    </div>
 
 <!-- container that holds all mentors under review -->
 <div class="mentor-applicants-container">
@@ -32,9 +40,10 @@ Mentor Applicant Approval
     {% for user in pending_mentors %}
     <div class="mentor-applicant" mentor-id="{{user.id}}">
 
-        <div class="profile-picture-container">
+        <!-- If profile pictures are added again, uncomment below and in .mentor-applicant in pending_mentors.css -->
+        <!-- <div class="profile-picture-container">
             <img src="../static/images/ex-pfp.jpg" alt="" class="profile-picture">
-        </div>
+        </div> -->
 
         <div class="mentor-name">
             {{user.str_first_name}} {{user.str_last_name}}
@@ -43,31 +52,60 @@ Mentor Applicant Approval
         <form action="/view_mentor_by_admin" method="POST">
             {% csrf_token %}
             <input type="hidden" name="mentor_id" value="{{user.id}}" />
-            <input type="submit" value="View" />
+            <input type="submit" value="View" id="view-mentor-btn"/>
         </form>
 
         <form action="/change_mentor_status" method="POST">
             {% csrf_token %}
             <input type="hidden" name="status" value="Approved" />
             <input type="hidden" name="mentor_id" value="{{user.id}}" />
-            <input type="submit" value="Approve" />
+            <input type="submit" value="Approve" id="approve-mentor-btn"/>
         </form>
 
         <form action="/change_mentor_status" method="POST">
             {% csrf_token %}
             <input type="hidden" name="status" value="Denied" />
             <input type="hidden" name="mentor_id" value="{{user.id}}" />
-            <input type="submit" value="Deny" />
+            <input type="submit" value="Deny" id="deny-mentor-btn"/>
         </form>
     </div>
 
     {% endfor %}
 </div>
 
+</div>
+
 <script src="{% static 'js/backend_requests.js' %}"></script>
 <script src="{% static 'js/pending_mentors.js' %}"></script>
 
 
+<script>
+
+    /**
+    * Filters the displayed user cards based on selected interests and 
+    * Username. User fields must match both criteria in order to be 
+    * shown.
+    */
+    filterInterests = () => {
+        const users = document.querySelectorAll('.mentor-applicants-container > *');
+        const search_bar = document.getElementById('searchByNameField')
+
+        // params
+        const search_query = search_bar.value.toLowerCase()
+
+        for(const user of users) {
+
+            const username = user.getElementsByClassName('mentor-name')[0].innerHTML.toLowerCase().trim();
+            const does_username_match = username.includes(search_query);
+
+            if(!does_username_match) {
+                user.style.display = 'none';
+            } else {
+                user.style.display = 'grid';
+            }
+        }
+    }
+</script>
 
 
 {% endblock %}

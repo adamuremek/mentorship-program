@@ -1,0 +1,52 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
+
+<dialog class="modal note-modal" id="note-modal">
+    <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
+    <div class="modal-container">
+        <form id="note-form" action="{% if note %}{% url 'update_note' %}{%else%}{% url 'create_note' %}{%endif%}" class="frm-note-creator" method="post">
+            {% csrf_token %}
+
+            {% if is_page_owner %}
+                <h2>Note {%if note%}Editor{%else%}Creator{%endif%}</h2>
+                <div class="modal-line"><hr></div>
+            {% endif %}
+            
+            <div class="container">
+                <h3 class="heading">Note Title:</h3>
+                <input {%if not is_page_owner%}readonly{%endif%} type="text" id="note-title-input" name="note-title" value="{% if note%}{{note.title}}{%endif%}" class="user-input">
+            </div>
+            
+            
+            <div class="container">
+                <h3 class="heading">Public Notes:</h3>
+                <p class="subheading">Notes visible to anyone with access to group page.</p>
+                <textarea {%if not is_page_owner%}readonly{%endif%} id="public-notes" rows="12" name="public-notes" class="user-input">{%if note%}{{note.public_note}}{%endif%}</textarea>
+            </div>
+
+            {% if signed_in_user.is_mentor %}
+            <div class="container">
+                <h3 class="heading">Private Notes:</h3>
+                <p class="subheading">Notes only visible to you and administrators.</p>
+                <textarea {%if not is_page_owner%}readonly{%endif%} id="private-notes" rows="12" name="private-notes" class="user-input">{%if note%}{{note.private_note}}{%endif%}</textarea>
+            </div>
+            {% endif %}
+            
+            {% if is_page_owner %}
+                {% if note %}
+                    <input style="display: none" name="note-id" value="{{note.id}}">
+                    <!-- CLASS 'btn-update-note' IS USED IN JAVASCRIPT | BE VERY CAREFUL WHEN CHANGING-->
+                    <button type="submit" class="btn-update-note btn-modal-submit" id="btn-create-note">Apply Changes</button> 
+                {% else %}
+                    <button type="submit" class="btn-modal-submit" id="btn-create-note">Create Note</button>
+                {% endif %}
+            {% endif %}
+        </form>
+    </div>
+</dialog>
+
+<script>
+    console.log("HERE IS NOTE: {{note}}")
+    console.log("{% if note %}NOTE EXITST {% else %}DOES NOT EXIST{% endif %}")
+</script>

@@ -13,67 +13,104 @@
 {% endblock %}
 
 {% block main_content %}
+    <div class="hidden_element" id="organization_counter">
+        {{ organization_counter }}
+    </div>
+
+    <div class="hidden_element" id="session_user_admin_flag">
+        {% if user_admin_flag %}
+            1
+        {% else %}
+            0
+        {% endif %}
+    </div>
+
     <div class="admin_user_management_container">
         <div>
-            <p class="admin_user_management_header_elements" id="admin_user_management_small_text"><img src="{% static 'images/white-dropdown-arrow.png' %}" id="address_arrow"> Admin Dashboard / User Management</p>
+            <a href="/dashboard" class="return-link">
+                <p class="admin_user_management_header_elements" id="admin_user_management_small_text"><img src="{% static 'images/white-dropdown-arrow.png' %}" id="address_arrow"> Admin  Dashboard / User Management</p>
+            </a>
             <h1 class="admin_user_management_header_elements" id="admin_user_management_large_text">Mentor Applications</h1>
         </div>
         <div class="dual_user_board_container">
             <div class="user_board_container">
                 <div class="user_board_title_container">
-                    <h2 id="admin_user_management_medium_text">Mentees</h2>
-                    <div class="user_board_search_container">
-                        <button class="admin_user_management_button_clear_active">
-                            <img src="{% static 'images/search-icon.png' %}" id="search_icon">
-                        </button>
-
-                        <input type="text" class="search_bar" placeholder="Search by name"></input>
-                    </div>
-                </div>
-
-                <div class="user_board">
-                    <div class="user_management_bar_container">
-                        {% for mentee in mentees %}
-                            {% include 'admin/mentee_managment_bar.html' %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="user_board_container">
-                <div class="user_board_title_container">
                     <h2 id="admin_user_management_medium_text">Mentors</h2>
-                    <div class="user_board_search_container">
-                        <button class="admin_user_management_button_clear_active">
-                            <img src="{% static 'images/search-icon.png' %}" id="search_icon">
-                        </button>
-
-                        <input type="text" class="search_bar" placeholder="Search by name"></input>
-                    </div>
                 </div>
 
                 <div class="user_board">
-                    <div class="user_management_bar_container">
+                    <div class="user_management_bar_container" id="mentor_bar_container">
                         {% for mentor in unaffiliated_mentors %}
                             {% include 'admin/mentor_management_bar.html' %}
                         {% endfor %}
-
+                        
+                        
                         {% for organization in organizations %}
                             {% include 'admin/organization_management_bar.html' %}
                         {% endfor %}
                     </div>
                 </div>
+
+            </div>
+            <div class="user_board_container">
+                <div class="user_board_title_container">
+                    <h2 id="admin_user_management_medium_text">Mentees</h2>
+                </div>
+
+                <div class="user_board">
+                    <div class="user_management_bar_container" id="mentee_bar_container">
+                        {% for mentee in mentees %}
+                            {% include 'admin/mentee_managment_bar.html' %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
             </div>
         </div>
-        <button class="admin_user_management_button" id="save_button">Save</button>
-        <button class="admin_user_management_button" id="cancel_button">Cancel</button>
+
+        <div class="user_board_search_container">
+            <div class="user_board_search_bar_container">
+                <button class="admin_user_management_word_button_active" id="filter_organization_button" title="Filter by organization name">
+                    <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                    <h2 class="admin_user_management_medium_text">organizations</h2>
+                </button>
+
+                <input type="text" class="search_bar" id="organization_search_bar" placeholder="Search by name">
+            </div>
+
+            <div class="user_board_search_bar_container">
+                <button class="admin_user_management_word_button_active" id="filter_users_button" title="Filter by user name">
+                    <img src="{% static 'images/search-icon.png' %}" id="search_icon">
+                    <h2 class="admin_user_management_medium_text">users</h2>
+                </button>
+
+                <input type="text" class="search_bar" id="user_search_bar" placeholder="Search by name">
+            </div>
+        </div>
+
+        <div class="user_management_message_bar" id="admin_user_management_medium_text">
+            PLACEHOLDER MESSAGE
+        </div>
+        
+        <div class="user_board_button_container">
+            <button class="admin_user_management_button" id="save_button" title="Save events">Save</button>
+            <button class="admin_user_management_button" id="cancel_button" title="Cancel events">Cancel</button>
+            {% if user_admin_flag %}
+                <button class="admin_user_management_button" id="add_new_organization_button" title="Open create organization panel">Create New Organization</button>
+            {% endif %}
+        </div>
     </div>
 
-<!-- <script src="{% static 'js/admin/user_management/save_queue.js' %}"></script>
-<script src="{% static 'js/admin/user_management/managment_requests.js' %}"></script>
-<script src="{% static 'js/admin/user_management/button_listeners.js' %}"></script> -->
+    <!-- I will figure this out but im really stupid rn -->
+    {% include 'admin/create_organization_modal.html' %}
 
-<script src = "{% static 'js/backend_requests.js' %}"></script>
-<script type="module" src="{% static 'js/admin/user_management/save_queue.js' %}"></script>
-<!-- <script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script> -->
-<script type="module" src="{% static 'js/admin/user_management/events.js' %}"></script>
+    <script src = "{% static 'js/backend_requests.js' %}"></script>
+
+    <script type="module" src="{% static 'js/admin/user_management/determiners.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/updaters.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/filtering.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/sorting.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/event_queue.js' %}"></script>
+    <script type="module" src="{% static 'js/admin/user_management/button_listeners.js' %}"></script>
+
 {% endblock %}

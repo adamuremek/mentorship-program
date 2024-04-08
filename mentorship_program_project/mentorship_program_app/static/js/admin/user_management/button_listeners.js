@@ -1,349 +1,148 @@
-// Import save queue class
-import { queue } from './event_queue.js';
+// Import classes from event_queue file 
+import * as event_queue from './event_queue.js';
+import * as filters from './filtering.js';
+import * as detereminers from './determiners.js';
 
-// Select user bar elements
-const mentee_user_bars = document.querySelectorAll(".mentee_management_bar");
-const mentor_user_bars = document.querySelectorAll(".mentor_management_bar");
+// Determine and store bar elements
+const mentee_bars = detereminers.determine_all_mentee_bars();
+const mentor_bars = detereminers.determine_all_mentor_bars();
+const organization_bars = detereminers.determine_all_organization_bars();
 
-// Create valid mentee user bar storage
-let valid_mentor_user_bars = [];
-let invalid_mentor_user_bars = [];
+// Determine and store button elements for user management page
+const save_button = detereminers.determine_save_button();
+const cancel_button = detereminers.determine_camcel_button();
+const add_new_organization_button = detereminers.determine_add_new_organization_button();
+const create_organization_button = detereminers.determine_create_organization_button();
+const exit_add_new_organization_button = detereminers.determine_exit_add_new_organization_button();
+const filter_user_button = detereminers.determine_filter_user_button();
+const filter_organization_button = detereminers.determine_filter_organization_button();
 
-// Update valid mentors
-update_mentor_lists();
+// Select and store search bar elements
+const user_search_bar = detereminers.determine_user_search_bar();
+const organization_search_bar = detereminers.determine_organization_search_bar();
 
-// Get buttons objects from document
-const save_button = document.getElementById("save_button");
-const cancel_button = document.getElementById("cancel_button");
+// Select and store add new organization modal element
+const add_new_organization_modal = detereminers.determine_add_new_organization_modal();
 
-// Store constants of event titles
-const ADD_MENTEE_EVENT_TYPE = "ADD MENTEE";
-const ADD_MENTOR_EVENT_TYPE = "ADD MENTOR";
-const EDIT_EVENT_TYPE = "EDIT";
-const DELETE_EVENT_TYPE = "DELETE";
 
-// Create queue of events to execute when pressed
-const event_queue = new queue;
+
+
 
 // Set save button listener
-save_button.addEventListener('click', save_event);
+save_button.addEventListener('click', event_queue.save_event);
 
 // Set cancel button listener
-cancel_button.addEventListener('click', cancel_event);
+cancel_button.addEventListener('click', event_queue.cancel_event);
 
-// Set mentee button listeners
-set_mentee_button_listeners();
-
-// Set mentor button listeners
-set_mentor_button_listeners();
-
-
-// remove_mentor_button_listeners();
-
-// Functions
-
-// Set up mentee user bar's listeners for every mentee
-function set_mentee_button_listeners() 
+// Check if create new organization button is null
+if (add_new_organization_button != null)
 {
-    // Set up mentee user bar's listeners
-    for (let mentee_bar of mentee_user_bars)
+    // Set add new organization button listener
+    add_new_organization_button.addEventListener('click', () => { add_new_organization_modal.showModal(); });
+
+    // Set create new organization button listner
+    create_organization_button.addEventListener('click', function() { event_queue.create_orgnization_event(); });
+
+    // Set exit add new organization button listener
+    exit_add_new_organization_button.addEventListener("click", () => { add_new_organization_modal.close(); });
+}
+
+// Set up search bar selection to trigger attempt filter methods for users and organziation
+user_search_bar.addEventListener("input", function() { filters.attempt_user_filter(user_search_bar.value); });
+organization_search_bar.addEventListener("input", function() { filters.attempt_organziation_filter(organization_search_bar.value); });
+
+// Set up button listener for search buttons
+filter_user_button.addEventListener('click', function() { filters.toggle_user_filter(user_search_bar.value); });
+filter_organization_button.addEventListener('click', function() { filters.toggle_organization_filter(organization_search_bar.value); });
+
+// Set up mentee bar's listeners
+for (let mentee_bar of mentee_bars)
+{
+    // Set button listener for add
+    detereminers.determine_add_button(mentee_bar).addEventListener('click', function() { event_queue.add_mentor_mentee_event(mentee_bar) });
+
+    // Set button listener for remove mentor
+    detereminers.determine_remove_button(mentee_bar).addEventListener('click', function() { event_queue.remove_mentor_mentee_event(mentee_bar) });
+
+    // Check if there deactivate button 
+    if (detereminers.determine_disable_button(mentee_bar) != null)
     {
-        // // Get hidden user account values
-        // let mentee_id = mentee_bar.querySelector("#user_account");
-    
-        // Set button listener for view
-        mentee_bar.querySelector("#eye_button").addEventListener('click', function() { view_event(mentee_bar); });
+        // Set button listener for deactivate button
+        detereminers.determine_disable_button(mentee_bar).addEventListener('click', function() { event_queue.disable_event(mentee_bar) });
+    }
 
-        // Check if including adding button
-        if (mentee_bar.querySelector("#plus_button") != null)
-        {
-            // Set button listener for add
-            mentee_bar.querySelector("#plus_button").addEventListener('click', function() { add_mentee_event(mentee_bar) });
-        }
-        
-        // Check if include edit button
-        if (mentee_bar.querySelector("#edit_button") != null)
-        {
-            // Set button listener for edit
-            mentee_bar.querySelector("#edit_button").addEventListener('click', function() { set_edit_mentor_event(mentee_bar) });
-        }
-
-        // Set button listener for delete
-        mentee_bar.querySelector("#trashcan_button").addEventListener('click', function() { delete_event(mentee_bar) });
+    // Check if there reactivate button 
+    if (detereminers.determine_enable_button(mentee_bar) != null)
+    {
+        // Set button listener for reactivate button
+        detereminers.determine_enable_button(mentee_bar).addEventListener('click', function() { event_queue.reable_event(mentee_bar) });
     }
 }
 
-// Set up mentor user bar's listeners for every mentor
-function set_mentor_button_listeners() 
+// Set up mentor bar's listeners
+for (let mentor_bar of mentor_bars)
 {
-    // Set up mentor user bar's listeners
-    for (let mentor_bar of mentor_user_bars)
+    // Set button listener for mentor clicked
+    mentor_bar.addEventListener('click', function() { event_queue.mentor_clicked_event(mentor_bar); });
+
+    // Set button listener for selecting mentees filter
+    detereminers.determine_mentor_mentee(mentor_bar).addEventListener('click', function() { filters.attempt_mentor_mentee_filter(mentor_bar) });
+
+    // Check if there deactivate button 
+    if (detereminers.determine_disable_button(mentor_bar) != null)
     {
-        // // Get hidden user account values
-        // let mentor_id = mentor_bar.querySelector("#user_account");
-
-        // Set button listener for view
-        mentor_bar.querySelector("#eye_button").addEventListener('click', function() { view_event(mentor_bar); });
-        
-        // Set button listener for delete
-        mentor_bar.querySelector("#trashcan_button").addEventListener('click', function() { delete_event(mentor_bar) });
-    }
-}
-
-// // Remove mentor user bar's listeners for every mentor
-// function remove_mentor_button_listeners()
-// {
-//     mentor_user_bars.forEach(mentor_bar => {
-//         // mentor_bar.querySelector("#eye_button").removeEventListener("click", view_event);
-//         // mentor_bar.querySelector("#trashcan_button").removeEventListener('click', delete_event);
-
-//         mentor_bar.removeEventListener('click', mentor_bar.querySelector("#eye_button"));
-//         mentor_bar.removeEventListener('click', mentor_bar.querySelector("#trashcan_button"));
-
-//     });
-// }
-
-
-
-function save_event() 
-{
-    // event_queue.enqueue("1");
-    // attempt_mentorship_request(1,2);
-
-    // Pass through queue FIFO
-    while (!event_queue.isEmpty()) 
-    {
-        // Store acton value
-        current_action = event_queue.dequeue();
-
-        // Sending in offical change depending on action type
-        switch(current_action.event_type)
-        {
-            // Add action
-            case("add"):
-                // Send request to server
-                alert(current_action);
-
-                // attempt_mentorship_request();
-
-                break;
-
-            // Edit action
-            case("edit"):
-                // Send request to server
-
-                break;
-
-            // Delete action
-            case("delete"):
-                // Send request to server
-
-                break;
-
-            // Error input
-            default:
-
-        }
-        // Check if valid
-            // Create system log 
-            // if valid repeate
-            // else break queue on invalid
+        // Set button listener for deactivate button
+        detereminers.determine_disable_button(mentor_bar).addEventListener('click', function() { event_queue.disable_event(mentor_bar) });
     }
 
-    // Save event
-    alert("Save");
-}
-
-function cancel_event()
-{
-    // Deletes queue elements
-
-    // Cancel event
-    alert("Cancel");
-}
-
-function view_event(user_bar) 
-{
-    // MAYBE CANCEL PROGESS WHEN SWITCHING TO ANOTHER PAGE
-
-    // Get hidden user account values
-    const user_id = user_bar.querySelector("#user_account");
-
-    // View event
-    alert("View\n"+user_id);
-}
-
-function add_mentee_event(mentee_bar) 
-{
-    // Get hidden user account values
-    const mentee_id = mentee_bar.querySelector("#user_account");
-
-    // Input add mentee event into queue
-    event_queue.enqueue({ADD_MENTEE_EVENT_TYPE, mentee_id});
-
-    // Update event listeners and styles
-    update_bar_elements(ADD_MENTEE_EVENT_TYPE, mentee_bar);
-    
-    // Add event
-    alert("Add\n"+mentee_id);
-}
-
-function add_mentor_event(mentor_bar)
-{  
-    // Get hidden user account values
-    const mentor_id = mentor_bar.querySelector("#user_account");
-
-    // Input add mentor event into queue
-    event_queue.enqueue({ADD_MENTOR_EVENT_TYPE, mentor_id});
-
-    // Update event listeners and styles
-    update_bar_elements(ADD_MENTOR_EVENT_TYPE, mentor_bar);
-
-
-    // Reset mentor event listeners and styles
-
-    // Add mentorship request to event queue
-
-    // Add event
-    alert("Add\n"+mentor_id);
-}
-
-function edit_event(mentee_bar) 
-{    
-    // Get hidden user account values
-    const mentor_id = mentor_bar.querySelector("#user_account");
-
-    // Update mentor event listeners and styles
-    update_bar_elements(EDIT_EVENT_TYPE, mentee_id);
-
-    // Edit event
-    alert("Edit\n"+mentee_id);
-}
-
-// function edit_mentor_event(mentee_id, mentor_id)
-// {
-//     // Reset mentor event listeners and styles
-
-//     // Remove mentorship request to event queue
-
-//     // Add mentorship request to event queue
-// }
-
-function delete_event(mentee_bar) 
-{
-    // Update action queue to include delete
-
-    // Update to reflex
-
-    // Delete event
-    alert("Delete\n"+mentee_id);
-}
-
-function update_bar_elements(event_type, user_bar)
-{
-    // Determine what type of event
-    switch (event_type) 
+    // Check if there reactivate button 
+    if (detereminers.determine_enable_button(mentor_bar) != null)
     {
-        // Edit event
-        case EDIT_EVENT_TYPE:
-            // Find and set prev mentor styling
-
-
-            // Set prev mentor styling (red or grey out)
-            //!!!!!
-
-
-
-        // Add mentee event
-        case ADD_MENTEE_EVENT_TYPE:
-            // Update mentee with styling
-            //!!!!!
-
-            break;
-
-        // Add mentor event
-        case ADD_MENTOR_EVENT_TYPE:
-            // Update mentors with styling
-            //!!!!!
-
-            break;
-
-        // Delete event
-        case DELETE_EVENT_TYPE:
-            
-            break;
-    
-        default:
-            break;
+        // Set button listener for reactivate button
+        detereminers.determine_enable_button(mentor_bar).addEventListener('click', function() { event_queue.reable_event(mentor_bar) });
     }
 
-    // // TODO WILL USE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // // Update valid mentor styling
-    // valid_mentor_user_bars.forEach(valid_mentor_user_bar => {
-    //     valid_mentor_user_bar.
-    // });
+    // Set button listener for organization promote button
+    detereminers.determine_promote_organization_button(mentor_bar).addEventListener('click', function() { event_queue.promote_mentor_organization_admin_event(mentor_bar) });
 
-    // // Update invalid mentor styling
-    // invalid_mentor_user_bars.forEach(invalid_mentor_user_bar => {
-    //     invalid_mentor_user_bar.
-    // });
-
-    // Set up event listeners for valid mentors
-
-    // Add event listeners for mentee event
-    // mentor_user_bars.forEach(element => {
-    //     addEventListener('click', function()
-    //     {
-
-    //     })
-    // });
-}
-
-// Updates which mentor bars are valid
-function update_mentor_lists() 
-{
-    // Remove entries of mentors list
-    valid_mentor_user_bars = [];
-    invalid_mentor_user_bars = [];
-
-    // Loop through mentor user bar
-    mentor_user_bars.forEach(mentor_bar => 
+    // Check if there is edit organization button
+    if (detereminers.determine_edit_organization_button(mentor_bar) != null)
     {
-        // Determine if mentor is valid for new mentees
-        if (mentor_bar.querySelector("#current_mentees") >= mentor_bar.querySelector("#max_mentees"))
-        {
-            // // Set mentor user bar id to valid 
-            // mentor_bar.id = "user_bar_valid";
+        // Set button listener for edit organization button
+        detereminers.determine_edit_organization_button(mentor_bar).addEventListener('click', function() { event_queue.edit_organization_mentor_event(mentor_bar) } );
+    }
 
-            // Add mentor bar to valid mentor bars
-            valid_mentor_user_bars.push(mentor_bar);
-        }
-        else
-        {
-            // Add mentor bar to invalid mentor bars
-            invalid_mentor_user_bars.push(mentor_bar);
-        }
-    })
+    // Check if there is transfer role super admin button
+    if (detereminers.determine_transfer_role_super_admin_button(mentor_bar) != null)
+    {
+        // Set button listener for transfer role super admin button
+        detereminers.determine_transfer_role_super_admin_button(mentor_bar).addEventListener('click', function() { event_queue.transfer_role_super_admin_mentor_event(mentor_bar) });
+    }
+
+    // Check if there is transfer role organization admin button
+    if (detereminers.determine_transfer_role_organization_admin_button(mentor_bar) != null)
+    {
+        // Set button listener for transfer role organization admin button
+        detereminers.determine_transfer_role_organization_admin_button(mentor_bar).addEventListener('click', function() { event_queue.transfer_role_organization_admin_mentor_event(mentor_bar) });
+
+    }
+
+    // Set button listener for decouple button
+    detereminers.determine_decouple_button(mentor_bar).addEventListener('click', function() { event_queue.decouple_mentor_event(mentor_bar) });
+
 }
 
-// Add styles mentors depending on if they are valid, invalid, or prev mentors
-function add_mentors_style()
+// Set organization button listeners
+for (let organization_bar of organization_bars)
 {
-    mentor_user_bars.forEach(mentor_bar => {
+    // Set button listener for organization clicked
+    organization_bar.addEventListener('click', function() { event_queue.organization_clicked_event(organization_bar); });
 
-        if (valid_mentor_user_bars.includes(mentor_bar))
-        {
+    // Check if there remove button 
+    if (detereminers.determine_remove_organization_button(organization_bar) != null)
+    {
+        // Set button listner for remove organization button
+        detereminers.determine_remove_organization_button(organization_bar).addEventListener('click', function() { event_queue.remove_organization_event(organization_bar) });
 
-        }
-        // Check if valid
-            // Set valid
-        // Else
-            // Set invalid
-    });
-}
-
-// Removes styles from mentors
-function remove_mentors_style()
-{
-
+    }
 }

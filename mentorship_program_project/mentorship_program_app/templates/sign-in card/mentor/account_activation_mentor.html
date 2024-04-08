@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_corner %}
-    <button class="sign_in_top_left_element">X</button>
+<button type="submit" class="sign_in_top_left_element" id="modal-exit" onclick="window.location.href = '/'">X</button>    
 {% endblock %}
 
 {% block card_head %}
@@ -23,7 +23,7 @@
         </div>
 
         <div class="sign-in-card-element">
-            <p class="sign-in-card-text-normal">Your application is currently under review. You wuill receive an email update regarding your application status shortly.</p>
+            <p class="sign-in-card-text-normal">Your application is currently under review. You will receive an email update regarding your application status shortly.</p>
         </div>
     </div>
 {% endblock %}

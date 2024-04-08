@@ -1,33 +1,100 @@
+/* Need to edit main.css with  */
+/* .main {
+    min-height: 87vh;
+} */
+
 .admin_user_management_container {
     display: flex;
     flex-direction: column;
 
     text-align: center;
-    justify-content: space-around;
+    /* justify-content: space-around; */
     align-items: center;
-
-    min-height: 80vh;
-    max-height: 90vh;
 }
 
-.user_board_title_container {
+.user_board_button_container{
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-
-    margin-bottom: 1%;
+    justify-content: space-around;
 }
 
+/* .user_board_title_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    height: 4vh;
+} */
+
 .user_board_search_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.user_board_search_bar_container {
     background: rgba(0, 0, 0, 0.2);
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     padding: 0.5em;
     margin: 0.25em;
 
+    border-radius: 15px;
+
     display: flex;
     flex-direction: row;
     align-items: center;
+
+    width: 46vw;
+}
+
+.admin_user_management_modal{
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 0.5em;
+    margin: 0.25em;
+
+    border-radius: 15px;
+
+    width: 40vw;
+    height: 40vh;
+
+    /* Below allows modals to be centered in the screen */
+    
+    /* position: fixed; */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+
+    &>* {
+        margin: 0 0 0.5rem 0;
+    }
+}
+
+.admin_user_management_modal::backdrop {
+    backdrop-filter: blur(.25em);
+    background: rgba(125, 125, 125, 0.1);
+}
+
+.admin_user_management_modal_container {
+    width: 100%;
+    height: 85%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#create_organization_button {
+    width: 90%;
+}
+
+#organization-input {
+    width: 90%;
+
+    color: black;
 }
 
 .search_bar {
@@ -41,6 +108,22 @@
 #search_icon {
     height: 2.5vh;
     width: 1.5vw;
+}
+
+#add_new_organization_modal {
+    display: none;
+}
+
+.hidden_element {
+    display: none;
+}
+
+.organization_name_bar {
+    color: black;
+}
+
+.create_organization_message_bar, .user_management_message_bar {
+    display: none;
 }
 
 #address_arrow {
@@ -66,30 +149,39 @@
 }
 
 .admin_user_management_button_clear_inactive {
-    /* background: none;
-    border: none;
-    width: 8%; */
-
     display: none;
 }
 
 .admin_user_management_button_clear_active {
-    background: none;
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 15px;
     border: none;
-    width: 8%;
+    width: 12%;
+    display: flex;
+    justify-content: center;
+    padding: 1%;
 }
 
-.admin_user_management_word_button_clear_active {
-    background: none;
+.admin_user_management_word_button_active {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
     border: none;
     width: fit-content;
+    height: fit-content;
+
+    background-color: rgba(128, 128, 128, 0.25);
+    border-radius: 15px;
+    padding: 0.5%;
+    margin: 0.5%;
+
+    width: 12vw;
+    height: 3vh;
 }
 
-.admin_user_management_word_button_clear_inactive {
-    /* background: none;
-    border: none;
-    width: fit-content; */
-
+.admin_user_management_word_button_inactive {
     display: none;
 }
 
@@ -105,8 +197,15 @@
     min-height: 4vh;
 
     margin: 0.5%;
+    cursor: pointer;
 }
 
+input[type="file"] {
+    text-align: center;
+    text-align-last: center;
+    margin: 1em;
+    cursor: pointer;
+}
 
 .dual_user_board_container {
     display: flex;
@@ -120,7 +219,7 @@
 }
 
 .user_board {
-    height: 50vh;
+    height: 51vh;
 
     background: rgba(0, 0, 0, 0.2);
     border-radius: 15px;
@@ -129,14 +228,19 @@
 
     display: flex;
     flex-direction: column;
-    flex-wrap: nowrap;
+    /* flex-wrap: nowrap; */
     justify-content: center;
 }
 
-.user_management_bar_container{
+.user_management_bar_container {
     height: inherit;
 
     overflow-y: scroll;
+}
+
+.mentor_management_bar_container, .mentee_management_bar_container {
+    display: flex;
+    flex-direction: column;
 }
 
 .mentee_management_bar, .mentor_management_bar {
@@ -147,7 +251,8 @@
 
     margin-bottom: 1%;
     margin-top: 1%;
-    margin-right: 5%;
+    margin-right: 2.5%;
+    margin-left: 2.5%;
 }
 
 .organization_management_bar_container {
@@ -156,7 +261,9 @@
 
     margin-bottom: 1%;
     margin-top: 1%;
-    margin-right: 3%;
+
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 15px;
 }
 
 .organization_management_bar {
@@ -173,6 +280,8 @@
     border-radius: 15px;
 
     background: rgba(128, 128, 128, 0.25);
+
+    border-color: aliceblue;
 }
 
 /* .organization_management_button_clear_active {
@@ -185,28 +294,24 @@
     display: none;
 } */
 
-#user_bar_valid {
-
-}
-
-#user_bar_invalid {
-
-}
-
-#user_bar_prev {
-
-}
-
-#user_account, #user_mentor, #user_mentees {
+#user_account, #user_mentor, #user_mentees, 
+#user_account_disabled, #organization_account, #session_user_flag,
+#account {
     display: none;
 }
 
 .user_management_bar_name {
-    flex-basis: 55%;
+    width: 95%;
+    word-break: break-all;
+}
+
+.organization_management_bar_name {
+    word-break: break-word;
+    width: 70%;
 }
 
 .mentee_counter_container {
-    display: flex;
+    /* display: flex;
     flex-direction: row;
 
     width: 10%;
@@ -214,7 +319,15 @@
 
     background-color: gray;
     border-radius: 15px;
-    padding: 0.5%
+    padding: 0.5%, */
+
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 15px;
+    border: none;
+    width: 12%;
+    display: flex;
+    justify-content: center;
+    padding: 1%;
 }
 
 .user_management_photo {
@@ -229,42 +342,34 @@
     width: 40%;
 }
 
-#plus_button {
-    /* display: none; */
-}
-
-#edit_button {
-    /* display: none; */
-}
-
-#eye_button {
-
-}
-
-#trashcan_button {
-
-}
-
 @media screen and (max-width: 1000px) {
+    .admin_user_management_word_button_active {
+        height: 3vh;
+        width: 16vw;
+    }
+
     .user_board_container {
         width: 46vw;
         margin: 0.5vw;
     }
 
     .user_board {
-        height: 55vh;
+        height: 57vh;
     }
 
     #admin_user_management_small_text {
-        font-size: 1.5vw
+        font-size: 1.25vw
+        /* font-size: 1vw; */
     }
     
     #admin_user_management_medium_text {
         font-size: 2.5vw
+        /* font-size: 1.5vw; */
     }
     
     #admin_user_management_large_text {
         font-size: 3.5vw
+        /* font-size: 2vw; */
     }
 
     #search_icon {
@@ -286,7 +391,19 @@
     }
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 700px) {
+    /* .user_board_search_bar_container{
+        flex-direction: column;
+    } */
+
+    .admin_user_management_word_button_active {
+        width: fit-content;
+    }
+
+    .user_board_search_container {
+        flex-direction: column;
+    }
+
     .user_board_container {
         width: 48vw;
         margin: 0.5vw;
@@ -313,20 +430,10 @@
         width: 3vw;
     }
 
-    .mentee_management_bar, .mentor_management_bar {
+    /* .mentee_management_bar, .mentor_management_bar {
         display: inherit;
 
-        margin-bottom: 5%;
-        margin-top: 5%;
-        margin-top: 1%;
-        margin-bottom: 1%;
-    }
-
-    .admin_user_management_button_clear_inactive {
-        /* width: 30%; */
-
-        display: none;
-    }
+    } */
 
     .admin_user_management_button_clear_active {   
         width: 30%;

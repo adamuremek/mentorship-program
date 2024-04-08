@@ -10,13 +10,6 @@ h1 {
     margin-bottom: 1rem;
 }
 
-.goFuckYourself {
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    text-align: -webkit-center;
-}
-
 .recommended-cards,
 .available-cards {
     display: grid;
@@ -172,11 +165,37 @@ h1 {
     font-size: 1.25rem;
 }
 
+.available-search-company {
+    margin-left: auto;
+    background-color: #464B4E;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.available-search-company input {
+    font-size: 0.9375rem;
+    background-color: #464B4E;
+    border: 0px;
+    color: white;
+    outline: none;
+}
+
+.available-search-company input::placeholder {
+    color: white;
+    opacity: 1;
+}
+
+.available-search-company p {
+    display: inline-block;
+    font-size: 1.25rem;
+}
+
 .available-filters {
     margin-bottom: 12px;
 }
 
-@media screen and (max-width: 1150px) {
+@media screen and (max-width: 1000px) {
+
     .recommended-cards,
     .available-cards {
         grid-template-columns: repeat(2, 1fr);
@@ -184,6 +203,7 @@ h1 {
 }
 
 @media screen and (max-width: 420px) {
+
     .recommended-cards,
     .available-cards {
         grid-template-columns: 1fr;
@@ -203,6 +223,10 @@ h1 {
     }
 
     .available-search-name {
+        margin-left: unset;
+    }
+
+    .available-search-company {
         margin-left: unset;
     }
 }

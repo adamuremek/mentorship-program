@@ -42,26 +42,34 @@ WJL   3/14/2024  Finished adding comments and updating to standards
 
 #standard python imports
 import json
-from typing import Union
+from typing import Union, Dict
 from datetime import date
 
 from django.http import HttpResponse, HttpRequest
 from django.template import loader
+from django.db.models import Count, Q
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from utils import development
 from utils.development import print_debug
 from utils import security
 
+from .view_routes.status_codes import bad_request_400
+
 from .models import User
 from .models import Interest
 from .models import Mentor
+from .models import UserReport
 from .models import Mentee
 
 from .models import MentorshipRequest
 from .models import SystemLogs
 from .models import ProfileImg
 from .models import Organization
+from .models import *
+# from .models import MentorReports # (Deprecated??)
+from .view_routes.navigation import landing
 
 
 #please make it pretty front end :)
@@ -203,72 +211,9 @@ def big_move(req : HttpRequest) -> HttpResponse:
     context = {}
     return HttpResponse(template.render(context, req))
 
-def the_big_move(req : HttpRequest) -> HttpResponse:
-    """
-    Description
-    -----------
-    Loads the single_page_mentor HTML with a full hard-coded context
-
-    Parameters
-    ----------
-    - req (HttpRequest): The request information including items to be rendered
-        into the template
-
-    Optional Parameters
-    -------------------
-    (None)
-
-    Returns
-    -------
-    - HttpResponse: The rendered view template with the context and
-        HttpRequest information
-
-    Example Usage
-    -------------
-    
-    >>> path('the_big_move/', views.the_big_move, name='the big move')
-    HttpResponse
-
-    Authors
-    -------
-    
-    """
-
-    template = loader.get_template('sign-in card/single_page_mentor.html')
-    context = {
-        'interestlist': [
-            'Artificial Intelligence', 
-            'Computer Graphics', 
-            'Data Structures & Algorithms',
-            'Networking',
-            'Operating Systems',
-            'Embedded Systems',
-            'Cloud Computing',
-            'Software Engineering',
-            'Distrubuted Systems',
-            'Game Development',
-            'Cybersecruity',
-            'System Analysis'],
-
-        'pronounlist1': ['he', 'she', 'they'],
-        'pronounlist2': ['him', 'her', 'them'],
-
-        'companytypelist': [
-            'Manufacturing',
-            'Computer Science', 
-            'Math?'],
-            
-        'experiencelist': [
-            '0 years',
-            '0-2 years', 
-            '2-5 years'],
-
-        'useragreement': 
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-
-    }
+def THEBIGMOVE(req):
+    template = loader.get_template('sign-in card/mentor/account_creation_sign_up_choices_mentor.html')
+    context = {}
     return HttpResponse(template.render(context, req))
 
 def the_second_move(req : HttpRequest) -> HttpResponse:
@@ -337,23 +282,26 @@ def register_mentee(req : HttpRequest) -> HttpResponse:
     
     """
     template = loader.get_template('sign-in card/single_page_mentee.html')
-    context = {
-        'interestlist': [
-            'Artificial Intelligence', 
-            'Computer Graphics', 
-            'Data Structures & Algorithms',
-            'Networking',
-            'Operating Systems',
-            'Embedded Systems',
-            'Cloud Computing',
-            'Software Engineering',
-            'Distrubuted Systems',
-            'Game Development',
-            'Cybersecruity',
-            'System Analysis'],
+    if not Interest.objects.exists():
+        Interest.create_default_interests()
+    
+    # import os
+    # print(os.getcwd())
+    country_codes : Dict
+    with open('mentorship_program_app/view_routes/countries.json', 'r') as file:
+        country_codes = json.load(file)
+        country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
         
-        'pronounlist1': ['he', 'she', 'they'],
-        'pronounlist2': ['him', 'her', 'them'],
+    
+    context = {
+        'interestlist':  Interest.objects.all(),
+        
+        'menteeEmailMessage': "You MUST use your SVSU.EDU email address.",
+        
+        'pronounlist1': ['', 'he', 'she', 'they'],
+        'pronounlist2': ['', 'him', 'her', 'them'],
+        
+        'country_codes' : country_codes,
         
         'useragreement': 
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
@@ -363,38 +311,49 @@ def register_mentee(req : HttpRequest) -> HttpResponse:
     }
     return HttpResponse(template.render(context, req))
 
-def register_mentor(req : HttpRequest) -> HttpResponse:
-    """
-    Description
-    -----------
-    Loads the account_creation_sign_up_choices_mentor HTML with an empty context
+# def register_mentor(req):
+#     template = loader.get_template('sign-in card/mentor/account_creation_sign_up_choices_mentor.html')
+#     context = {}
+#     return HttpResponse(template.render(context, req))
 
-    Parameters
-    ----------
-    - req (HttpRequest): The request information including items to be rendered
-        into the template
-
-    Optional Parameters
-    -------------------
-    (None)
-
-    Returns
-    -------
-    - HttpResponse: The rendered view template with the empty context and
-        HttpRequest information
-
-    Example Usage
-    -------------
+def register_mentor(req):
+    template = loader.get_template('sign-in card/single_page_mentor.html')
+    if not Interest.objects.exists():
+        Interest.create_default_interests()
+        
+        # C:\Users\andyp\OneDrive\Documents\GitHub\mentorship-program\mentorship_program_project
     
-    >>> path('register_mentor/', views.registor_mentor, name='Mentor Registration')
-    HttpResponse
+    country_codes : Dict
+    with open('mentorship_program_app/view_routes/countries.json', 'r') as file:
+        #country_codes = json.load(file).items() # dict(sorted(json.load(file).items(), key=lambda item: item[1].dial_code))
+        country_codes = json.load(file)
+        country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
+    #sorted(json.load(file))
+    context = {
+        'interestlist': Interest.objects.all(),
 
-    Authors
-    -------
-    
-    """
-    template = loader.get_template('sign-in card/mentor/account_creation_sign_up_choices_mentor.html')
-    context = {}
+        'pronounlist1': ['', 'he', 'she', 'they'],
+        'pronounlist2': ['', 'him', 'her', 'them'],
+        
+        'country_codes' : country_codes,
+
+        'companytypelist': [
+            'Manufacturing',
+            'Computer Science', 
+            'Math?'],
+            
+        'experiencelist': [
+            '0-4 years',
+            '5-9 years', 
+            '10+ years',
+            ],
+
+        'useragreement': 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+
+    }
     return HttpResponse(template.render(context, req))
 
 # --- #
@@ -507,68 +466,7 @@ def profile_card(req : HttpRequest) -> HttpResponse:
     context = {'items':items}
     return HttpResponse(template.render(context, req))
 
-#please make pretty front end we love you :D
-def home(req : HttpRequest) -> HttpResponse:
-    """
-    Description
-    -----------
-    Returns an HttpResponse containing some plaintext
-
-    Parameters
-    ----------
-    - req (HttpRequest): The request information
-
-    Optional Parameters
-    -------------------
-    (None)
-
-    Returns
-    -------
-    - HttpResponse: The HTTPResponse object containing the plaintext
-
-    Example Usage
-    -------------
-    
-    >>> path('home/', views.home, name='Home')
-    'theres no place me'
-
-    Authors
-    -------
-    
-    """
-    # What the hell is supposed to happen here.
-    # what is front end even supposed to do with this.
-    return HttpResponse('theres no place me')
-
-def role_test(req : HttpRequest) -> HttpResponse:
-    """
-    Description
-    -----------
-    Loads and renders an experimental page with an empty context
-
-    Parameters
-    ----------
-    - req (HttpRequest): The request information including items to be rendered
-        into the template
-
-    Optional Parameters
-    -------------------
-    (None)
-
-    Returns
-    -------
-    - HttpResponse: The fully rendered HTML page
-
-    Example Usage
-    -------------
-    
-    >>> path('role_test/', views.role_test, name='Experimental')
-    HttpResponse
-
-    Authors
-    -------
-    
-    """
+def role_test(req):
     template = loader.get_template('sign-in-card/experiment.html')
     context = {}
     return HttpResponse(template.render(context, req))
@@ -748,197 +646,158 @@ def account_activation_mentor(request : HttpRequest) -> HttpResponse:
     template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
     context = {}
     return HttpResponse(template.render(context, request))
-
-def admin_user_management(request : HttpRequest) -> HttpResponse:
-    """
-    Description
-    -----------
-    Loads and renders the admin user management page, filtering the users that
-    are shown to be only those within the admin's scope of authority.
-
-    Parameters
-    ----------
-    - req (HttpRequest): The request information including any items to be
-        rendered into the template
-
-    Optional Parameters
-    -------------------
-    (None)
-
-    Returns
-    -------
-    - HttpResponse: The fully rendered HTML page populated with a filtered set
-        of users.
-
-    Example Usage
-    -------------
     
-    >>> path('user_management/', views.admin_user_management,
-            name='Manage Users')
-    HttpResponse
+from django.shortcuts import get_object_or_404
 
-    Authors
-    -------
-    
+def get_mentor_data_from_mentor(mentor : 'Mentor',session_user : 'User')->dict:
     """
+    convinece function that returns mentor data for the front end to use,
+    I would muchly recommend going through the mentor objects themselfs if possible, but if this 
+    is the prefered method this function makes it easier to work with :)
+    """
+    mentor_data = {
+        'account': mentor,
+        'id': str(mentor),
+        #if you need the id mentor.account.id has it built in, so you don't need to pass it around twice,
+        #still if you feel its better here uncomment :)
+        #'id': str(mentor.account.id), #str(mentor.account), 
+        
+        #TODO:
+        # we didn't see any usage usage of this while exploring, we also simplified the python
+        # a bit to make it clearer what exactly this was passing over, we left the trailing , if
+        # its needed anywhere (didn't see anything erroring with this commented out though)
+        # if its still needed uncomment it :)
+        # -dk
+        'mentees': ",".join([str(m.account) for m in mentor._mentee_set.all()]),
+        'current_mentees': mentor.mentee_set.count(),
+        'max_mentees': mentor.int_max_mentees,
+
+        # 'mentees': mentee_list,
+        'mentor_admin_flag': session_user.is_super_admin() #auto caches :)
+    }
+    return mentor_data
+
+def admin_user_management(request):
+    '''
+    Modified: 04/06/2024 Tanner K.
+    -   Added functionality for org admins to access page. Primary change is organization 
+        creation is directly tied to the boolean bl_user_org_admin and an if/elif block. 
+    '''
+    
     template = loader.get_template('admin/user_management.html')
     session_user = User.from_session(request.session)
 
     # Create storge for list
-    unaffiliated_mentors = []
     organizations = []
     mentees = []
 
-    # role = session_user.get_database_role_string
-    # TESTING
-    role = User.Role.ADMIN
-
-    # Preset admin flag to false
-    user_admin_flag = False
-
-    # Check if user is a organization admin
-    for organization in Organization.objects.all():
-        for admin in organization.admins.all():
-            if (session_user == admin):
-                # Set admin flag to true
-                user_admin_flag = True
-
-                # Store organization 
-                user_organization = organization
-
+    # Create var for checking if user is org admin
+    bl_user_org_admin = False
 
     # Load from database based on role
     # Check if user is an admin
-    if (role == User.Role.ADMIN):
-        # Get all mentee and mentor data from database
+    if (session_user.is_super_admin()):
+        print_debug("loading with role admin")
+        # Get all mentee, mentor, and organization data from database
         user_management_mentee_data = Mentee.objects
         user_management_mentor_data = Mentor.objects
         user_management_organizations_data = Organization.objects
 
+        orgs = user_management_organizations_data.select_related(
+                                            "admin_mentor"
+                                ).prefetch_related(
+                                                    "mentor_set",
+                                                    "mentor_set___mentee_set",
+                                                    "mentor_set__account",
+                                                    "mentor_set___mentee_set__account",
+                                                    "mentor_set__administered_organizations"
+                                                    )
+
     # Check if user is an organization admin
-    elif (user_admin_flag):
-        # Get all mentee data and mentor data from within the organization
-        user_management_mentor_data = Mentee.objects
-        user_management_mentor_data = Mentor.objects
-        user_management_organizations_data = Organization.objects.filter(user_organization == Organization)
-
-    # for org in organizations.all():
-    #     print(org.admins)
-
-    # Cycle through organizations storing organization data
-    for organization in user_management_organizations_data.all():
-        # Create admin list for organization
-        admin_list = []
-
-        # Cycle through admins of organization
-        for admin in organization.admins.all():
-            # Remove mentor from unafiiaited mentor group
-            user_management_mentor_data.remove(admin)
-
-            # Get mentorship objects if possible    
-            mentorships = MentorshipRequest.objects.filter(mentor=mentor.account)
-
-            # Set current mentor amount from mentorship object's count
-            current_mentees = mentorships.count()
-            
-            # Check if mentor has at least 1 mentorship
-            if (current_mentees > 0):
-                # Create an empty list for mentees
-                mentee_list = []
-
-                # Loop through mentorship list, adding mentees to mentee list
-                for current_mentorship in mentorships:
-                    mentee_list.append(current_mentorship.mentee)
-            else:
-                # Set mentee list to none
-                mentee_list = None
-
-            # Add needed mentee info to organization list
-            admin_list.append(
-                {
-                    'account': mentor.account,
-                    'mentees': mentee_list,
-                    'current_mentees': current_mentees,
-                    'max_mentees': mentor.int_max_mentees
-                }
-            )
-
-            # FOR TESTING
-            print()
-            print(mentor.account)
-
-        # FOR TESTING
-        print(organization.str_org_name)
-
-        organizations.append({'name': organization.str_org_name, 'admin_list': admin_list})
-
-    # Cycle through unaffiliated mentors storing mentor data
-    for mentor in user_management_mentor_data.all():
-        # Get mentorship objects if possible    
-        mentorships = MentorshipRequest.objects.filter(mentor=mentor.account)
-
-        # Set current mentor amount from mentorship object's count
-        current_mentees = mentorships.count()
+    elif (session_user.is_an_org_admin()):
+        print_debug("hello from the organization admin side of things UwU")
+        # TODO NEED TO SET UP TO GET ONLY DATA THAT IS NEEDED FOR THAT ORG, ONLY MENTORS WITHIN ORG AND METEES REALTED TO THEM
+        # MAYBE FILTER MENTORS BY ORG AND METEES BY MENTORS WITHIN ORG
         
-        # Check if mentor has at least 1 mentorship
-        if (current_mentees > 0):
-            # Create an empty list for mentees
-            mentee_list = []
+        bl_user_org_admin = True
 
-            # Loop through mentorship list, adding mentees to mentee list
-            for current_mentorship in mentorships:
-                mentee_list.append(current_mentorship.mentee)
-        else:
-            # Set mentee list to none
-            mentee_list = None
+        # Get all mentee data, only the admin's organization, and mentor data from within the organization
+        # user_management_mentee_data = Mentee.objects
+        # user_management_mentor_data = Mentor.objects
 
-        # FOR TESTING
-        print()
-        print(mentor.account)
+        #TODO: you can be admin of more than one organization so get will error since it expects a single return value,
+        #this should be a filter instead of a git, ill chage it if I get to it in time with optimization, but ima leave this note
+        #here for others or incase I forget -dk
+        organization = Organization.objects.get(admin_mentor_id=session_user.mentor)
+        user_management_mentee_data = Mentee.objects.filter(mentor__organization=organization)
+        user_management_mentor_data = Mentor.objects.filter(organization=organization)
 
-        # Add needed mentee info to mentees list
-        unaffiliated_mentors.append(
+        user_management_organizations_data = organization
+
+        orgs = [organization]
+
+        # return HttpResponse(organization, mentees_with_mentors_in_organization)
+
+    else:
+        return bad_request_400("Access Denied")
+
+
+    # Cycle through organizations
+    for organization in orgs:
+        # Inizilize empty list for mentors and admins
+        org_admin = None
+        mentor_list = []
+        
+        if organization.admin_mentor != None:
+            org_admin = get_mentor_data_from_mentor(organization.admin_mentor,session_user)
+
+        organizations.append(
             {
-                'account': mentor.account,
-                'mentees': mentee_list,
-                'current_mentees': current_mentees,
-                'max_mentees': mentor.int_max_mentees
+                'organization': organization,
+                'id': str(organization),
+                'name': organization.str_org_name,
+                'admin_list': [org_admin] if org_admin != None else [], #this def does not need to be a list now
+                                                                        #unless we want to re-listify admins which we could do
+                'mentor_list':  [
+                                            get_mentor_data_from_mentor(m,session_user) for m in 
+                                            organization.mentor_set.all() 
+                                            if org_admin == None or organization.admin_mentor.id != m.id
+                                ]
             }
         )
 
-    # Cycle through mentee storing mentee data
-    for mentee in user_management_mentee_data.all():
-        # Get mentorship object if possible    
-        mentorship = MentorshipRequest.objects.filter(mentee=mentee.account)
-        
-        # Check if mentee is include in any MentorshipReqiest objects and set has_mentor and mentor accordingly
-        if (mentorship):
-            has_mentor = True
-            mentor = mentorship[0].mentor
-        else:
-            has_mentor = False
-            mentor = None
-
+    #TODO dk:  make this prefetch data so we don't query like a horse in the desert without water that gets to an oasis its currently midnight he;p
+    mentee_query = user_management_mentee_data.all().prefetch_related("account","mentor")
+    for mentee in mentee_query:
         # Add needed mentee info to mentees list
-        mentees.append(
-            {
-                'account': mentee.account,
-                'mentor': mentor,
-                'has_mentor': has_mentor
-            }
-        )
+        mentees.append({
+            'account': mentee,
+            'id': str(mentee),
+            'mentor': mentee.mentor
+        })
 
     context = {
         'mentees': mentees,
-        'unaffiliated_mentors': unaffiliated_mentors,
+        'unaffiliated_mentors': [
+                                    get_mentor_data_from_mentor(m,session_user) for m in 
+                                    
+                                    user_management_mentor_data.annotate(org_count=Count("organization")).filter(org_count=0).prefetch_related(
+                                        "mentee_set","account","mentee_set__account"
+                                        )
+                                 ],
         'organizations': organizations,
-        'role': role,
-        'ADMIN': User.Role.ADMIN,
-        'user_admin_flag': user_admin_flag
+        'role': session_user.str_role,
+
+        'session_user_account': session_user,
+        'organization_counter': Organization.objects.count(),
+
+        'user_admin_flag': session_user.is_super_admin(),
+        'user_organization_admin_flag': session_user.is_an_org_admin()
     }
 
-    return HttpResponse(template.render(context,request))
+    render = template.render(context,request)
 
+    return HttpResponse(render)
 
 
 
@@ -974,9 +833,8 @@ def logout(request : HttpRequest) -> HttpResponse:
     
     """
     if security.logout(request.session):
-        return HttpResponse("logged out!")
-    
-    #TODO: redirect this to a correct form
+        return redirect("/")
+    #TODO: redirect this to a correct form ||||| probably done - Tanner
     response = HttpResponse("an internal error occured, unable to log you out, STAY FOREVER")
     response.status_code = 500
     return response
@@ -1025,57 +883,52 @@ def login_uname_text(request : HttpRequest) -> HttpResponse:
     #print_debug("uname " + uname)
     #print_debug("password " + password)
 
-
     if not User.check_valid_login(uname,password):
-        response = HttpResponse(json.dumps({"warning":"invalid creds"}))
+        response = HttpResponse(json.dumps({"warning":"The username/password you have entered is incorrect."}))
         response.status_code = 401
         return response
  
     #valid login
-    security.set_logged_in(request.session,User.objects.get(cls_email_address=uname).id)
-    user = User.objects.get(cls_email_address=uname)
-    user.str_last_login_date = date.today()
-    user.save()
+    if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
+        response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
+        response.status_code = 401
+        return response
 
+    if User.objects.get(cls_email_address=uname).bln_account_disabled:
+        response = HttpResponse(json.dumps({"warning":"Your account has been disabled"}))
+        response.status_code = 401
+        return response
+
+    user = User.objects.get(cls_email_address=uname)
+
+    user.str_last_login_date = timezone.now()
+    # if the user deactivated their own account, reactivate it
+    if not user.bln_active and not user.bln_account_disabled:
+        user.bln_active = True
+    user.save()
     # record logs
     SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
+
+
 
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
 
+
 # view goes to currently static approve/delete mentors page
-def mentor_judgement(request : HttpRequest) -> HttpResponse:
-    
-    """
-    Description
-    -----------
-    Loads and renders the page of pending mentors
+@security.Decorators.require_login(invalid_request_401)
+def change_settings(request):
+    user = User.from_session(request.session)
+    template = loader.get_template('settings.html')
+    context = {"bln_notifications_on": user.bln_notifications}
+    return HttpResponse(template.render(context,request))
 
-    Parameters
-    ----------
-    - request (HttpRequest): The request information including any items to be
-        rendered into the template
+# view goes to currently static view reported users page
+def admin_reported_users(request):
+    template = loader.get_template('admin/admin_reported_users.html')
 
-    Optional Parameters
-    -------------------
-    (None)
-
-    Returns
-    -------
-    - HttpResponse: The fully rendered HTML page
-
-    Example Usage
-    -------------
-    
-    >>> path('pending_mentors/', views.mentor_judgement, name='JUDGE THEM!')
-    HttpResponse
-
-    Authors
-    -------
-    
-    """
-    template = loader.get_template('pending_mentors.html')
-    context = {}
+    user_reports_dict = UserReport.get_unresolved_reports_grouped_by_user()
+    context = {"user_reports_dict": user_reports_dict}
     return HttpResponse(template.render(context,request))
 
 # view goes to mentor_group_view

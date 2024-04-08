@@ -8,6 +8,7 @@ SVSU Mentoring
 
 {% block style %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/admin_dashboard.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
 {% endblock %}
 
 {% block main_content %}
@@ -18,13 +19,17 @@ SVSU Mentoring
         <h1>Administrator Dashboard</h1>
 
         <div class="dashboard-top-section">
-            <div class="card undergraduate-status">
-                <img src="{% static 'images/exclamation.jpg' %}">
-                <h3>Verify Mentee Undergraduate Status</h3>
+            <div class="card undergraduate-status" id="verify-mentee-ug-status-button">
+                <form id="verify-mentee-ug-status-form" action="/verify-mentee-ug-status/" method="POST">
+                    {% csrf_token %}
+                    <img src="{% static 'images/exclamation.jpg' %}">
+                    <h3>Verify Mentee Undergraduate Status</h3>
+                    <input id="verify-undergrad-btn" type="submit" value="" style="display: none;" />
+                </form>
             </div>
             <div class="card review-mentor-applications" id="mentorApplications">
                 <img src="{% static 'images/mail.jpg' %}">
-                <h3>Review Mentor Applications: {{pending_mentor}} Remaining</h3>
+                <h3>Review Mentor Applications: {{pending_mentors}} Remaining</h3>
             </div>
             <div class="card stats program-statistics">
                 <h2>Program Statistics</h2>
@@ -32,15 +37,15 @@ SVSU Mentoring
                     <p>Active Mentees: {{active_mentees}}</p>
                     <p>Active Mentors: {{active_mentors}}</p>
                     <p>Mentee per Mentor: {{mentees_per_mentor}}</p>
-                    <p>Mentorships Created: {{total_approved_mentorships}}</p>
+                    <p>Successful Match Rate: {{successful_match_rate}}</p>
+                    <p>Assigned Mentees: {{assigned_mentees}}</p>
+                    <p>Assigned Mentors: {{assigned_mentors}}</p>
+                    <p>Unresolved Reports: {{unresolved_reports}}</p>
+                    <p>Mentor Retention Rate: {{mentor_retention_rate}}</p>
                     <p>Unassigned Mentees: {{unassigned_mentees}}</p>
                     <p>Unassigned Mentors: {{unassigned_mentors}}</p>
-                    <p>Mentor Retention Rate: {{mentor_retention_rate}}</p>
-                    <p>Mentorships Requested: {{total_requested_mentorships}}</p>
                     <p>Inactive Mentees: {{inactive_mentees}}</p>
                     <p>Inactive Mentors: {{inactive_mentors}}</p>
-                    <p>Mentor Turnover Rate: {{mentor_turnover_rate}}</p>
-                    <p>Successful Match Rate: {{successful_match_rate}}</p>
                 </div>
             </div>
             <div class="card stats daily-statistics">
@@ -49,9 +54,10 @@ SVSU Mentoring
                     <li>{{daily_visitors}} Site Visitors</li>
                     <li>{{daily_mentee_signup}} Mentee Signups</li>
                     <li>{{daily_mentor_signup}} Mentor Applications</li>
-                    <li>{{daily_assigned_mentees}} Assigned Mentees</li>
+                    <li>{{daily_assigned_mentees}} Created Mentorships</li>
                     <li>{{daily_deactivate_mentors}} Deactivated Mentor Accounts</li>
                     <li>{{daily_deactivate_mentees}} Deactivated Mentee Accounts</li>
+                    <li>{{daily_terminated_mentorships}} Terminated Mentorships</li>
                 </ul>
             </div>
             <div class="card stats weekly-statistics">
@@ -60,9 +66,10 @@ SVSU Mentoring
                     <li>{{weekly_visitors}} Site Visitors</li>
                     <li>{{weekly_mentee_signup}} Mentee Signups</li>
                     <li>{{weekly_mentor_signup}} Mentor Applications</li>
-                    <li>{{weekly_assigned_mentees}} Assigned Mentees</li>
+                    <li>{{weekly_assigned_mentees}} Created Mentorships</li>
                     <li>{{weekly_deactivate_mentors}} Deactivated Mentor Accounts</li>
                     <li>{{weekly_deactivate_mentees}} Deactivated Mentee Accounts</li>
+                    <li>{{weekly_terminated_mentorships}} Terminated Mentorships</li>
                 </ul>
             </div>
             <div class="card stats monthly-statistics">
@@ -71,9 +78,11 @@ SVSU Mentoring
                     <li>{{monthly_visitors}} Site Visitors</li>
                     <li>{{monthly_mentee_signup}} Mentee Signups</li>
                     <li>{{monthly_mentor_signup}} Mentor Applications</li>
-                    <li>{{monthly_assigned_mentees}} Assigned Mentees</li>
+                    <li>{{monthly_assigned_mentees}} Created Mentorships</li>
                     <li>{{monthly_deactivate_mentors}} Deactivated Mentor Accounts</li>
                     <li>{{monthly_deactivate_mentees}} Deactivated Mentee Accounts</li>
+                    <li>{{monthly_terminated_mentorships}} Terminated Mentorships</li>
+
                 </ul>
             </div>
             <div class="card stats lifetime-statistics">
@@ -82,44 +91,74 @@ SVSU Mentoring
                     <li>{{lifetime_visitors}} Site Visitors</li>
                     <li>{{lifetime_mentee_signup}} Mentee Signups</li>
                     <li>{{lifetime_mentor_signup}} Mentor Applications</li>
-                    <li>{{lifetime_assigned_mentees}} Assigned Mentees</li>
+                    <li>{{lifetime_assigned_mentees}} Created Mentorships</li>
                     <li>{{lifetime_deactivate_mentors}} Deactivated Mentor Accounts</li>
                     <li>{{lifetime_deactivate_mentees}} Deactivated Mentee Accounts</li>
+                    <li>{{lifetime_terminated_mentorships}} Terminated Mentorships</li>
                 </ul>
             </div>
-            <div class="card generate-mentee-reports" id="generate-reports-button">
+    
+            <div class="card generate-reports" id="generate-reports-button">
                 <form id="generate-reports-form" action="/generate_report" method="POST">
                     {% csrf_token %}
-                    <h3>Generate Mentee Reports</h3>
+                    <h3>Generate Reports</h3>
                     <input type="submit" value="" style="display: none;" />
                 </form>
+            </div>
+
+            <div class="card view-reported-users" id="view-reported-users">
+                <h3>View Reported Users: {{unresolved_reports}} Unresolved</h3>
             </div>
 
             <div class="card user-management" id="user-management">
                 <img src="{% static 'images/person.jpg' %}">
                 <h3>User Management</h3>
             </div>
+
+            <div class="card btn-edit-interests" id="btn-edit-interests">
+                <h3>Edit Interest List</h3>
+            </div>
         </div>
     </div>
 </section>
+
+{% include 'admin/edit_interests_modal.html' %}
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const buttonDiv = document.getElementById('mentorApplications');
+document.addEventListener('DOMContentLoaded', () => {
     const userManagementBtn = document.getElementById('user-management');
-    userManagementBtn.addEventListener('click', () => {
-        window.location.href = './admin_user_management';
-    });
-    buttonDiv.addEventListener('click', function() {
-        window.location.href = './view_pending';
-    });
+    const viewReportedUsersBtn = document.getElementById('view-reported-users');
+    const buttonDiv = document.getElementById('mentorApplications');
+    const editInterestsBtn = document.getElementById('btn-edit-interests');
+    const interests_modal = document.getElementById('interests-modal')
+    const load_overlay = document.getElementById('loading-overlay')
+    
+    
+    userManagementBtn.addEventListener('click', () => window.location.href = '/admin_user_management');
+    viewReportedUsersBtn.addEventListener('click', () => window.location.href = '/admin_reported_users');
+    buttonDiv.addEventListener('click', () => window.location.href = '/view_pending');
+    if(interests_modal)
+    {
+        editInterestsBtn.addEventListener('click', () => interests_modal.showModal());
+        document.getElementById('modal-exit').addEventListener('click', () => interests_modal.close())
+    }
+    
+
     var generateButton = document.getElementById("generate-reports-button");
-        var generateForm = document.getElementById("generate-reports-form");
+    var generateForm = document.getElementById("generate-reports-form");
 
-        generateButton.addEventListener("click", function() {
-            generateForm.submit();
-        });
+    generateButton.addEventListener("click", () => {
+        if(load_overlay)
+            load_overlay.remove()
+
+        generateForm.submit()
+    });
+
+    var validateMenteeUGStatusButton = document.getElementById("verify-mentee-ug-status-button");
+    var validateMenteeUGStatusForm = document.getElementById("verify-mentee-ug-status-form");
+
+    validateMenteeUGStatusButton.addEventListener("click", () => validateMenteeUGStatusForm.submit());
 });
-
 </script>
 {% endblock %}
 
