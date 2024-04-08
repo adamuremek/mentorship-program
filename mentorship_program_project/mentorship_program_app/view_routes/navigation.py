@@ -47,6 +47,7 @@ def global_nav_data(req):
     if authenticated:
         session_user = User.from_session(req.session)
         context['user'] = session_user
+        context['org_admin'] = session_user.is_an_org_admin()
 
     return context
 
@@ -73,12 +74,9 @@ def dashboard(req):
     role = session_user.get_database_role_string()
     opposite_role = session_user.get_opposite_database_role_string()
 
-
     if session_user.is_super_admin():
         return admin_dashboard(req)
-
         
-
     if opposite_role == "Mentor":
         requests = MentorshipRequest.objects.all().filter(mentor_id = OuterRef('pk'),mentee_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
@@ -94,7 +92,8 @@ def dashboard(req):
         ).annotate(
                 is_requested_by_session=Subquery(requests_count)
                 ).filter(
-            has_maxed_mentees=False,  # Exclude mentors who have maxed out their mentee slots
+            has_maxed_mentees=False,
+              bln_active = True,  # Exclude mentors who have maxed out their mentee slots
         ).filter(
             str_role='Mentor'
         ).select_related(
@@ -108,52 +107,55 @@ def dashboard(req):
         ).select_related(
                 'mentee'
         ).order_by(
-                'is_requested_by_session' #make sure all mentors who we can cancel get displayed up top
+                'is_requested_by_session','str_last_name' #make sure all mentors who we can cancel get displayed up top
         )
 
         users = [user.sanitize_black_properties() for user in card_data]
         session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
 
-
-
     if opposite_role == "Mentee":
+
+        #sub query to count the number of requests for setting
+        requests = MentorshipRequest.objects.all().filter(mentee_id = OuterRef('pk'),mentor_id=session_user.id)
+        requests_count = requests.annotate(c=Count("*")).values('c')
+
         card_data = User.objects.filter(
             str_role='Mentee',
+            bln_active = True,
             mentee__mentor=None
         ).prefetch_related(
             'interests'  # Prefetch the interests of the associated User
         ).prefetch_related(
             'profile_img_query'
+        ).prefetch_related(
+                'mentee'
+        ).prefetch_related(
+                'mentor'
+        ).prefetch_related(
+                'mentee__mentor'
+        ).annotate(
+                is_requested_by_session=Subquery(requests_count)
+        ).order_by(
+                'is_requested_by_session','str_last_name' #make sure requested mentees appear first
         )
 
         users = [user.sanitize_black_properties() for user in card_data]
+        session_user.has_maxed_requests_as_mentee = False
+        print(f"finished mentee query as mentor @ {get_runtime()-start_time}")
     
-    #print("starting recomendation algorithm")
-    #recommended_users = session_user.get_recomended_users()
-    #print("ending recomendation algorithm")
-    #for p in recommended_users:
-    #    print((p.str_first_name,p.str_last_name,p.likeness))
-
-   # Retrieve a list of recommended users
+    # Retrieve a list of recommended users
     recommended_users = session_user.get_recomended_users()
-
-    # Get the IDs of recommended users
-    recommended_user_ids = [user.id for user in recommended_users]
-
-    # Retrieve a dictionary indicating whether the current user has requested each recommended user
-    requested_users = session_user.has_requested_user_all(recommended_user_ids)
-
-    # Set the is_requested_by_session property for each recommended user based on the dictionary
-    for user in recommended_users:
-        user.is_requested_by_session = requested_users.get(user.id, False)
-
-
+    #for u in recommended_users:
+    #    print(u.request_count)
 
     #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
-        card_data = card_data.exclude(mentee__mentor = session_user.mentor)
+        card_data = card_data.exclude(mentee__mentor__id = session_user.mentor.id)
     elif session_user.is_mentee() and session_user.mentee.mentor:
         card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
+
+
+    print(f"finished exlusion @ {get_runtime()-start_time}")
     
 
     interests_with_role_count = Interest.objects.annotate(
@@ -163,10 +165,6 @@ def dashboard(req):
     # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
     #set up the django users to include a property indicateing they have been reqeusted by the current user
 
-    # Get a list of user IDs
-    user_ids = [user.id for user in users]
-    # Retrieve a dictionary indicating whether the current user has requested each user
-    requested_users = session_user.has_requested_user_all(user_ids)
 
     #cache the result of this query so we are not using it in the rendered view
     context = {
@@ -179,7 +177,7 @@ def dashboard(req):
     }
 
     
-    print("Time for query: ", get_runtime()-start_time )
+    print("Time for query: ", get_runtime()-start_time)
     render = template.render(context, req)
 
     print("Time: " ,get_runtime()-start_time)
@@ -197,6 +195,8 @@ def admin_dashboard(req):
     overall_stats = get_project_overall_statistics()
     timespan_stats = get_project_time_statistics()
 
+    interests = Interest.objects.all()
+
     context = {
                "active_mentees"              : overall_stats["active_mentees"              ],
                "assigned_mentees"            : overall_stats["assigned_mentees"            ],
@@ -208,46 +208,49 @@ def admin_dashboard(req):
                "inactive_mentors"            : overall_stats["inactive_mentors"            ],
                "mentees_per_mentor"          : overall_stats["mentees_per_mentor"          ],
                "mentor_retention_rate"       : overall_stats["mentor_retention_rate"       ],
-               "mentor_turnover_rate"        : overall_stats["mentor_turnover_rate"        ],
-               "total_approved_mentorships"  : overall_stats["total_approved_mentorships"  ],
-               "total_requested_mentorships" : overall_stats["total_requested_mentorships" ],
+              
                "successful_match_rate"       : overall_stats["successful_match_rate"       ],
                "pending_mentors"             : overall_stats["pending_mentors"             ],
-               "total_terminated_mentorships": overall_stats["total_terminated_mentorships"],
-               "mentees_reported"            : overall_stats["mentees_reported"            ],
+              
                "unresolved_reports"          : overall_stats["unresolved_reports"          ],
                
+               "interests"                   : interests,
+               
                # Daily
-               "daily_visitors"              : timespan_stats["Daily"][0],
-               "daily_mentee_signup"         : timespan_stats["Daily"][1],
-               "daily_mentor_signup"         : timespan_stats["Daily"][2],
-               "daily_assigned_mentees"      : timespan_stats["Daily"][3],
-               "daily_deactivate_mentees"    : timespan_stats["Daily"][4],
-               "daily_deactivate_mentors"    : timespan_stats["Daily"][5],
+               "daily_visitors"                  : timespan_stats["Daily"][0],
+               "daily_mentee_signup"             : timespan_stats["Daily"][1],
+               "daily_mentor_signup"             : timespan_stats["Daily"][2],
+               "daily_assigned_mentees"          : timespan_stats["Daily"][3],
+               "daily_deactivate_mentees"        : timespan_stats["Daily"][4],
+               "daily_deactivate_mentors"        : timespan_stats["Daily"][5],
+               "daily_terminated_mentorships"    : timespan_stats["Daily"][6],
 
                # Week
-               "weekly_visitors"             : timespan_stats["Weekly"][0],
-               "weekly_mentee_signup"        : timespan_stats["Weekly"][1],
-               "weekly_mentor_signup"        : timespan_stats["Weekly"][2],
-               "weekly_assigned_mentees"     : timespan_stats["Weekly"][3],
-               "weekly_deactivate_mentees"   : timespan_stats["Weekly"][4],
-               "weekly_deactivate_mentors"   : timespan_stats["Weekly"][5],
+               "weekly_visitors"                 : timespan_stats["Weekly"][0],
+               "weekly_mentee_signup"            : timespan_stats["Weekly"][1],
+               "weekly_mentor_signup"            : timespan_stats["Weekly"][2],
+               "weekly_assigned_mentees"         : timespan_stats["Weekly"][3],
+               "weekly_deactivate_mentees"       : timespan_stats["Weekly"][4],
+               "weekly_deactivate_mentors"       : timespan_stats["Weekly"][5],
+               "weekly_terminated_mentorships"   : timespan_stats["Weekly"][6],
                
                # Month
-               "monthly_visitors"             : timespan_stats["Monthly"][0],
-               "monthly_mentee_signup"        : timespan_stats["Monthly"][1],
-               "monthly_mentor_signup"        : timespan_stats["Monthly"][2],
-               "monthly_assigned_mentees"     : timespan_stats["Monthly"][3],
-               "monthly_deactivate_mentees"   : timespan_stats["Monthly"][4],
-               "monthly_deactivate_mentors"   : timespan_stats["Monthly"][5],
+               "monthly_visitors"                : timespan_stats["Monthly"][0],
+               "monthly_mentee_signup"           : timespan_stats["Monthly"][1],
+               "monthly_mentor_signup"           : timespan_stats["Monthly"][2],
+               "monthly_assigned_mentees"        : timespan_stats["Monthly"][3],
+               "monthly_deactivate_mentees"      : timespan_stats["Monthly"][4],
+               "monthly_deactivate_mentors"      : timespan_stats["Monthly"][5],
+               "monthly_terminated_mentorships"  : timespan_stats["Monthly"][6],
                
                # Lifetime
-               "lifetime_visitors"            : timespan_stats["Lifetime"][0],
-               "lifetime_mentee_signup"       : timespan_stats["Lifetime"][1],
-               "lifetime_mentor_signup"       : timespan_stats["Lifetime"][2],
-               "lifetime_assigned_mentees"    : timespan_stats["Lifetime"][3],
-               "lifetime_deactivate_mentees"  : timespan_stats["Lifetime"][4],
-               "lifetime_deactivate_mentors"  : timespan_stats["Lifetime"][5],
+               "lifetime_visitors"               : timespan_stats["Lifetime"][0],
+               "lifetime_mentee_signup"          : timespan_stats["Lifetime"][1],
+               "lifetime_mentor_signup"          : timespan_stats["Lifetime"][2],
+               "lifetime_assigned_mentees"       : timespan_stats["Lifetime"][3],
+               "lifetime_deactivate_mentees"     : timespan_stats["Lifetime"][4],
+               "lifetime_deactivate_mentors"     : timespan_stats["Lifetime"][5],
+               "lifetime_terminated_mentorships" : timespan_stats["Lifetime"][6],
                
             }
     return HttpResponse(template.render(context, req))

@@ -1,13 +1,15 @@
-from django.http import HttpRequest, FileResponse, HttpResponse
-from django.conf import settings
-from datetime import date, datetime, timedelta
+from django.http import HttpRequest, HttpResponse
+from datetime import datetime, timedelta
 
-from ..models import User
-from ..models import Mentor
+from django.db.models import Count, Value
+from django.db.models.functions import Concat
+from ..models import Mentee, User
 from ..models import SystemLogs
 from ..models import UserReport
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
+from openpyxl.worksheet.table import Table, TableStyleInfo
+from django.utils import timezone
 import os
 from io import BytesIO
 
@@ -16,43 +18,48 @@ def get_project_time_statistics():
         Authors Andrew P. Jordan A.
         Collect and synthesize data from Systemlogs and output results based on timespans
     """
-    week_ago_date = date.today() - timedelta(days=7)
-    month_ago = date.today() - timedelta(days=30)
+    now = timezone.localtime(timezone.now()).date()
+    week_ago_date = now - timedelta(days=7)
+    month_ago_date = now - timedelta(days=30)
 
     daily_stats = (
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on=date.today()).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on=date.today()).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on=now).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on=now).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, cls_log_created_on=now).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on=now).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on=now).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on=now).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, cls_log_created_on=now).count()
     )
 
     weekly_stats = (
         SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on__gte=week_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=week_ago_date).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=week_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, cls_log_created_on__gte=week_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on__gte=week_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on__gte=week_ago_date).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on__gte=week_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, cls_log_created_on__gte=week_ago_date).count()
     )
 
     monthly_stats = (
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on__gte=month_ago).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=month_ago).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=month_ago).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on__gte=month_ago).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on__gte=month_ago).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on__gte=month_ago).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, cls_log_created_on__gte=month_ago_date).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, cls_log_created_on__gte=month_ago_date).count()
     )
 
     lifetime_stats = (
         SystemLogs.objects.filter(str_event=SystemLogs.Event.LOGON_EVENT).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT).count(),
-        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_REGISTER_EVENT).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT,).count(),
         SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT,).count(),
+        SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT).count()
     )
 
     return {"Daily":daily_stats, "Weekly":weekly_stats, "Monthly":monthly_stats, "Lifetime":lifetime_stats}
@@ -64,11 +71,8 @@ def get_project_overall_statistics():
         Collect and synthesize data from Systemlogs based on general stats
     """
 
-    inactive_date = datetime.now() - timedelta(days=365)
     # Query to count the number of Mentors who are currently inactive
     inactive_mentors_count = User.objects.filter(str_role='Mentor', bln_active=False).count()
-    # Query to count the number of Mentors who are currently active
-    active_mentors_count = User.objects.filter(str_role='Mentor', bln_active=True).count()
     # Number of total mentees
     total_mentees = User.objects.filter(str_role='Mentee').count()
     # Number of total mentors
@@ -78,62 +82,88 @@ def get_project_overall_statistics():
     # Total amount of requested mentorships
     total_requested_mentorships = SystemLogs.objects.filter(str_event=SystemLogs.Event.REQUEST_MENTORSHIP_EVENT).count()
 
-    #  user.mentor.account if page_owner_mentee.mentor != None else None
-    all_mentees = User.objects.filter(str_role='Mentee')
-
     # count number of unassigned mentees
-    unassigned_mentees = 0
-    for mentee in all_mentees:
-        if mentee.mentee.mentor_id == None:
-            unassigned_mentees += 1
-
-    # count number of unassigned mentors
-    unassigned_mentors = 0
-   
-    for mentor in User.objects.filter(str_role ="Mentor", bln_active=True, bln_account_disabled=False):
-        mentor_obj = getattr(mentor, 'mentor', None)
-        
-        if len(mentor_obj.mentee_set.all()) == 0:
-            unassigned_mentors += 1
-
-    active_mentors_count = User.objects.filter(str_role='Mentor',str_last_login_date__gte=inactive_date).count()
-
-    # count number of reports with unique mentor 
-    mentors_reported = UserReport.objects.filter(user__str_role=User.Role.MENTOR).values("user").distinct().count()
-    mentees_reported = UserReport.objects.filter(user__str_role=User.Role.MENTEE).values("user").distinct().count()
-    # count number of unresolved reports
-    unresolved_reports = UserReport.objects.filter(bln_resolved = False).count()
+    unassigned_mentees = Mentee.objects.filter(mentor=None).count()
+    assigned_mentors = User.objects.all().filter(str_role='Mentor').annotate(mentee_count=Count('mentor___mentee_set')).exclude(mentee_count=0).count()
 
     return {
         "active_mentees"               : User.objects.filter(str_role='Mentee', bln_active=True).count(),
         "assigned_mentees"             : total_mentees - unassigned_mentees,
         "unassigned_mentees"           : unassigned_mentees,
         "inactive_mentees"             : User.objects.filter(str_role='Mentee', bln_active=False).count(),
-        "active_mentors"               : active_mentors_count,
-        "assigned_mentors"             : total_mentors - unassigned_mentors,
-        "unassigned_mentors"           : unassigned_mentors,
+        
+        "active_mentors"               :  User.objects.filter(str_role='Mentor', bln_active=True).count(),
+        "assigned_mentors"             : assigned_mentors,
+        "unassigned_mentors"           : total_mentors - assigned_mentors,
         "inactive_mentors"             : inactive_mentors_count,
+
         "mentees_per_mentor"           : f"{round(total_mentees/total_mentors,2)}" if total_mentors != 0 else 'N/A',
         "mentor_retention_rate"        : f"{round(100 - ((inactive_mentors_count / total_mentors) * 100))}%" if total_mentors != 0 else 'N/A',
-        "mentor_turnover_rate"         : f"{round((inactive_mentors_count / total_mentors ) * 100)}%" if total_mentors != 0 else 'N/A',
-        "total_approved_mentorships"   : total_approved_mentorships,
-        "total_requested_mentorships"  : total_requested_mentorships,
-        "successful_match_rate"        : f"{round(total_approved_mentorships/total_requested_mentorships * 100)}%" if total_requested_mentorships != 0 else "N/A",
-        "total_terminated_mentorships" : SystemLogs.objects.filter(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT).count(),
+        "successful_match_rate"        : f"{round(total_approved_mentorships / total_requested_mentorships * 100)}%" if total_requested_mentorships != 0 else "N/A",
+        
         "pending_mentors"              : User.objects.filter(str_role='MentorPending').count(),
-        "mentees_reported"             : mentees_reported,
-        "mentors_reported"             : mentors_reported,
-        "unresolved_reports"           : unresolved_reports,
+        "unresolved_reports"           : UserReport.objects.filter(bln_resolved = False).count()
     }
 
-def generate_report(req : HttpRequest):
+def create_systemlog_sheet(workbook: Workbook):
     """
-    Authors Andrew P. Jordan A.
-    Generate report (duh!)
+        Authors Jordan A.
+        Collects all the systemlogs and creates a sheet supplied with that data
     """
-    workbook = Workbook()
-    worksheet = workbook.active
-    worksheet.title = "Mentorship Statistics"
+    worksheet = workbook.create_sheet("Report Logs")
+    
+    # Get all SystemLogs
+    # Order them by: Event Name, Date Created On
+    # Selecting: Event Name, Date Created On, User ID, User's Full Name
+    all_system_logs = SystemLogs.objects.order_by("-cls_log_created_on").annotate(
+    full_name=Concat('specified_user__str_first_name', Value(' '), 'specified_user__str_last_name')
+    ).values_list('str_event', 'cls_log_created_on', 'specified_user__id', 'full_name')
+
+    # Append header info
+    worksheet.append(["Event", "Log Created On", "User ID", "User Full Name"])
+
+    # Used to store the widths of the columns, populated by loop below
+    # Default values are based on header lengths
+    column_widths = [7.57, 16.14, 8.86, 16.14]
+
+    # Iterate through all logs, add them to the sheet, then record their text length
+    for index, log in enumerate(all_system_logs, 1):
+        worksheet.append(log) 
+
+        # Retrieve lengths of the data
+        data_widths = [len(str(worksheet[f"A{index}"].value).strip()), 
+                      len(str(worksheet[f"B{index}"].value).strip()), 
+                      len(str(worksheet[f"C{index}"].value).strip()),
+                      len(str(worksheet[f"D{index}"].value).strip())]
+        
+        # Checking if the new widths surpasses the previous width, if so, replace it
+        column_widths[0] = data_widths[0] if data_widths[0] > column_widths[0] else column_widths[0]
+        column_widths[1] = data_widths[1] if data_widths[1] > column_widths[1] else column_widths[1]
+        column_widths[2] = data_widths[2] if data_widths[2] > column_widths[2] else column_widths[2]
+        column_widths[3] = data_widths[3] if data_widths[3] > column_widths[3] else column_widths[3]
+
+    # Resize columns to fit the data 
+    worksheet.column_dimensions["A"].width = column_widths[0] + 2
+    worksheet.column_dimensions["B"].width = column_widths[1] + 2
+    worksheet.column_dimensions["C"].width = column_widths[2] + 2
+    worksheet.column_dimensions["D"].width = column_widths[3] + 2
+
+    # Apply autofilter to the columns
+    table_range = f"A1:D{len(all_system_logs) + 1}"
+    
+    table = Table(displayName="SystemLogs", ref=table_range)
+    style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
+                       showLastColumn=False, showRowStripes=True, showColumnStripes=False)
+    table.tableStyleInfo = style
+    worksheet.add_table(table)
+
+def create_mentorship_statistics_sheet(workbook: Workbook):
+    """
+        Authors Jordan A.
+        Collects general stats and creates a sheet supplied with that data
+    """
+    worksheet = workbook.create_sheet("Mentorship Statistics")
+    
     timespans = get_project_time_statistics()
     overall_stats = get_project_overall_statistics()
 
@@ -182,6 +212,15 @@ def generate_report(req : HttpRequest):
         worksheet[f"A{index}"] = stat.replace("_", " ").title()
         worksheet[f"B{index}"] = overall_stats[stat]
 
+def generate_report(req : HttpRequest):
+    """
+    Authors Andrew P. Jordan A.
+    Generates a report (duh!)
+    """
+    workbook = Workbook()
+    workbook.remove(workbook.active) 
+    create_mentorship_statistics_sheet(workbook)
+    create_systemlog_sheet(workbook)
     file_name = f"Mentorship-Program-statistics-{datetime.now().strftime('%Y.%m.%d.%H.%M.%S')}.xlsx"
 
     buffer = BytesIO()
@@ -190,10 +229,11 @@ def generate_report(req : HttpRequest):
 
     response = HttpResponse(
         buffer,
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',   
     )
+    
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+    # response['Refresh'] = '0; url=' + req.path
     return response
-
 
 

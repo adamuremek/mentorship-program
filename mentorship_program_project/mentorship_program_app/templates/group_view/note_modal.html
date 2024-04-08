@@ -1,3 +1,7 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
+
 <dialog class="modal note-modal" id="note-modal">
     <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
     <div class="modal-container">
@@ -33,9 +37,9 @@
                 {% if note %}
                     <input style="display: none" name="note-id" value="{{note.id}}">
                     <!-- CLASS 'btn-update-note' IS USED IN JAVASCRIPT | BE VERY CAREFUL WHEN CHANGING-->
-                    <button type="submit" form="note-form" class="btn-update-note" id="btn-create-note">Apply Changes</button> 
+                    <button type="submit" class="btn-update-note btn-modal-submit" id="btn-create-note">Apply Changes</button> 
                 {% else %}
-                    <button type="submit" form="note-form" id="btn-create-note">Create Note</button>
+                    <button type="submit" class="btn-modal-submit" id="btn-create-note">Create Note</button>
                 {% endif %}
             {% endif %}
         </form>

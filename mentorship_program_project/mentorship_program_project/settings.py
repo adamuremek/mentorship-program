@@ -56,11 +56,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'mentorship_program_app',
-
-    # debug tool to help with query stuff
-    # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
-    #'debug_toolbar' 
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -71,9 +68,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    #"debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
+if DEBUG:
+    # debug tool to help with query stuff
+    # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
+    INSTALLED_APPS.append(
+            'debug_toolbar'
+            ) 
+    MIDDLEWARE.append(
+                "debug_toolbar.middleware.DebugToolbarMiddleware",
+            )
 INTERNAL_IPS = [
     "127.0.0.1"
 ]
@@ -139,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'US/Eastern'
 
 USE_I18N = True
 

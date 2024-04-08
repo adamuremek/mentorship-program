@@ -28,7 +28,7 @@
         <p>&copy;<span id="current-year"></span> Saginaw Valley State University</p>
     </footer>
 
-<script src='{% static "js/navigation/nav_logic.js" %}'></script>
+    <script type = 'module' src='{% static "js/navigation/nav_logic.js" %}'></script>
 </body>
 <!-- Script to Append Current Year to bottom of page -->
 <script>
@@ -36,6 +36,28 @@
         const currentYear = new Date().getFullYear();
         document.getElementById('current-year').textContent = currentYear;
     });
+
+    const load_overlay = document.getElementById('loading-overlay')
+    
+    if(load_overlay)
+    {
+        window.onbeforeunload = () => {
+            load_overlay.style.display = 'block'
+            return undefined
+        };
+
+        window.onload = () => {
+            load_overlay.style.display = 'none'
+            return undefined
+        }
+
+        window.addEventListener('pageshow', () => {
+            load_overlay.style.display = 'none'
+            return undefined
+        });
+
+        
+    }
 </script>
 
 <!-- script used to check if light mode is turned on -->

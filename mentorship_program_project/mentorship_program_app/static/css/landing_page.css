@@ -31,6 +31,32 @@
             hsl(326deg 20% 31%) 57%,
             hsl(355deg 43% 27%) 76%,
             hsl(354deg 33% 23%) 100%);
+
+    --bg-logo-gradient: radial-gradient(circle,
+            rgba(31, 45, 66, 1) 0%,
+            rgba(31, 48, 73, .95) 10%,
+            rgba(33, 52, 80, .90) 20%,
+            rgba(33, 54, 85, .85) 30%,
+            rgba(34, 56, 88, .75) 40%,
+            rgba(255, 255, 255, 0) 100%);
+
+    /* --bg-logo-gradient: linear-gradient(180deg,
+            rgba(0, 49, 117, 1) 0%,
+            rgba(19, 67, 134, 0.90) 29%,
+            rgba(44, 90, 155, 0.55) 49%,
+            rgba(75, 117, 175, 0.30) 64%,
+            rgba(111, 146, 195, 0.15) 77%,
+            rgba(153, 178, 214, 0) 87%,
+            rgba(203, 217, 236, 0) 95%,
+            rgba(255, 255, 255, 0) 100%); */
+
+    /* --bg-logo-gradient: radial-gradient(circle,
+            rgba(31, 45, 66, 1) 0%,
+            rgba(31, 48, 73, 1) 15%,
+            rgba(33, 52, 80, 1) 30%,
+            rgba(33, 54, 85, 1) 45%,
+            rgba(34, 56, 88, 1) 55%,
+            rgba(255, 255, 255, 0) 100%); */
 }
 
 /* Box sizing rules */
@@ -92,6 +118,15 @@ a:not([class]) {
     }
 } */
 
+/* Fixes scaling-issue at smaller screens */
+@media (max-width: 480px) {
+
+    body,
+    main {
+        min-width: 480px;
+    }
+}
+
 @media screen and (max-width: 768px) {
     .hero-container {
         flex-direction: column;
@@ -102,6 +137,7 @@ a:not([class]) {
 .hero-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    column-gap: 1em;
     height: 90%;
     padding: 0 calc((100vw - 1300px) / 2);
 }
@@ -152,13 +188,13 @@ a:not([class]) {
     padding: 0rem 2rem;
 }
 
-@media screen and (max-width: 850px) {
+@media screen and (max-width: 921px) {
     .column-left {
         padding: 1em;
     }
 
     .column-right {
-        padding: 0 1em 0 1em;
+        padding: 0 1em 1em 1em;
     }
 
     .hero-container {
@@ -168,14 +204,22 @@ a:not([class]) {
     }
 }
 
+.portal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 .portal form {
-    width: 40rem;
+    width: 400px;
+    /* max-width: 600px; */
     background-color: rgba(99, 99, 99, 0.055);
     border-radius: 10px;
     backdrop-filter: blur(10px);
     border: none;
     box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
-    padding: 25px 35px;
+    padding: 25px 30px;
 }
 
 @media screen and (max-width: 1400px) {
@@ -183,9 +227,13 @@ a:not([class]) {
         width: 100%;
     }
 
-    .portal form {
+    /* .column-right {
+        padding: 0 1em 0 1em;
+    } */
+
+    /* .portal form {
         width: 100%;
-    }
+    } */
 }
 
 form * {
@@ -194,6 +242,25 @@ form * {
     letter-spacing: 0.5px;
     outline: none;
     border: none;
+}
+
+.circle-logo-container {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 5px;
+    border-radius: 50%;
+    background-image: var(--bg-logo-gradient);
+    overflow: hidden;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+#li-wings-logo {
+    width: 100%;
+    height: auto;
 }
 
 .federated-li-container {
@@ -296,8 +363,9 @@ form * {
 
 .line {
     height: 1px;
-    background-color: #E6E6E6;
-    flex-grow: 1;
+    background-color: rgba(211, 211, 211, 0.6);
+    /* background-color: #E6E6E6; */
+    /* flex-grow: 1; */
     margin: 0 10px;
 }
 
@@ -338,6 +406,49 @@ input,
     box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
 }
 
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+/* .password-container input[type="password"] {
+    width: 100%;
+padding-right: 40px;
+} */
+
+#togglePassword {
+    position: absolute;
+    right: 20px;
+    top: 13px;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    /* color: rgba(211, 211, 211, 0.6); */
+}
+
+#togglePassword svg {
+    fill: hsl(0, 0%, 76%);
+}
+
+#togglePassword:hover svg,
+#togglePassword:focus-visible svg {
+    fill: hsl(0, 0%, 89%);
+}
+
+#visibilityOffIcon {
+    display: none;
+}
+
+.password-hidden {
+    font-size: 20px;
+    letter-spacing: 1.5px;
+}
+
+#password {
+    padding-right: 45px;
+}
+
 /* Targeting WebKit-based browser like Chrome and Safari */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -361,6 +472,7 @@ input:-moz-autofill:active {
 ::placeholder {
     color: #C2C2C2;
     font-size: 1rem;
+    letter-spacing: 1.2px;
     font-weight: 300;
     font-family: var(--ff-roboto);
 }
@@ -387,7 +499,7 @@ input:-moz-autofill:active {
     color: #2CA0EF;
     font-weight: 500;
     font-size: .85rem;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.15px;
     cursor: pointer;
 }
 
@@ -401,7 +513,7 @@ input:-moz-autofill:active {
     color: #E3E3E3;
     font-weight: 400;
     font-size: .85rem;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.15px;
     margin-left: 10px;
 }
 
@@ -416,6 +528,10 @@ input:-moz-autofill:active {
 .submit-buttons:hover,
 .submit-buttons:focus-visible {
     background-color: var(--clr-btn-submit-highlight);
+}
+
+#su-p {
+    padding-top: 5px;
 }
 
 .modal {
@@ -540,12 +656,15 @@ input:-moz-autofill:active {
 }
 
 .prompt-login h1 {
-    font-size: 2rem;
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: -0.5px;
     display: flex;
     align-items: center;
-    margin-bottom: 2rem;
-    color: #FFFFFF;
-    font-family: 'Montserrat';
+    margin-bottom: 10px;
+    color: var(--clr-font-primary);
+    font-family: var(--ff-primary);
+
 }
 
 .error-message {
@@ -561,12 +680,14 @@ input:-moz-autofill:active {
 
 .circle-wrapper {
     display: inline-block;
+    outline: none;
     border-radius: 50%;
     padding: 10px;
     transition: background-color 0.2s;
 }
 
-.circle-wrapper:hover {
+.circle-wrapper:hover,
+.circle-wrapper:focus-visible {
     background-color: rgba(255, 255, 255, 0.075);
 }
 

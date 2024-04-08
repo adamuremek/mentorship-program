@@ -1,3 +1,5 @@
+{% extends 'index.html' %}
+
 {% load static %}
 
 {% block style %}
@@ -7,23 +9,40 @@
 
 {% block main_content %}
 
+
+
     <div class = "card-body" mentor-id="{{user.id}}">
-        <div class="profile-picture-container">
-                <img class="profile-picture" src="{% static 'images/my-channel.jpeg' %}">
+
+        <div class="link-container">
+            <a href="" class="return-link" id="return-btn-combined-views" onclick="event.preventDefault(); history.back();">
+                <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
+                Back
+            </a>
         </div>
+
+        <!-- <div class="profile-picture-container">
+            <img class="profile-picture" src="{% static 'images/my-channel.jpeg' %}">
+        </div> -->
+
         <div class="mentor-description">
             <p class="mentor-name"> {{first_name}} {{last_name}}</p>
             <p class="mentor-company">Organization: {{organization}}</p>
             <p class="mentor-job-title">Job Title: {{job_title}}</p>
             <p class="mentor-job-title">Experience: {{experience}}</p>
+            <p class="mentor-company">Email: {{email}}</p>
+            <p class="mentor-company">Phone: {{phone}}</p>
         </div>
+
         <div class="line"></div>
+
         <div class="specializations-header">Specializations / Areas of Expertise:</div>
+
         <div class="specializations-container">
             {% for interest in user_interests %}
             <p class="specialization">{{interest}}</p>
             {% endfor %}
         </div>
+        
         <form action="/change_mentor_status" method="POST">
             {% csrf_token %}
             <input type="hidden" name="status" value="Approved" />

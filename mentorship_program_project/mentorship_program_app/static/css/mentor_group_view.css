@@ -37,6 +37,29 @@ hr {
     display: inline-block;
 }
 
+/* container holds back to dashboard link, arrow and title */
+.link-container {
+    position: relative;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+}
+
+.left-arrow {
+    overflow: auto;
+    height: 1rem;
+}
+
+.title {
+    font-size: 2rem;
+    align-self: left;
+}
+
+.return-link {
+    text-decoration: none;
+}
+/* End of link container section */
+
 .column-right {
     padding-left: 0rem 2rem;
     margin-right: 2rem;
@@ -71,6 +94,10 @@ hr {
     height: 3rem;
     width: 3rem;
     margin-bottom: 0.5rem;
+}
+
+.job-title-and-organization h3{
+    font-size: 1.1rem;
 }
 
 .top-title {
@@ -146,7 +173,8 @@ select:not([disabled]) {
 }
 
 .specialties label { /*input*/
-    color: white;
+    
+
     border-radius: 1rem;
     width: 10rem;
     margin: .25em;
@@ -162,12 +190,18 @@ select:not([disabled]) {
 
     border-color: transparent;
     border-radius: .5em;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+    
+    
+    background-color: rgb(66, 66, 66);
 
-    background-color: rgb(100, 100, 100);
+    color: #F5F5F5;
 }
 
 .user-interest-label {
+    background-color: rgb(66, 66, 66);
+    color: #F5F5F5;
+    
     font-size: 1rem;
     font-weight: 300;
 
@@ -175,8 +209,8 @@ select:not([disabled]) {
     width: 10em;
     
     border-radius: .5em;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+    
     text-align: center;
 
     -webkit-user-select: none; /* Safari */
@@ -188,12 +222,19 @@ select:not([disabled]) {
 
 .specialties input {
     display: none;
+    
+
 }
 
 .specialties input:checked ~ .user-interest-label {
-    background-color: #464B4E;
-    border: #464B4E;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+    
+    border: #3e4c6c;
     border-width: 2px;
+    
+    background-color: #3e4c6c;
+    color: white;
+
 }
 
 /* .specialties input:hover ~ .user-interest-label {
@@ -201,7 +242,9 @@ select:not([disabled]) {
 } */
 
 .specialties .hover_interest:hover ~ .user-interest-label {
-    background-color:  #3d4247;
+    background-color:  lightgrey;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+
 }
 
 textarea {
@@ -210,6 +253,11 @@ textarea {
 
 textarea[readonly] {
     outline: none; /* Remove default focus outline */
+}
+
+textarea::placeholder{
+    color: var(--clr-font-secondary);
+    opacity: 0.6;
 }
 
 input:read-only {
@@ -434,128 +482,6 @@ button:hover {
     transform: scaleX(-1);
 }
 
-/* ----- Modal Component Styling ----- */
-
-.container {
-    padding-bottom: 10px;
-}
-
-.modal {
-    padding: 1em;
-    width: 60vw;
-    height: 65vh;
-    border: 0;
-    box-shadow: 0 0 1em rgb(0 0 0 / .3);
-    border-radius: 15px;
-    background-color: var(--clr-modal-backdrop);
-
-    font-family: var(--ff-primary);
-    color: var(--clr-font-primary);
-
-    /* Below allows modals to be centered in the screen */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-
-    &>* {
-        margin: 0 0 0.5rem 0;
-    }
-}
-
-.modal::backdrop {
-    backdrop-filter: blur(.25em);
-    background: rgba(125, 125, 125, 0.1);
-}
-
-.modal-container {
-    padding: 1em;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.modal-content-container {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    gap: .25em;
-}
-
-.modal-footer-container {
-    display: flex;
-    /* margin-top: 4.43em; */
-    margin-top: 5em;
-
-}
-
-.modal-exit:hover,
-.modal-exit:focus-visible {
-    transform: scale(1.15);
-    outline: none;
-}
-
-.modal-header {
-    padding-bottom: 1em;
-}
-
-.modal-line {
-    height: 1;
-    background-color: var(--clr-font-primary);
-    flex-grow: 1;
-}
-
-.modal h2 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2.5rem;
-    font-weight: var(--fw-extrabold);
-}
-
-.modal h3 {
-    display: flex;
-    justify-content: left;
-    align-items: center;
-    font-size: 1.25rem;
-    font-weight: var(--fw-medium);
-}
-
-.modal p {
-    display: flex;
-    justify-content: left;
-    align-items: center;
-    font-size: 1rem;
-    font-weight: var(--fw-regular);
-}
-
-.user-input {
-    font-size: 1rem;
-    font-family: var(--ff-primary);
-    line-height: 1.1em;
-    border-radius: 4px;
-    border: none;
-    background-color: rgba(255, 255, 255, 0.07);
-    box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
-}
-
-.modal select {
-    font-size: 1rem;
-    font-family: var(--ff-primary);
-    line-height: 1.1em;
-    border-radius: 4px;
-    border: none;
-    background-color: rgba(255, 255, 255, 0.07);
-    box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
-
-    padding: .5em;
-    margin-top: .25em;
-    margin-bottom: .5em;
-
-    width: 50%;
-    overflow: scroll;
-}
 
 select option {
     font-size: 1rem;
@@ -657,6 +583,8 @@ select option {
 #btn-create-note:focus-visible {
     background-color: var(--clr-btn-submit-highlight);
 }
+
+
 
 @media screen and (max-width: 1000px) {
     .hero-container {

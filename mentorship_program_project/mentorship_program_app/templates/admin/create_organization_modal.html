@@ -1,0 +1,25 @@
+{% load static %}
+
+<dialog class="admin_user_management_modal" id="organization-modal">
+    <header class="modal-header">
+        <button class="admin_user_management_button_clear_active" id="exit_add_new_organization_button" tabindex="0">
+            <img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit">
+        </button>
+    </header>
+
+    <div class="admin_user_management_modal_container">
+        <h2 id="admin_user_management_large_text">Organization Name</h2>
+
+        <input type="text" id="organization-input" name="organization-title" class="user-input">
+            
+        <button class="admin_user_management_word_button_active" id="create_organization_button" title="Create organization">
+            <p id="admin_user_management_medium_text">
+                Create Organization
+            </p>
+        </button>
+
+        <p class="create_organization_message_bar" id="admin_user_management_medium_text">
+            PLACEHOLDER MESSAGE
+        </p>
+    </div>
+</dialog>

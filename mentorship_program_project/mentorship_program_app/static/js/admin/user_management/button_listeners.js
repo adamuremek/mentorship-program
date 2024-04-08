@@ -1,21 +1,28 @@
 // Import classes from event_queue file 
 import * as event_queue from './event_queue.js';
 import * as filters from './filtering.js';
+import * as detereminers from './determiners.js';
 
-// Select and store bar elements
-const mentee_bars = document.querySelectorAll(".mentee_management_bar");
-const mentor_bars = document.querySelectorAll(".mentor_management_bar_container");
-const organization_bars = document.querySelectorAll(".organization_management_bar_container");
+// Determine and store bar elements
+const mentee_bars = detereminers.determine_all_mentee_bars();
+const mentor_bars = detereminers.determine_all_mentor_bars();
+const organization_bars = detereminers.determine_all_organization_bars();
 
-// Select and store button elements for user management page
-const save_button = document.getElementById("save_button");
-const cancel_button = document.getElementById("cancel_button");
-const filter_user_button = document.querySelector("#filter_users_button");
-const filter_organization_button = document.querySelector("#filter_organization_button");
+// Determine and store button elements for user management page
+const save_button = detereminers.determine_save_button();
+const cancel_button = detereminers.determine_camcel_button();
+const add_new_organization_button = detereminers.determine_add_new_organization_button();
+const create_organization_button = detereminers.determine_create_organization_button();
+const exit_add_new_organization_button = detereminers.determine_exit_add_new_organization_button();
+const filter_user_button = detereminers.determine_filter_user_button();
+const filter_organization_button = detereminers.determine_filter_organization_button();
 
 // Select and store search bar elements
-const user_search_bar = document.querySelector("#user_search_bar");
-const organization_search_bar = document.querySelector("#organization_search_bar");
+const user_search_bar = detereminers.determine_user_search_bar();
+const organization_search_bar = detereminers.determine_organization_search_bar();
+
+// Select and store add new organization modal element
+const add_new_organization_modal = detereminers.determine_add_new_organization_modal();
 
 
 
@@ -27,42 +34,48 @@ save_button.addEventListener('click', event_queue.save_event);
 // Set cancel button listener
 cancel_button.addEventListener('click', event_queue.cancel_event);
 
+// Check if create new organization button is null
+if (add_new_organization_button != null)
+{
+    // Set add new organization button listener
+    add_new_organization_button.addEventListener('click', () => { add_new_organization_modal.showModal(); });
+
+    // Set create new organization button listner
+    create_organization_button.addEventListener('click', function() { event_queue.create_orgnization_event(); });
+
+    // Set exit add new organization button listener
+    exit_add_new_organization_button.addEventListener("click", () => { add_new_organization_modal.close(); });
+}
+
 // Set up search bar selection to trigger attempt filter methods for users and organziation
 user_search_bar.addEventListener("input", function() { filters.attempt_user_filter(user_search_bar.value); });
 organization_search_bar.addEventListener("input", function() { filters.attempt_organziation_filter(organization_search_bar.value); });
 
-// Set button listener for search buttons
+// Set up button listener for search buttons
 filter_user_button.addEventListener('click', function() { filters.toggle_user_filter(user_search_bar.value); });
 filter_organization_button.addEventListener('click', function() { filters.toggle_organization_filter(organization_search_bar.value); });
-
-
-// TODO NEED TO UPDATE ALL QUERY SELECTERS TO DETEREMINERS
-
 
 // Set up mentee bar's listeners
 for (let mentee_bar of mentee_bars)
 {
-    // Set button listener for mentee clicked
-    mentee_bar.addEventListener('click', function() { event_queue.mentee_clicked_event(mentee_bar); });
-
     // Set button listener for add
-    mentee_bar.querySelector("#plus_button").addEventListener('click', function() { event_queue.add_mentor_mentee_event(mentee_bar) });
+    detereminers.determine_add_button(mentee_bar).addEventListener('click', function() { event_queue.add_mentor_mentee_event(mentee_bar) });
 
     // Set button listener for remove mentor
-    mentee_bar.querySelector("#remove_button").addEventListener('click', function() { event_queue.remove_mentor_mentee_event(mentee_bar) });
+    detereminers.determine_remove_button(mentee_bar).addEventListener('click', function() { event_queue.remove_mentor_mentee_event(mentee_bar) });
 
     // Check if there deactivate button 
-    if (mentee_bar.querySelector("#trashcan_button") != null)
+    if (detereminers.determine_disable_button(mentee_bar) != null)
     {
         // Set button listener for deactivate button
-        mentee_bar.querySelector("#trashcan_button").addEventListener('click', function() { event_queue.disable_event(mentee_bar) });
+        detereminers.determine_disable_button(mentee_bar).addEventListener('click', function() { event_queue.disable_event(mentee_bar) });
     }
 
     // Check if there reactivate button 
-    if (mentee_bar.querySelector("#trashcan_off_button") != null)
+    if (detereminers.determine_enable_button(mentee_bar) != null)
     {
         // Set button listener for reactivate button
-        mentee_bar.querySelector("#trashcan_off_button").addEventListener('click', function() { event_queue.reable_event(mentee_bar) });
+        detereminers.determine_enable_button(mentee_bar).addEventListener('click', function() { event_queue.reable_event(mentee_bar) });
     }
 }
 
@@ -72,42 +85,50 @@ for (let mentor_bar of mentor_bars)
     // Set button listener for mentor clicked
     mentor_bar.addEventListener('click', function() { event_queue.mentor_clicked_event(mentor_bar); });
 
-    // Set button listener for selecting mentees
-    mentor_bar.querySelector(".mentee_counter_container").addEventListener('click', function() { filters.attempt_mentor_mentee_filter(mentor_bar) });
+    // Set button listener for selecting mentees filter
+    detereminers.determine_mentor_mentee(mentor_bar).addEventListener('click', function() { filters.attempt_mentor_mentee_filter(mentor_bar) });
 
     // Check if there deactivate button 
-    if (mentor_bar.querySelector("#trashcan_button") != null)
+    if (detereminers.determine_disable_button(mentor_bar) != null)
     {
         // Set button listener for deactivate button
-        mentor_bar.querySelector("#trashcan_button").addEventListener('click', function() { event_queue.disable_event(mentor_bar) });
+        detereminers.determine_disable_button(mentor_bar).addEventListener('click', function() { event_queue.disable_event(mentor_bar) });
     }
 
     // Check if there reactivate button 
-    if (mentor_bar.querySelector("#trashcan_off_button") != null)
+    if (detereminers.determine_enable_button(mentor_bar) != null)
     {
         // Set button listener for reactivate button
-        mentor_bar.querySelector("#trashcan_off_button").addEventListener('click', function() { event_queue.reable_event(mentor_bar) });
-    }
-
-    // Check if there super promote button 
-    if (mentor_bar.querySelector("#super_promote_button") != null)
-    {
-        // Set button listner for super promote button
-        mentor_bar.querySelector("#super_promote_button").addEventListener('click', function() { event_queue.promote_super_mentor_event(mentor_bar) });
+        detereminers.determine_enable_button(mentor_bar).addEventListener('click', function() { event_queue.reable_event(mentor_bar) });
     }
 
     // Set button listener for organization promote button
-    mentor_bar.querySelector("#organization_promote_button").addEventListener('click', function() { event_queue.promote_organization_mentor_event(mentor_bar) });
+    detereminers.determine_promote_organization_button(mentor_bar).addEventListener('click', function() { event_queue.promote_mentor_organization_admin_event(mentor_bar) });
 
-    // Set button listener for edit organization button
-    mentor_bar.querySelector("#edit_organization_button").addEventListener('click', function() { event_queue.edit_organization_mentor_event(mentor_bar) } );
+    // Check if there is edit organization button
+    if (detereminers.determine_edit_organization_button(mentor_bar) != null)
+    {
+        // Set button listener for edit organization button
+        detereminers.determine_edit_organization_button(mentor_bar).addEventListener('click', function() { event_queue.edit_organization_mentor_event(mentor_bar) } );
+    }
 
-    // SET UP FOR MULT TRANISFER ROLES
-    // Set button listener for transfer role button
-    mentor_bar.querySelector("#transfer_role_button").addEventListener('click', function() { event_queue.transfer_role_super_admin_mentor_event(mentor_bar) });
+    // Check if there is transfer role super admin button
+    if (detereminers.determine_transfer_role_super_admin_button(mentor_bar) != null)
+    {
+        // Set button listener for transfer role super admin button
+        detereminers.determine_transfer_role_super_admin_button(mentor_bar).addEventListener('click', function() { event_queue.transfer_role_super_admin_mentor_event(mentor_bar) });
+    }
+
+    // Check if there is transfer role organization admin button
+    if (detereminers.determine_transfer_role_organization_admin_button(mentor_bar) != null)
+    {
+        // Set button listener for transfer role organization admin button
+        detereminers.determine_transfer_role_organization_admin_button(mentor_bar).addEventListener('click', function() { event_queue.transfer_role_organization_admin_mentor_event(mentor_bar) });
+
+    }
 
     // Set button listener for decouple button
-    mentor_bar.querySelector("#decouple_button").addEventListener('click', function() { event_queue.decouple_mentor_event(mentor_bar) });
+    detereminers.determine_decouple_button(mentor_bar).addEventListener('click', function() { event_queue.decouple_mentor_event(mentor_bar) });
 
 }
 
@@ -118,12 +139,10 @@ for (let organization_bar of organization_bars)
     organization_bar.addEventListener('click', function() { event_queue.organization_clicked_event(organization_bar); });
 
     // Check if there remove button 
-    if (organization_bar.querySelector("#remove_organization_button") != null)
+    if (detereminers.determine_remove_organization_button(organization_bar) != null)
     {
-        // Set button listner for super promote button
-        organization_bar.querySelector("#remove_organization_button").addEventListener('click', function() { event_queue.remove_organization_event(organization_bar) });
+        // Set button listner for remove organization button
+        detereminers.determine_remove_organization_button(organization_bar).addEventListener('click', function() { event_queue.remove_organization_event(organization_bar) });
 
     }
 }
-
-alert("JS activatd");
