@@ -10,6 +10,3 @@ all:
     k3s_server:
       hosts:
         server01:
-    docker_repo_server:
-      hosts:
-        server01:

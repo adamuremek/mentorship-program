@@ -30,6 +30,7 @@
     - "/{{ absolute_project_path }}/kubernetes/mentor-secret.yaml"
     - "/{{ absolute_project_path }}/kubernetes/mentor-deployment.yaml"
     - "/{{ absolute_project_path }}/kubernetes/mentor-service.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/jobs/inactive-accounts.yaml"
 
 - name: Apply ingress-nginx
   shell:

@@ -1,5 +1,5 @@
 - name: Set up local Docker repository
-  hosts: docker_repo_server
+  hosts: k3s_server
   become: true
 
 
