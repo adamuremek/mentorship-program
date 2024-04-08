@@ -28,10 +28,17 @@
 
 			<p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
 
+			<!--adds the job title to mentor cards, not sure if we'll need/want this
+			<div class = "card-job-title" id = "card-job-title">
+				{% if user.is_mentor %}
+					{{ user.get_job_title }}
+				{% endif %}
+			</div>-->
+
 			<div class = "card-organization" id = "card-organization">
 				{% if user.is_mentor %}
 					{% for org in user.get_organization %}
-						{{ org }}
+						{{ org }} 
 					{% endfor %}
 				{% endif %}
 			</div>

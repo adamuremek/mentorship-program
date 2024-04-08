@@ -626,8 +626,10 @@ class User(SVSUModelData,Model):
         """
         if self.is_mentor:
             this_mentor = Mentor.objects.get(account=self)
-            return this_mentor.str_job_title
-        return 'None'
+            if(this_mentor.str_job_title != ""):
+                return this_mentor.str_job_title
+            else:
+                return 'No job title associated'
 
     def get_backend_only_properties(self)-> list[str]:
         """
