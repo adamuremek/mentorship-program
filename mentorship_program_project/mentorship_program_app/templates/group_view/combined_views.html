@@ -137,8 +137,14 @@
                    
                     {% endif %}
 
-                    <h2>{{page_owner_user.str_job_title}}</h2>
-                    <h3>{{organization}}</h3>
+                    <div class="job-title-and-organization">
+                        {% if page_owner_user.is_mentor %}
+                            <h3>{{ page_owner_user.get_job_title }} at 
+                            {% for org in page_owner_user.get_organization %}
+						        {{ org }}</h3>
+					        {% endfor %}
+                        {% endif %}
+                    </div>
 
                     {% if interests %}
                         <h2>Specializations / Areas of Expertise:</h2>

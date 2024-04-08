@@ -595,6 +595,39 @@ class User(SVSUModelData,Model):
             else:
                 return ['No organization associated']
         return ['None']
+    
+    def get_job_title(self) -> str:
+        """
+        Description
+        -----------
+        Gets a user's job title if they are a mentor
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - str: A user's job title if they are a mentor
+
+        Example Usage
+        -------------
+
+        >>> User.get_job_title()
+        'Software Developer'
+
+        Authors
+        -------
+        Adam C.
+        """
+        if self.is_mentor:
+            this_mentor = Mentor.objects.get(account=self)
+            return this_mentor.str_job_title
+        return 'None'
 
     def get_backend_only_properties(self)-> list[str]:
         """
