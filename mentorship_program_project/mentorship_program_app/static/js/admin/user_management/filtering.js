@@ -16,8 +16,11 @@ function check_cancel_filter()
     // Check if user filter is in progess
     if (user_filter_flag)
     {
+        // Detemine user filter button
+        const filter_user_button = determiners.determine_filter_user_button();
+
         // Update user filter button to be off
-        updaters.update_filter_user_button_off();
+        updaters.update_off_button_style(filter_user_button);
 
         // Reset filters
         updaters.update_reset_filter();
@@ -30,8 +33,11 @@ function check_cancel_filter()
     // Check if orgnaizatiton filter is in progess
     if (organization_filter_flag)
     {
+        // Determine filter orgnization button 
+        const filter_organization_button = determiners.determine_filter_organization_button();
+
         // Update organization filter button to be off
-        updaters.update_filter_organization_button_off();
+        updaters.update_off_button_style(filter_organization_button);
 
         // Reset filters
         updaters.update_reset_filter();
@@ -59,7 +65,7 @@ function check_cancel_filter()
     }
 }
 
-// Function to toggle the user button between on and off state
+// Function toggles the user button between on and off state
 export function toggle_user_filter(user_input) 
 {
     // Check if user filter is active
@@ -79,7 +85,7 @@ export function toggle_user_filter(user_input)
     }   
 }
 
-// Function to toggle the organization button between on and off state
+// Function toggles the organization button between on and off state
 export function toggle_organization_filter(user_input) 
 {
     // Check if organization is active
@@ -99,14 +105,17 @@ export function toggle_organization_filter(user_input)
     }
 }
 
-// Function to filter user bars for passed input
+// Function filters user bars for passed input
 export function attempt_user_filter(user_input)
 {
     // Check and cancel last filter if needed
     check_cancel_filter();
 
+    // Determine filter user button
+    const filter_user_button = determiners.determine_filter_user_button();
+
     // Update button to be on
-    updaters.update_filter_user_button_on();
+    updaters.update_on_button_style(filter_user_button);
 
     // Set user filter flag to active
     user_filter_flag = 1;
@@ -124,14 +133,17 @@ export function attempt_user_filter(user_input)
     }
 }
 
-// Function to filter organization bars for passed input
+// Function filters organization bars for passed input
 export function attempt_organziation_filter(user_input)
 {
     // Check and cancel last filter if needed
     check_cancel_filter();
 
+    // Determine filter orgnaization button
+    const filter_organization_button = determiners.determine_filter_organization_button();
+
     // Update button to be on
-    updaters.update_filter_organization_button_on();
+    updaters.update_on_button_style(filter_organization_button);
 
     // Set user filter flag to active
     organization_filter_flag = 1;
@@ -149,11 +161,7 @@ export function attempt_organziation_filter(user_input)
 
     }
 }
-
-
-// PRESSSING A MENTOR MENTEE BUTTON AND BAR FLAG ALREADY IS ACTIVE SHOULD RESET FILTERS
-
-// Function to filter mentee bars for mentee value from passed bar
+// Function filters mentee bars for mentee value from passed bar
 export function attempt_mentor_mentee_filter(user_bar)
 {
     // Check if account is not disabled

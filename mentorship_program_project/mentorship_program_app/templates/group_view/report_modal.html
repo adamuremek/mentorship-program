@@ -1,3 +1,7 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
+
 <dialog class="modal" id="report-modal">
     <header class="modal-header"><img src='../static/images/x-16.png' alt="exit" class="modal-exit" id="modal-exit" tabindex="0"></header>
 
@@ -19,7 +23,7 @@
             <textarea id="report-reason" rows="4" class="user-input" name="report_reason" required="required"></textarea>
             <input type="hidden" id="reported-user-id" name="reported_user_id" value="{{page_owner_user.id}}">
 
-            <button id="btn-report-submit" type="submit">Sumbit Report</button>
+            <button id="btn-report-submit" class="btn-modal-submit" type="submit">Sumbit Report</button>
         </form>    
     </div>  
 </dialog>
