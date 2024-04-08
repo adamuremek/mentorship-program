@@ -36,6 +36,7 @@ MODIFICATION HISTORY:
 
 WHO     WHEN     WHAT
 WJL   3/3/2024   Added file header comment
+Justin Goupil   2024/04/06    Added two urls for mentor mfa.  
 """
 
 from django.urls import include,path, re_path
@@ -165,8 +166,9 @@ urlpatterns = [
     path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships"),
     path('dev/test_database_join'         , development_views.test_database_speed, name='test database joins' ), 
 
-    path('mentor/2fa', under_development.mentor_mfa_request), #Test Route for Mentor MFA. 
-    path('mentor/2fa/otp', under_development.mentor_mfa_validate)
+    #Test Route for Mentor MFA. -Justin G.
+    path('mentor/2fa', under_development.mentor_mfa_request, name='authenticate_mentor'), 
+    path('mentor/2fa/otp', under_development.mentor_mfa_validate, name='authenticate_mentor_verify')
 ]
 
 if settings.DEBUG:

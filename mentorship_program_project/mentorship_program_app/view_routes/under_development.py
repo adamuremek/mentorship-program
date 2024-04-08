@@ -1271,46 +1271,75 @@ def add_remove_mentees_from_file(req : HttpRequest):
     return redirect("/available_mentees")
 
 def mentor_mfa_request(req : HttpRequest):
+    '''
+    Description
+    ===========
+    This method does the following:
+        - Creates a secret key, one time password (otp) and sets the otp expiration date.
+        - Appends the secret key and otp expiration date to the session.
+        - Sends an email with the otp to the user's email address.
+        - Renders the authentication page for the user to input their otp.
 
+    Paramaters
+    ==========
+    req (HttpRequest): A Django http request.
+
+    Returns
+    =======
+        HttpsResponse to render a webpage.
+     
+    Example Usage
+    =============
+        >>> 
+
+    Authors
+    =======
+    Justin Goupil 
+    '''
     #otp infromation
     int_minutes = settings.PASSCODE_EXPIRATION_MINUTES
     int_interval_seconds = 60 * int_minutes #seconds * number = desired minutes
 
-    str_otp_secret_key = None
-    str_otp_valid_date = str(datetime.now() + timedelta(minutes=int_minutes))
-    str_otp = None
-    str_recipient = None #Replace with your email for testing. TODO: REMOVE
-
-    #Get the user_name from the session infromation.
-    user_name = req.session["user_name"] #TODO: UNCOMMENT
-    
     #Create the pyotp class, generate a random number, 
     # set the interval the otp is valid for.
     cls_otp = pyotp.TOTP(pyotp.random_base32(), interval=int_interval_seconds)
 
-    str_otp = cls_otp.now() #create otp
-    str_otp_secret_key = cls_otp.secret #get the secret key
-
     #Add infromation to session data.
-    req.session['str_otp_secret_key'] = str_otp_secret_key
-    req.session['str_otp_valid_date'] = str_otp_valid_date
+    req.session['str_otp_secret_key'] = cls_otp.secret
+    req.session['str_otp_valid_date'] = str(datetime.now() + timedelta(minutes=int_minutes))
+    
+    #Get the user_name from the session infromation.
+    mentor_mfa_send_passcode(req.session["user_name"], cls_otp.now())
 
-    #Assign who the message is meant for.
-    str_recipient = user_name
-
-    print("Email sent?")
-    print("OTP: " + str_otp)
-    mentor_mfa_send_passcode(str_recipient, str_otp)
-
-
-    #req.session['str_otp'] = str_otp #TODO: REMOVE
-
-    #return redirect('2fa/otp')
+    #Load the authentication page
     template = loader.get_template('mentor_mfa.html')
     context = {}
     return HttpResponse(template.render(context, req))
 
 def mentor_mfa_validate(req: HttpRequest):
+    '''
+    Description
+    ===========
+    This method validates a one time password and logs the user into the website.
+
+    Paramaters
+    ==========
+    req (HttpRequest): A Django http request.
+
+    Returns
+    =======
+    An HttpResponse with 
+        An error message or
+        a redirect to the dashboard. 
+     
+    Example Usage
+    =============
+        >>> mentor_mfa_validate
+
+    Authors
+    =======
+    Justin Goupil
+    '''
 
     passcode_data = json.loads(req.body.decode("utf-8"))
     
@@ -1319,37 +1348,33 @@ def mentor_mfa_validate(req: HttpRequest):
 
     str_otp_secret_key = req.session['str_otp_secret_key']
     str_otp_valid_date = req.session['str_otp_valid_date']
-    str_valid_until = None
-    str_user_name = req.session["user_name"]
-
-    req.session["user_name"] = None #Clear the user_name from the session
 
     int_interval_seconds = 60 * settings.PASSCODE_EXPIRATION_MINUTES
 
     cls_otp = None
 
-    #return HttpResponse(json.dumps({"new_web_location":"/"}))
-
 
     if str_otp_secret_key and str_otp_valid_date is not None:
-        str_valid_until = datetime.fromisoformat(str_otp_valid_date)
 
-        if str_valid_until > datetime.now():
+        if datetime.fromisoformat(str_otp_valid_date) > datetime.now():
             cls_otp = pyotp.TOTP(str_otp_secret_key, interval=int_interval_seconds)
 
             if cls_otp.verify(passcode):
                 #valid login
-                if not security.set_logged_in(req.session,User.objects.get(cls_email_address=str_user_name)):
+                user = User.objects.get(cls_email_address=req.session["user_name"])
+
+                if not security.set_logged_in(req.session, user):
                     response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
                     response.status_code = 401
                     return response
 
-                user = User.objects.get(cls_email_address=str_user_name)
                 user.str_last_login_date = date.today()
                 user.save()
 
                 # record logs
                 SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
+
+                req.session["user_name"] = None #Clear the user_name from the session
 
                 response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
                 return response
@@ -1359,11 +1384,11 @@ def mentor_mfa_validate(req: HttpRequest):
                 response.status_code = 401
                 return response            
         else:
-            response = HttpResponse(json.dumps({"warning":"Passcode has expired, please try again."}))
+            response = HttpResponse(json.dumps({"warning":"Passcode has expired, please request a new passcode."}))
             response.status_code = 401
             return response
                 
     else: 
-        response = HttpResponse(json.dumps({"warning":"Please resend the passcode."}))
+        response = HttpResponse(json.dumps({"warning":"An error has occurred. Please request a new passcode."}))
         response.status_code = 401
         return response
