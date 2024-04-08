@@ -10,7 +10,6 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from django.utils import timezone
-import pytz
 import os
 from io import BytesIO
 
