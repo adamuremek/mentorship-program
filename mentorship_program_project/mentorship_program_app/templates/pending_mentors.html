@@ -24,6 +24,14 @@ Mentor Applicant Approval
     </div>
 </div>
 
+
+
+<div class="pending-container">
+    <!-- FILTER SECTION -->
+    <div class="available-filters">
+            <input type="text" placeholder="Search..." id="searchByNameField" oninput="filterInterests()">
+    </div>
+
 <!-- container that holds all mentors under review -->
 <div class="mentor-applicants-container">
 
@@ -32,9 +40,10 @@ Mentor Applicant Approval
     {% for user in pending_mentors %}
     <div class="mentor-applicant" mentor-id="{{user.id}}">
 
-        <div class="profile-picture-container">
+        <!-- If profile pictures are added again, uncomment below and in .mentor-applicant in pending_mentors.css -->
+        <!-- <div class="profile-picture-container">
             <img src="../static/images/ex-pfp.jpg" alt="" class="profile-picture">
-        </div>
+        </div> -->
 
         <div class="mentor-name">
             {{user.str_first_name}} {{user.str_last_name}}
@@ -64,10 +73,39 @@ Mentor Applicant Approval
     {% endfor %}
 </div>
 
+</div>
+
 <script src="{% static 'js/backend_requests.js' %}"></script>
 <script src="{% static 'js/pending_mentors.js' %}"></script>
 
 
+<script>
+
+    /**
+    * Filters the displayed user cards based on selected interests and 
+    * Username. User fields must match both criteria in order to be 
+    * shown.
+    */
+    filterInterests = () => {
+        const users = document.querySelectorAll('.mentor-applicants-container > *');
+        const search_bar = document.getElementById('searchByNameField')
+
+        // params
+        const search_query = search_bar.value.toLowerCase()
+
+        for(const user of users) {
+
+            const username = user.getElementsByClassName('mentor-name')[0].innerHTML.toLowerCase().trim();
+            const does_username_match = username.includes(search_query);
+
+            if(!does_username_match) {
+                user.style.display = 'none';
+            } else {
+                user.style.display = 'grid';
+            }
+        }
+    }
+</script>
 
 
 {% endblock %}

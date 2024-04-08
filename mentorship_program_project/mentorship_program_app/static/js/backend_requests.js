@@ -123,12 +123,13 @@ async function attempt_mentor_report(mentor_id) {
 }
 
 /*
-* requests that the back end creates a mentorship request for the given mentee and mentor --ANTHONY PETERS
+* requests that the back end creates a new organization using the pasted organization name --ANTHONY PETERS
 */
-async function attempt_mentorship_request(mentee_id, mentor_id)
+function attempt_create_new_organziation(organzation_name)
 {
-	// NEED TO TEST
-    const req = new Request("request_mentor/" + mentee_id + "/" + mentor_id, {
+	// return "/create_new_orgnization/" + organzation_name;
+
+    return new Request("/create_new_orgnization/" + organzation_name, {
                             method: "POST",
                             headers: {
                                 "Content-type": "application/json; charset=UTF-8",
@@ -136,28 +137,176 @@ async function attempt_mentorship_request(mentee_id, mentor_id)
                             },
                             mode: 'same-origin'
     });
+}
 
-	// let response = await fetch(req);
-	// return response;
+/*
+* requests that the back end removes a organization based on the pasted organization id --ANTHONY PETERS
+*/
+function attempt_remove_organization(orgnaization_id)
+{
+	// return "/delete_orgnization/" + orgnaization_id;
+
+	return new Request("/delete_orgnization/" + orgnaization_id, {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': csrftoken
+			},
+			mode: 'same-origin'
+	});
+}
+
+/*
+* requests that the back end edits the organization of passed mentor to the a organization based on the passed id --ANTHONY PETERS
+*/
+function attempt_edit_mentor_organization(mentor_id, orgnaization_id)
+{
+	return new Request("/edit_mentor_organization/" + mentor_id + "/" + orgnaization_id, {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': csrftoken
+			},
+			mode: 'same-origin'
+	});
+}
+
+/*
+* requests that the back end removes the organization of passed mentor, based on the passed organization id --ANTHONY PETERS
+*/
+function attempt_remove_mentors_org(mentor_id, orgnaization_id)
+{
+	return new Request("/remove_mentors_org/" + mentor_id + "/" + orgnaization_id, {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': csrftoken
+			},
+			mode: 'same-origin'
+	});
+}
+
+/*
+* requests that the back end edits the organization to promote passed mentor to organization admin based on the passed id --ANTHONY PETERS
+*/
+function attempt_promote_mentor_to_organization_admin(mentor_id)
+{
+	return new Request("/promote_organization_admin/" + mentor_id, {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': csrftoken
+			},
+			mode: 'same-origin'
+	});
+}
+
+/*
+* requests that the back end disabled passed user based on the passed id --ANTHONY PETERS
+*/
+function attempt_disable_user(user_id)
+{
+	return new Request("/disable_user", {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': csrftoken
+			},
+			body: JSON.stringify({ id: user_id }),
+			mode: 'same-origin'
+	});
+}
+
+/*
+* requests that the back end enabled passed user based on the passed id --ANTHONY PETERS
+*/
+function attempt_enable_user(user_id)
+{
+	return new Request("/enable_user", {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': csrftoken
+			},
+			body: JSON.stringify({ id: user_id }),
+			mode: 'same-origin'
+	});
+}
+
+/*
+* requests that the back end creates a mentorship of passed mentee and mentor ids --ANTHONY PETERS
+*/
+function attempt_create_mentorship(mentee_id, mentor_id)
+{
+	return new Request("/create_mentorship/" + mentee_id + "/" + mentor_id, {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': csrftoken
+			},
+			mode: 'same-origin'
+	});
+}
+
+/*
+* requests that the back end removes a mentorship of passed mentee ids --ANTHONY PETERS
+*/
+function attempt_delete_mentorship(mentee_id)
+{
+	return new Request("/delete_mentorship/" + mentee_id, {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': csrftoken
+			},
+			mode: 'same-origin'
+	});
+}
+
+/*
+* requests that the back end decouples the passed mentor from the passed organziation ids --ANTHONY PETERS
+*/
+function attempt_decouple_mentor(mentor_id, orgaization_id)
+{
+	// return new Request("/delete_mentorship/" + mentee_id, {
+	// 		method: "POST",
+	// 		headers: {
+	// 			"Content-type": "application/json; charset=UTF-8",
+	// 			'X-CSRFToken': csrftoken
+	// 		},
+	// 		mode: 'same-origin'
+	// });
+}
+
+/*
+* Loops through passed request array executing in order --ANTHONY PETERS
+*/
+async function execute_request(request_array)
+{
+	// Inintlizae valid flag to true
+	let valid_flag = true;
+
+	// Cycles through passed request array and exeuctes them in order
+	for (let index = 0; index < request_array.length; index++) {
+
+		// Determine response to request
+		let response = await fetch(request_array[index]);
+
+		// Fetch request and wait for response
+		if (String(response.status) != "200")
+		{
+			// Update valid flag to false
+			valid_flag = false;
+			
+			break;
+		}
+	}
+
+	return valid_flag;
+
 }
 
 
-// async function attempt_login_uname_password(username,password) {
-// 	let login_request = {type:"username_password",username:username,password:password};
-	
-// 	const req = new Request("/login/",{
-// 							method:"POST",
-// 							body: JSON.stringify(login_request),
-// 							headers: {
-// 									"Content-type": "application/json; charset=UTF-8",
-// 									'X-CSRFToken': csrftoken
-// 								},
-// 							mode: 'same-origin'
-// 	});
-	
-// 	let response = await fetch(req);
-// 	return response;
-// }
 
 
 
@@ -208,3 +357,5 @@ async function attempt_query_session_user(request=null,data=null) {
    let response = await fetch(req);
    return response;
 }
+
+

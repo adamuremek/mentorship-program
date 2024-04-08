@@ -3,7 +3,9 @@
     justify-content: space-around;
 
     width: 35%;
-    background-image: linear-gradient(to bottom, black 20%, #2C2C2C 20%, gray 21%, #2C2C2C 21%);
+    /* background image used with profile picture */
+    /* background-image: linear-gradient(to bottom, black 20%, #2C2C2C 20%, gray 21%, #2C2C2C 21%); */
+    background-color: rgb(44, 44, 44);
     border-radius: 10%;
     position: relative;
     flex-direction: column;
@@ -13,10 +15,33 @@
     aspect-ratio: 1 / 1;
     align-self: center;
     height: fit-content;
-    
+    padding-top: 5%;
 
     box-shadow:  2px 2px 2px 2px rgba(47, 47, 47, 0.6);
 }
+
+/* container holds back to dashboard link, arrow and title */
+.link-container {
+    position: relative;
+    top: -25%;
+    left: 0%;
+    width: 100%;
+}
+
+.left-arrow {
+    overflow: auto;
+    height: 1rem;
+}
+
+.title {
+    font-size: 2rem;
+    align-self: left;
+}
+
+.return-link {
+    text-decoration: none;
+}
+/* End of link container section */
 
 /* .profile-picture-container {
     position: absolute;
@@ -24,6 +49,7 @@
     left: 34%;
     top: 6%;
 } */
+
 
 .profile-picture {
     height: 100%;
@@ -109,4 +135,11 @@
 
 * {
     overscroll-behavior: none;
+}
+
+
+@media screen and (max-width: 900px) {
+    .card-body {
+        width:max-content;
+    }
 }

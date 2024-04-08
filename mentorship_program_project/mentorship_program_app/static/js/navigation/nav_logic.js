@@ -27,7 +27,19 @@
 /*********************************************************************/
 /* MODIFICATION HISTORY:                                             */
 /* -created (03/15/2024) by Tanner Koth                              */
+/* -modified (04/04/2024) by Tanner Koth                             */
+/*   - added enabling/disabling scroll when nav bar is displayed     */
 /*********************************************************************/
+
+import { disableScroll, enableScroll } from "../window_utils.js";
+
+const openMobileSidebarBtn = document.getElementById('open-mobile-sidebar-btn');
+const closeMobileSidebarBtn = document.getElementById('close-mobile-sidebar-btn');
+const menuBtnPNav = document.getElementById('menu-btn-pnav');
+
+openMobileSidebarBtn.addEventListener('click', openMobileSidebar);
+closeMobileSidebarBtn.addEventListener('click', closeMobileSidebar);
+menuBtnPNav.addEventListener('click', sidebarController);
 
 // This routine is responsible for controlling the sidebar element of the sites
 // primary navigation. It contains logic checking if the sidebar is displayed,
@@ -59,14 +71,16 @@ function sidebarController() {
 function openMobileSidebar() {
     const sidebar = document.querySelector('.mobile-sidebar');
     sidebar.style.display = 'flex';
+    disableScroll();
 }
 
 // This routine is invoked to hide the mobile sidebar. It is invoked when the
 // close icon is clicked on the mobile navigation sidebar.
 function closeMobileSidebar() {
     const sidebar = document.querySelector('.mobile-sidebar');
-    if(sidebar)
+    if (sidebar)
         sidebar.style.display = 'none';
+    enableScroll();
 }
 
 // This routine checks the screen width, checking if it exceeds 800px. If true
@@ -75,7 +89,7 @@ function checkScreenWidth() {
     // Check if the screen width is 800px or more
     if (window.matchMedia("(min-width: 800px)").matches) {
         closeMobileSidebar();
-    };
+    }
 }
 
 // Event listener for window resize. Invokes checkScreenWidth to close the
