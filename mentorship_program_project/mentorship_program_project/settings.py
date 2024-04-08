@@ -209,7 +209,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Redirects for after sucessful saml login and logout
 LOGIN_REDIRECT_URL = '/saml/login'
 ACS_DEFAULT_REDIERCT_URL = '/saml/login'
-LOGOUT_REDIRECT_URL = '/logout'
+LOGOUT_REDIRECT_URL = '/'
 
 # Create a new django user if they don't exist
 SAML_CREATE_UNKNOWN_USER = True
@@ -222,10 +222,10 @@ SAML_LOGOUT_REQUEST_PREFERRED_BINDING = saml2.BINDING_HTTP_REDIRECT
 SAML_IGNORE_LOGOUT_ERRORS = True
 
 SAML_ATTRIBUTE_MAPPING = {
-    'emailAddress': ('email', ),
-    'givenName': ('firstName', ),
-    'surname': ('lastName', ),
-    'objectidentifier': ('id', ),
+    'emailAddress': ('email', 'username'),
+    'givenName': ('first_name', ),
+    'surname': ('last_name', ),
+    'objectIdentifier': ('object_identifier', ),
 }
 
 # From djangosaml2 docs

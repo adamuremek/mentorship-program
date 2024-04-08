@@ -49,6 +49,7 @@ from django.template import loader
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 
 from utils import development
 from utils.development import print_debug
@@ -219,6 +220,10 @@ def register_mentee(req):
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 
+        'user': req.user,
+        # TODO: replace this or get rid of password for mentees. 
+        # For now it is just generating a password so I can test without modifying validation code
+        'random_password': get_random_string(length=30) + "1A!",
     }
     return HttpResponse(template.render(context, req))
 
@@ -484,6 +489,10 @@ def admin_user_management(request):
 @security.Decorators.require_login(invalid_request_401)
 def logout(request):
     if security.logout(request.session):
+         # if the user is logged in with django's auth (through saml)
+        if request.user.is_authenticated:
+            # log them out through saml
+            return redirect("/saml2/logout")
         return redirect("/")
     #TODO: redirect this to a correct form ||||| probably done - Tanner
     response = HttpResponse("an internal error occured, unable to log you out, STAY FOREVER")
@@ -618,8 +627,6 @@ def test_login_page(request):
 # sucessful saml logins redirect here
 # the built in django user will be logged in, but our user will not be, and it might not even exist yet (first time sign in)
 def saml_login(request):
-    # TODO: this is just testing code. Replace this with something decent
-
     user = request.user
 
     # Invalid saml login. Probably cannot get to this page, but good to be sure
@@ -628,8 +635,7 @@ def saml_login(request):
         return redirect('landing')
     
     if not User.objects.filter(cls_email_address=user.email).exists():
-        #TODO: somehow skip the pages that are unneeded/auto populate and lock fields
-        # First name, last name, email, and uid are in the user from saml login
+        #TODO: The registration flow still needs some work, but it at least functions now
         return redirect('/register/mentee')
 
     # User exists, log them in
