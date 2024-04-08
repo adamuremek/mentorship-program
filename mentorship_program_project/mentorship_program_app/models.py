@@ -556,6 +556,45 @@ class User(SVSUModelData,Model):
 
         #return ret_val
 
+    def get_organization(self) -> list[str]:
+        """
+        Description
+        -----------
+        Gets the names of the organizations that a user belongs to
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - [str]: A list of organizations associated with the user
+
+        Example Usage
+        -------------
+
+        >>> User.get_organization()
+        '[ABC Corp]'
+
+        Authors
+        -------
+        Adam C.
+        """
+        if self.is_mentor:
+            #prefetch_related to reduce database queries
+            this_mentor = Mentor.objects.prefetch_related('organization').get(account=self)
+            organizations = this_mentor.organization.all()
+            #ideally this check isn't necessary since all mentors must have an organization, but some of the test users
+            #don't currently have orgs, so this handles those cases
+            if organizations.exists():  
+                return [org.str_org_name for org in organizations]
+            else:
+                return ['No organization associated']
+        return ['None']
 
     def get_backend_only_properties(self)-> list[str]:
         """
@@ -1577,7 +1616,6 @@ class Mentor(SVSUModelData,Model):
         return self.organizations.all() & other.organizations.all()
         
     int_max_mentees = IntegerField(default=4)
-   
 
 
     str_job_title = CharField(max_length=100)

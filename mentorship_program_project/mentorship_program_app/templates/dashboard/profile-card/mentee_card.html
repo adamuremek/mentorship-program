@@ -28,6 +28,14 @@
 
 			<p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
 
+			<div class = "card-organization" id = "card-organization">
+				{% if user.is_mentor %}
+					{% for org in user.get_organization %}
+						{{ org }}
+					{% endfor %}
+				{% endif %}
+			</div>
+
 			<div class="card-line-divider-2"></div>
 
 			<p class="card-interests-header">Interests</p>
@@ -51,11 +59,11 @@
 		  ">
 		  {% if not user.is_requested_by_session %}
 			  {% if role.value == 'Mentee' %}
-              {% if session_user.has_maxed_requests_as_mentee %}
-                  Maximum Request Amount Reached
-              {% else %}
-                  Request Mentor
-              {% endif %}
+              	{% if session_user.has_maxed_requests_as_mentee %}
+                  	Maximum Request Amount Reached
+              	{% else %}
+                  	Request Mentor
+              	{% endif %}
 			  {% else %}
 				Request Mentee
 			  {% endif %}

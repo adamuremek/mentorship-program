@@ -108,6 +108,11 @@
     overflow: hidden;
 }
 
+.card-organization {
+    text-align: center;
+    font-size: 0.8rem;
+}
+
 .card-button {
     position: relative;
     background-color: #27446D;
