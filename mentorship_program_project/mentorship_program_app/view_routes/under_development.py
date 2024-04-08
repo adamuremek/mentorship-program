@@ -247,7 +247,7 @@ def register_mentor(req: HttpRequest):
         pending_mentor_object.account.cls_email_address = incoming_email
         pending_mentor_object.account.str_first_name = req.POST["fname"]
         pending_mentor_object.account.str_last_name = req.POST["lname"]
-        pending_mentor_object.account.str_phone_number = req.POST["phone"]
+        pending_mentor_object.account.str_phone_number = f'{req.POST["phone_country_code"]} {req.POST["phone"]}'
         pending_mentor_object.account.str_preferred_pronouns = req.POST["pronouns1"] + '/' + req.POST["pronouns2"]
 
         #were not getting the data from the incoming form
@@ -1554,8 +1554,6 @@ def edit_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
     if not user_from_session.is_super_admin():
         return bad_request_400("Permission denied")
     
-
-    #TODO next of kin for org admin
     mentor_account = Mentor.objects.get(id=mentor_id)
     new_org = Organization.objects.get(id=org_id)
     mentor_account.organization.set([new_org])
@@ -1671,7 +1669,6 @@ def check_email(request):
 def update_interests(req : HttpRequest):
     if req.method == "POST":
         post_data = json.loads(req.body.decode("utf-8"))
-        print("request " , post_data)
         user_from_session = User.from_session(req.session)
         if not user_from_session.is_super_admin():
             return bad_request_400("Permission denied")
@@ -1683,10 +1680,6 @@ def update_interests(req : HttpRequest):
         # id's and names
         edit_list = post_data["edited"]
 
-        print("request " , req.body)
-        print("Add ", add_list)
-        print("delete ", delete_list)
-        print("edit " , edit_list)
         # add new interests
         added_instances = []
         for interest in add_list:

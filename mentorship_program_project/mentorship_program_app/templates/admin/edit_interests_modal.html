@@ -60,9 +60,9 @@ active_interests_container.addEventListener('click', (e) => {
         btn_revert.innerHTML='+' // Make button visually indicate re-entry
 
         new_container.setAttribute('class', 'modal-interest-container active_interest')
-        new_container.appendChild(input.cloneNode(true));
-        new_container.appendChild(id.cloneNode(true));
-        new_container.appendChild(btn_revert); 
+        new_container.appendChild(input.cloneNode(true))
+        new_container.appendChild(id.cloneNode(true))
+        new_container.appendChild(btn_revert)
 
         // Allow deleted entries to be re-added
         // Again, I know this is confusing and I'm sorry.
@@ -72,7 +72,7 @@ active_interests_container.addEventListener('click', (e) => {
             //deleted_interests.removeChild(new_container)
             new_container.remove()
             btn_revert.classList.remove('btn-revert')
-            interest_list.appendChild(new_container);
+            interest_list.appendChild(new_container)
             //list_btn_remove_interest = document.getElementsByClassName('btn-remove-interest')
         })
 

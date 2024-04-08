@@ -361,7 +361,6 @@ class Interest(SVSUModelData,Model):
             ret_int = Interest.objects.get(strInterest = str_interest)
             return ret_int
         except ObjectDoesNotExist:
-            #TODO: put in try catch to account for connection issues
             Interest.objects.create(strInterest=str_interest).save()
 
 
@@ -495,10 +494,6 @@ class User(SVSUModelData,Model):
 
 
 
-        
-        #TODO: we should probably get this going specifically through djangos orm's
-        #       idk if thats possible tho since this is doing a self join on a table to 
-        #       get the data we need, def more research is required
 
         sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
         
@@ -649,7 +644,7 @@ class User(SVSUModelData,Model):
 
     str_first_name : CharField =  CharField(max_length=747,null=True)
     str_last_name : CharField =  CharField(max_length=747, null=True) 
-    str_phone_number : CharField = CharField(max_length=15, null=True)
+    str_phone_number : CharField = CharField(max_length=19, null=True)
     str_last_login_date = DateField(default=timezone.now)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
@@ -1050,8 +1045,7 @@ class User(SVSUModelData,Model):
             return User.ErrorCode.AlreadySelectedEmail
 
         generated_user_salt = security.generate_salt()
-        #TODO: emails need to be validated, send a sacrifical lamb
-        #to the regex gods
+
         return User.objects.create(
                     str_password_hash = security.hash_password(
                                             password_plain_text,
@@ -1584,12 +1578,7 @@ class Mentor(SVSUModelData,Model):
         
     int_max_mentees = IntegerField(default=4)
    
-    # TODO:
-    # I think theres a way to make this a read only query to the db
-    # which is what it prolly should be so our data states
-    # don't get de synced
-    # -dk
-    #int_recommendations = IntegerField(default=0)
+
 
     str_job_title = CharField(max_length=100)
     str_experience = CharField(max_length=50, default='')
@@ -2214,7 +2203,6 @@ class UserReport(SVSUModelData,Model):
         OTHER = 'Other'
 
 
-        # TODO: Add different issue
 
     user = ForeignKey(
         User,
