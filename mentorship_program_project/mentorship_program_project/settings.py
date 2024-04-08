@@ -65,6 +65,7 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
+    'csp.middleware.CSPMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -181,6 +182,15 @@ EMAIL_PORT = 587  # Gmail SMTP port for STARTTLS
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'wingsmentorapp@gmail.com'
 EMAIL_HOST_PASSWORD = 'rjrl aldq kjee ybfv'
+
+
+# Content Security Policy
+# TODO: use hashes or nonces instead of unsafe-inline
+CSP_IMG_SRC = ("'self'")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'fonts.googleapis.com')
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
+CSP_FONT_SRC = ("'self'", 'fonts.gstatic.com')
+CSP_DEFAULT_SRC = ("'self'")
 
 
 # For saml auth
