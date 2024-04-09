@@ -11,6 +11,11 @@ spec:
           containers:
           - name: web
             image: localhost:5000/project-kubernetes
+            envFrom:
+            - secretRef:
+                name: mentor-secret
+            - configMapRef:
+                name: mentor-config
             command:
             - /bin/sh
             - -c
