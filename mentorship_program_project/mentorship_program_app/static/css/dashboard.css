@@ -165,6 +165,31 @@ h1 {
     font-size: 1.25rem;
 }
 
+.available-search-company {
+    margin-left: auto;
+    background-color: #464B4E;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.available-search-company input {
+    font-size: 0.9375rem;
+    background-color: #464B4E;
+    border: 0px;
+    color: white;
+    outline: none;
+}
+
+.available-search-company input::placeholder {
+    color: white;
+    opacity: 1;
+}
+
+.available-search-company p {
+    display: inline-block;
+    font-size: 1.25rem;
+}
+
 .available-filters {
     margin-bottom: 12px;
 }
@@ -198,6 +223,10 @@ h1 {
     }
 
     .available-search-name {
+        margin-left: unset;
+    }
+
+    .available-search-company {
         margin-left: unset;
     }
 }

@@ -1,16 +1,16 @@
-<div class="organization_management_bar_container">
+<div class="organization_management_bar_container_active">
     <div class="organization_management_bar">
         <div id="organization_account">
             {{ organization.id }}
         </div>
 
-        <p class="organization_management_bar_name" id="admin_user_management_small_text">
+        <p class="organization_management_bar_name" id="admin_user_management_medium_text">
             {{ organization.name }}
         </p>
         
         {% if user_admin_flag %}
-            <button class="admin_user_management_word_button_active" id="remove_organization_button">
-                <p id="admin_user_management_small_text">
+            <button class="admin_user_management_word_button_active" id="remove_organization_button" title="Remove organization">
+                <p class="remove_organization_button_title" id="admin_user_management_small_text">
                     REMOVE
                 </p>
             </button>
@@ -18,7 +18,7 @@
     </div>
 
     <div id="admin_list">
-        <p id="admin_user_management_small_text">
+        <p class="admin_list_title" id="admin_user_management_small_text">
             Admins
         </p>
 
@@ -30,7 +30,7 @@
     </div>
 
     <div id="mentor_list">
-        <p id="admin_user_management_small_text">
+        <p class="mentor_list_title" id="admin_user_management_small_text">
             Mentors
         </p>
 

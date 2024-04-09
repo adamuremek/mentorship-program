@@ -64,27 +64,38 @@ main {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(105, 105, 105, 0.5); /* Semi-transparent white background */
-    z-index: 1000; /* Make sure it's on top of other elements */
-    display: none; /* Initially hidden */
+    background-color: rgba(105, 105, 105, 0.5);
+    /* Semi-transparent white background */
+    z-index: 1000;
+    /* Make sure it's on top of other elements */
+    display: none;
+    /* Initially hidden */
 }
-  
+
 .loading {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border: 4px solid rgba(0, 0, 0, 0.1); /* Light border */
-    border-top: 4px solid #333; /* Darker top border */
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    /* Light border */
+    border-top: 4px solid #333;
+    /* Darker top border */
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    animation: spin 1s linear infinite; /* Spin animation */
+    animation: spin 1s linear infinite;
+    /* Spin animation */
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 
@@ -121,6 +132,11 @@ body {
 /* Red   :  #4C282C */
 /* Blue  :  #1E2E42 */
 /* Blend :  #3D4458 */
+
+/* Fix eye-icon appearing on password fields in edge */
+::-ms-reveal {
+    display: none;
+}
 
 /* ------------------------------------------------------- */
 /* -----------------    GENERAL STYLES    ---------------- */
@@ -307,6 +323,10 @@ nav li:first-child {
     height: 30px;
     width: auto;
     padding-right: 10px;
+}
+
+.wings-logo {
+    padding-left: 10px;
 }
 
 /* Make navigation responsive for mobile/tablet */
@@ -507,7 +527,7 @@ footer {
 }
 
 button {
-     cursor: pointer;
+    cursor: pointer;
 }
 
 select {
@@ -564,6 +584,11 @@ select {
     width: 2em;
 }
 
+#phone_country_code {
+    width: 30%;
+    margin-right: .5em;
+}
+
 .sign-in-card input[type=email] {
     background-color: #333842;
     border-color: #333842;
@@ -572,6 +597,7 @@ select {
 .sign-in-card input[type=tel] {
     background-color: #333842;
     border-color: #333842;
+    width: 60%;
 }
 
 .sign-in-card input[type=button] {
@@ -606,9 +632,11 @@ select {
     margin: 1%;
 
     border-radius: .5em;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 
-    background-color: #464B4E;
+
+    background-color: rgb(66, 66, 66);
+
+    color: #F5F5F5;
 }
 
 .sign-in-card-interest:hover input[type=checkbox]~.sign-in-card-interest-label {
@@ -616,7 +644,11 @@ select {
 }
 
 .sign-in-card-interest input[type=checkbox]:checked~.sign-in-card-interest-label {
-    background-color: gray;
+    background-color: #3e4c6c;
+    color: white;
+
+
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
 .sign-in-card-interest-button {
@@ -761,24 +793,24 @@ select {
 /* width */
 ::-webkit-scrollbar {
     width: 10px;
-  }
-  
-  /* Track */
-  ::-webkit-scrollbar-track {
+}
+
+/* Track */
+::-webkit-scrollbar-track {
     background: #333;
     /* border-radius: 5px; */
-  }
-  
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
     background: #999;
     border-radius: 20px;
-  }
-  
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
     background: #888;
-  }
+}
 
 @media screen and (max-width: 1200px) {
     .sign-in-card {

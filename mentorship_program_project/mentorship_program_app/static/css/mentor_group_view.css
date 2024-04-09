@@ -37,6 +37,29 @@ hr {
     display: inline-block;
 }
 
+/* container holds back to dashboard link, arrow and title */
+.link-container {
+    position: relative;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+}
+
+.left-arrow {
+    overflow: auto;
+    height: 1rem;
+}
+
+.title {
+    font-size: 2rem;
+    align-self: left;
+}
+
+.return-link {
+    text-decoration: none;
+}
+/* End of link container section */
+
 .column-right {
     padding-left: 0rem 2rem;
     margin-right: 2rem;
@@ -71,6 +94,10 @@ hr {
     height: 3rem;
     width: 3rem;
     margin-bottom: 0.5rem;
+}
+
+.job-title-and-organization h3{
+    font-size: 1.1rem;
 }
 
 .top-title {
@@ -146,7 +173,8 @@ select:not([disabled]) {
 }
 
 .specialties label { /*input*/
-    color: white;
+    
+
     border-radius: 1rem;
     width: 10rem;
     margin: .25em;
@@ -162,12 +190,18 @@ select:not([disabled]) {
 
     border-color: transparent;
     border-radius: .5em;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+    
+    
+    background-color: rgb(66, 66, 66);
 
-    background-color: rgb(100, 100, 100);
+    color: #F5F5F5;
 }
 
 .user-interest-label {
+    background-color: rgb(66, 66, 66);
+    color: #F5F5F5;
+    
     font-size: 1rem;
     font-weight: 300;
 
@@ -175,8 +209,8 @@ select:not([disabled]) {
     width: 10em;
     
     border-radius: .5em;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+    
     text-align: center;
 
     -webkit-user-select: none; /* Safari */
@@ -188,12 +222,19 @@ select:not([disabled]) {
 
 .specialties input {
     display: none;
+    
+
 }
 
 .specialties input:checked ~ .user-interest-label {
-    background-color: #464B4E;
-    border: #464B4E;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+    
+    border: #3e4c6c;
     border-width: 2px;
+    
+    background-color: #3e4c6c;
+    color: white;
+
 }
 
 /* .specialties input:hover ~ .user-interest-label {
@@ -201,7 +242,9 @@ select:not([disabled]) {
 } */
 
 .specialties .hover_interest:hover ~ .user-interest-label {
-    background-color:  #3d4247;
+    background-color:  lightgrey;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.75);
+
 }
 
 textarea {
@@ -210,6 +253,11 @@ textarea {
 
 textarea[readonly] {
     outline: none; /* Remove default focus outline */
+}
+
+textarea::placeholder{
+    color: var(--clr-font-secondary);
+    opacity: 0.6;
 }
 
 input:read-only {
@@ -535,6 +583,8 @@ select option {
 #btn-create-note:focus-visible {
     background-color: var(--clr-btn-submit-highlight);
 }
+
+
 
 @media screen and (max-width: 1000px) {
     .hero-container {

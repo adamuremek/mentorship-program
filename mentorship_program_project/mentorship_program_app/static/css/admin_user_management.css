@@ -1,28 +1,21 @@
+/* Need to edit main.css with  */
+/* .main {
+    min-height: 87vh;
+} */
+
 .admin_user_management_container {
     display: flex;
     flex-direction: column;
 
     text-align: center;
-    justify-content: space-around;
+    /* justify-content: space-around; */
     align-items: center;
-
-    min-height: 80vh;
-    max-height: 90vh;
 }
 
 .user_board_button_container{
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-}
-
-.user_board_title_container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-
-    margin-bottom: 1%;
 }
 
 .user_board_search_container {
@@ -46,6 +39,55 @@
     width: 46vw;
 }
 
+.admin_user_management_modal{
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 0.5em;
+    margin: 0.25em;
+
+    border-radius: 15px;
+
+    width: 40vw;
+    height: 40vh;
+
+    /* Below allows modals to be centered in the screen */
+    
+    /* position: fixed; */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+
+    &>* {
+        margin: 0 0 0.5rem 0;
+    }
+}
+
+.admin_user_management_modal::backdrop {
+    backdrop-filter: blur(.25em);
+    background: rgba(125, 125, 125, 0.1);
+}
+
+.admin_user_management_modal_container {
+    width: 100%;
+    height: 85%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#create_organization_button {
+    width: 90%;
+}
+
+#organization-input {
+    width: 90%;
+
+    color: black;
+}
+
 .search_bar {
     height: 3vh;
     width: 30vw;
@@ -57,6 +99,22 @@
 #search_icon {
     height: 2.5vh;
     width: 1.5vw;
+}
+
+#add_new_organization_modal {
+    display: none;
+}
+
+.hidden_element {
+    display: none;
+}
+
+.organization_name_bar {
+    color: black;
+}
+
+.create_organization_message_bar, .user_management_message_bar {
+    display: none;
 }
 
 #address_arrow {
@@ -85,7 +143,7 @@
     display: none;
 }
 
-.admin_user_management_button_clear_active {
+.admin_user_management_button_clear_active, .mentee_counter_container {
     background: rgba(128, 128, 128, 0.25);
     border-radius: 15px;
     border: none;
@@ -95,19 +153,40 @@
     padding: 1%;
 }
 
+.mentee_management_bar_container_inactive {
+    display: none;
+}
+
 .admin_user_management_word_button_active {
-    /* background: none; */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
     border: none;
-    width: 25%;
+    width: fit-content;
+    height: fit-content;
 
     background-color: rgba(128, 128, 128, 0.25);
     border-radius: 15px;
     padding: 0.5%;
     margin: 0.5%;
+
+    width: 12vw;
+    height: 3vh;
 }
 
-.admin_user_management_word_button_inactive {
+.admin_user_management_word_button_inactive, .admin_user_management_button_clear_inactive {
     display: none;
+}
+
+.admin_user_management_button_clear_active:hover,
+.admin_user_management_word_button_active:hover,
+.admin_user_management_button_clear_inactive:hover,
+.admin_user_management_word_button_inactive:hover,
+.mentee_counter_container:hover {
+    background: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
 }
 
 .admin_user_management_button {
@@ -144,7 +223,7 @@ input[type="file"] {
 }
 
 .user_board {
-    height: 50vh;
+    height: 51vh;
 
     background: rgba(0, 0, 0, 0.2);
     border-radius: 15px;
@@ -153,7 +232,7 @@ input[type="file"] {
 
     display: flex;
     flex-direction: column;
-    flex-wrap: nowrap;
+    /* flex-wrap: nowrap; */
     justify-content: center;
 }
 
@@ -163,9 +242,13 @@ input[type="file"] {
     overflow-y: scroll;
 }
 
-.mentor_management_bar_container {
+.mentor_management_bar_container_active, .mentee_management_bar_container_active {
     display: flex;
     flex-direction: column;
+}
+
+.mentor_management_bar_container_inactive, .mentee_management_bar_container_inactive, .organization_management_bar_container_inactive {
+    display: none;
 }
 
 .mentee_management_bar, .mentor_management_bar {
@@ -180,7 +263,7 @@ input[type="file"] {
     margin-left: 2.5%;
 }
 
-.organization_management_bar_container {
+.organization_management_bar_container_active {
     display: flex;
     flex-direction: column;
 
@@ -197,9 +280,6 @@ input[type="file"] {
     align-items: center;
     justify-content: space-between;
 
-    /* margin-bottom: 1%;
-    margin-top: 1%;
-    margin-right: 5%; */
 
     padding: 1%;
     border-radius: 15px;
@@ -209,47 +289,20 @@ input[type="file"] {
     border-color: aliceblue;
 }
 
-/* .organization_management_button_clear_active {
-    background: none;
-    border: none;
-    width: fit-content;
-}
-
-.organization_management_button_clear_inactive {
-    display: none;
-} */
-
-#user_bar_valid {
-
-}
-
-#user_bar_invalid {
-
-}
-
-#user_bar_prev {
-
-}
-
 #user_account, #user_mentor, #user_mentees, 
-#user_account_disabled, #organization_account, #session_user_flag {
+#user_account_disabled, #organization_account, #session_user_flag,
+#account {
     display: none;
 }
 
 .user_management_bar_name {
-    flex-basis: 55%;
+    width: 95%;
+    word-break: break-all;
 }
 
-.mentee_counter_container {
-    display: flex;
-    flex-direction: row;
-
-    width: 10%;
-    justify-content: space-around;
-
-    background-color: gray;
-    border-radius: 15px;
-    padding: 0.5%
+.organization_management_bar_name {
+    word-break: break-word;
+    width: 70%;
 }
 
 .user_management_photo {
@@ -264,42 +317,34 @@ input[type="file"] {
     width: 40%;
 }
 
-#plus_button {
-    /* display: none; */
-}
-
-#remove_button {
-    /* display: none; */
-}
-
-#eye_button {
-
-}
-
-#trashcan_button {
-
-}
-
 @media screen and (max-width: 1000px) {
+    .admin_user_management_word_button_active {
+        height: 3vh;
+        width: 16vw;
+    }
+
     .user_board_container {
         width: 46vw;
         margin: 0.5vw;
     }
 
     .user_board {
-        height: 55vh;
+        height: 57vh;
     }
 
     #admin_user_management_small_text {
-        font-size: 1.5vw
+        font-size: 1.25vw
+        /* font-size: 1vw; */
     }
     
     #admin_user_management_medium_text {
         font-size: 2.5vw
+        /* font-size: 1.5vw; */
     }
     
     #admin_user_management_large_text {
         font-size: 3.5vw
+        /* font-size: 2vw; */
     }
 
     #search_icon {
@@ -321,7 +366,19 @@ input[type="file"] {
     }
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 700px) {
+    /* .user_board_search_bar_container{
+        flex-direction: column;
+    } */
+
+    .admin_user_management_word_button_active {
+        width: fit-content;
+    }
+
+    .user_board_search_container {
+        flex-direction: column;
+    }
+
     .user_board_container {
         width: 48vw;
         margin: 0.5vw;
@@ -349,18 +406,8 @@ input[type="file"] {
     }
 
     .mentee_management_bar, .mentor_management_bar {
-        display: inherit;
+        flex-direction: column;
 
-        /* margin-bottom: 5%;
-        margin-top: 5%;
-        margin-top: 1%;
-        margin-bottom: 1%; */
-    }
-
-    .admin_user_management_button_clear_inactive {
-        /* width: 30%; */
-
-        display: none;
     }
 
     .admin_user_management_button_clear_active {   
@@ -376,7 +423,21 @@ input[type="file"] {
         width: 80%;
     }
 
+    .user_board_search_bar_container {
+        width: 90vw;
+    }
+
+    .mentee_counter_container,
+    .admin_user_management_button_clear_active,
+    .admin_user_management_button_clear_inactive,
     .mentee_counter_container {
         width: 100%;
     }
+
+    .admin_user_management_word_button_active, 
+    .admin_user_management_word_button_inactive,
+    .admin_user_management_button {
+        width: fit-content;
+    }
+
 }

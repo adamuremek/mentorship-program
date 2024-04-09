@@ -17,6 +17,7 @@ from .emails import *
 from ..views import login_uname_text
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.utils import timezone
 
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
@@ -111,6 +112,23 @@ decorator is typically only used on route callback functions \
 that need one or more of its body's string values verified."
 
 def __validate_request_body(req_callback: Callable, *body_args: str, **kwargs) -> Callable:
+    '''
+    Description
+    -----------
+    
+    This is a decorator function that is used with callback routes receiveding a POST request
+    and verifies the values of data keys passed in with the post request
+
+    Example Usage
+    -------------
+
+    *see "validate_request_body" decorator below
+
+    Authors
+    -------
+    Adam U.
+    '''
+    
     def wrapper(*args,**kwargs):
         #The calling function should have at least one argument.
         if len(args) < 1:
@@ -135,7 +153,7 @@ def __validate_request_body(req_callback: Callable, *body_args: str, **kwargs) -
             #Validate each parameter's value
             for value in body_dict.values():
                 err_mssg = is_ascii(value)
-                err_mssg = contains_sql_injection_risk(value)
+                #err_mssg = contains_sql_injection_risk(value)
                 
                 if err_mssg != "":
                     return bad_request_400(f"{err_mssg} | problem_string: {value}")
@@ -145,6 +163,31 @@ def __validate_request_body(req_callback: Callable, *body_args: str, **kwargs) -
     return wrapper
 
 def validate_request_body(*args: str,**kwargs):
+    '''
+    Description
+    -----------
+    Wrapper decorator for the main validation decorator
+
+    Parameters
+    ----------
+
+    folded string list: a parameter list of POST request data keys as strings whose values neeed to be checked
+
+    Example Usage
+    -------------
+
+    @validate_request_body("key1", "key2")
+    def route(req: HttpRequest):
+        --content--
+
+    *when the route is called, the keys' data will be validated based on conditions set in the decorator
+    and will return a 400 error if the validation fails*
+
+    
+    Authors
+    -------
+    Adam U.
+    '''
     return lambda func: __validate_request_body(func, *args,**kwargs)
 
 @validate_request_body("fname", "lname", "pronouns", "email", "phone-number", "password")
@@ -204,7 +247,7 @@ def register_mentor(req: HttpRequest):
         pending_mentor_object.account.cls_email_address = incoming_email
         pending_mentor_object.account.str_first_name = req.POST["fname"]
         pending_mentor_object.account.str_last_name = req.POST["lname"]
-        pending_mentor_object.account.str_phone_number = req.POST["phone"]
+        pending_mentor_object.account.str_phone_number = f'{req.POST["phone_country_code"]} {req.POST["phone"]}'
         pending_mentor_object.account.str_preferred_pronouns = req.POST["pronouns1"] + '/' + req.POST["pronouns2"]
 
         #were not getting the data from the incoming form
@@ -232,8 +275,8 @@ def register_mentor(req: HttpRequest):
 
 
         pending_mentor_object.save()
-
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, specified_user= User.objects.get(id=user_mentor.id))
+        
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_REGISTER_EVENT, specified_user=user_mentor)
         mentor_signup_email(pending_mentor_object.account.cls_email_address)
         template: Template = loader.get_template('sign-in card/mentor/account_activation_mentor.html')
         ctx = {}
@@ -357,7 +400,6 @@ def view_pending_mentors(req: HttpRequest):
     Adam U. ♣
     Andrew P.
     '''
-    
     session_user = User.from_session(req.session)
 
     is_super_admin = session_user.is_super_admin()
@@ -373,7 +415,7 @@ def view_pending_mentors(req: HttpRequest):
     
     return HttpResponse(template.render(context, req))
 
-
+@security.Decorators.require_login(bad_request_400)
 def change_mentor_status(req: HttpRequest):
     '''
     Description
@@ -400,9 +442,11 @@ def change_mentor_status(req: HttpRequest):
     Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     '''
-    #TODO Verify you're an admin
+    session_user = User.from_session(req.session)
+    if (not session_user.is_super_admin()):
+        return bad_request_400("permission denied!")
 
-    if req.method != "POST":
+    if req.method == "POST":
         HttpResponse("wtf")
 
     # Extract mentor ID and status from request data
@@ -410,21 +454,23 @@ def change_mentor_status(req: HttpRequest):
     status = req.POST["status"]
     
     # Retrieve user object based on ID
-    user = User.objects.get(id=mentor_id)
+    mentor_object = User.objects.get(id=mentor_id)
     
     # Update user role and activation status based on provided status                                           
     if status == 'Approved':
-        user.bln_active = True
-        user.str_role = User.Role.MENTOR
-        user.save()
-        mentor_accepted_email(user.cls_email_address)      
+        mentor_object.bln_active = True
+        mentor_object.str_role = User.Role.MENTOR
+        mentor_object.save()
+        mentor_accepted_email(mentor_object.cls_email_address)  
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_APPROVED_EVENT, specified_user=mentor_object, str_details=f"Handled by: {session_user.id}")
     else:
-        mentor_denied_email(user.cls_email_address)
-        user.delete()
-        
-        
+        mentor_denied_email(mentor_object.cls_email_address)
+        #TODO change the mentor object to be deactivated if its deleted the system log for that user is also deleted
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DENIED_EVENT, specified_user=mentor_object, str_details=f"Handled by: {session_user.id}")
+        mentor_object.delete()
+
     # Save changes to user object
-    
+
     # Redirect back to the view_pending page
     return redirect("/view_pending")
 
@@ -470,8 +516,19 @@ def disable_user(req:HttpRequest):
 
     if(user.str_role == "Mentee"):
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
+        if not user.account.mentor == None:
+           mentor = User.objects.get(id=Mentor.objects.get(id=user.account.mentor).account_id)
+           send_to = mentor.cls_email_address
+           your_mentor_quit(send_to , "Mentee")
     else:
         SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
+        mentees_for_mentor = user.mentor.mentee_set.all()
+        for mentee in mentees_for_mentor:
+            send_to = User.objects.get(id=mentee.account_id)
+            email_address = send_to.cls_email_address
+            your_mentor_quit(send_to, "Mentor")
+
+
     return HttpResponse(f"user {id}'s status has been changed to disabled")
 
 
@@ -718,45 +775,6 @@ def view_mentor_by_admin(req: HttpRequest):
 
 
 @security.Decorators.require_login(bad_request_400)
-def group_view(req: HttpRequest):
-    template = loader.get_template('group_view/mentor_group_view.html')
-    signed_in_user = User.from_session(req.session)
-    mentor_id = req.POST["id"]
-    # the user object for the page owner
-    page_owner_user = User.objects.get(id=mentor_id)
-    # the mentor object for the page owner 
-    page_owner_mentor = page_owner_user.mentor
-
-    organization = page_owner_mentor.organization.get(mentor=page_owner_mentor).str_org_name
-
-    interests = page_owner_user.interests.filter(user=page_owner_user)
-
-    is_page_owner = signed_in_user == page_owner_user
-
-    user_interests = []
-    for interest in interests:
-        user_interests.append(interest.strInterest)
-
-    # had to preform a ritual to get this to work
-    # give me the big bucks
-    # honestly a christmas miracle this works, wowza
-    # DO NOT TOUCH, ITS DANGEROUS
-    mentees_for_mentor = page_owner_mentor.mentee_set.all()
-    mentees_users_accounts = [mentee.account for mentee in mentees_for_mentor]
-
-
-
-    context = {"signed_in_user": signed_in_user.sanitize_black_properties(),
-               "is_page_owner": is_page_owner,
-               "page_owner_user":page_owner_user,
-               "page_owner_mentor" : page_owner_mentor,
-               "organization": organization,
-               "interests": user_interests,
-               "mentees" : mentees_users_accounts
-               }
-    return HttpResponse(template.render(context,req))
-
-@security.Decorators.require_login(bad_request_400)
 def universalProfile(req : HttpRequest, user_id : int):
     '''
     Parameters
@@ -837,7 +855,7 @@ def universalProfile(req : HttpRequest, user_id : int):
             mentees_or_mentor.append(User.objects.get(id=mentee.mentor.account_id))
         except Exception:
             mentees_or_mentor = None
-       
+        
         for pending in pendingRequests:
             if pending.mentee_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentor_id))
@@ -890,7 +908,15 @@ def reject_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
                                         mentee_id=mentee_user_account_id
                                         )
             try:
+                # send a declined email to whoever requested the mentorship
+                send_to = User.objects.get(id=mentorship_request.requester)
+                # if you cancel your own request, don't get an email for it
+                if not session_user.id == send_to.id:
+                    email_for_mentorship_rejection(send_to.cls_email_address)
+
+
                 mentorship_request.delete()
+                
                 return redirect(f"/universal_profile/{User.from_session(req.session).id}")
             except:
                 return bad_request_400("unable to create request!")
@@ -929,6 +955,19 @@ def accept_mentorship_request(req : HttpRequest, mentee_user_account_id : int, m
             sucessful = None
             try:
                 sucessful = mentorship_request.accept_request(session_user)
+                email_for_mentorship_acceptance(mentor_account.cls_email_address, mentee_account.cls_email_address)
+                mentor = Mentor.objects.get(account_id=mentor_account.id)
+                number_of_mentees_this_mentor_has= mentor.mentee_set.all()
+                max_number_of_mentees = mentor.int_max_mentees
+
+                if number_of_mentees_this_mentor_has == max_number_of_mentees:
+                    delete_these_requests = MentorshipRequest.objects.get(mentor_id=mentee_account.id)
+                    for request in delete_these_requests:
+                        user_to_send_to = User.objects.get(id=request.requester)
+                        email_for_mentorship_rejection(user_to_send_to)
+                    delete_these_requests.delete()
+                        
+                    
             except ValidationError:
                 #this mentor has max mentees
                 return redirect(f"/universal_profile/{User.from_session(req.session).id}")
@@ -1004,7 +1043,7 @@ def create_mentorship(req : HttpRequest, mentee_user_account_id : int, mentor_us
     return HttpResponse("created request sucessfully")
 
 @security.Decorators.require_login(bad_request_400)
-def delete_mentorship(req: HttpRequest, mentee_user_account_id):
+def delete_mentorship(req: HttpRequest, mentee_user_account_id : int):
     '''
     Description
     -----------
@@ -1038,11 +1077,15 @@ def delete_mentorship(req: HttpRequest, mentee_user_account_id):
     Authors
     -------
     - Andrew P
+    - Anthony P. (small fix checking id to checking account for mentee object)
 '''
-    print(mentee_user_account_id)
     mentee = Mentee.objects.get(account_id=mentee_user_account_id)
     mentee.mentor_id = None
     mentee.save()
+
+    session_user = User.from_session(req.session)
+    SystemLogs.objects.create(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, specified_user=session_user)
+
     # redirect to the page the request came from
     return HttpResponseRedirect(req.META.get('HTTP_REFERER', '/'))
 
@@ -1154,6 +1197,24 @@ def change_password(req : HttpRequest):
 
 
 def deactivate_your_own_account(req : HttpRequest):
+    user = User.from_session(req.session)
+    if(user.str_role == "Mentee"):
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
+        if not user.mentee.mentor == None:
+           mentor = User.objects.get(id=Mentor.objects.get(id=user.mentee.mentor_id).account_id)
+           send_to = mentor.cls_email_address
+           your_mentor_quit(send_to , "Mentee")
+    else:
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
+        mentees_for_mentor = user.mentor.mentee_set.all()
+        for mentee in mentees_for_mentor:
+            send_to = User.objects.get(id=mentee.account_id)
+            email_address = send_to.cls_email_address
+            print(email_address)
+            your_mentor_quit(email_address, "Mentor")
+
+
+
     User.make_user_inactive(User.objects.get(id=User.from_session(req.session).id))
     return redirect('/logout')
 
@@ -1419,7 +1480,7 @@ def add_remove_mentees_from_file(req : HttpRequest):
     return redirect("/available_mentees")
 
 
-def promote_org_admin(req : HttpRequest, promoted_mentor_id):
+def promote_org_admin(req : HttpRequest, promoted_mentor_id : int):
     '''
     Description
     -----------
@@ -1445,13 +1506,19 @@ def promote_org_admin(req : HttpRequest, promoted_mentor_id):
 
     # gets the user from the session to check if theyre a super admin
     user_from_session = User.from_session(req.session)
+    print(user_from_session.str_role)
     is_org_admin = False
+    
     # if user is not super admin, check if they're the org admin for the org being changed
     if not user_from_session.is_super_admin():
-        mentor_account = Mentor.objects.get(id=user_from_session.id)
+
+        mentor_account = Mentor.objects.get(account=user_from_session.id)
         current_org_admin = Organization.objects.get(mentor=mentor_account).admin_mentor
         is_org_admin = current_org_admin == mentor_account
-    if not user_from_session.is_super_admin() or not is_org_admin:
+
+    else:
+        print(True)
+    if not user_from_session.is_super_admin() and not is_org_admin:
         return bad_request_400("Permission denied")
     
     # promote them to super admin
@@ -1491,12 +1558,47 @@ def edit_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
     if not user_from_session.is_super_admin():
         return bad_request_400("Permission denied")
     
+    mentor_account = Mentor.objects.get(id=mentor_id)
+    new_org = Organization.objects.get(id=org_id)
+    mentor_account.organization.set([new_org])
+    # mentor_account.organization.remove(new_org)
+
+    return HttpResponse("Organization updated")
+
+def remove_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
+    '''
+    Description
+    -----------
+    Function to remove a organization from a mentor. This operation can be performed by organization admins. It updates the organization associated with a specified mentor to remove the mentor based on the provided mentor ID.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the session of the currently logged-in user. Used to check if the user has organization admin privileges.
+    - mentor_id : int
+        The ID of the mentor whose organization affiliation is to be edited.
+    - org_id : int
+        The ID of the new organization to which the mentor will be removed.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome of the operation. If successful, it confirms that the organization was updated. If the operation fails due to lack of permissions, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Anthony P.
+    '''
+    user_from_session = User.from_session(req.session)
+    if not (user_from_session.is_an_org_admin() or user_from_session.is_super_admin()) :
+        return bad_request_400("Permission denied")
+    
 
     #TODO next of kin for org admin
     mentor_account = Mentor.objects.get(id=mentor_id)
     new_org = Organization.objects.get(id=org_id)
-    mentor_account.organization = new_org
-    mentor_account.save()
+    mentor_account.organization.remove(new_org)
+
     return HttpResponse("Organization updated")
 
 
@@ -1562,9 +1664,70 @@ def check_email(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         email = data.get('email')
-
-
         exists = User.objects.filter(cls_email_address=email).exists()
         return JsonResponse({'exists': exists})
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+
+def update_interests(req : HttpRequest):
+    if req.method == "POST":
+        post_data = json.loads(req.body.decode("utf-8"))
+        user_from_session = User.from_session(req.session)
+        if not user_from_session.is_super_admin():
+            return bad_request_400("Permission denied")
+        
+        # strings (names)
+        add_list = post_data["added"]
+        # id's
+        delete_list = post_data["deleted"]
+        # id's and names
+        edit_list = post_data["edited"]
+
+        # Event log
+        event_log = []
+
+        # add new interests
+        added_instances = []
+        for interest in add_list:
+            added_instances.append(Interest(strInterest=interest, isDefaultInterest=False))
+            
+        # Iterate over all the new interests made and retrieve their str and their id for system log
+        for interest_object in Interest.objects.bulk_create(added_instances):
+            event_log.append(SystemLogs(str_event=SystemLogs.Event.INTERESTS_CREATED_EVENT, str_details=f"{interest_object.id} : {interest_object.strInterest}", specified_user=user_from_session))
+
+        # edit existing interests
+        ids_to_edit = [int(interest[0]) for interest in edit_list]
+        interests_to_edit = Interest.objects.filter(id__in=ids_to_edit)
+
+        for interest_object in interests_to_edit:
+            new_interest = next((interest[1] for interest in edit_list if str(interest_object.id) == interest[0]), None)
+            if new_interest is not None:
+                old_interest = interest_object.strInterest
+                interest_object.strInterest = new_interest
+                event_log.append(SystemLogs(str_event=SystemLogs.Event.INTERESTS_UPDATED_EVENT, str_details=f"{interest_object.id} : {old_interest} -> {new_interest}", specified_user=user_from_session))
+
+        Interest.objects.bulk_update(interests_to_edit, ['strInterest'])
+
+        # delete interests
+        interests_to_delete = Interest.objects.filter(id__in=delete_list)
+        for interest in interests_to_delete:
+            print(interest)
+            event_log.append(SystemLogs(str_event=SystemLogs.Event.INTERESTS_DELETED_EVENT, str_details=f"{interest.id} : {interest.strInterest}", specified_user=user_from_session))
+        interests_to_delete.delete()
+
+        SystemLogs.objects.bulk_create(event_log)
+        
+        return HttpResponse("Updated")
+    return HttpResponse("Needs to be POST")
+
+
+def toggle_notifications(req : HttpRequest, status : bool):
+    user = User.from_session(req.session)
+    if status == "true":
+        user.bln_notifications = True
+    elif status == "false":
+        user.bln_notifications = False
+    user.save()
+
+    return HttpResponse("Status Updated")

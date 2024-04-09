@@ -1,37 +1,25 @@
 {% load static %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
+<dialog class="admin_user_management_modal" id="organization-modal">
+    <header class="modal-header">
+        <button class="admin_user_management_button_clear_active" id="exit_add_new_organization_button" tabindex="0">
+            <img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit">
+        </button>
+    </header>
 
-<dialog class="modal note-modal" id="organization-modal">
-    <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
-    <div class="modal-container">
-        <form id="note-form" action="{% if note %}{% url 'update_note' %}{%else%}{% url 'create_note' %}{%endif%}" class="frm-note-creator" method="post">
-            {% csrf_token %}
+    <div class="admin_user_management_modal_container">
+        <h2 id="admin_user_management_large_text">Organization Name</h2>
 
-            {% if is_page_owner %}
-                <h2>Note {%if note%}Editor{%else%}Creator{%endif%}</h2>
-                <div class="modal-line"><hr></div>
-            {% endif %}
+        <input type="text" id="organization-input" name="organization-title" class="user-input">
             
-            <div class="container">
-                <h3 class="heading">Organization Name:</h3>
-                <input type="text" id="organization-input" name="organization-title" class="user-input">
-            </div>
-            
-            
-            <div class="container">
-                <h3 class="heading">A Normal Input Field:</h3>
-                <p class="subheading">GET OUT OF MY SKIN!! AAAHAAHHH</p>
-                <input id="I_will_infect_and_rot_this_code_if_you_dont_rename_me!" name="<- [the id]" class="user-input">
-            </div>
+        <button class="admin_user_management_word_button_active" id="create_organization_button" title="Create organization">
+            <p id="admin_user_management_medium_text">
+                Create Organization
+            </p>
+        </button>
 
-            <div class="container">
-                <h3 class="heading">KILL ME! I DARE YOU!</h3>
-                <p class="subheading">[Schizophrenic Explanation]</p>
-                <input id="rename_me_you_motherfucker_i_dont_wanna_have_this_long_ass_id_tag" name="whatever the id is" class="user-input">
-            </div>
-        
-            <button type="submit" id="btn-create-note">Create Organization</button>
-        </form>
+        <p class="create_organization_message_bar" id="admin_user_management_medium_text">
+            PLACEHOLDER MESSAGE
+        </p>
     </div>
 </dialog>

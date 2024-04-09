@@ -6,7 +6,8 @@
             "bl4 bl5 bl6 bl7"
             "bl8 bl8 bl8 bl8"
             "bl9 bl9 bl9 bl9"
-            "bl0 bl0 bl0 bl0";
+            "bl0 bl0 bl0 bl0"
+            "blx blx blx blx";
     }
 
     .program-statistics div {
@@ -28,7 +29,8 @@
             "bl6 bl7"
             "bl8 bl8"
             "bl9 bl9"
-            "bl0 bl0";
+            "bl0 bl0"
+            "blx blx";
     }
 
     .program-statistics div {
@@ -181,6 +183,10 @@ h3 {
 .user-management img {
     height: 2em;
     margin-right: 0.5em;
+}
+
+.btn-edit-interests {
+    grid-area: blx;
 }
 
 li {
