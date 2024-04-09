@@ -162,4 +162,23 @@ def you_have_a_new_request(recipient: str):
 		WINGS
 	"""
 		send_mail(subject, message, from_email, [recipient])
-		
+
+def email_for_new_mentee_note(mentee_email : str):
+	recipients = [mentee_email]
+	if not notifications_on(mentee_email):
+		recipients.remove(mentee_email)
+
+	subject = "New Note Created"
+	message = """
+	Hello,
+
+	This email is to inform you a new note for you to view was created
+
+	Please visit the application and navigate to your profile to view the note
+
+	Thanks,
+
+	WINGS
+	"""
+
+	send_mail(subject, message, from_email, recipients)

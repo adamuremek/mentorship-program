@@ -18,6 +18,7 @@ from ..views import login_uname_text
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.utils import timezone
+from django.core.mail import send_mail
 
 """
 TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
@@ -685,6 +686,12 @@ def create_note(req : HttpRequest):
     str_private_body = req.POST["private-notes"]
     # Make note
     Notes.create_note(user.id, str_title, str_public_body, str_private_body)
+    # Notifies mentees of new note
+    mentees_for_mentor = user.mentor.mentee_set.all()
+    for mentee in mentees_for_mentor:
+        send_to = User.objects.get(id=mentee.account_id)
+        email_address = send_to.cls_email_address
+        email_for_new_mentee_note(email_address)
 
     return redirect(f"/universal_profile/{user.id}")
 
