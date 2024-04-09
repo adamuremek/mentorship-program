@@ -154,6 +154,16 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     else:
         you_have_a_new_request(mentor_account.cls_email_address)
 
+
+    # check to make sure a mentorship doesn't already exist
+    mentor_account_mentor = Mentor.objects.get(account_id=mentor_account.id)
+    mentees = Mentee.objects.all().filter(mentor=mentor_account_mentor)
+
+    for mentee in mentees: 
+        if mentee_id == mentee.account_id:
+            return bad_request_400("mentee already in mentorship with this mentor")
+
+
     mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id, user.id)
     if type(mentorship_request) == int:
         #there was an error creating the request
