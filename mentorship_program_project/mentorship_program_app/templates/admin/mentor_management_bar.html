@@ -42,7 +42,7 @@
             <p id="current_mentees">{{ mentor.current_mentees }}</p>/<p id="max_mentees">{{ mentor.max_mentees }}</p>
         </div>
 
-        <button class="admin_user_management_button_clear_active" id="{{mentor.account.id}}" title="View account page">
+        <button class="admin_user_management_button_clear_active" id="view_button" title="View account page">
             <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
         </button>
 
@@ -111,8 +111,3 @@
     <!-- <hr> -->
 
 </div>
-<script>
-document.getElementById("{{ mentor.account.id }}").addEventListener("click", function() {
-    window.location.href = "{% url 'universal_profile' mentor.account.id %}"
-});
-</script>

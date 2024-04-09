@@ -281,6 +281,13 @@ export function determine_edit_organization_button(passed_bar)
 
 }
 
+// Returns view profile button from passed bar
+export function determine_view_button(passed_bar)
+{
+    return passed_bar.querySelector("#view_button");
+
+}
+
 // Returns decouple mentor button from passed bar
 export function determine_decouple_button(passed_bar)
 {

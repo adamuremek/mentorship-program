@@ -914,8 +914,19 @@ export function mentee_clicked_event(mentee_bar)
 
 export function view_event(user_bar)
 {
-    // Redirects to user page using the id in the user_bar
-    alert("view");
+    // Determeine user account value
+    const user_id = determiners.determine_user_id(user_bar);
+
+    // Check and cancel last event if needed
+    check_cancel_event();
+
+    // Check that user id is not null
+    if (user_id != null)
+    {
+        // Attempt to view user profile page
+        view_profile(determiners.determine_id_from_string(user_id));
+        
+    }
 }
 
 // Function will takes in user bar, checks it is not disabled or toggled and has a mentor, cancel in progress event creation. If disabled will do

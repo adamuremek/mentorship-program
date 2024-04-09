@@ -264,21 +264,6 @@ function attempt_delete_mentorship(mentee_id)
 }
 
 /*
-* requests that the back end decouples the passed mentor from the passed organziation ids --ANTHONY PETERS
-*/
-function attempt_decouple_mentor(mentor_id, orgaization_id)
-{
-	// return new Request("/delete_mentorship/" + mentee_id, {
-	// 		method: "POST",
-	// 		headers: {
-	// 			"Content-type": "application/json; charset=UTF-8",
-	// 			'X-CSRFToken': csrftoken
-	// 		},
-	// 		mode: 'same-origin'
-	// });
-}
-
-/*
 * Loops through passed request array executing in order --ANTHONY PETERS
 */
 async function execute_request(request_array)
@@ -306,6 +291,14 @@ async function execute_request(request_array)
 
 }
 
+/*
+* Opens profile page of passed user id --ANTHONY PETERS
+*/
+async function view_profile(user_id)
+{
+	// Opens the profile page in a new tab
+	window.open("/universal_profile/" + user_id, '_blank');
+}
 
 
 
