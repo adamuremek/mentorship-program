@@ -841,6 +841,8 @@ def universalProfile(req : HttpRequest, user_id : int):
     max_mentees = None
     num_mentees = None
     
+    # Added this for debug
+    mentees_or_mentor = []
     report_types = UserReport.ReportType.labels
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
@@ -869,7 +871,7 @@ def universalProfile(req : HttpRequest, user_id : int):
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentee_id))
-             
+            
             
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
