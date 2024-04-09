@@ -48,6 +48,34 @@ h3 {
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
+.filter-user-type {
+    padding-left: 10px;
+    display: flex;
+}
+
+.filter-user-type span {
+    font-size: 1rem;
+    padding: 0.5rem;
+    white-space: nowrap;
+    width: auto;
+}
+
+.select-user-type {
+    margin-right: auto;
+    font-size: 1rem;
+    width: auto;
+}
+
+.filter-users-container {
+    width: 100%;
+    display: flex;
+    padding-right: 10px;
+}
+
+.reported-user-role{
+    visibility:hidden;
+}
+
 .filter {
     background-color: #2C2C2C;
     display: flex;

@@ -36,7 +36,7 @@ WJL 4/2/2024   Created the script
 from ..models import User
 from ..models import SystemLogs
 from datetime import date
-from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 
 def run() -> None:
     """
@@ -69,7 +69,7 @@ def run() -> None:
     #Get a list of all active users who have not logged in in the last 6 months
     inactive_users = User.objects.filter(str_last_login_date__lte=date.today() - relativedelta(days=180), bln_account_disabled=False, bln_active=True)
 
-    int_count = 0
+    count = 0
     for user in inactive_users:
         #Set inactive
         user.bln_active = False
