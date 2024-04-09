@@ -452,12 +452,12 @@ class User(SVSUModelData,Model):
         super().__init__(*args,**kwargs) #let django cook
         
         #mark cached functions so we don't over query the database
-        self.cache = security.Decorators.FunctionCache()
+        self.function_cache = security.Decorators.FunctionCache()
         
         #decorate cachable functions on the init level so python understands when to remove
         #the cached data
-        self.is_mentee = self.cache.create_cached_function(self.is_mentee)
-        self.is_mentor = self.cache.create_cached_function(self.is_mentor)
+        self.is_mentee = self.function_cache.create_cached_function(self.is_mentee)
+        self.is_mentor = self.function_cache.create_cached_function(self.is_mentor)
 
 
 
@@ -1605,6 +1605,11 @@ class Mentor(SVSUModelData,Model):
     -------
     
     """
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.cache = security.Decorators.FunctionCache()
+        self.has_maxed_mentees = self.cache.create_cached_function(self.has_maxed_mentees)
 
     def has_maxed_mentees(self)->bool:
         """
