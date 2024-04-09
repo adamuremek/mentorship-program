@@ -12,3 +12,4 @@ data:
   SAML_IDP_ENTITY_ID: "{{ saml_idp_entity_id }}"  
   SAML_IDP_SSO_URL: "{{ saml_idp_sso_url }}"
   SAML_IDP_SLO_URL: "{{ saml_idp_slo_url }}"
+  SAML_IDP_METADATA_URL: "{{ saml_idp_metadata_url }}"
