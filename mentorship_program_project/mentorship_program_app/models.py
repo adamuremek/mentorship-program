@@ -2269,13 +2269,12 @@ class UserReport(SVSUModelData,Model):
         Authors
         -------
         Adam C.
+        Jordan A.
         """
         CONDUCT = 'Conduct'
         PROFILE = 'Profile'
         RESPONSIVENESS = 'Responsiveness'
         OTHER = 'Other'
-
-
 
     user = ForeignKey(
         User,
@@ -2443,7 +2442,7 @@ class UserReport(SVSUModelData,Model):
         return user_reports_dict
     
     @staticmethod
-    def resolve_report(int_report_id: int):
+    def resolve_report(int_report_id: int, resolver: User):
         """
         Description
         -----------
@@ -2473,6 +2472,8 @@ class UserReport(SVSUModelData,Model):
         report = UserReport.get_report_id(int_report_id)
         report.bln_resolved = True
         report.save()
+
+        SystemLogs.objects.create(str_event=SystemLogs.Event.REPORT_RESOLVED_EVENT, specified_user=report.user, str_details=f"Handled by: {resolver.id}, Report: {int_report_id}")
 
 
 class Notes(SVSUModelData,Model):
@@ -2602,7 +2603,8 @@ class Notes(SVSUModelData,Model):
         } for note in pvt_notes]
             
 
-        
+#TODO add systemlogs for verify mentee ug status
+#TODO add systemlogs for User management page
 class SystemLogs(SVSUModelData,Model):
     """
     Description
@@ -2670,11 +2672,19 @@ class SystemLogs(SVSUModelData,Model):
         MENTOR_REGISTER_EVENT = "Mentor applied"
         MENTEE_DEACTIVATED_EVENT = "Mentee deactivated"
         MENTOR_DEACTIVATED_EVENT = "Mentor deactivated"
+        INTERESTS_CREATED_EVENT = "Interest created"
+        INTERESTS_UPDATED_EVENT = "Interest updated"
+        INTERESTS_DELETED_EVENT = "Interest deleted"
+        MENTOR_APPROVED_EVENT = "Mentor approved"
+        MENTOR_DENIED_EVENT = "Mentor denied"
+        REPORT_RESOLVED_EVENT ="Report resolved"
         
     str_event = CharField(max_length=500, choices=Event.choices, default='')
+    str_details = CharField(max_length=500, default='')
     cls_log_created_on = DateField(default=timezone.now)
+    cls_log_created_on_sortable = DateTimeField(default=timezone.now)
     specified_user = models.ForeignKey('User', on_delete=models.CASCADE, null=True)
-
+    #TODO maybe add a handled by/resolved by field?
     
 
 
