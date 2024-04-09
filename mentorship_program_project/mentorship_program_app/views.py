@@ -211,7 +211,7 @@ def big_move(req : HttpRequest) -> HttpResponse:
     context = {}
     return HttpResponse(template.render(context, req))
 
-def THEBIGMOVE(req):
+def the_big_move(req):
     template = loader.get_template('sign-in card/mentor/account_creation_sign_up_choices_mentor.html')
     context = {}
     return HttpResponse(template.render(context, req))
