@@ -149,6 +149,11 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
         #we should never get here, but just in case for some reason
         return bad_request_400("internal error occured")
 
+    if user.id == mentor_account.id:
+        you_have_a_new_request(mentee_account.cls_email_address)
+    else:
+        you_have_a_new_request(mentor_account.cls_email_address)
+
     mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id, user.id)
     if type(mentorship_request) == int:
         #there was an error creating the request
@@ -218,12 +223,15 @@ def verify_mentee_ug_status(req : HttpRequest) -> HttpResponse:
     inactive_mentees = User.objects.filter(cls_date_joined__lte=date.today() - relativedelta(years=4), str_role="Mentee", bln_account_disabled=False, bln_active=True)
 
     for mentee in inactive_mentees:
+        #Disable account
+        mentee.bln_account_disabled = True
+
         #Set inactive
         mentee.bln_active = False
         mentee.cls_active_changed_date = date.today()
         mentee.save()
         # record logs
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED, specified_user=mentee)
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user=mentee)
 
     return redirect('/admin_dashboard')
 

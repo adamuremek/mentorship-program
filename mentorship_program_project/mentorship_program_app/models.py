@@ -361,7 +361,6 @@ class Interest(SVSUModelData,Model):
             ret_int = Interest.objects.get(strInterest = str_interest)
             return ret_int
         except ObjectDoesNotExist:
-            #TODO: put in try catch to account for connection issues
             Interest.objects.create(strInterest=str_interest).save()
 
 
@@ -495,10 +494,6 @@ class User(SVSUModelData,Model):
 
 
 
-        
-        #TODO: we should probably get this going specifically through djangos orm's
-        #       idk if thats possible tho since this is doing a self join on a table to 
-        #       get the data we need, def more research is required
 
         sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
         
@@ -561,6 +556,80 @@ class User(SVSUModelData,Model):
 
         #return ret_val
 
+    def get_organization(self) -> list[str]:
+        """
+        Description
+        -----------
+        Gets the names of the organizations that a user belongs to
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - [str]: A list of organizations associated with the user
+
+        Example Usage
+        -------------
+
+        >>> User.get_organization()
+        '[ABC Corp]'
+
+        Authors
+        -------
+        Adam C.
+        """
+        if self.is_mentor:
+            #prefetch_related to reduce database queries
+            this_mentor = Mentor.objects.prefetch_related('organization').get(account=self)
+            organizations = this_mentor.organization.all()
+            #ideally this check isn't necessary since all mentors must have an organization, but some of the test users
+            #don't currently have orgs, so this handles those cases
+            if organizations.exists():  
+                return [org.str_org_name for org in organizations]
+            else:
+                return ['No organization associated']
+        return ['None']
+    
+    def get_job_title(self) -> str:
+        """
+        Description
+        -----------
+        Gets a user's job title if they are a mentor
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - str: A user's job title if they are a mentor
+
+        Example Usage
+        -------------
+
+        >>> User.get_job_title()
+        'Software Developer'
+
+        Authors
+        -------
+        Adam C.
+        """
+        if self.is_mentor:
+            this_mentor = Mentor.objects.get(account=self)
+            if(this_mentor.str_job_title != ""):
+                return this_mentor.str_job_title
+            else:
+                return 'No job title associated'
 
     def get_backend_only_properties(self)-> list[str]:
         """
@@ -642,18 +711,19 @@ class User(SVSUModelData,Model):
     str_password_hash =  CharField(max_length=1000, null=True, blank=False)
     str_password_salt =  CharField(max_length=1000, null=True, blank=False)
     str_role = CharField(max_length=15, choices=Role.choices, default='')
-    cls_date_joined = DateField(default=timezone.now().date())
-    cls_active_changed_date = DateField(default=timezone.now().date())
+    cls_date_joined = DateField(default=timezone.now)
+    cls_active_changed_date = DateField(default=timezone.now)
     bln_active = BooleanField(default=True)
     bln_account_disabled =  BooleanField(default=False)
 
     str_first_name : CharField =  CharField(max_length=747,null=True)
     str_last_name : CharField =  CharField(max_length=747, null=True) 
-    str_phone_number : CharField = CharField(max_length=15, null=True)
-    str_last_login_date = DateField(default=timezone.now().date())
+    str_phone_number : CharField = CharField(max_length=19, null=True)
+    str_last_login_date = DateField(default=timezone.now)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
     str_bio = CharField(max_length=5000, default='')
+    bln_notifications = BooleanField(default=True)
     #foregn key fields
     interests = models.ManyToManyField(Interest)
         
@@ -1049,8 +1119,7 @@ class User(SVSUModelData,Model):
             return User.ErrorCode.AlreadySelectedEmail
 
         generated_user_salt = security.generate_salt()
-        #TODO: emails need to be validated, send a sacrifical lamb
-        #to the regex gods
+
         return User.objects.create(
                     str_password_hash = security.hash_password(
                                             password_plain_text,
@@ -1187,15 +1256,14 @@ class User(SVSUModelData,Model):
         user.bln_active = False
         
         if user.is_mentee():
-            user.mentor = None
+            mentee_account = Mentee.objects.get(account_id=user.id)
+            mentee_account.mentor = None
+            mentee_account.save()
             MentorshipRequest.objects.filter(mentee_id=user.id).delete()
         if user.is_mentor():
             mentor_account = Mentor.objects.get(account_id=user.id)
-            if mentor_account.is_admin_of_organization(mentor_account.organization):
-                Organization.find_new_org_admin()
-
             MentorshipRequest.objects.filter(mentor_id=user.id).delete()
-            mentees_for_mentor = Mentee.objects.filter(mentor_id=user.id)
+            mentees_for_mentor = Mentee.objects.filter(mentor_id=mentor_account.id)
             for mentee in mentees_for_mentor:
                 mentee.mentor = None
             Mentee.objects.bulk_update(mentees_for_mentor, ['mentor'])
@@ -1504,18 +1572,6 @@ class Organization(SVSUModelData,Model):
     admin_mentor = OneToOneField('Mentor', related_name='administered_organizations', on_delete=models.CASCADE, null=True) 
 
 
-    @staticmethod
-    def find_new_org_admin(org_id : int):
-        # this might not work tbh
-        organization = Organization.objects.get(id=org_id)
-        # get all mentors within an organziation and order them by id
-        mentors = organization.mentor_set.all().order_by('id') 
-        # get the second oldest mentor in an org, who will become the new org admin
-        second_oldest_mentor = mentors[1:2].first()
-        # assign them as the new org admin
-        organization.admin_mentor = second_oldest_mentor
-        organization.save()
-
 class Mentor(SVSUModelData,Model):
     """
     Description
@@ -1595,13 +1651,7 @@ class Mentor(SVSUModelData,Model):
         return self.organizations.all() & other.organizations.all()
         
     int_max_mentees = IntegerField(default=4)
-   
-    # TODO:
-    # I think theres a way to make this a read only query to the db
-    # which is what it prolly should be so our data states
-    # don't get de synced
-    # -dk
-    #int_recommendations = IntegerField(default=0)
+
 
     str_job_title = CharField(max_length=100)
     str_experience = CharField(max_length=50, default='')
@@ -2226,7 +2276,6 @@ class UserReport(SVSUModelData,Model):
         OTHER = 'Other'
 
 
-        # TODO: Add different issue
 
     user = ForeignKey(
         User,
@@ -2459,7 +2508,7 @@ class Notes(SVSUModelData,Model):
     str_title = CharField(max_length=100)
     str_public_body = CharField(max_length=7000, null=True, blank=True)
     str_private_body = CharField(max_length=7000, null=True, blank=True)
-    cls_created_on = DateField(default=timezone.now().date())
+    cls_created_on = DateField(default=timezone.now)
 
 
     user = ForeignKey(User, on_delete = models.CASCADE)
@@ -2509,7 +2558,6 @@ class Notes(SVSUModelData,Model):
                 str_title = str_title,
                 str_public_body = str_public_body,
                 str_private_body = str_private_body,
-                cls_created_on = timezone.now().date(),
                 user = user
             )
             print("Note created")
@@ -2624,7 +2672,7 @@ class SystemLogs(SVSUModelData,Model):
         MENTOR_DEACTIVATED_EVENT = "Mentor deactivated"
         
     str_event = CharField(max_length=500, choices=Event.choices, default='')
-    cls_log_created_on = DateField(default=timezone.now().date())
+    cls_log_created_on = DateField(default=timezone.now)
     specified_user = models.ForeignKey('User', on_delete=models.CASCADE, null=True)
 
     

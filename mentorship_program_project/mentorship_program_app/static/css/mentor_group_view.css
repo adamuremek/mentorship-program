@@ -96,6 +96,10 @@ hr {
     margin-bottom: 0.5rem;
 }
 
+.job-title-and-organization h3{
+    font-size: 1.1rem;
+}
+
 .top-title {
     display: flex;
     align-items: center;

@@ -584,6 +584,11 @@ select {
     width: 2em;
 }
 
+#phone_country_code {
+    width: 30%;
+    margin-right: .5em;
+}
+
 .sign-in-card input[type=email] {
     background-color: #333842;
     border-color: #333842;
@@ -592,6 +597,7 @@ select {
 .sign-in-card input[type=tel] {
     background-color: #333842;
     border-color: #333842;
+    width: 60%;
 }
 
 .sign-in-card input[type=button] {

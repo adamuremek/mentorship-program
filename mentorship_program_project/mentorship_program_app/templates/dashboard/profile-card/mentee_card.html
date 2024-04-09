@@ -28,6 +28,21 @@
 
 			<p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
 
+			<!--adds the job title to mentor cards, not sure if we'll need/want this
+			<div class = "card-job-title" id = "card-job-title">
+				{% if user.is_mentor %}
+					{{ user.get_job_title }}
+				{% endif %}
+			</div>-->
+
+			<div class = "card-organization" id = "card-organization">
+				{% if user.is_mentor %}
+					{% for org in user.get_organization %}
+						{{ org }} 
+					{% endfor %}
+				{% endif %}
+			</div>
+
 			<div class="card-line-divider-2"></div>
 
 			<p class="card-interests-header">Interests</p>
@@ -43,26 +58,31 @@
 	</div>
 
 		<div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
-                              {% if user.is_requested_by_session %}
-                              card-button-cancel
-                              {% elif session_user.has_maxed_requests_as_mentee %}
-                              card-button-disabled
-		                        {% endif %}
+                            {% if user.is_requested_by_session %}
+                            	card-button-cancel
+                            {% elif session_user.has_maxed_requests_as_mentee or session_user.mentor.has_maxed_mentees %}
+                            	card-button-disabled
+		                    {% endif %}
 		  ">
 		  {% if not user.is_requested_by_session %}
 			  {% if role.value == 'Mentee' %}
-              {% if session_user.has_maxed_requests_as_mentee %}
-                  Maximum Request Amount Reached
-              {% else %}
-                  Request Mentor
-              {% endif %}
+				{% if session_user.has_maxed_requests_as_mentee %}
+					Maximum Request Amount Reached
+				{% else %}
+					Request Mentor
+				{% endif %}
 			  {% else %}
-				Request Mentee
+			  	{% if session_user.mentor.has_maxed_mentees %}
+					Maximum Request Amount Reached
+				{% else %}
+					Request Mentee
+				{% endif %}
 			  {% endif %}
 		  {% else %}
-        Cancel Request
+        	Cancel Request
 		  {% endif %}
 		</div>
+	
 
 </div>
 

@@ -41,7 +41,7 @@ ARVP  3/10/2024  Added ProfileImg and Organization imports
 
 #standard python imports
 import json
-from typing import Union
+from typing import Union, Dict
 from datetime import date
 
 from django.http import HttpResponse, HttpRequest
@@ -66,11 +66,8 @@ from .models import MentorshipRequest
 from .models import SystemLogs
 from .models import ProfileImg
 from .models import Organization
-
+from .models import *
 # from .models import MentorReports # (Deprecated??)
-
-
-
 from .view_routes.navigation import landing
 
 
@@ -198,6 +195,15 @@ def register_mentee(req):
     template = loader.get_template('sign-in card/single_page_mentee.html')
     if not Interest.objects.exists():
         Interest.create_default_interests()
+    
+    # import os
+    # print(os.getcwd())
+    country_codes : Dict
+    with open('mentorship_program_app/view_routes/countries.json', 'r') as file:
+        country_codes = json.load(file)
+        country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
+        
+    
     context = {
         'interestlist':  Interest.objects.all(),
         
@@ -205,6 +211,8 @@ def register_mentee(req):
         
         'pronounlist1': ['', 'he', 'she', 'they'],
         'pronounlist2': ['', 'him', 'her', 'them'],
+        
+        'country_codes' : country_codes,
         
         'useragreement': 
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
@@ -223,11 +231,22 @@ def register_mentor(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
     if not Interest.objects.exists():
         Interest.create_default_interests()
+        
+        # C:\Users\andyp\OneDrive\Documents\GitHub\mentorship-program\mentorship_program_project
+    
+    country_codes : Dict
+    with open('mentorship_program_app/view_routes/countries.json', 'r') as file:
+        #country_codes = json.load(file).items() # dict(sorted(json.load(file).items(), key=lambda item: item[1].dial_code))
+        country_codes = json.load(file)
+        country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
+    #sorted(json.load(file))
     context = {
         'interestlist': Interest.objects.all(),
 
         'pronounlist1': ['', 'he', 'she', 'they'],
         'pronounlist2': ['', 'him', 'her', 'them'],
+        
+        'country_codes' : country_codes,
 
         'companytypelist': [
             'Manufacturing',
@@ -502,9 +521,8 @@ def login_uname_text(request):
         return response
 
     user = User.objects.get(cls_email_address=uname)
-    print(timezone.now().date())
-    print(timezone.now())
-    user.str_last_login_date = timezone.now().date()
+
+    user.str_last_login_date = timezone.now()
     # if the user deactivated their own account, reactivate it
     if not user.bln_active and not user.bln_account_disabled:
         user.bln_active = True
@@ -516,14 +534,14 @@ def login_uname_text(request):
 
     response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
     return response
-    
+
 
 # view goes to currently static approve/delete mentors page
 @security.Decorators.require_login(invalid_request_401)
 def change_settings(request):
-    
+    user = User.from_session(request.session)
     template = loader.get_template('settings.html')
-    context = {}
+    context = {"bln_notifications_on": user.bln_notifications}
     return HttpResponse(template.render(context,request))
 
 # view goes to currently static view reported users page

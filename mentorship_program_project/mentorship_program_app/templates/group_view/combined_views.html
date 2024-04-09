@@ -137,8 +137,14 @@
                    
                     {% endif %}
 
-                    <h2>{{page_owner_user.str_job_title}}</h2>
-                    <h3>{{organization}}</h3>
+                    <div class="job-title-and-organization">
+                        {% if page_owner_user.is_mentor %}
+                            <h3>{{ page_owner_user.get_job_title }} at 
+                            {% for org in page_owner_user.get_organization %}
+						        {{ org }} </h3>
+					        {% endfor %}
+                        {% endif %}
+                    </div>
 
                     {% if interests %}
                         <h2>Specializations / Areas of Expertise:</h2>
@@ -431,11 +437,19 @@
         })
 
         $('#profile_image').change(function (event) {
+            let file = event.target.files[0] // Get the selected file
+
+            // Check the file size
+            if (file.size > 4500000) { // If the file is lrgaer than 4.5 MB
+                alert('The file is too large. Please upload a file smaller than 4.5 MB.')
+                return // Stop the function
+            }
+
             let reader = new FileReader();
             reader.onload = function (e) {
                 $('#profile_pic').attr('src', e.target.result) // Set preview image source to selected file
             }
-            reader.readAsDataURL(event.target.files[0]); // Read the selected file as Data URL
+            reader.readAsDataURL(file); // Read the selected file as Data URL
         })
     })
 

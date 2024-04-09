@@ -51,7 +51,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const regex_email_name = /[!#$%^&*()+\[\]{}|\\;:'",<>\/?=~`]/;
     const regex_svsu = /^[^\s@]+@svsu[.]edu$/ // Validates <{string}@{svsu}.{edu}>
     const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
-    const regex_name = /^[a-zA-Z]+([ \-']{0,1}[a-zA-Z]+){0,2}[.]{0,1}$/ //Validates name including hyphens, apostrophies, and suffix (with period)
+    const regex_name = /^[a-zA-Z]+([ \-']{0,1}[a-zA-Z]+){0,2}[.]{0,1}$/ 
+    //Validates name including hyphens, apostrophies, and suffix (with period)
 
     // const is_student = document.getElementById('register-form-mentee')
 
