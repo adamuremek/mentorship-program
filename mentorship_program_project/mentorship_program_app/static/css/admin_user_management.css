@@ -125,6 +125,7 @@
 .admin_user_management_header_elements {
     text-align: left;
     width: 95vw;
+    margin-bottom: -1%;
 }
 
 #admin_user_management_small_text {
@@ -223,7 +224,7 @@ input[type="file"] {
 }
 
 .user_board {
-    height: 51vh;
+    height: 54vh;
 
     background: rgba(0, 0, 0, 0.2);
     border-radius: 15px;
@@ -317,6 +318,11 @@ input[type="file"] {
     width: 40%;
 }
 
+.return-link {
+    display: block;
+    width: 25%;
+}
+
 @media screen and (max-width: 1000px) {
     .admin_user_management_word_button_active {
         height: 3vh;
@@ -329,7 +335,7 @@ input[type="file"] {
     }
 
     .user_board {
-        height: 57vh;
+        height: 58vh;
     }
 
     #admin_user_management_small_text {
@@ -354,7 +360,7 @@ input[type="file"] {
 
     .search_bar {
         height: 3vh;
-        width: 25vw;
+        width: 100%;
     }
 
     .user_management_photo {
@@ -364,13 +370,14 @@ input[type="file"] {
     .user_management_icon {
         width: 60%;
     }
+
+    .return-link {
+        display: block;
+        width: 33%;
+    }
 }
 
 @media screen and (max-width: 700px) {
-    /* .user_board_search_bar_container{
-        flex-direction: column;
-    } */
-
     .admin_user_management_word_button_active {
         width: fit-content;
     }
@@ -385,7 +392,7 @@ input[type="file"] {
     }
 
     .user_board {
-        height: 55vh;
+        height: 56vh;
     }
 
     #admin_user_management_small_text {
@@ -424,7 +431,7 @@ input[type="file"] {
     }
 
     .user_board_search_bar_container {
-        width: 90vw;
+        width: 98vw;
     }
 
     .mentee_counter_container,
@@ -438,6 +445,15 @@ input[type="file"] {
     .admin_user_management_word_button_inactive,
     .admin_user_management_button {
         width: fit-content;
+    }
+
+    .user_board_button_container {
+        width: 100vw;
+    }
+
+    .return-link {
+        display: block;
+        width: 50%;
     }
 
 }
