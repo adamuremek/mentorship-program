@@ -352,7 +352,7 @@ def resolve_report(req: HttpRequest) -> HttpResponse:
         return bad_request_400("\n".join(errors))
     else:
         report_id = req.POST['report_id']
-        UserReport.resolve_report(report_id)
+        UserReport.resolve_report(report_id, user)
         return redirect('/admin_reported_users')
 
 @security.Decorators.require_login(bad_request_400)

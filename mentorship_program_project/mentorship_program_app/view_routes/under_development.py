@@ -415,7 +415,7 @@ def view_pending_mentors(req: HttpRequest):
     
     return HttpResponse(template.render(context, req))
 
-
+@security.Decorators.require_login(bad_request_400)
 def change_mentor_status(req: HttpRequest):
     '''
     Description
@@ -442,9 +442,11 @@ def change_mentor_status(req: HttpRequest):
     Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     '''
-    #TODO Verify you're an admin
+    session_user = User.from_session(req.session)
+    if (not session_user.is_super_admin()):
+        return bad_request_400("permission denied!")
 
-    if req.method != "POST":
+    if req.method == "POST":
         HttpResponse("wtf")
 
     # Extract mentor ID and status from request data
@@ -452,21 +454,23 @@ def change_mentor_status(req: HttpRequest):
     status = req.POST["status"]
     
     # Retrieve user object based on ID
-    user = User.objects.get(id=mentor_id)
+    mentor_object = User.objects.get(id=mentor_id)
     
     # Update user role and activation status based on provided status                                           
     if status == 'Approved':
-        user.bln_active = True
-        user.str_role = User.Role.MENTOR
-        user.save()
-        mentor_accepted_email(user.cls_email_address)      
+        mentor_object.bln_active = True
+        mentor_object.str_role = User.Role.MENTOR
+        mentor_object.save()
+        mentor_accepted_email(mentor_object.cls_email_address)  
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_APPROVED_EVENT, specified_user=mentor_object, str_details=f"Handled by: {session_user.id}")
     else:
-        mentor_denied_email(user.cls_email_address)
-        user.delete()
-        
-        
+        mentor_denied_email(mentor_object.cls_email_address)
+        #TODO change the mentor object to be deactivated if its deleted the system log for that user is also deleted
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DENIED_EVENT, specified_user=mentor_object, str_details=f"Handled by: {session_user.id}")
+        mentor_object.delete()
+
     # Save changes to user object
-    
+
     # Redirect back to the view_pending page
     return redirect("/view_pending")
 
@@ -1680,11 +1684,17 @@ def update_interests(req : HttpRequest):
         # id's and names
         edit_list = post_data["edited"]
 
+        # Event log
+        event_log = []
+
         # add new interests
         added_instances = []
         for interest in add_list:
             added_instances.append(Interest(strInterest=interest, isDefaultInterest=False))
-        Interest.objects.bulk_create(added_instances)
+            
+        # Iterate over all the new interests made and retrieve their str and their id for system log
+        for interest_object in Interest.objects.bulk_create(added_instances):
+            event_log.append(SystemLogs(str_event=SystemLogs.Event.INTERESTS_CREATED_EVENT, str_details=f"{interest_object.id} : {interest_object.strInterest}", specified_user=user_from_session))
 
         # edit existing interests
         ids_to_edit = [int(interest[0]) for interest in edit_list]
@@ -1693,11 +1703,21 @@ def update_interests(req : HttpRequest):
         for interest_object in interests_to_edit:
             new_interest = next((interest[1] for interest in edit_list if str(interest_object.id) == interest[0]), None)
             if new_interest is not None:
+                old_interest = interest_object.strInterest
                 interest_object.strInterest = new_interest
+                event_log.append(SystemLogs(str_event=SystemLogs.Event.INTERESTS_UPDATED_EVENT, str_details=f"{interest_object.id} : {old_interest} -> {new_interest}", specified_user=user_from_session))
 
         Interest.objects.bulk_update(interests_to_edit, ['strInterest'])
+
         # delete interests
-        Interest.objects.filter(id__in=delete_list).delete()
+        interests_to_delete = Interest.objects.filter(id__in=delete_list)
+        for interest in interests_to_delete:
+            print(interest)
+            event_log.append(SystemLogs(str_event=SystemLogs.Event.INTERESTS_DELETED_EVENT, str_details=f"{interest.id} : {interest.strInterest}", specified_user=user_from_session))
+        interests_to_delete.delete()
+
+        SystemLogs.objects.bulk_create(event_log)
+        
         return HttpResponse("Updated")
     return HttpResponse("Needs to be POST")
 
