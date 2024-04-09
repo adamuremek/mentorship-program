@@ -12,5 +12,5 @@ spec:
           - name: web
             image: localhost:5000/project-kubernetes
             command:
-            - python /mentorship_program/mentorship_program_project/scripts/deactivate_inactive_accounts.py
+            - python /mentorship_program/mentorship_program_project/mentorship_program_app/scripts/deactivate_inactive_accounts.py
           restartPolicy: OnFailure
