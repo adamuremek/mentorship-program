@@ -9,7 +9,7 @@ spec:
       template:
         spec:
           containers:
-          - name: deactivate-inactive-accounts-task
+          - name: web
             image: localhost:5000/project-kubernetes
             command:
             - python /mentorship_program/mentorship_program_project/scripts/deactivate_inactive_accounts.py
