@@ -573,7 +573,7 @@ function edit_organization_event(organization_bar)
             updaters.update_add_to_organization(organization_bar, mentor_bar);
 
             // Add decouple button to mentor bar
-            updaters.update_button_showing(determiners.determine_decouple_button(mentor_bar));
+            updaters.update_show(determiners.determine_decouple_button(mentor_bar));
 
             // Determine and pass edit organization button to be set off
             updaters.update_off_button_style(determiners.determine_edit_organization_button(mentor_bar));
@@ -881,7 +881,7 @@ export function cancel_event()
     {
         // Queue is empty
         // Update user management to be hidden
-        updaters.update_bar_hidden(user_management_message);
+        updaters.update_not_visable(user_management_message);
 
     }
     else
@@ -891,7 +891,7 @@ export function cancel_event()
         user_management_message.innerHTML = "Canceled queue of events";
 
         // Update user management to be visable
-        updaters.update_bar_visible(user_management_message);
+        updaters.update_visable(user_management_message);
 
         // Cancel queue
         remove_queue_elements();
@@ -1476,7 +1476,7 @@ export function decouple_mentor_event(user_bar)
     updaters.update_remove_from_organization(user_bar);
 
     // Remove decouple button from mentor bar
-    updaters.update_button_not_showing(determiners.determine_decouple_button(user_bar));
+    updaters.update_not_show(determiners.determine_decouple_button(user_bar));
 
     // Update organization transfer buttons
     updaters.update_organization_transfer_buttons(organization_bar);
@@ -1586,7 +1586,7 @@ export function remove_organization_event(organization_bar)
         message_bar_element.innerHTML = "";
 
         // Update user management message to hidden
-        updaters.update_bar_hidden(message_bar_element);
+        updaters.update_not_visable(message_bar_element);
 
         // Create and store remove organzation organization event in queue
         event_queue.enqueue(EVENT_TYPES.REMOVE_ORGANIZATION, organization_id);
@@ -1598,7 +1598,7 @@ export function remove_organization_event(organization_bar)
         message_bar_element.innerHTML = "Error: " + organization_name + " is not empty";
 
         // Update user management message to show
-        updaters.update_bar_visible(message_bar_element);
+        updaters.update_visable(message_bar_element);
 
     }
 }
