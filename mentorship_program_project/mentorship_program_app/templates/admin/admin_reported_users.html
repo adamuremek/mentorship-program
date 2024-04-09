@@ -24,6 +24,16 @@ SVSU Mentoring
                     <input type="text" placeholder="Search by Name" id="searchByNameField" oninput="filterUsers()">
                 </div>
             </div>
+            <div class="filter-user-type">
+                <span>User type:</span>
+                <div class="filter-users-container">
+                    <select name="select-user-type" id="selectUserType" class = "select-user-type" onchange = "filterUsers()">
+                        <option value="all">All</option>
+                        <option value="mentee">Mentees</option>
+                        <option value="mentor">Mentors</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="reported-users-area">
@@ -33,6 +43,7 @@ SVSU Mentoring
             <div class="reported-user card">
                 <h2 class="reported-user-name">{{user.str_first_name}} {{user.str_last_name}}</h2>
                 <h3>Reports:</h3>
+                <h3 class="reported-user-role">{{ user.str_role }}</h3>
                 <div class="report-subcard">
                     <ul>
                         {% for report in reports %}
@@ -60,14 +71,17 @@ SVSU Mentoring
 
 <script>
     // Super basic string matching on report user's name to show/hide their cards
+    //Added in filtering by user type (ie. mentor, mentee, or all)
     function filterUsers() {
         const searchByNameField = document.getElementById('searchByNameField');
         const reportedUserCards = document.querySelectorAll('.card');
 
+        //params
         const searchString = searchByNameField.value.toLowerCase();
+        const userType = document.getElementById('selectUserType').value.toLowerCase();
 
         // Return early and unhide all cards if there is nothing to search for.
-        if (searchString === '') {
+        if (searchString === '' && userType === 'all') {
             const hiddenCards = document.querySelectorAll('.hidden');
             hiddenCards.forEach(card => card.classList.remove('hidden'));
             return;
@@ -77,12 +91,15 @@ SVSU Mentoring
             // Get the value of the h2, which should be first.
             // It should contain the name of the card user.
             const cardName = card.children[0].innerText.toLowerCase();
+            const cardUserType = card.getElementsByClassName('reported-user-role')[0].innerHTML.toLowerCase();
 
-            if (cardName.includes(searchString)) {
-                // Keep this one disabled, do nothing
-            } else {
-                // Hide the other cards
+            const doesUserTypeMatch = userType === 'all' || cardUserType.includes(userType);
+            const doesNameMatch = cardName.includes(searchString);
+
+            if (!doesUserTypeMatch || !doesNameMatch) {
                 card.classList.add('hidden');
+            } else {
+                card.classList.remove('hidden');
             }
         });
     }
