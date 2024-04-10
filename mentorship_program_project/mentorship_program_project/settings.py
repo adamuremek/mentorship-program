@@ -187,7 +187,7 @@ EMAIL_HOST_PASSWORD = 'rjrl aldq kjee ybfv'
 # Content Security Policy
 # TODO: use hashes or nonces instead of unsafe-inline
 CSP_IMG_SRC = ("'self'", "'unsafe-inline'", 'data:')
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'fonts.googleapis.com')
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'fonts.googleapis.com', 'fonts.gstatic.com')
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", 'code.jquery.com')
 CSP_FONT_SRC = ("'self'", 'fonts.gstatic.com')
 CSP_DEFAULT_SRC = ("'self'")
