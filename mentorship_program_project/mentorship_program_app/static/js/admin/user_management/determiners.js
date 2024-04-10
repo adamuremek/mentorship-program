@@ -13,14 +13,15 @@ const filter_organization_button = document.querySelector("#filter_organization_
 const user_search_bar = document.querySelector("#user_search_bar");
 const organization_search_bar = document.querySelector("#organization_search_bar");
 const session_user_admin_flag = document.querySelector("#session_user_admin_flag");
-const user_management_message = document.querySelector(".user_management_message_bar");
+const user_management_message = document.querySelector(".user_management_message_bar_inactive");
+const loading_overloy = document.querySelector("#loading-overlay");
 
 // Determine and store organzition elements
 let organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar_container_active");
 const create_organization_button = document.getElementById("create_organization_button");
 const exit_add_new_organization_button = document.getElementById("exit_add_new_organization_button");
 const add_new_organization_modal = document.querySelector("#organization-modal");
-const add_new_organization_message_bar = add_new_organization_modal.querySelector(".create_organization_message_bar");
+const add_new_organization_message_bar = add_new_organization_modal.querySelector(".create_organization_message_bar_inactive");
 const add_new_organization_name = add_new_organization_modal.querySelector(".user-input");
 let organization_counter = document.querySelector("#organization_counter");
 
@@ -137,6 +138,20 @@ export function determine_organization_counter()
 
 }
 
+// Find and return user management message element from document
+export function determine_user_management_message()
+{
+    return user_management_message;
+
+}
+
+// Find and return loading overlay element from document
+export function deteremine_loading_overlay()
+{
+    return loading_overloy;
+
+}
+
 // Find and returns name element within add new organizaition modal
 export function determine_add_new_organization_name()
 {
@@ -144,17 +159,10 @@ export function determine_add_new_organization_name()
 
 }
 
-// Find and return error message element within add new organization modal
+// Find and return add new organization message element within add new organization modal
 export function determine_add_new_organization_message_bar()
 {
     return add_new_organization_message_bar;
-
-}
-
-// Return 
-export function determine_user_management_message()
-{
-    return user_management_message;
 
 }
 
@@ -937,6 +945,22 @@ export function deteremine_if_organization(passed_bar)
 
 }
 
+// Return value based on if passed bar element is an create organization message bar
+export function deteremine_if_create_organization_message_bar(passed_bar)
+{
+    // Checks passed bar's class list and check if it has as active or inactive class for create organization message bar
+    return (passed_bar.classList.contains("create_organization_message_bar_active") || passed_bar.classList.contains("create_organization_message_bar_inactive"));
+
+}
+
+// Return value based on if passed bar element is an user mangement message bar
+export function deteremine_if_user_maanagement_message_bar(passed_bar)
+{
+    // Checks passed bar's class list and check if it has as active or inactive class for create organization message bar
+    return (passed_bar.classList.contains("user_management_message_bar_active") || passed_bar.classList.contains("user_management_message_bar_inactive"));
+
+}
+
 // Returns id value based on numbers within id string
 export function determine_id_from_string(id_string)
 {
@@ -1036,53 +1060,4 @@ export function determine_bar_filter_buttons()
 
 //     return no_unaffiliated_mentors_flag;
 
-// }
-
-
-
-
-
-
-
-
-// // Returns elements from any bar
-// // Returns organization management bar container from any organization bar
-// export function determine_organization_management_bar_container()
-// {
-//     // Determine mentor bar container 
-//     const mentor_bar_container = determine_mentor_bar_container();
-
-//     return mentor_bar_container.querySelector(".organization_management_bar_container_active");
-
-// }
-
-
-// // Returns list of mentors within admin list of expept for passed user_bar
-// export function return_mentor_list_all_but_passed_mentor_bars(organization_bar, user_bar)
-// {
-//     // Initlize return list to an empty list
-//     let return_mentor_list = [];
-
-//     // Determine mentor list in organization bar
-//     const mentor_list = determine_organization_mentor_list(organization_bar);
-
-//     // Determine mentors of mentor list
-//     const current_mentors = determine_mentor_bars(mentor_list);
-
-//     // Check if current list is not empty
-//     if (current_mentors != null)
-//     {
-//         // Cycle through current mentors
-//         current_mentors.forEach(current_mentor => {
-//             // Check if current admin is the same as user id
-//             if (current_mentor != user_bar)
-//             {
-//                 // Push current mentor into return mentor list
-//                 return_mentor_list.push(current_mentor);
-
-//             }
-//         });
-//     }
-
-//     return return_mentor_list;
 // }

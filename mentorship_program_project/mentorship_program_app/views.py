@@ -229,8 +229,11 @@ def register_mentee(req):
 
 def register_mentor(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
+    
     if not Interest.objects.exists():
         Interest.create_default_interests()
+    if not Organization.objects.exists():
+        Organization.create_default_company_names()
         
         # C:\Users\andyp\OneDrive\Documents\GitHub\mentorship-program\mentorship_program_project
     
@@ -240,6 +243,7 @@ def register_mentor(req):
         country_codes = json.load(file)
         country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
     #sorted(json.load(file))
+    
     context = {
         'interestlist': Interest.objects.all(),
 
@@ -247,6 +251,8 @@ def register_mentor(req):
         'pronounlist2': ['', 'him', 'her', 'them'],
         
         'country_codes' : country_codes,
+
+        'companyname': Organization.objects.all(),
 
         'companytypelist': [
             'Academic Research Group',
@@ -303,7 +309,6 @@ def register_mentor(req):
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-
     }
     return HttpResponse(template.render(context, req))
 

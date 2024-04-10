@@ -59,6 +59,9 @@ def landing(req):
     Now redirects to dashboard if logged in - Tanner
     """
     if security.is_logged_in(req.session): 
+        u = User.from_session(req.session)
+        if u.is_mentee() and u.mentee.mentor:
+            return redirect(f"/universal_profile/{u.mentee.mentor.account.id}")
         return redirect("/dashboard")
 
     template: Template = loader.get_template('landing_page.html')
@@ -111,6 +114,7 @@ def dashboard(req):
                 'is_requested_by_session','str_last_name' #make sure all mentors who we can cancel get displayed up top
         ).exclude(
         )
+        session_user.has_mentor = session_user.mentee.mentor != None
         session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
 
     if opposite_role == "Mentee":
@@ -139,6 +143,7 @@ def dashboard(req):
                 'is_requested_by_session','str_last_name' #make sure requested mentees appear first
         )
 
+        session_user.has_mentor = False
         session_user.has_maxed_requests_as_mentee = False
         print(f"finished mentee query as mentor @ {get_runtime()-start_time}")
     

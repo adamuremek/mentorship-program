@@ -113,8 +113,12 @@
     color: black;
 }
 
-.create_organization_message_bar, .user_management_message_bar {
+.create_organization_message_bar_inactive, .user_management_message_bar_inactive {
     display: none;
+}
+
+.create_organization_message_bar_active, .user_management_message_bar_active {
+    display: block;
 }
 
 #address_arrow {

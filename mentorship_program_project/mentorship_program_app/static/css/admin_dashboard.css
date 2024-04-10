@@ -203,7 +203,7 @@ h3 {
     grid-area: bl11;
 }
 
-li {
+.hero-container li {
     padding: 0.5em;
     list-style-position: inside;
 }
