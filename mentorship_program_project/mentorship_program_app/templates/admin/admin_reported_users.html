@@ -18,8 +18,8 @@ SVSU Mentoring
         <div class="filter">
             <span>Filter:</span>
             <div class="checkbox-container">
+                <label id="show-resolved" for="exampleCheckbox">Show Resolved</label>
                 <input type="checkbox" id="showAllCheckbox" name="showAllCheckbox">
-                <label for="exampleCheckbox">Show Resolved</label>
               </div>
             <div class="search-name-container">
                 <div class="search-name">
@@ -76,7 +76,7 @@ SVSU Mentoring
                 <div id="allReports" style="display: none;">
                 {% for user, reports in all_reports.items %}
                     <div class="reported-user card">
-                        <h2 class="reported-user-name">{{user.str_first_name}} {{user.str_last_name}}</h2>
+                        <h2 class="reported-user-name">{{user.str_first_name}} {{user.str_last_name}} {% if user.bln_account_disabled %} - User is Banned {% endif %}</h2>
                         <h3>Reports:</h3>
                         <h3 class="reported-user-role">{{ user.str_role }}</h3>
                         <div class="report-subcard">
@@ -154,24 +154,46 @@ SVSU Mentoring
     //modal_exit.addEventListener('click', () => resolve_modals.close());
 
     const resolve = document.getElementsByClassName("resolve-report");
-    console.log(resolve_modals.length)
-    console.log(resolve_modals)
-    console.log(resolve_modals[0])
-    console.log(resolve.length)
-    console.log(resolve)
-    console.log(resolve[0])
-    for (var i = 0; i < resolve.length; i++) {
-        resolve[i].addEventListener("click", function() {
-            var reportId = this.id;
+
+    //for (var i = 0; i < resolve.length; i++) {
+    //    resolve[i].addEventListener("click", function() {
+    //        var reportId = this.id;
             //resolveReport(reportId);
-            resolve_modals[i].showModal()
-            resolve_modals[i].querySelector('#modal-exit').addEventListener('click', () => resolve[i].close());
+            //resolve_modals[i].showModal()
+    //        resolve_modals[i].querySelector('#modal-exit').addEventListener('click', () => resolve[i].close());
+    //    });
+    //}  
+
+
+
+    const resolveButtons = document.querySelectorAll('.resolve-report');
+    const modals = document.querySelectorAll('.resolve-report-modal');
+
+    resolveButtons.forEach((button, index) => {
+        button.addEventListener("click", function() {
+            // Assuming there's a direct mapping between the index of the resolve button and the modal
+            const modal = modals[index];
+            if (modal) {
+                modal.showModal();
+                // Assuming there's an element with id 'modal-exit' in each modal for closing it
+                modal.querySelector('#modal-exit').addEventListener('click', () => modal.close());
+            }
         });
-    }  
+    });
+
+    
+
+
+
+
+
+
+
 
     function resolveReport(reportId) {
         var resolveReportForm = document.getElementById("resolve-report-form-" + reportId)
-        resolveReportForm.submit();
+        //resolve-report-modal-{{report.id}}
+        //resolveReportForm.submit();
     }
     const showAllCheckbox = document.getElementById('showAllCheckbox')
     const unresolvedReports = document.getElementById('unresolvedReports');

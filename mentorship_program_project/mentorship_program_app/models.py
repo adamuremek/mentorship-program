@@ -1250,14 +1250,16 @@ class User(SVSUModelData,Model):
         return user_info
     
     @staticmethod
-    def make_user_inactive(user :"User"):
+    def make_user_inactive(user :"User", reason : str):
         user.bln_active = False
-        
+        # if you're a mentee, get rid of your mentor and all pending requests
         if user.is_mentee():
             mentee_account = Mentee.objects.get(account_id=user.id)
             mentee_account.mentor = None
             mentee_account.save()
             MentorshipRequest.objects.filter(mentee_id=user.id).delete()
+            SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_INACTIVATED_EVENT, specified_user= User.objects.get(id=user.id), str_details=reason)
+        # if you're a mentor, get rid of your mentees and get rid of your pending requests
         if user.is_mentor():
             mentor_account = Mentor.objects.get(account_id=user.id)
             MentorshipRequest.objects.filter(mentor_id=user.id).delete()
@@ -1265,8 +1267,9 @@ class User(SVSUModelData,Model):
             for mentee in mentees_for_mentor:
                 mentee.mentor = None
             Mentee.objects.bulk_update(mentees_for_mentor, ['mentor'])
+            SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_INACTIVATED_EVENT, specified_user= User.objects.get(id=user.id), str_details=reason)
         user.save()
-
+        
     @staticmethod
     def reactivate_user(user: "User"):
         if user.bln_account_disabled:
@@ -1275,10 +1278,11 @@ class User(SVSUModelData,Model):
         user.save()
         
     @staticmethod
-    def disable_user(user:"User"):
+    def disable_user(user:"User", reason):
         user.bln_account_disabled = True
         user.save()
-        User.make_user_inactive(user)
+        
+        User.make_user_inactive(user, reason)
     
     # @property
     # def img_user_profile(self):
@@ -2371,7 +2375,8 @@ class UserReport(SVSUModelData,Model):
     str_report_type = CharField(max_length=15, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
     bln_resolved = BooleanField(default=False)
-    date_resolved = DateField(default=timezone.now)
+    date_resolved = DateField(null=True)
+    date_reported = DateField(default=timezone.now)
     resolved_comment = CharField(max_length=3500, null=True)
 
     def create_user_report(reporter: User, str_provided_report_type: str, str_provided_report_body: str, int_user_id: int) -> bool:
@@ -2536,6 +2541,15 @@ class UserReport(SVSUModelData,Model):
         users_with_reports = User.objects.annotate(report_count=Count('userreport')).filter(report_count__gt=0).prefetch_related('userreport_set')
         user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all()) for user in users_with_reports}
         return user_reports_dict
+    
+    @staticmethod
+    def get_resolved_reports_grouped_by_user() -> dict[User, list]:
+        
+        # TODO: make this less cursed
+        users_with_reports = User.objects.annotate(report_count=Count('userreport', filter=Q(userreport__bln_resolved=True))).filter(report_count__gt=0).prefetch_related('userreport_set')
+        user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all().filter(bln_resolved=True)) for user in users_with_reports}
+        return user_reports_dict
+    
         
     @staticmethod
     def resolve_report(int_report_id: int, resolver: User):
@@ -2780,6 +2794,7 @@ class SystemLogs(SVSUModelData,Model):
         ORGANIZATION_DELETED_EVENT = "Organization deleted"
         ORGANIZATION_CREATED_EVENT = "Organization added"
         MENTOR_ORGANIZATION_CHANGED_EVENT = "Mentor's organization changed"
+        AUTO_RESOLVE_EVENT = "User's reports were resolved automatically"
         
     str_event = CharField(max_length=500, choices=Event.choices, default='')
     str_details = CharField(max_length=500, default='')

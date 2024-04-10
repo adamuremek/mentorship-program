@@ -517,16 +517,14 @@ def disable_user(req:HttpRequest):
     
     # Get the user and set their disabled field to True
     user = User.objects.get(id=id)
-    User.disable_user(user)
-
+    User.disable_user(user, "User was deactivated")
+    
     if(user.str_role == "Mentee"):
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
         if not user.account.mentor == None:
            mentor = User.objects.get(id=Mentor.objects.get(id=user.account.mentor).account_id)
            send_to = mentor.cls_email_address
            your_mentor_quit(send_to , "Mentee")
     else:
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
         mentees_for_mentor = user.mentor.mentee_set.all()
         for mentee in mentees_for_mentor:
             send_to = User.objects.get(id=mentee.account_id)
@@ -721,11 +719,44 @@ def remove_note(req: HttpRequest):
     return redirect(f"/universal_profile/{user.id}")
 
 def resolve_report(req: HttpRequest):
+    if not User.from_session(req.session).is_super_admin():
+        return bad_request_400("permission denied!")
+
     if req.method == "POST":
+        # get the id of the report
+        id = req.POST["report-id"]
+        # get the id of the user who was reported
+        user_id = req.POST["user-id"]
+        # the comment from the admin
+        comment = req.POST["comment"] if req.POST["comment"] != None else "No Comment"
+        # decision == true means user was banned
+        decision = 'decision' in req.POST
+        # get the report
+        report = UserReport.objects.get(id=id)
+        report.bln_resolved = True
+        report.date_resolved = timezone.now()
+        report.resolved_comment = comment
+        
+        # if the user was banned, disable their account, and resolve any other issues they have
+        if decision:
+            user = User.objects.get(id=user_id)
+            User.disable_user(user, f"User was deactivated from report: {id}")
+            # get the other outstanding reports
+            other_reports = UserReport.objects.filter(user_id=user_id, bln_resolved=False)
+            
+            for other_report in other_reports:
+                # make sure the report isn't the report we just resolved
+                if report.id != other_report.id:
+                    other_report.bln_resolved = True
+                    other_report.date_resolved = timezone.now()
+                    report.resolved_comment = f"Report was resolved because user was banned for: {comment}"
+                    other_report.save()
+                    SystemLogs.objects.create(str_event=SystemLogs.Event.AUTO_RESOLVE_EVENT, specified_user=user, str_details=f"Report: {other_report.id}")
+        report.save()
 
-        print('suck my balls!')
+        
 
-    return redirect(f"/admin_reported_users/")
+    return redirect("/admin_reported_users/")
 
 #TODO uncomment this
 #@security.Decorators.require_login(bad_request_400)
@@ -1142,7 +1173,7 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
      David Kennamer *^*
     '''
     user = User.from_session(req.session)
-    print('Hello')
+
     
     
     #if you are a mentee you can only request for yourself
@@ -1218,25 +1249,23 @@ def change_password(req : HttpRequest):
 
 
 def deactivate_your_own_account(req : HttpRequest):
+    """
+    Deactivate really means inactivate <-- huge difference
+    """
     user = User.from_session(req.session)
     if(user.str_role == "Mentee"):
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
         if not user.mentee.mentor == None:
            mentor = User.objects.get(id=Mentor.objects.get(id=user.mentee.mentor_id).account_id)
            send_to = mentor.cls_email_address
            your_mentor_quit(send_to , "Mentee")
     else:
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
         mentees_for_mentor = user.mentor.mentee_set.all()
         for mentee in mentees_for_mentor:
             send_to = User.objects.get(id=mentee.account_id)
             email_address = send_to.cls_email_address
-            print(email_address)
             your_mentor_quit(email_address, "Mentor")
 
-
-
-    User.make_user_inactive(User.objects.get(id=User.from_session(req.session).id))
+    User.make_user_inactive(User.objects.get(id=User.from_session(req.session).id), "User inactivated their account")
     return redirect('/logout')
 
 
@@ -1279,7 +1308,6 @@ def reset_request(req: HttpRequest):
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
     
     reset_token_email(req, recipient=user.cls_email_address, token=token) # Pass req along with recipient email and token
-    print("email sent to: "+email)
     return HttpResponse(True)
 
 
@@ -1438,7 +1466,7 @@ def process_file(req: HttpRequest):
                     whitelisted_and_present.append(user_tuple)
                 # these users could be added if admin chooses
                 else:
-                    added_users.append(user_tuple)
+                    added_users.append(user_tuple)  
 
             
 
@@ -1448,7 +1476,7 @@ def process_file(req: HttpRequest):
             removed_users = [(email, '', '') for email in removed_emails]  
             user_to_deactivate = User.objects.filter(cls_email_address__in=removed_emails)
             for user in user_to_deactivate:
-                User.disable_user(user)
+                User.disable_user(user, "User was disabled from file upload")
             context = {
                 'added': added_users,
                 'removed': removed_users,
@@ -1492,6 +1520,13 @@ def add_remove_mentees_from_file(req : HttpRequest):
     added_mentees = banana_split[0].split(",") if len(banana_split) > 0 else []
     removed_mentees = banana_split[1].split(",") if len(banana_split) > 1 else []
 
+
+    #print(added_users)                                   # replace
+    #reactivate = User.objects.filter(cls_email_address__in=added_users)
+
+    #loop reactivate
+                        # bln_account_disabled = False
+                        #  .save()
     added_list = []
     for mentee_email in added_mentees:
         added_list.append(WhitelistedEmails(str_email=mentee_email))
@@ -1528,7 +1563,6 @@ def promote_org_admin(req : HttpRequest, promoted_mentor_id : int):
 
     # gets the user from the session to check if theyre a super admin
     user_from_session = User.from_session(req.session)
-    print(user_from_session.str_role)
     is_org_admin = False
     
     # if user is not super admin, check if they're the org admin for the org being changed

@@ -601,8 +601,15 @@ def admin_reported_users(request):
 
     user_reports_dict = UserReport.get_unresolved_reports_grouped_by_user()
     all_reports = UserReport.get_all_reports_grouped_by_user()
+    result = {key: all_reports[key] for key in all_reports if key not in user_reports_dict}
+    resolved_reports = UserReport.get_resolved_reports_grouped_by_user()
+    
+
+    
     context = {"user_reports_dict": user_reports_dict,
-               "all_reports": all_reports}
+               "all_reports": all_reports,
+               "resolved_reports":resolved_reports,
+               }
     return HttpResponse(template.render(context,request))
 
 # view goes to mentor_group_view

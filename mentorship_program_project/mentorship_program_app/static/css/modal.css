@@ -15,8 +15,8 @@
 
 /* ----- Modal Component Styling ----- */
 
-.container {
-    padding-bottom: 10px;
+.modal .container {
+    padding-bottom: 1em;
 }
 
 .modal {
@@ -194,15 +194,16 @@
     text-align: center;
 }
 
-textarea {
+.modal textarea {
     resize: none;
     width: 90%;
     padding: .25em
 }
 
-input[type=checkbox] {
+.modal input[type=checkbox] {
     width: auto;
     margin: 0 0.5em;
+    width: 1em;
 }
 
 #ban-user-decision {

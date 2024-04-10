@@ -145,9 +145,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Edit Interests Modal
     editInterestsBtn.addEventListener('click', () => interests_modal.showModal());
-    document.getElementById('modal-exit').addEventListener('click', () => {
+    const modal_exit = document.getElementById('modal-exit') 
+    modal_exit.addEventListener('click', () => {
         interests_modal.close()
         window.location.href = '/dashboard'
+    })
+    modal_exit.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') {
+            e.preventDefault()
+            interests_modal.close()
+            window.location.href = '/dashboard'
+        }
     })
     
 

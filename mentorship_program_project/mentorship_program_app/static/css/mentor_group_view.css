@@ -405,6 +405,7 @@ input:read-only {
 
 .note-title {
     flex: 1 1 35%;
+    overflow: hidden;
 }
 
 .note-header p {
