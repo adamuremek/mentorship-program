@@ -108,9 +108,8 @@ def dashboard(req):
                 'mentee'
         ).order_by(
                 'is_requested_by_session','str_last_name' #make sure all mentors who we can cancel get displayed up top
+        ).exclude(
         )
-
-        users = [user.sanitize_black_properties() for user in card_data]
         session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
 
     if opposite_role == "Mentee":
@@ -139,20 +138,16 @@ def dashboard(req):
                 'is_requested_by_session','str_last_name' #make sure requested mentees appear first
         )
 
-        users = [user.sanitize_black_properties() for user in card_data]
         session_user.has_maxed_requests_as_mentee = False
         print(f"finished mentee query as mentor @ {get_runtime()-start_time}")
     
     # Retrieve a list of recommended users
     recommended_users = session_user.get_recomended_users()
-    #for u in recommended_users:
-    #    print(u.request_count)
 
-    #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
         card_data = card_data.exclude(mentee__mentor__id = session_user.mentor.id)
     elif session_user.is_mentee() and session_user.mentee.mentor:
-        card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
+        card_data = card_data.exclude(mentor__id=session_user.mentee.mentor.id)
 
 
     print(f"finished exlusion @ {get_runtime()-start_time}")
@@ -162,15 +157,13 @@ def dashboard(req):
                                     mentor_count=Count('user', filter=Q(user__str_role=opposite_role))
                                     ).values('strInterest', 'mentor_count')
 
-    # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
-    #set up the django users to include a property indicateing they have been reqeusted by the current user
-
+    users = [user.sanitize_black_properties() for user in card_data]
 
     #cache the result of this query so we are not using it in the rendered view
     context = {
                                 # Making sure that there are enough users to display
             "recommended_users": recommended_users[0:4] if len(recommended_users) >= 4 else recommended_users[0:len(recommended_users)], 
-            "all_users"        : users if len(users) >= 4 else [],
+            "all_users"        : users,
             "interests"        : list(interests_with_role_count),
             "session_user"     : session_user,
             "role"             : role

@@ -452,12 +452,12 @@ class User(SVSUModelData,Model):
         super().__init__(*args,**kwargs) #let django cook
         
         #mark cached functions so we don't over query the database
-        self.cache = security.Decorators.FunctionCache()
+        self.function_cache = security.Decorators.FunctionCache()
         
         #decorate cachable functions on the init level so python understands when to remove
         #the cached data
-        self.is_mentee = self.cache.create_cached_function(self.is_mentee)
-        self.is_mentor = self.cache.create_cached_function(self.is_mentor)
+        self.is_mentee = self.function_cache.create_cached_function(self.is_mentee)
+        self.is_mentor = self.function_cache.create_cached_function(self.is_mentor)
 
 
 
@@ -495,28 +495,26 @@ class User(SVSUModelData,Model):
 
 
 
-        sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
-        
-        #TODO: actually get this filtering
-        not_taken = f"""
-                        SELECT COUNT(*)=0 FROM 
-                                mentorship_program_app_mentee as ment 
-                            INNER JOIN 
-                                mentorship_program_app_mentor as m 
-                            ON 
-                                m.id = mentor_id 
-                            WHERE 
-                                ment.id = {self.id} AND m.id = tu.id
-                    """
-
-
-        if self.is_mentor():
+        sub_query = ""
+        not_taken = "1=1"
+        if self.is_mentee():
+            sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
+           
+            if self.mentee.mentor:
+                not_taken = f"""
+                                SELECT id <> {self.mentee.mentor.id} as value FROM 
+                                        mentorship_program_app_mentor as m 
+                                    WHERE
+                                        m.account_id = tu.id
+                            """
+        else:
             sub_query = \
                 f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id=t1.user_id AND mentor_id={self.id}"
 
             not_taken = f"SELECT COUNT(mentor_id)<1 FROM mentorship_program_app_mentee WHERE account_id = tu.id"
         
-        return User.objects.raw(
+
+        query = \
                     f"""
                     SELECT DISTINCT t1.user_id AS id,
                                     str_first_name,
@@ -536,7 +534,7 @@ class User(SVSUModelData,Model):
                        ORDER BY likeness DESC
                        LIMIT {limit};
                     """
-                    )
+        return User.objects.raw(query)
 
         
         #quick and dirty method
@@ -1605,6 +1603,11 @@ class Mentor(SVSUModelData,Model):
     -------
     
     """
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.cache = security.Decorators.FunctionCache()
+        self.has_maxed_mentees = self.cache.create_cached_function(self.has_maxed_mentees)
 
     def has_maxed_mentees(self)->bool:
         """
