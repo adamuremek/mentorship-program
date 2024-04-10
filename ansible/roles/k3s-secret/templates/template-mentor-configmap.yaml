@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mentor-config
+data:
+  DEBUG: "{{ debug }}"
+  DB: "{{ db }}"
+  DB_ENGINE: "{{ db_engine }}"
+  DJANGO_ALLOWED_HOSTS: "{{ django_allowed_hosts }}"
+  DOMAIN: "{{ domain }}"
+  CSRF_TRUSTED_ORIGINS: "{{ csrf_trusted_origins }}"
+  SAML_IDP_ENTITY_ID: "{{ saml_idp_entity_id }}"  
+  SAML_IDP_SSO_URL: "{{ saml_idp_sso_url }}"
+  SAML_IDP_SLO_URL: "{{ saml_idp_slo_url }}"
+  SAML_IDP_METADATA_URL: "{{ saml_idp_metadata_url }}"
