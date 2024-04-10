@@ -1,5 +1,5 @@
 let btnLogin = document.getElementById("li-btn");
-let btnSAMLLogin = document.getElementById("saml-li-btn");
+let btnSAMLLogin = document.getElementById("svsu-li-btn");
 
 let txtUname = document.getElementById("email");
 let txtPassword = document.getElementById("password");
