@@ -44,6 +44,7 @@ import json
 from typing import Union, Dict
 from datetime import date
 
+from django.core import serializers
 from django.http import HttpResponse, HttpRequest
 from django.template import loader
 from django.db.models import Count, Q
@@ -232,9 +233,10 @@ def register_mentor(req):
     
     if not Interest.objects.exists():
         Interest.create_default_interests()
+
     if not Organization.objects.exists():
         Organization.create_default_company_names()
-        
+
         # C:\Users\andyp\OneDrive\Documents\GitHub\mentorship-program\mentorship_program_project
     
     country_codes : Dict
@@ -244,6 +246,9 @@ def register_mentor(req):
         country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
     #sorted(json.load(file))
     
+    org_data_set = Organization.objects.all().values()
+    org_data_json = json.dumps(list(org_data_set))
+    
     context = {
         'interestlist': Interest.objects.all(),
 
@@ -252,7 +257,8 @@ def register_mentor(req):
         
         'country_codes' : country_codes,
 
-        'companyname': Organization.objects.all(),
+        'companyname' : org_data_set.all(),
+        'companyLIST': org_data_json,
 
         'companytypelist': [
             'Academic Research Group',

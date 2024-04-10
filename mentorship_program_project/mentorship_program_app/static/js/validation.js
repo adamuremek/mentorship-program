@@ -64,7 +64,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_password = document.getElementById('password')
     const input_confirm_password = document.getElementById('confirm-password')
 
-    const input_company = document.getElementById('organization')
+    const input_companyDropD = document.getElementById('select-company-name')
+    const input_companyTextF = document.getElementById('organization')
     // const input_company_type = document.getElementById('company-type')
     // const input_experience = document.getElementById('experience')
     const input_job_title = document.getElementById('jobTitle')
@@ -370,7 +371,6 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
 
 
-
     function is_mentee_page_valid(form_idx) {
         // If flag becomes false, a form component failed validation
         let is_valid = true
@@ -399,12 +399,32 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     function is_mentor_page_valid(form_idx) {
         // If flag becomes false, a form component failed validation
         let is_valid = true
+
+        //  Take the current selections/entered input for the user's information..... 
+        //  the user's interests, and their response to the user agreement
+        var selected_orgName = input_companyDropD.options[input_companyDropD.selectedIndex].text
+        var selected_OtherText = "Other"
+        var selected_OtherOrgName = input_companyTextF.value
+
         switch (form_idx) {
-           
-            case 3: // company information
-                is_valid = input_company.value.length > 0 &&
-                    input_job_title.value.length > 0
-                //input_company-type.value != none ??
+            case 3:     //  Company information
+                if(selected_orgName == selected_OtherText)
+                {
+                    //  Take info from textfield for the organization name
+                    //  if "Other" was selected from the dropdown
+                    //  (Check if selection is valid).
+                    is_valid = selected_OtherOrgName.length > 0 &&
+                        input_job_title.value.length > 0
+                }
+                else
+                {
+                    //  Otherwise, take the text from what was selected
+                    //  from the dropdown
+                    //  (Check if selection is valid).
+                    is_valid = selected_orgName.length > 0 &&
+                        input_job_title.value.length > 0
+                }
+                //input_companyDropD-type.value != none ??
                 //input_expeience.value != none    ??
                 if(is_valid)
                     reset_error_messages(form_idx)
@@ -495,21 +515,43 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
     function display_error_message_for_mentor(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
+        var selected_orgName = input_companyDropD.options[input_companyDropD.selectedIndex].text
+        var selected_OtherText = "Other"
+        var selected_OtherOrgName = input_companyTextF.value
 
-        if(input_company.value.length == 0)
-            company_warning_message.innerText = "Company cannot be blank!"
-        else if(input_company.value.length == 1)
-        company_warning_message.innerText = "Company name must be longer than one character."
+        //  If 'Other' has been selected from the dropdown...
+        if(selected_orgName == selected_OtherText)
+        {
+            //  If nothing has been typed for the organization's name...
+            if(selected_OtherOrgName.length == 0)
+                company_warning_message.innerText = "Company cannot be blank!"
+            //  If only 1 character has been typed for the organization's name...
+            else if(selected_OtherOrgName.length == 1)
+                company_warning_message.innerText = "Company name must be longer than one character."
+            //  If nothing has been typed for the organization's name...
+            else
+                company_warning_message.innerText = ""
+        }
+        //  If anything else has been selected from the dropdown...
         else
-            company_warning_message.innerText = ""
-
+        {
+            //  If an empty space has been selected.....
+            if(selected_orgName.length == 0)
+                company_warning_message.innerText = "Company cannot be blank!"
+            //  If a company name has been selected.....
+            else
+                company_warning_message.innerText = ""
+        }
+            
+        //  If nothing has been typed for the the job title.....
         if(input_job_title.value.length == 0)
             job_title_warning_message.innerText = "Job Title cannot be blank!"
+        //  If only 1 character has been typed for the the job title.....
         else if(input_job_title.value.length == 1)
             job_title_warning_message.innerText = "Job Title must be longer than one character."
+        //  Otherwise, if a valid string of characters has been typed for the the job title.....
         else
             job_title_warning_message.innerText = ""
-        
     }
 
     function reset_error_messages(form_idx){

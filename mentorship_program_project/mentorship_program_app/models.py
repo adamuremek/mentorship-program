@@ -1569,7 +1569,6 @@ class Organization(SVSUModelData,Model):
 
     admin_mentor = OneToOneField('Mentor', related_name='administered_organizations', on_delete=models.CASCADE, null=True) 
 
-
     @staticmethod
     def create_org(str_org : str, str_orgType : str = None) -> 'Organization' :
         try:

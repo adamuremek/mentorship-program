@@ -11,11 +11,12 @@
                 {% endfor %}
                 <option>Other</option>
             </select>
+            <p id="frm-company-warning-message" class="error-message"></p>
         </div>
         <div>
             <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp." maxlength="100" style="visibility: hidden;">
         </div>
-        <p id="frm-company-warning-message" class="error-message"></p>
+        
     </div>
 
     <div class="sign-in-card-element-horizontal">
@@ -54,21 +55,26 @@
 
 <script>
     function getValue(select_id){
-        const selectElement = document.getElementById(select_id)
-        const selectedText = selectElement.options[selectElement.selectedIndex].text
-        
-        const showString = 'Other'
+        const select_nameElem = document.getElementById(select_id)
+        const select_nameText = select_nameElem.options[select_nameElem.selectedIndex].text
+        const select_typeElem = document.getElementById("select-company-type")
+        const selected_OtherText = 'Other'
 
-        console.log("Selected Element: " + selectElement)
-        console.log("Selected Text: " + selectedText)
-
-        if(selectedText == showString)
+        if(select_nameText == selected_OtherText)
         {
             document.getElementById("organization").style.visibility = 'visible'
         }
         else 
         {
             document.getElementById("organization").style.visibility = 'hidden'
+            var org_data = JSON.parse('{{ companyLIST|escapejs }}')
+            temp_orgObject = org_data.find(obj => obj.str_org_name === select_nameText);
+
+            //  CODE NEEDS TO BE IMPLEMENTED FOR AUTOFILL;
+            //  THE INDUSTRY TYPE NEEDS TO DYNAMICALLY BE SELECTED BASED ON WHICHEVER
+            //  ORGANIZATION NAME IS SELECTED (industry type also needs to be saved and be carried over
+            //  to every organization object for this to work).
+            console.log("Organization: " + temp_orgObject.str_org_name + ", Type: " + temp_orgObject.str_industry_type)
         }
     }
 </script>
