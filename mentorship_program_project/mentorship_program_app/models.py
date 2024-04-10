@@ -1903,6 +1903,11 @@ class MentorshipRequest(SVSUModelData,Model):
         Tanner Williams 🦞
         """
 
+        #prevent accepting of new requests when you are already in a mentorship
+        if self.mentee.is_mentee() and self.mentee.mentee.mentor != None:
+            print("they have a mentor")
+            return False
+
         # record logs
         # record the mentee since the mentor can be gathered from it later
         mentor,mentee = session_user.create_mentorship_from_user_ids(
@@ -1962,13 +1967,15 @@ class MentorshipRequest(SVSUModelData,Model):
         MENTOR_MAXED_MENTEES = -1
         MENTEE_MAXED_REQUEST_AMOUNT = -2
         DATABASE_ERROR = -3
+        MENTEE_HAS_MENTOR = -4
         
         @staticmethod
         def error_code_to_string(code : int)->str:
             return [
              "MENTOR_MAXED_MENTEES",
              "MENTEE_MAXED_REQUEST_AMOUNT",
-             "DATABASE_ERROR"
+             "DATABASE_ERROR",
+             "MENTEE_HAS_MENTOR"
             ][-(code+1)]
 
     @staticmethod
@@ -2020,9 +2027,12 @@ class MentorshipRequest(SVSUModelData,Model):
 
             #prevent mentees from creating too many requests
             requester_user_account = User.objects.get(id=requester_id)
-            if requester_user_account.is_mentee() \
-            and requester_user_account.mentee.has_maxed_request_count():
-                return MentorshipRequest.ErrorCode.MENTEE_MAXED_REQUEST_AMOUNT
+            if requester_user_account.is_mentee():
+                if requester_user_account.mentee.has_maxed_request_count():
+                    return MentorshipRequest.ErrorCode.MENTEE_MAXED_REQUEST_AMOUNT
+                if requester_user_account.mentee.mentor != None:
+                    print("we will not finish the request!")
+                    return MentorshipRequest.ErrorCode.MENTEE_HAS_MENTOR
 
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,

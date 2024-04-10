@@ -125,40 +125,41 @@ function undisplay_requests_maxed() {
 
 
 
-const request_mentor = document.getElementsByClassName("card-request-btn");
+if (!has_mentor) { //the buttons only do stuff if we do not already have a mentor
+   const request_mentor = document.getElementsByClassName("card-request-btn");
 
 
 
-for (let btnRequest of request_mentor) {
-	let split_ids = Array.from(btnRequest.classList).filter(
-											(x)=>x.split(":")[0]=="card-request-btn-user-id"
-										).map(
-											(x)=>x.split(":")[1]
-										);
-	let request_user_id = split_ids[0];
+   for (let btnRequest of request_mentor) {
+      let split_ids = Array.from(btnRequest.classList).filter(
+                                    (x)=>x.split(":")[0]=="card-request-btn-user-id"
+                                 ).map(
+                                    (x)=>x.split(":")[1]
+                                 );
+      let request_user_id = split_ids[0];
 
-	
-	btnRequest.onclick = async () => {
-	   //get ALL buttons of our id
-	   let btns = get_all_buttons_of_id(request_user_id);
+      
+      btnRequest.onclick = async () => {
+         //get ALL buttons of our id
+         let btns = get_all_buttons_of_id(request_user_id);
 
-	   
-	   //let the end user know that something is happening while we wait for queries
-	   for (let button of btns) {
-	      if (button.classList.contains("card-button-disabled"))
-            // we do NOT let disabled buttons send data to the back end
-	         return false; 
-         button.classList.add("pending");
+         
+         //let the end user know that something is happening while we wait for queries
+         for (let button of btns) {
+            if (button.classList.contains("card-button-disabled"))
+               // we do NOT let disabled buttons send data to the back end
+               return false; 
+            button.classList.add("pending");
+         }
+
+         //determine if we are a reject or accept button based on our display class
+         if (btnRequest.classList.contains("card-button-cancel"))
+            reject_user(request_user_id);
+         else
+            request_user(request_user_id);
       }
-
-	   //determine if we are a reject or accept button based on our display class
-	   if (btnRequest.classList.contains("card-button-cancel"))
-	      reject_user(request_user_id);
-	   else
-		   request_user(request_user_id);
-	}
+   }
 }
-
 //start the animation tick for the pending buttons
 pending_idx = 0;
 function run_pending_animation() {
