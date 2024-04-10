@@ -118,15 +118,6 @@ a:not([class]) {
     }
 } */
 
-/* Fixes scaling-issue at smaller screens */
-@media (max-width: 480px) {
-
-    body,
-    main {
-        min-width: 480px;
-    }
-}
-
 @media screen and (max-width: 768px) {
     .hero-container {
         flex-direction: column;
@@ -220,6 +211,24 @@ a:not([class]) {
     border: none;
     box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
     padding: 25px 30px;
+}
+
+/* Fixes scaling-issue at smaller screens */
+@media (max-width: 480px) {
+
+    /* body,
+    main {
+        max-width: 100vw;
+    } */
+
+    .portal form {
+        width: 100%;
+    }
+
+    .password-hidden {
+        font-size: 1em;
+        letter-spacing: 1px;
+    }
 }
 
 @media screen and (max-width: 1400px) {
@@ -441,8 +450,8 @@ padding-right: 40px;
 }
 
 .password-hidden {
-    font-size: 20px;
-    letter-spacing: 1.5px;
+    font-size: 1.25em;
+    letter-spacing: 1.25px;
 }
 
 #password {
