@@ -108,6 +108,8 @@ def dashboard(req):
                 'mentee'
         ).order_by(
                 'is_requested_by_session','str_last_name' #make sure all mentors who we can cancel get displayed up top
+        ).exclude(
+                mentor__id=session_user.mentee.mentor.id
         )
 
         users = [user.sanitize_black_properties() for user in card_data]
