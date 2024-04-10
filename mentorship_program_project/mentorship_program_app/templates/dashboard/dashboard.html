@@ -127,6 +127,7 @@ Dashboard
 	let session_user_id = "{{ session_user.id }}";
 	let is_mentee_str = "{{ role }}";
 	let is_mentee = is_mentee_str == 'Mentee';
+   let has_mentor = "True"=="{{ session_user.has_mentor }}";
 </script>
 <script src = "{% static 'js/dashboard/dashboard_request_button.js' %}"></script>
 <script>

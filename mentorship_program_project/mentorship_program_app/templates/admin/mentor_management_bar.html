@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="mentor_management_bar_container">
+<div class="mentor_management_bar_container_active">
     <div class="mentor_management_bar">
         <div id="account">
             {{ mentor.id }}
@@ -42,7 +42,7 @@
             <p id="current_mentees">{{ mentor.current_mentees }}</p>/<p id="max_mentees">{{ mentor.max_mentees }}</p>
         </div>
 
-        <button class="admin_user_management_button_clear_active" id="{{mentor.account.id}}" title="View account page">
+        <button class="admin_user_management_button_clear_active" id="view_button" title="View account page">
             <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
         </button>
 
@@ -80,9 +80,15 @@
             </button>
         
             {% if mentor.account.account != session_user_account %}
-                <button class="admin_user_management_button_clear_active" id="transfer_role_super_admin_button" title="Transfer roles">
-                    <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
-                </button>
+                {% if organization.id %}
+                    <button class="admin_user_management_button_clear_active" id="transfer_role_super_admin_button" title="Transfer roles">
+                        <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
+                    </button>
+                {% else %}
+                    <button class="admin_user_management_button_clear_inactive" id="transfer_role_super_admin_button" title="Transfer roles">
+                        <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
+                    </button>
+                {% endif %}
             {% endif %}
         {% elif user_organization_admin_flag %}
             {% if mentor.account.account == session_user_account %}
@@ -111,8 +117,3 @@
     <!-- <hr> -->
 
 </div>
-<script>
-document.getElementById("{{ mentor.account.id }}").addEventListener("click", function() {
-    window.location.href = "{% url 'universal_profile' mentor.account.id %}"
-});
-</script>

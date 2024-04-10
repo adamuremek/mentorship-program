@@ -14,60 +14,118 @@ SVSU Mentoring
 
 <section class="hero">
     <div class="hero-container">
-
         <h1>Reported Users</h1>
         <div class="filter">
             <span>Filter:</span>
+            <div class="checkbox-container">
+                <label id="show-resolved" for="exampleCheckbox">Show Resolved</label>
+                <input type="checkbox" id="showAllCheckbox" name="showAllCheckbox">
+              </div>
             <div class="search-name-container">
                 <div class="search-name">
                     <img class="search-icon" src="{% static 'images/search-icon.png' %}">
                     <input type="text" placeholder="Search by Name" id="searchByNameField" oninput="filterUsers()">
                 </div>
             </div>
+
+              
+            <div class="filter-user-type">
+    
+                  
+                <span>User type:</span>
+                <div class="filter-users-container">
+                    <select name="select-user-type" id="selectUserType" class = "select-user-type" onchange = "filterUsers()">
+                        <option value="all">All</option>
+                        <option value="mentee">Mentees</option>
+                        <option value="mentor">Mentors</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="reported-users-area">
             <h2 class="no-reports-message" {% if user_reports_dict %}style="display: none;"{% endif %}>No reported users</h2>
+                <div id="unresolvedReports">
+                    {% for user, reports in user_reports_dict.items %}
+                    <div class="reported-user card">
+                        <h2 class="reported-user-name">{{user.str_first_name}} {{user.str_last_name}}</h2>
+                        <h3>Reports:</h3>
+                        <h3 class="reported-user-role">{{ user.str_role }}</h3>
+                        <div class="report-subcard">
+                            <ul>
+                                {% for report in reports %}
+                                <li class="user-report">
+                                    <div class="report-body">{{report.str_report_body}}</div>
+                                    <div class="report-controls">
+                                        {% include 'admin/resolve_report_modal.html' %}
+                                        <div class="resolve-report" id="{{report.id}}">Resolve</div>
+                                        <!-- <form class="resolve-report-form" id="resolve-report-form-{{report.id}}" action="/admin_reported_users/resolve_report/" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="report_id" value="{{report.id}}">
+                                            <input type="submit" value="" style="display: none;" />
+                                        </form> -->
+                                    </div>
+                                    
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div id="allReports" style="display: none;">
+                {% for user, reports in all_reports.items %}
+                    <div class="reported-user card">
+                        <h2 class="reported-user-name">{{user.str_first_name}} {{user.str_last_name}} {% if user.bln_account_disabled %} - User is Banned {% endif %}</h2>
+                        <h3>Reports:</h3>
+                        <h3 class="reported-user-role">{{ user.str_role }}</h3>
+                        <div class="report-subcard">
+                            <ul>
+                                {% for report in reports %}
+                                <li class="user-report">
+                                    <div class="report-body">{{report.str_report_body}}</div>
+                                    <div class="report-controls">
+                                        {% if not report.bln_resolved %}
+                                         
+                                        <div class="resolve-report" id="{{report.id}}">Resolve</div>
+                                        {% include 'admin/resolve_report_modal.html' %}
 
-            {% for user, reports in user_reports_dict.items %}
-            <div class="reported-user card">
-                <h2 class="reported-user-name">{{user.str_first_name}} {{user.str_last_name}}</h2>
-                <h3>Reports:</h3>
-                <div class="report-subcard">
-                    <ul>
-                        {% for report in reports %}
-                        <li class="user-report">
-                            <div class="report-body">{{report.str_report_body}}</div>
-                            <div class="report-controls">
-                                <div class="resolve-report" id="{{report.id}}">Resolve</div>
-                                <form class="resolve-report-form" id="resolve-report-form-{{report.id}}" action="/admin_reported_users/resolve_report/" method="POST">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="report_id" value="{{report.id}}">
-                                    <input type="submit" value="" style="display: none;" />
-                                </form>
-                            </div>
-                            
-                        </li>
-                        {% endfor %}
-                    </ul>
+                                        <!-- <form class="resolve-report-form" id="resolve-report-form-{{report.id}}" action="/admin_reported_users/resolve_report/" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="report_id" value="{{report.id}}">
+                                            <input type="submit" value="" style="display: none;" />
+                                        </form> -->
+                                        
+                                        {% else %}
+                                            Resolved: {{report.date_resolved}}
+                                        {% endif %}
+                                    </div>
+                                    
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            {% endfor %}
-        </div>
 
     </div>
 </section>
 
 <script>
     // Super basic string matching on report user's name to show/hide their cards
+    //Added in filtering by user type (ie. mentor, mentee, or all)
     function filterUsers() {
         const searchByNameField = document.getElementById('searchByNameField');
         const reportedUserCards = document.querySelectorAll('.card');
 
+        //params
         const searchString = searchByNameField.value.toLowerCase();
+        const userType = document.getElementById('selectUserType').value.toLowerCase();
 
         // Return early and unhide all cards if there is nothing to search for.
-        if (searchString === '') {
+        if (searchString === '' && userType === 'all') {
             const hiddenCards = document.querySelectorAll('.hidden');
             hiddenCards.forEach(card => card.classList.remove('hidden'));
             return;
@@ -77,30 +135,79 @@ SVSU Mentoring
             // Get the value of the h2, which should be first.
             // It should contain the name of the card user.
             const cardName = card.children[0].innerText.toLowerCase();
+            const cardUserType = card.getElementsByClassName('reported-user-role')[0].innerHTML.toLowerCase();
 
-            if (cardName.includes(searchString)) {
-                // Keep this one disabled, do nothing
-            } else {
-                // Hide the other cards
+            const doesUserTypeMatch = userType === 'all' || cardUserType.includes(userType);
+            const doesNameMatch = cardName.includes(searchString);
+
+            if (!doesUserTypeMatch || !doesNameMatch) {
                 card.classList.add('hidden');
+            } else {
+                card.classList.remove('hidden');
             }
         });
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+    const resolve_modals = document.querySelectorAll('.resolve-report-modal')
+    //const modal_exit = resolve_modals.querySelector('#modal-exit')
+    //modal_exit.addEventListener('click', () => resolve_modals.close());
 
-    var resolve = document.getElementsByClassName("resolve-report");
-    for (var i = 0; i < resolve.length; i++) {
-        resolve[i].addEventListener("click", function() {
-            var reportId = this.id;
-            resolveReport(reportId);
+    const resolve = document.getElementsByClassName("resolve-report");
+
+    //for (var i = 0; i < resolve.length; i++) {
+    //    resolve[i].addEventListener("click", function() {
+    //        var reportId = this.id;
+            //resolveReport(reportId);
+            //resolve_modals[i].showModal()
+    //        resolve_modals[i].querySelector('#modal-exit').addEventListener('click', () => resolve[i].close());
+    //    });
+    //}  
+
+
+
+    const resolveButtons = document.querySelectorAll('.resolve-report');
+    const modals = document.querySelectorAll('.resolve-report-modal');
+
+    resolveButtons.forEach((button, index) => {
+        button.addEventListener("click", function() {
+            // Assuming there's a direct mapping between the index of the resolve button and the modal
+            const modal = modals[index];
+            if (modal) {
+                modal.showModal();
+                // Assuming there's an element with id 'modal-exit' in each modal for closing it
+                modal.querySelector('#modal-exit').addEventListener('click', () => modal.close());
+            }
         });
-    }  
+    });
+
+    
+
+
+
+
+
+
+
 
     function resolveReport(reportId) {
         var resolveReportForm = document.getElementById("resolve-report-form-" + reportId)
-        resolveReportForm.submit();
+        //resolve-report-modal-{{report.id}}
+        //resolveReportForm.submit();
     }
+    const showAllCheckbox = document.getElementById('showAllCheckbox')
+    const unresolvedReports = document.getElementById('unresolvedReports');
+    const allReports = document.getElementById('allReports');
+
+    showAllCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        unresolvedReports.style.display = 'none';
+        allReports.style.display = '';  
+      } else {
+        unresolvedReports.style.display = '';
+        allReports.style.display = 'none';
+      }
+    });
 });
 
 

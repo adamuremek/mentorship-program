@@ -37,9 +37,12 @@ const openMobileSidebarBtn = document.getElementById('open-mobile-sidebar-btn');
 const closeMobileSidebarBtn = document.getElementById('close-mobile-sidebar-btn');
 const menuBtnPNav = document.getElementById('menu-btn-pnav');
 
-openMobileSidebarBtn.addEventListener('click', openMobileSidebar);
-closeMobileSidebarBtn.addEventListener('click', closeMobileSidebar);
-menuBtnPNav.addEventListener('click', sidebarController);
+if(openMobileSidebarBtn)
+    openMobileSidebarBtn.addEventListener('click', openMobileSidebar);
+if(closeMobileSidebarBtn)
+    closeMobileSidebarBtn.addEventListener('click', closeMobileSidebar);
+if(menuBtnPNav)
+    menuBtnPNav.addEventListener('click', sidebarController);
 
 // This routine is responsible for controlling the sidebar element of the sites
 // primary navigation. It contains logic checking if the sidebar is displayed,
@@ -49,20 +52,26 @@ menuBtnPNav.addEventListener('click', sidebarController);
 function sidebarController() {
     // Obtains DOM element sidebar (ul element)
     const sidebar = document.querySelector('.sidebar');
+    const sidebar_bg = document.getElementById('sidebar-bg');
+
     // Obtain sidebar styles
     const sidebarComputedStyle = window.getComputedStyle(sidebar);
 
     // Display sidebar if not displayed, else hide sidebar
     if (sidebarComputedStyle.display === 'none') {
-        sidebar.style.display = 'flex'
+        sidebar.style.display = 'flex';
+        sidebar_bg.style.display = 'flex';
+        sidebar_bg.style.height = sidebarComputedStyle.height;
     }
     else {
-        sidebar.style.display = 'none'
+        sidebar.style.display = 'none';
+        sidebar_bg.style.display = 'none';
     }
 
     // EventListener listening for mouse to leave sidebar, then hide sidebar.
     sidebar.addEventListener('mouseleave', () => {
         sidebar.style.display = 'none';
+        sidebar_bg.style.display = 'none';
     });
 }
 
@@ -70,7 +79,9 @@ function sidebarController() {
 // user-profile icon is clicked on the mobile navigation bar.
 function openMobileSidebar() {
     const sidebar = document.querySelector('.mobile-sidebar');
+    const sidebar_bg = document.getElementById('mobile-sidebar-bg');
     sidebar.style.display = 'flex';
+    sidebar_bg.style.display = 'flex';
     disableScroll();
 }
 
@@ -78,8 +89,13 @@ function openMobileSidebar() {
 // close icon is clicked on the mobile navigation sidebar.
 function closeMobileSidebar() {
     const sidebar = document.querySelector('.mobile-sidebar');
-    if (sidebar)
+    if (sidebar) {
+        // Obtain sidebar background DOM object
+        const sidebar_bg = document.getElementById('mobile-sidebar-bg');
+
         sidebar.style.display = 'none';
+        sidebar_bg.style.display = 'none';
+    }
     enableScroll();
 }
 

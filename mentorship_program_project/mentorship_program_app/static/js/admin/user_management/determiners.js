@@ -1,8 +1,8 @@
 // Determnine and store mentee bar elements and container elements
 const mentee_bar_container = document.querySelector("#mentee_bar_container");
 const mentor_bar_container = document.querySelector("#mentor_bar_container");
-const mentee_bars = mentee_bar_container.querySelectorAll(".mentee_management_bar_container");
-const mentor_bars = mentor_bar_container.querySelectorAll(".mentor_management_bar_container");
+const mentee_bars = mentee_bar_container.querySelectorAll(".mentee_management_bar_container_active");
+const mentor_bars = mentor_bar_container.querySelectorAll(".mentor_management_bar_container_active");
 
 // Determine static page elements
 const save_button = document.getElementById("save_button");
@@ -13,14 +13,15 @@ const filter_organization_button = document.querySelector("#filter_organization_
 const user_search_bar = document.querySelector("#user_search_bar");
 const organization_search_bar = document.querySelector("#organization_search_bar");
 const session_user_admin_flag = document.querySelector("#session_user_admin_flag");
-const user_management_message = document.querySelector(".user_management_message_bar");
+const user_management_message = document.querySelector(".user_management_message_bar_inactive");
+const loading_overloy = document.querySelector("#loading-overlay");
 
 // Determine and store organzition elements
-let organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar_container");
+let organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar_container_active");
 const create_organization_button = document.getElementById("create_organization_button");
 const exit_add_new_organization_button = document.getElementById("exit_add_new_organization_button");
 const add_new_organization_modal = document.querySelector("#organization-modal");
-const add_new_organization_message_bar = add_new_organization_modal.querySelector(".create_organization_message_bar");
+const add_new_organization_message_bar = add_new_organization_modal.querySelector(".create_organization_message_bar_inactive");
 const add_new_organization_name = add_new_organization_modal.querySelector(".user-input");
 let organization_counter = document.querySelector("#organization_counter");
 
@@ -137,6 +138,20 @@ export function determine_organization_counter()
 
 }
 
+// Find and return user management message element from document
+export function determine_user_management_message()
+{
+    return user_management_message;
+
+}
+
+// Find and return loading overlay element from document
+export function deteremine_loading_overlay()
+{
+    return loading_overloy;
+
+}
+
 // Find and returns name element within add new organizaition modal
 export function determine_add_new_organization_name()
 {
@@ -144,17 +159,10 @@ export function determine_add_new_organization_name()
 
 }
 
-// Find and return error message element within add new organization modal
+// Find and return add new organization message element within add new organization modal
 export function determine_add_new_organization_message_bar()
 {
     return add_new_organization_message_bar;
-
-}
-
-// Return 
-export function determine_user_management_message()
-{
-    return user_management_message;
 
 }
 
@@ -263,14 +271,14 @@ export function determine_mentees(passed_bar)
 // Returns all mentor bars from passed bar
 export function determine_mentor_bars(passed_bar)
 {
-    return passed_bar.querySelectorAll(".mentor_management_bar_container");
+    return passed_bar.querySelectorAll(".mentor_management_bar_container_active");
 
 }
 
 // Returns all mentee bars from passed bar
 export function determine_mentee_bars(passed_bar)
 {
-    return passed_bar.querySelectorAll(".mentee_management_bar_container");
+    return passed_bar.querySelectorAll(".mentee_management_bar_container_active");
 
 }
 
@@ -278,6 +286,13 @@ export function determine_mentee_bars(passed_bar)
 export function determine_edit_organization_button(passed_bar)
 {
     return passed_bar.querySelector("#edit_organization_button");
+
+}
+
+// Returns view profile button from passed bar
+export function determine_view_button(passed_bar)
+{
+    return passed_bar.querySelector("#view_button");
 
 }
 
@@ -866,7 +881,7 @@ export function determine_if_organization_name_unique(new_organization_name)
 // Refresh the determiner variable for all organization bars 
 export function deteremine_and_refresh_all_organization_bars()
 {
-    organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar_container");
+    organization_bars = mentor_bar_container.querySelectorAll(".organization_management_bar_container_active");
 
 }
 
@@ -890,11 +905,59 @@ export function determine_if_organization_is_empty(passed_organiation)
 
 }
 
-// Returns value based on if passed button element is a word
+// Returns value based on if passed button element is a word button
 export function determine_if_word_button(passsed_button)
 {
     // Checks passed button's class list and check if it has an active or inactive class for word buttons
-    return (passsed_button.classList.contains("admin_user_management_word_button_active") || passsed_button.classList.contains("admin_user_management_word_button_inactive"))
+    return (passsed_button.classList.contains("admin_user_management_word_button_active") || passsed_button.classList.contains("admin_user_management_word_button_inactive"));
+
+}
+
+// Return value based on if passed button element is a button
+export function deteremine_if_button(passed_button)
+{
+    // Checks passed button's class list and check if it has an active or inactive class for buttons
+    return (passed_button.classList.contains("admin_user_management_button_clear_active") || passed_button.classList.contains("admin_user_management_button_clear_inactive"));
+
+}
+
+// Return value based on if passed bar element is a user mentor bar
+export function determine_if_user_mentor_bar(passed_bar)
+{
+    // Checks passed bar's class list and check if it has an active or inactive class for user mentor bar
+    return (passed_bar.classList.contains("mentor_management_bar_container_active") || passed_bar.classList.contains("mentor_management_bar_container_inactive"));
+
+}
+
+// Return value based on if passed bar element is a user mentee bar
+export function determine_if_user_mentee_bar(passed_bar)
+{
+    // Checks passed bar's class list and check if it has an active or inactive class for user mentee bar
+    return (passed_bar.classList.contains("mentee_management_bar_container_active") || passed_bar.classList.contains("mentee_management_bar_container_inactive"));
+
+}
+
+// Return value based on if passed bar element is an organization bar
+export function deteremine_if_organization(passed_bar)
+{
+    // Checks passed bar's class list and check if it has an active or inactive class for organization bar
+    return (passed_bar.classList.contains("organization_management_bar_container_active") || passed_bar.classList.contains("organization_management_bar_container_inactive"));
+
+}
+
+// Return value based on if passed bar element is an create organization message bar
+export function deteremine_if_create_organization_message_bar(passed_bar)
+{
+    // Checks passed bar's class list and check if it has as active or inactive class for create organization message bar
+    return (passed_bar.classList.contains("create_organization_message_bar_active") || passed_bar.classList.contains("create_organization_message_bar_inactive"));
+
+}
+
+// Return value based on if passed bar element is an user mangement message bar
+export function deteremine_if_user_maanagement_message_bar(passed_bar)
+{
+    // Checks passed bar's class list and check if it has as active or inactive class for create organization message bar
+    return (passed_bar.classList.contains("user_management_message_bar_active") || passed_bar.classList.contains("user_management_message_bar_inactive"));
 
 }
 
@@ -978,7 +1041,7 @@ export function determine_bar_filter_buttons()
 //     for (let index = 0; index < mentor_bars.length; index++) {
 //     // mentor_bars.forEach(mentor_bar => {
 //         // Check if mentor bars bar's parent element class list if it is a oragnization bar
-//         if (mentor_bars[index].parentNode.parentNode.classList.contains("organization_management_bar_container"))
+//         if (mentor_bars[index].parentNode.parentNode.classList.contains("organization_management_bar_container_active"))
 //         {
 //             // Set no unaffiliated mentors flag to true
 //             no_unaffiliated_mentors_flag = true;
@@ -997,53 +1060,4 @@ export function determine_bar_filter_buttons()
 
 //     return no_unaffiliated_mentors_flag;
 
-// }
-
-
-
-
-
-
-
-
-// // Returns elements from any bar
-// // Returns organization management bar container from any organization bar
-// export function determine_organization_management_bar_container()
-// {
-//     // Determine mentor bar container 
-//     const mentor_bar_container = determine_mentor_bar_container();
-
-//     return mentor_bar_container.querySelector(".organization_management_bar_container");
-
-// }
-
-
-// // Returns list of mentors within admin list of expept for passed user_bar
-// export function return_mentor_list_all_but_passed_mentor_bars(organization_bar, user_bar)
-// {
-//     // Initlize return list to an empty list
-//     let return_mentor_list = [];
-
-//     // Determine mentor list in organization bar
-//     const mentor_list = determine_organization_mentor_list(organization_bar);
-
-//     // Determine mentors of mentor list
-//     const current_mentors = determine_mentor_bars(mentor_list);
-
-//     // Check if current list is not empty
-//     if (current_mentors != null)
-//     {
-//         // Cycle through current mentors
-//         current_mentors.forEach(current_mentor => {
-//             // Check if current admin is the same as user id
-//             if (current_mentor != user_bar)
-//             {
-//                 // Push current mentor into return mentor list
-//                 return_mentor_list.push(current_mentor);
-
-//             }
-//         });
-//     }
-
-//     return return_mentor_list;
 // }

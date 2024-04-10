@@ -2,6 +2,7 @@
 import * as determiners from "./determiners.js";
 import * as updaters from "./updaters.js";
 import * as sorters from "./sorting.js";
+import * as filters from "./filtering.js";
 
 // Enum values for event types
 const EVENT_TYPES = {
@@ -71,6 +72,12 @@ class queue
 
     }
 
+    cancel()
+    {
+        this.events = this.events.slice(0, -1);
+
+    }
+
     isEmpty()
     {
         return (this.events.length == 0);
@@ -83,6 +90,8 @@ let add_mentor_flag = 0;
 let remove_mentor_flag = 0;
 let edit_organization_flag = 0;
 let transfer_role_flag = 0;
+let execution_flag = 0;
+
 
 // Create valid mentee user bar storage
 let valid_mentor_bars = []
@@ -400,32 +409,32 @@ function remove_queue_elements()
 
 // Function checks if the queue is not empty and then will check for flag and first events for add mentor, remove mentor, 
 // edit organiztion, or transfer role. Else will do nothing
-function check_cancel_event()
+export function check_cancel_event()
 {
     // Check if event queue is not empty
     if (!event_queue.isEmpty())
     {
         // Check if add event is in progress and last event is a add mentor mentee event
-        if (add_mentor_flag & event_queue.peek_end().type == EVENT_TYPES.ADD_MENTOR_MENTEE)
+        if (add_mentor_flag && event_queue.peek_end().type == EVENT_TYPES.ADD_MENTOR_MENTEE)
         {
             // Cancel add mentor event
             cancel_add_mentor_event();
 
         }
         // Check if remove event is in progress and last event is a remove mentor event
-        else if (remove_mentor_flag & event_queue.peek_end().type == EVENT_TYPES.REMOVE_MENTOR_MENTEE)
+        else if (remove_mentor_flag && event_queue.peek_end().type == EVENT_TYPES.REMOVE_MENTOR_MENTEE)
         {
             cancel_remove_mentor_event();
 
         }
         // Check if edit organization is in progess and last event is a edit organization mentor event
-        else if (edit_organization_flag & event_queue.peek_end().type == EVENT_TYPES.EDIT_ORGANIZATION_MENTOR)
+        else if (edit_organization_flag && event_queue.peek_end().type == EVENT_TYPES.EDIT_ORGANIZATION_MENTOR)
         {
             cancel_edit_organization_event();
 
         }
         // Check if transfer role is in progress and last event is a transfer role super first event
-        else if (transfer_role_flag & event_queue.peek_end().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST)
+        else if (transfer_role_flag && event_queue.peek_end().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST)
         {
             cancel_transfer_role_event();
 
@@ -437,11 +446,10 @@ function check_cancel_event()
 function cancel_add_mentor_event()
 {
     // Determine prev user bar
-    // const mentee_bar = determiners.return_mentee_bar_from_id(event_queue.peek_end().data);
     const mentee_bar = determiners.return_mentee_bar_from_user_id(event_queue.peek_end().data);
 
     // Remove add mentor mentee event
-    event_queue.dequeue();
+    event_queue.cancel();
 
     // Reset add mentor flag
     add_mentor_flag = 0;
@@ -458,11 +466,10 @@ function cancel_add_mentor_event()
 function cancel_remove_mentor_event()
 {
     // Determine prev user bar
-    // const mentee_bar = determiners.return_mentee_bar_from_id(event_queue.peek_end().data);
     const mentee_bar = determiners.return_mentee_bar_from_user_id(event_queue.peek_end().data);
 
     // Remove remove mentor mentee event
-    event_queue.dequeue();
+    event_queue.cancel();
 
     // Reset remove mentor flag
     remove_mentor_flag = 0;
@@ -472,6 +479,7 @@ function cancel_remove_mentor_event()
 
     // Determine and reset remove button style
     updaters.update_off_button_style(determiners.determine_remove_button(mentee_bar));
+
 }
 
 // Function remvoes the last queue in the event queue, then resets the edit organiztion flag, then update buttons
@@ -481,7 +489,7 @@ function cancel_edit_organization_event()
     const mentor_bar = determiners.return_mentor_bar_from_id(event_queue.peek_end().data);
 
     // Remove promote organzation event
-    event_queue.dequeue();
+    event_queue.cancel();
 
     // Reset promote organzation flag
     edit_organization_flag = 0;
@@ -491,6 +499,7 @@ function cancel_edit_organization_event()
 
     // Determeine and reset edit organiztion button style
     updaters.update_off_button_style(determiners.determine_edit_organization_button(mentor_bar));
+
 }
 
 // Function remvoes the last queue in the event queue, then resets the transfer role flag, then update buttons
@@ -500,7 +509,7 @@ function cancel_transfer_role_event()
     const mentor_bar = determiners.return_mentor_bar_from_id(event_queue.peek_end().data);
 
     // Remove promote organzation event
-    event_queue.dequeue();
+    event_queue.cancel();
 
     // Reset transfer role flag
     transfer_role_flag = 0;
@@ -510,6 +519,7 @@ function cancel_transfer_role_event()
 
     // Determine and reset transfer role button button style
     updaters.update_off_button_style( determiners.determine_transfer_role_super_admin_button(mentor_bar));
+
 }
 
 
@@ -572,9 +582,6 @@ function edit_organization_event(organization_bar)
             // Add mentor bar to organization bar
             updaters.update_add_to_organization(organization_bar, mentor_bar);
 
-            // Add decouple button to mentor bar
-            updaters.update_button_showing(determiners.determine_decouple_button(mentor_bar));
-
             // Determine and pass edit organization button to be set off
             updaters.update_off_button_style(determiners.determine_edit_organization_button(mentor_bar));
 
@@ -613,7 +620,6 @@ function add_mentor_event(user_bar)
     const user_id = determiners.determine_user_id(user_bar);
 
     // Determine prev user bar from id
-    // const prev_user_bar = determiners.return_mentee_bar_from_id(prev_event.data);
     const prev_user_bar = determiners.return_mentee_bar_from_user_id(prev_event.data);
 
     // Determine add buttons from mentee bar
@@ -657,7 +663,6 @@ function remove_mentor_event(user_bar)
     const user_id = determiners.determine_user_id(user_bar);
 
     // Create stroage for temp user bar
-    // const prev_user_bar = determiners.return_mentee_bar_from_id(prev_event.data);
     const prev_user_bar = determiners.return_mentee_bar_from_user_id(prev_event.data);
 
     // Determine user mentee element from user bar
@@ -713,7 +718,6 @@ function transfer_role_event(user_bar)
     let prev_event = event_queue.peek_end();
 
     // Create stroage for temp user bar
-    // const prev_user_bar = determiners.return_mentee_bar_from_id(prev_event.data);
     const prev_user_bar = determiners.return_mentor_bar_from_id(prev_event.data);
 
     // Determine transfer role button from mentor bar
@@ -811,62 +815,78 @@ function transfer_role_event(user_bar)
 // message to successful save message, else will update user management message to unsucessful save message and remove and queue elements.
 export async function save_event()
 {
-    // Intintlize valid flag to false
-    let valid_flag = false;
-
-    // Determine user mangement message element
-    const user_management_message = determiners.determine_user_management_message();
-
-    // Check and cancel last event if needed
-    check_cancel_event();
-
-    // Check event queue
-    if (execute_events())
+    // Check execution flag is not true
+    if (!execution_flag)
     {
-        // Set valid flag to true 
-        valid_flag = true;
+        // Intintlize valid flag to false
+        let valid_flag = false;
 
-        // Set valid flag execute request queue value
-        // TODO TESTING UNCOMMENT WHEN READY TO EXECUTE
-        valid_flag = await execute_request(execution_queue);
+        // Set execution flag to be true
+        execution_flag = 1;
 
-        // Check if not valid reponse
-        if (!valid_flag)
+        // Set loading overlay to show 
+        updaters.update_loading();
+
+        // Determine user mangement message element
+        const user_management_message = determiners.determine_user_management_message();
+
+        // Check and cancel last event if needed
+        check_cancel_event();
+
+        // Check event queue
+        if (execute_events())
         {
-            // Create and store error event in queue
-            event_queue.enqueue("Database error", "Invalid request to database");
+            // Set valid flag to true 
+            valid_flag = true;
+
+            // Set valid flag execute request queue value
+            // TODO TESTING UNCOMMENT WHEN READY TO EXECUTE
+            valid_flag = await execute_request(execution_queue);
+
+            // Check if not valid reponse
+            if (!valid_flag)
+            {
+                // Create and store error event in queue
+                event_queue.enqueue("Database error", "Invalid request to database");
+
+            }
 
         }
 
+        // Check if valid execution
+        if (valid_flag)
+        {
+            // Update user management message with successful message
+            user_management_message.innerHTML = "Save Successful";
+
+            // Update user management to be visable
+            updaters.update_show(user_management_message);
+            
+        }
+        // Else save was unsuccessful
+        else
+        {
+            // Store current event in queue
+            const current_event = event_queue.dequeue();
+
+            // Update user management message with unsucessful message
+            user_management_message.innerHTML = "Error: type = " + current_event.type + ", data = " + current_event.data;
+
+            // Update user management to be visable
+            updaters.update_show(user_management_message);
+
+            // Remove queue elements
+            remove_queue_elements();
+
+        }
+
+        // Set exectuon flag to be off
+        execution_flag = 0;
+
+        // Set loading overlay to not show
+        updaters.update_not_loading();
+
     }
-
-    // Check if valid execution
-    if (valid_flag)
-    {
-        // Update user management message with successful message
-        user_management_message.innerHTML = "Save Successful";
-
-        // Update user management to be visable
-        updaters.update_bar_visible(user_management_message);
-        
-    }
-    // Else save was unsuccessful
-    else
-    {
-        // Store current event in queue
-        const current_event = event_queue.dequeue();
-
-        // Update user management message with unsucessful message
-        user_management_message.innerHTML = "Error: type = " + current_event.type + ", data = " + current_event.data;
-
-        // Update user management to be visable
-        updaters.update_bar_visible(user_management_message);
-
-        // Remove queue elements
-        remove_queue_elements();
-
-    }
-
 }
 
 // Function will remove and user mangement message being displayed if queue is empty, else will update message to display a cancel
@@ -881,7 +901,7 @@ export function cancel_event()
     {
         // Queue is empty
         // Update user management to be hidden
-        updaters.update_bar_hidden(user_management_message);
+        updaters.update_not_show(user_management_message);
 
     }
     else
@@ -891,7 +911,7 @@ export function cancel_event()
         user_management_message.innerHTML = "Canceled queue of events";
 
         // Update user management to be visable
-        updaters.update_bar_visible(user_management_message);
+        updaters.update_show(user_management_message);
 
         // Cancel queue
         remove_queue_elements();
@@ -914,8 +934,29 @@ export function mentee_clicked_event(mentee_bar)
 
 export function view_event(user_bar)
 {
-    // Redirects to user page using the id in the user_bar
-    alert("view");
+    // Determeine user account value
+    const user_id = determiners.determine_user_id(user_bar);
+
+    // Check and cancel last event if needed
+    check_cancel_event();
+
+    // Check that user id is not null
+    if (user_id != null)
+    {
+        // Attempt to view user profile page
+        view_profile(determiners.determine_id_from_string(user_id));
+        
+    }
+}
+
+export function view_mentee_event(user_bar)
+{
+    // Check and cancel last event if needed
+    check_cancel_event(); 
+
+    // Attempt to filter mentee bars by clicked user bar
+    filters.attempt_mentor_mentee_filter(user_bar);
+
 }
 
 // Function will takes in user bar, checks it is not disabled or toggled and has a mentor, cancel in progress event creation. If disabled will do
@@ -1075,10 +1116,6 @@ export function disable_event(user_bar)
                 // Check if there is a mentor
                 if (mentor_bar != null)
                 {
-                    // Create and store remove mentor events to remove mentor in queue
-                    event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, mentee_id);
-                    event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
-
                     // Update mentor bar to remove mentee from mentee list
                     updaters.update_decerment_mentor_mentees(mentor_bar, mentee_id);
 
@@ -1099,10 +1136,6 @@ export function disable_event(user_bar)
 
                 // Determine mentee id from mentee bar
                 mentee_id = determiners.determine_id(mentee_bar);
-
-                // Create and store remove mentor events to remove mentor in queue
-                event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, mentee_id);
-                event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
 
                 // Update mentor bar to remove mentee id and decremenent
                 updaters.update_decerment_mentor_mentees(user_bar, mentee_id);
@@ -1193,35 +1226,6 @@ export function mentor_clicked_event(user_bar)
     
     }
 }
-
-// export function promote_super_mentor_event(user_bar)
-// {
-//     // Check if account is not disabled
-//     if (!determiners.determine_disabled_value(user_bar))
-//     {
-//         // Determine user id from hidden value in passed user bar
-//         const user_id = determiners.determine_id(user_bar);
-
-//         // Determine session user bar
-//         const session_user_bar = determiners.determine_session_user_bar();
-
-//         // Determine session user id
-//         const session_user_id = determiners.determine_id(session_user_bar);
-
-//         // Determine promote super button
-//         const promote_super_button = determiners.determine_promote_super_button(user_bar);
-
-//         // Hide promote super button from promoted user bar
-//         updaters.update_mentor_bar_remove_promote_super_button(promote_super_button);
-
-//         // Create and store promote organization mentor event in queue
-//         event_queue.enqueue(EVENT_TYPES.PROMOTE_SUPER_FIRST, session_user_id);
-
-//         // Create and store promote organization organzation event in queue
-//         event_queue.enqueue(EVENT_TYPES.PROMOTE_SUPER_SECOND, user_id);
-        
-//     }
-// }
 
 // Function takes in user bar element, will cancel in progress event creation, attempts to promote mentor to organization adminn and add promote organization admin event,
 // Checks if user bar's organziation bar is valid, if so will demote current organization admin, promote passed user bar organization, update button styling, sort bar mentor elements,
@@ -1474,10 +1478,7 @@ export function decouple_mentor_event(user_bar)
 
     // Remove mentor bar from organization to unaffiliated mentors
     updaters.update_remove_from_organization(user_bar);
-
-    // Remove decouple button from mentor bar
-    updaters.update_button_not_showing(determiners.determine_decouple_button(user_bar));
-
+    
     // Update organization transfer buttons
     updaters.update_organization_transfer_buttons(organization_bar);
 
@@ -1521,8 +1522,19 @@ export function create_orgnization_event()
     const new_organization_name = new_organization_name_element.value.trim();
     new_organization_name_element.value = "";
 
+    // Check if name input is an empty string
+    if (new_organization_name == "")
+    {
+        // Name is empty
+        // Update message to empty string
+        message_bar_element.innerHTML = "";
+
+        // Show message is not already
+        updaters.update_not_show(message_bar_element);
+
+    }
     // Check if there already an organization with that name
-    if (determiners.determine_if_organization_name_unique(new_organization_name))
+    else if (determiners.determine_if_organization_name_unique(new_organization_name))
     {
         // Name is unique
         // Update organization counter value to increase by 1
@@ -1541,11 +1553,12 @@ export function create_orgnization_event()
         // Update message to creation valid
         message_bar_element.innerHTML = new_organization_name + " creation is valid";
 
-        // Show message if visable
-        updaters.update_bar_visible(message_bar_element);
+        // Show message if created
+        updaters.update_show(message_bar_element);
 
         // Create and store add organzation organization event in queue
         event_queue.enqueue(EVENT_TYPES.CREATE_ORGANIZATION, new_organization_name);
+
     }
     else
     {
@@ -1554,7 +1567,8 @@ export function create_orgnization_event()
         message_bar_element.innerHTML = "Error: " + new_organization_name +" is non-unique";
 
         // Show message is hidden
-        updaters.update_bar_visible(message_bar_element);
+        updaters.update_show(message_bar_element);
+
     }
 
 }
@@ -1586,7 +1600,7 @@ export function remove_organization_event(organization_bar)
         message_bar_element.innerHTML = "";
 
         // Update user management message to hidden
-        updaters.update_bar_hidden(message_bar_element);
+        updaters.update_not_show(message_bar_element);
 
         // Create and store remove organzation organization event in queue
         event_queue.enqueue(EVENT_TYPES.REMOVE_ORGANIZATION, organization_id);
@@ -1598,7 +1612,7 @@ export function remove_organization_event(organization_bar)
         message_bar_element.innerHTML = "Error: " + organization_name + " is not empty";
 
         // Update user management message to show
-        updaters.update_bar_visible(message_bar_element);
+        updaters.update_show(message_bar_element);
 
     }
 }

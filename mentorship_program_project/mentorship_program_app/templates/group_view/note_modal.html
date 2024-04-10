@@ -15,21 +15,21 @@
             
             <div class="container">
                 <h3 class="heading">Note Title:</h3>
-                <input {%if not is_page_owner%}readonly{%endif%} type="text" id="note-title-input" name="note-title" value="{% if note%}{{note.title}}{%endif%}" class="user-input">
+                <input {%if not is_page_owner%}readonly{%endif%} type="text" id="note-title-input" name="note-title" maxlength="100" value="{% if note%}{{note.title}}{%endif%}" class="user-input">
             </div>
             
             
             <div class="container">
                 <h3 class="heading">Public Notes:</h3>
                 <p class="subheading">Notes visible to anyone with access to group page.</p>
-                <textarea {%if not is_page_owner%}readonly{%endif%} id="public-notes" rows="12" name="public-notes" class="user-input">{%if note%}{{note.public_note}}{%endif%}</textarea>
+                <textarea {%if not is_page_owner%}readonly{%endif%} id="public-notes" rows="12" name="public-notes" maxlength="7000" class="user-input">{%if note%}{{note.public_note}}{%endif%}</textarea>
             </div>
 
             {% if signed_in_user.is_mentor %}
             <div class="container">
                 <h3 class="heading">Private Notes:</h3>
                 <p class="subheading">Notes only visible to you and administrators.</p>
-                <textarea {%if not is_page_owner%}readonly{%endif%} id="private-notes" rows="12" name="private-notes" class="user-input">{%if note%}{{note.private_note}}{%endif%}</textarea>
+                <textarea {%if not is_page_owner%}readonly{%endif%} id="private-notes" rows="12" name="private-notes" maxlength="7000" class="user-input">{%if note%}{{note.private_note}}{%endif%}</textarea>
             </div>
             {% endif %}
             
@@ -39,7 +39,7 @@
                     <!-- CLASS 'btn-update-note' IS USED IN JAVASCRIPT | BE VERY CAREFUL WHEN CHANGING-->
                     <button type="submit" class="btn-update-note btn-modal-submit" id="btn-create-note">Apply Changes</button> 
                 {% else %}
-                    <button type="submit" class="btn-modal-submit" id="btn-create-note">Create Note</button>
+                    <button type="button" class="btn-modal-submit" id="btn-create-note">Create Note</button>
                 {% endif %}
             {% endif %}
         </form>

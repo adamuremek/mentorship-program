@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="mentee_management_bar_container">
+<div class="mentee_management_bar_container_active">
     <div class="mentee_management_bar" >
         <div id="account">
             {{ mentee.id }}
@@ -55,7 +55,7 @@
             </button>
         {% endif %}
         
-        <button class="admin_user_management_button_clear_active" id="{{mentee.account.id}}" title="View account page">
+        <button class="admin_user_management_button_clear_active" id="view_button" title="View account page">
             <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
         </button>
 
@@ -80,9 +80,3 @@
         {% endif %}
     </div>
 </div>
-
-<script>
-    document.getElementById("{{ mentee.account.id }}").addEventListener("click", function() {
-      window.location.href = "{% url 'universal_profile' mentee.account.id %}";
-    });
-</script>

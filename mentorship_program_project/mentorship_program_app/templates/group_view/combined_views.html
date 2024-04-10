@@ -24,7 +24,7 @@
                 </a>
             </div>
             <div class="profile-container">
-                <img src="{{page_owner_user.profile_img.img.url}}" id="profile_pic" class="profile-picture">
+                <img src="{{page_owner_profile_url}}" id="profile_pic" class="profile-picture">
                 <div id="edit_profile_overlay" class="profile-picture-edit-overlay" style="display: none;">
                     Change Photo
                 </div>
@@ -286,6 +286,7 @@
 
     removeButton = document.getElementById('remove-btn');
 
+    if(removeButton)
     removeButton.addEventListener('click', function () {
         confirmationBln = confirm('Are you sure you want to remove this user?');
 
@@ -304,7 +305,7 @@
     acceptButton = document.getElementById('accept-mentee-btn');
     cur_num_mentees = document.querySelectorAll('#current-mentee').length;
 
-
+    if(acceptButton)
     acceptButton.addEventListener('click', function () {
         //message for if user just filled their capacity
         if (cur_num_mentees == (max_mentees_value - 1)) {
@@ -444,6 +445,15 @@
                 alert('The file is too large. Please upload a file smaller than 4.5 MB.')
                 return // Stop the function
             }
+            
+            if (
+                file.type !== 'image/jpeg' &&
+                file.type !== 'image/png' &&
+                file.type !== 'image/gif'
+            ) {
+                alert('Please upload a PNG, JPEG, or GIF image file.');
+                return; // Stop the function
+            }
 
             let reader = new FileReader();
             reader.onload = function (e) {
@@ -465,7 +475,7 @@
     <script>
 
         // -------------------- <<< DO NOT DELETE >>> -------------------- \\
-        // -------------------- <<< NOT USELESS >>> -------------------- \\
+        // -------------------- <<< NOTES CODE >>> -------------------- \\
 
         const btn_add_note = document.getElementById('btn-add-note');
 
@@ -480,12 +490,29 @@
         const add_modal = Array.from(lst_note_modal).pop()
 
         // Don't worry about this for a second ;)
+        // Actually just dont worry about it
+        // If you can't understand it I dont care
         if(btn_add_note)
+        {
             btn_add_note.addEventListener('click', () => add_modal.showModal())
+            const btn_submit = add_modal.querySelector('#btn-create-note')
+            const title = add_modal.querySelector('#note-title-input');
+            const input_public = add_modal.querySelector('#public-notes');
+            const input_private = add_modal.querySelector('#private-notes');
+            const note_form = add_modal.querySelector('#note-form');
+            
+            btn_submit.addEventListener('click', () => {
+                if(title.value.length > 0 && (input_public.value.length > 0 || input_private.value.length > 0)) 
+                    note_form.submit()
+                
+                else if(title.value.length == 0)
+                    title.focus()
+                
+                else if(input_public.value.length == 0 || input_private.value.length == 0)
+                    input_public.focus()
+            })
+        }
 
-        console.log(lst_note_modal)
-        console.log('what the hell')
-        console.log(lst_btn_view_note)
         if(lst_btn_view_note.length > 0)
             for(let i = 0; i < lst_btn_view_note.length; i++) 
                 lst_btn_view_note[i].addEventListener('click', () => lst_note_modal[i].showModal())

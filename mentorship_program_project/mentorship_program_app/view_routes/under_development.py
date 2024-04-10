@@ -327,16 +327,21 @@ def register_mentee(req: HttpRequest):
     '''
     if req.method == "POST":
         incoming_email: str = req.POST["email"]
+        # Uncomment this if we choose to use the file to verify mentee eligiblity
+        ################################################################
+            # DO NOT DELETE THE 2 LINES THAT ARE COMMENTED OUT BELOW
+        ################################################################
+        # if WhitelistedEmails.objects.filter(str_email=incoming_email).count() == 0:
+        #     return HttpResponse(json.dumps({"warning":"You are currently ineligible to use WINGS"}))
         incoming_plain_text_password = req.POST["password"]
-
 
         # create a new user in the database with the role "Pending"
         pending_mentee_object = Mentee.create_from_plain_text_and_email(incoming_plain_text_password, incoming_email)
-        
+
         # check if the account is already registered
         if pending_mentee_object == User.ErrorCode.AlreadySelectedEmail:
             return HttpResponse(f"Email {incoming_email} already exsists!")
-            
+   
         pending_mentee_object.account.cls_email_address = incoming_email
         pending_mentee_object.account.str_first_name = req.POST["fname"]
         pending_mentee_object.account.str_last_name = req.POST["lname"]
@@ -415,7 +420,7 @@ def view_pending_mentors(req: HttpRequest):
     
     return HttpResponse(template.render(context, req))
 
-
+@security.Decorators.require_login(bad_request_400)
 def change_mentor_status(req: HttpRequest):
     '''
     Description
@@ -442,9 +447,11 @@ def change_mentor_status(req: HttpRequest):
     Adam U. ʕ·͡ᴥ·ʔ
     Andrew P.
     '''
-    #TODO Verify you're an admin
+    session_user = User.from_session(req.session)
+    if (not session_user.is_super_admin()):
+        return bad_request_400("permission denied!")
 
-    if req.method != "POST":
+    if req.method == "POST":
         HttpResponse("wtf")
 
     # Extract mentor ID and status from request data
@@ -452,21 +459,23 @@ def change_mentor_status(req: HttpRequest):
     status = req.POST["status"]
     
     # Retrieve user object based on ID
-    user = User.objects.get(id=mentor_id)
+    mentor_object = User.objects.get(id=mentor_id)
     
     # Update user role and activation status based on provided status                                           
     if status == 'Approved':
-        user.bln_active = True
-        user.str_role = User.Role.MENTOR
-        user.save()
-        mentor_accepted_email(user.cls_email_address)      
+        mentor_object.bln_active = True
+        mentor_object.str_role = User.Role.MENTOR
+        mentor_object.save()
+        mentor_accepted_email(mentor_object.cls_email_address)  
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_APPROVED_EVENT, specified_user=mentor_object, str_details=f"Handled by: {session_user.id}")
     else:
-        mentor_denied_email(user.cls_email_address)
-        user.delete()
-        
-        
+        mentor_denied_email(mentor_object.cls_email_address)
+        #TODO change the mentor object to be deactivated if its deleted the system log for that user is also deleted
+        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DENIED_EVENT, specified_user=mentor_object, str_details=f"Handled by: {session_user.id}")
+        mentor_object.delete()
+
     # Save changes to user object
-    
+
     # Redirect back to the view_pending page
     return redirect("/view_pending")
 
@@ -508,21 +517,19 @@ def disable_user(req:HttpRequest):
     
     # Get the user and set their disabled field to True
     user = User.objects.get(id=id)
-    User.disable_user(user)
-
+    User.disable_user(user, "User was deactivated")
+    
     if(user.str_role == "Mentee"):
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
         if not user.account.mentor == None:
            mentor = User.objects.get(id=Mentor.objects.get(id=user.account.mentor).account_id)
            send_to = mentor.cls_email_address
            your_mentor_quit(send_to , "Mentee")
     else:
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
         mentees_for_mentor = user.mentor.mentee_set.all()
         for mentee in mentees_for_mentor:
             send_to = User.objects.get(id=mentee.account_id)
             email_address = send_to.cls_email_address
-            your_mentor_quit(send_to, "Mentor")
+            your_mentor_quit(email_address, "Mentor")
 
 
     return HttpResponse(f"user {id}'s status has been changed to disabled")
@@ -711,6 +718,46 @@ def remove_note(req: HttpRequest):
 
     return redirect(f"/universal_profile/{user.id}")
 
+def resolve_report(req: HttpRequest):
+    if not User.from_session(req.session).is_super_admin():
+        return bad_request_400("permission denied!")
+
+    if req.method == "POST":
+        # get the id of the report
+        id = req.POST["report-id"]
+        # get the id of the user who was reported
+        user_id = req.POST["user-id"]
+        # the comment from the admin
+        comment = req.POST["comment"] if req.POST["comment"] != None else "No Comment"
+        # decision == true means user was banned
+        decision = 'decision' in req.POST
+        # get the report
+        report = UserReport.objects.get(id=id)
+        report.bln_resolved = True
+        report.date_resolved = timezone.now()
+        report.resolved_comment = comment
+        
+        # if the user was banned, disable their account, and resolve any other issues they have
+        if decision:
+            user = User.objects.get(id=user_id)
+            User.disable_user(user, f"User was deactivated from report: {id}")
+            # get the other outstanding reports
+            other_reports = UserReport.objects.filter(user_id=user_id, bln_resolved=False)
+            
+            for other_report in other_reports:
+                # make sure the report isn't the report we just resolved
+                if report.id != other_report.id:
+                    other_report.bln_resolved = True
+                    other_report.date_resolved = timezone.now()
+                    report.resolved_comment = f"Report was resolved because user was banned for: {comment}"
+                    other_report.save()
+                    SystemLogs.objects.create(str_event=SystemLogs.Event.AUTO_RESOLVE_EVENT, specified_user=user, str_details=f"Report: {other_report.id}")
+        report.save()
+
+        
+
+    return redirect("/admin_reported_users/")
+
 #TODO uncomment this
 #@security.Decorators.require_login(bad_request_400)
 def view_mentor_by_admin(req: HttpRequest):
@@ -841,6 +888,8 @@ def universalProfile(req : HttpRequest, user_id : int):
     max_mentees = None
     num_mentees = None
     
+    # Added this for debug
+    mentees_or_mentor = []
     report_types = UserReport.ReportType.labels
     # get the pending mentorship requests for the page
     if page_owner_user.is_mentee():
@@ -869,12 +918,18 @@ def universalProfile(req : HttpRequest, user_id : int):
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentee_id))
-             
-            
+    
+    # Ensure that the profile picture exist
+    # If not use the default profile picture
+    page_owner_profile_url = page_owner_user.profile_img.img.url
+    if not os.path.exists(str(settings.MEDIA_ROOT) + page_owner_profile_url.replace("/media", "")):
+        page_owner_profile_url = "/media/images/default_profile_picture.png"
+          
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
                 "is_page_owner": is_page_owner,
                 "page_owner_user":page_owner_user,
+                "page_owner_profile_url":page_owner_profile_url,
                 "interests": user_interests,
                 "page_owner_go_fuck_yourself": page_owner_go_fuck_yourself,
                 "all_interests" : all_interests,
@@ -1010,8 +1065,9 @@ def save_profile_info(req : HttpRequest, user_id : int):
 
         # Set Max Mentees
         if page_owner_user.is_mentor():
-            page_owner_user.mentor.int_max_mentees = req.POST["max_mentees"]
-            page_owner_user.mentor.save()
+            if req.POST["max_mentees"]:
+                page_owner_user.mentor.int_max_mentees = req.POST["max_mentees"]
+                page_owner_user.mentor.save()
 
         #Set the new bio
         page_owner_user.str_bio = req.POST["bio"]
@@ -1117,7 +1173,7 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
      David Kennamer *^*
     '''
     user = User.from_session(req.session)
-    print('Hello')
+
     
     
     #if you are a mentee you can only request for yourself
@@ -1193,25 +1249,23 @@ def change_password(req : HttpRequest):
 
 
 def deactivate_your_own_account(req : HttpRequest):
+    """
+    Deactivate really means inactivate <-- huge difference
+    """
     user = User.from_session(req.session)
     if(user.str_role == "Mentee"):
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
         if not user.mentee.mentor == None:
            mentor = User.objects.get(id=Mentor.objects.get(id=user.mentee.mentor_id).account_id)
            send_to = mentor.cls_email_address
            your_mentor_quit(send_to , "Mentee")
     else:
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, specified_user= User.objects.get(id=user.id))
         mentees_for_mentor = user.mentor.mentee_set.all()
         for mentee in mentees_for_mentor:
             send_to = User.objects.get(id=mentee.account_id)
             email_address = send_to.cls_email_address
-            print(email_address)
             your_mentor_quit(email_address, "Mentor")
 
-
-
-    User.make_user_inactive(User.objects.get(id=User.from_session(req.session).id))
+    User.make_user_inactive(User.objects.get(id=User.from_session(req.session).id), "User inactivated their account")
     return redirect('/logout')
 
 
@@ -1254,7 +1308,6 @@ def reset_request(req: HttpRequest):
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
     
     reset_token_email(req, recipient=user.cls_email_address, token=token) # Pass req along with recipient email and token
-    print("email sent to: "+email)
     return HttpResponse(True)
 
 
@@ -1401,7 +1454,6 @@ def process_file(req: HttpRequest):
         try:
             # Read the content of the uploaded file
             file_content = imported_file.read().decode('utf-8').splitlines()
-
             for line in file_content:
                 parts = line.strip().split('\t')
                 if len(parts) < 3:
@@ -1414,7 +1466,7 @@ def process_file(req: HttpRequest):
                     whitelisted_and_present.append(user_tuple)
                 # these users could be added if admin chooses
                 else:
-                    added_users.append(user_tuple)
+                    added_users.append(user_tuple)  
 
             
 
@@ -1422,7 +1474,9 @@ def process_file(req: HttpRequest):
             # the admin can chose to remove these users
             removed_emails = all_whitelisted_emails - {email for email, _, _ in emails_in_file}
             removed_users = [(email, '', '') for email in removed_emails]  
-
+            user_to_deactivate = User.objects.filter(cls_email_address__in=removed_emails)
+            for user in user_to_deactivate:
+                User.disable_user(user, "User was disabled from file upload")
             context = {
                 'added': added_users,
                 'removed': removed_users,
@@ -1466,6 +1520,21 @@ def add_remove_mentees_from_file(req : HttpRequest):
     added_mentees = banana_split[0].split(",") if len(banana_split) > 0 else []
     removed_mentees = banana_split[1].split(",") if len(banana_split) > 1 else []
 
+
+   
+    
+
+    # Reactivate users by setting bln_account_disabled to False
+    reactivate_users = User.objects.filter(cls_email_address__in=added_mentees)
+
+    # Loop through the queryset and update each user object
+    for user in reactivate_users:
+        print(user.cls_email_address)
+        user.bln_account_disabled = False
+        user.save()
+
+
+
     added_list = []
     for mentee_email in added_mentees:
         added_list.append(WhitelistedEmails(str_email=mentee_email))
@@ -1502,7 +1571,6 @@ def promote_org_admin(req : HttpRequest, promoted_mentor_id : int):
 
     # gets the user from the session to check if theyre a super admin
     user_from_session = User.from_session(req.session)
-    print(user_from_session.str_role)
     is_org_admin = False
     
     # if user is not super admin, check if they're the org admin for the org being changed
@@ -1555,8 +1623,11 @@ def edit_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
         return bad_request_400("Permission denied")
     
     mentor_account = Mentor.objects.get(id=mentor_id)
+    
+    old_org = User.objects.get(id=mentor_account.account_id).get_organization()
     new_org = Organization.objects.get(id=org_id)
     mentor_account.organization.set([new_org])
+    SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_ORGANIZATION_CHANGED_EVENT, str_detail=f'Handled by: {user_from_session.id},  {new_org.str_org_name} -> {old_org.id}')
     # mentor_account.organization.remove(new_org)
 
     return HttpResponse("Organization updated")
@@ -1588,9 +1659,7 @@ def remove_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
     user_from_session = User.from_session(req.session)
     if not (user_from_session.is_an_org_admin() or user_from_session.is_super_admin()) :
         return bad_request_400("Permission denied")
-    
 
-    #TODO next of kin for org admin
     mentor_account = Mentor.objects.get(id=mentor_id)
     new_org = Organization.objects.get(id=org_id)
     mentor_account.organization.remove(new_org)
@@ -1623,7 +1692,8 @@ def admin_create_new_org(req : HttpRequest, org_name : str):
     user_from_session = User.from_session(req.session)
     if not user_from_session.is_super_admin():
         return bad_request_400("Permission denied")
-    Organization.objects.create(str_org_name=org_name)
+    org = Organization.objects.create(str_org_name=org_name)
+    SystemLogs.objects.create(str_event=SystemLogs.Event.ORGANIZATION_CREATED_EVENT, str_details=f'Handled by: {user_from_session.id}, Added: {org.str_org_name}')
     return HttpResponse("Organization created")
 
 def admin_delete_org(req: HttpRequest, org_id: int):
@@ -1651,8 +1721,9 @@ def admin_delete_org(req: HttpRequest, org_id: int):
     user_from_session = User.from_session(req.session)
     if not user_from_session.is_super_admin():
         return bad_request_400("Permission denied")
-    
-    Organization.objects.get(id=org_id).delete()
+    org = Organization.objects.get(id=org_id)
+    SystemLogs.objects.create(str_event=SystemLogs.Event.ORGANIZATION_DELETED_EVENT, str_details=f'Handled by: {user_from_session.id}, Deleted: {org.str_org_name}')
+    org.delete()
     return HttpResponse("Organization deleted")
 
 @csrf_exempt
@@ -1680,11 +1751,17 @@ def update_interests(req : HttpRequest):
         # id's and names
         edit_list = post_data["edited"]
 
+        # Event log
+        event_log = []
+
         # add new interests
         added_instances = []
         for interest in add_list:
             added_instances.append(Interest(strInterest=interest, isDefaultInterest=False))
-        Interest.objects.bulk_create(added_instances)
+            
+        # Iterate over all the new interests made and retrieve their str and their id for system log
+        for interest_object in Interest.objects.bulk_create(added_instances):
+            event_log.append(SystemLogs(str_event=SystemLogs.Event.INTERESTS_CREATED_EVENT, str_details=f"{interest_object.id} : {interest_object.strInterest}", specified_user=user_from_session))
 
         # edit existing interests
         ids_to_edit = [int(interest[0]) for interest in edit_list]
@@ -1693,11 +1770,20 @@ def update_interests(req : HttpRequest):
         for interest_object in interests_to_edit:
             new_interest = next((interest[1] for interest in edit_list if str(interest_object.id) == interest[0]), None)
             if new_interest is not None:
+                old_interest = interest_object.strInterest
                 interest_object.strInterest = new_interest
+                event_log.append(SystemLogs(str_event=SystemLogs.Event.INTERESTS_UPDATED_EVENT, str_details=f"{interest_object.id} : {old_interest} -> {new_interest}", specified_user=user_from_session))
 
         Interest.objects.bulk_update(interests_to_edit, ['strInterest'])
+
         # delete interests
-        Interest.objects.filter(id__in=delete_list).delete()
+        interests_to_delete = Interest.objects.filter(id__in=delete_list)
+        for interest in interests_to_delete:
+            event_log.append(SystemLogs(str_event=SystemLogs.Event.INTERESTS_DELETED_EVENT, str_details=f"{interest.id} : {interest.strInterest}", specified_user=user_from_session))
+        interests_to_delete.delete()
+
+        SystemLogs.objects.bulk_create(event_log)
+        
         return HttpResponse("Updated")
     return HttpResponse("Needs to be POST")
 

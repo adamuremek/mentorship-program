@@ -19,7 +19,6 @@ h3 {
 
 .search-name-container {
     display: flex;
-    width: 100%;
 }
 
 .search-name {
@@ -46,6 +45,52 @@ h3 {
     outline: none;
     padding: 0.5em;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.filter-user-type {
+    padding-left: 10px;
+    display: flex;
+}
+
+.filter-user-type span {
+    font-size: 1rem;
+    padding: 0.5rem;
+    white-space: nowrap;
+    width: auto;
+}
+
+.select-user-type {
+    margin-right: auto;
+    font-size: 1rem;
+    width: auto;
+}
+
+.filter-users-container {
+    width: 100%;
+    display: flex;
+    padding-right: 10px;
+}
+
+#show-resolved {
+    align-self: center;
+}
+
+.checkbox-container {
+    display: flex;
+    margin-right: 1em;
+    margin-left: auto;
+}
+
+.reported-user {
+    margin-bottom: 1em;
+}
+
+.reported-user-role{
+    visibility:hidden;
+}
+
+.past-report-container {
+    margin-bottom: 1em;
 }
 
 .filter {

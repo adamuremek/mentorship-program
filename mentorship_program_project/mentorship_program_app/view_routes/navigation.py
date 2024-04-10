@@ -1,4 +1,5 @@
 from django.http import HttpResponse, HttpRequest, FileResponse
+from django.template.defaulttags import register
 from django.template import loader, Template
 from django.shortcuts import get_object_or_404, render, redirect
 from django.conf import settings
@@ -58,6 +59,9 @@ def landing(req):
     Now redirects to dashboard if logged in - Tanner
     """
     if security.is_logged_in(req.session): 
+        u = User.from_session(req.session)
+        if u.is_mentee() and u.mentee.mentor:
+            return redirect(f"/universal_profile/{u.mentee.mentor.account.id}")
         return redirect("/dashboard")
 
     template: Template = loader.get_template('landing_page.html')
@@ -70,7 +74,7 @@ def dashboard(req):
     start_time = get_runtime()
     template = loader.get_template('dashboard/dashboard.html')
     session_user = User.from_session(req.session).sanitize_black_properties()
-
+    #8=========D~~~
     role = session_user.get_database_role_string()
     opposite_role = session_user.get_opposite_database_role_string()
 
@@ -108,9 +112,9 @@ def dashboard(req):
                 'mentee'
         ).order_by(
                 'is_requested_by_session','str_last_name' #make sure all mentors who we can cancel get displayed up top
+        ).exclude(
         )
-
-        users = [user.sanitize_black_properties() for user in card_data]
+        session_user.has_mentor = session_user.mentee.mentor != None
         session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
 
     if opposite_role == "Mentee":
@@ -139,20 +143,17 @@ def dashboard(req):
                 'is_requested_by_session','str_last_name' #make sure requested mentees appear first
         )
 
-        users = [user.sanitize_black_properties() for user in card_data]
+        session_user.has_mentor = False
         session_user.has_maxed_requests_as_mentee = False
         print(f"finished mentee query as mentor @ {get_runtime()-start_time}")
     
     # Retrieve a list of recommended users
     recommended_users = session_user.get_recomended_users()
-    #for u in recommended_users:
-    #    print(u.request_count)
 
-    #filter out existing mentor relationships on the dashboard
     if session_user.is_mentor():
         card_data = card_data.exclude(mentee__mentor__id = session_user.mentor.id)
     elif session_user.is_mentee() and session_user.mentee.mentor:
-        card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
+        card_data = card_data.exclude(mentor__id=session_user.mentee.mentor.id)
 
 
     print(f"finished exlusion @ {get_runtime()-start_time}")
@@ -162,15 +163,28 @@ def dashboard(req):
                                     mentor_count=Count('user', filter=Q(user__str_role=opposite_role))
                                     ).values('strInterest', 'mentor_count')
 
-    # Modified the code here so to not call 3 foreach loops lmk if this breaks anything -JA 
-    #set up the django users to include a property indicateing they have been reqeusted by the current user
+    users = [user.sanitize_black_properties() for user in card_data]
 
 
+    users_with_profile = {}
+    for user in users:
+        page_owner_profile_url = user.profile_img.img.url
+        if not os.path.exists(str(settings.MEDIA_ROOT) + page_owner_profile_url.replace("/media", "")):
+            page_owner_profile_url = "/media/images/default_profile_picture.png"
+
+        users_with_profile[user.id] = page_owner_profile_url
+
+
+    # page_owner_profile_url = page_owner_user.profile_img.img.url
+    # if not os.path.exists(str(settings.MEDIA_ROOT) + page_owner_profile_url.replace("/media", "")):
+    #     page_owner_profile_url = "/media/images/default_profile_picture.png"
+    
     #cache the result of this query so we are not using it in the rendered view
     context = {
                                 # Making sure that there are enough users to display
             "recommended_users": recommended_users[0:4] if len(recommended_users) >= 4 else recommended_users[0:len(recommended_users)], 
-            "all_users"        : users if len(users) >= 4 else [],
+            "all_users"        : users,
+            "users_with_profile": users_with_profile,
             "interests"        : list(interests_with_role_count),
             "session_user"     : session_user,
             "role"             : role
@@ -179,23 +193,30 @@ def dashboard(req):
     
     print("Time for query: ", get_runtime()-start_time)
     render = template.render(context, req)
-
     print("Time: " ,get_runtime()-start_time)
     return HttpResponse(render)
 
 
+@register.filter
+def get_value(dictionary: dict, key):
+    """
+    Authors Adam U. & Jordan A.
+
+    Used to retrieve the dictionary value using a key within the html template.
+    
+    This was put here for the time being, sorry for the crappy definition location!
+    """
+    return dictionary.get(key)
 
 def admin_dashboard(req):
-    """
-    TODO JA
-    """
+
     template = loader.get_template('admin_dashboard.html')
     
 
     overall_stats = get_project_overall_statistics()
     timespan_stats = get_project_time_statistics()
 
-    interests = Interest.objects.all()
+    interests = Interest.objects.all().order_by('id')
 
     context = {
                "active_mentees"              : overall_stats["active_mentees"              ],

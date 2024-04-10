@@ -62,8 +62,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_email = document.getElementById('email');
     const input_phone = document.getElementById('phone');
     const input_password = document.getElementById('password')
+    const input_confirm_password = document.getElementById('confirm-password')
 
-    const input_company = document.getElementById('organization')
+    const input_companyDropD = document.getElementById('select-company-name')
+    const input_companyTextF = document.getElementById('organization')
     // const input_company_type = document.getElementById('company-type')
     // const input_experience = document.getElementById('experience')
     const input_job_title = document.getElementById('jobTitle')
@@ -311,14 +313,12 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     function is_password_valid(){
        
             // Requirement 1: Password should contain 12 or more characters
-            if (input_password.value.length < 12) {
+            if (input_password.value.length < 12)
               return false;
-            }
           
             // Requirement 2: Password should contain 36 or less characters
-            if (input_password.value.length > 36) {
+            if (input_password.value.length > 36)
               return false;
-            }
           
             // Requirement 3: Password should contain a combination of uppercase letters, lowercase letters, at least one number, and at least one symbol
             const uppercaseRegex = /[A-Z]/;
@@ -335,6 +335,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             ) {
               return false;
             }
+
+            // Ensure passwords match
+            if(input_password.value != input_confirm_password.value)
+                return false;
           
             return true;
     }
@@ -367,7 +371,6 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
 
 
-
     function is_mentee_page_valid(form_idx) {
         // If flag becomes false, a form component failed validation
         let is_valid = true
@@ -396,12 +399,33 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     function is_mentor_page_valid(form_idx) {
         // If flag becomes false, a form component failed validation
         let is_valid = true
+
+        //  Take the current selections/entered input for the user's information..... 
+        //  the user's interests, and their response to the user agreement
+        var selected_orgName = input_companyDropD.options[input_companyDropD.selectedIndex].text
+        var selected_OtherText = "Other"
+        var selected_OtherOrgName = input_companyTextF.value
+
         switch (form_idx) {
-           
-            case 3: // company information
-                is_valid = input_company.value.length > 0 &&
-                    input_job_title.value.length > 0
-                //input_company-type.value != none ??
+            case 3:     //  Company information
+                if(selected_orgName == selected_OtherText)
+                {
+                    //  Take info from textfield for the organization name
+                    //  if "Other" was selected from the dropdown
+                    //  (Check if selection is valid).
+                    is_valid = selected_OtherOrgName != selected_OtherText &&
+                        selected_OtherOrgName.length > 0 &&
+                        input_job_title.value.length > 0
+                }
+                else
+                {
+                    //  Otherwise, take the text from what was selected
+                    //  from the dropdown
+                    //  (Check if selection is valid).
+                    is_valid = selected_orgName.length > 0 &&
+                        input_job_title.value.length > 0
+                }
+                //input_companyDropD-type.value != none ??
                 //input_expeience.value != none    ??
                 if(is_valid)
                     reset_error_messages(form_idx)
@@ -467,6 +491,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             password_warning_message.innerText = "Password must be 36 or fewer characters.";
         } else if (!/[A-Z]/.test(input_password.value) || !/[a-z]/.test(input_password.value) || !/[0-9]/.test(input_password.value) || !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(input_password.value) || emojiRegex.test(input_password.value)) {
             password_warning_message.innerText = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.";
+        } else if(input_password.value != input_confirm_password.value) {
+            password_warning_message.innerText = "Passwords must match"
         } else {
             password_warning_message.innerText = "";
         }
@@ -490,21 +516,46 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
     function display_error_message_for_mentor(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
+        var selected_orgName = input_companyDropD.options[input_companyDropD.selectedIndex].text
+        var selected_OtherText = "Other"
+        var selected_OtherOrgName = input_companyTextF.value
 
-        if(input_company.value.length == 0)
-            company_warning_message.innerText = "Company cannot be blank!"
-        else if(input_company.value.length == 1)
-        company_warning_message.innerText = "Company name must be longer than one character."
+        //  If 'Other' has been selected from the dropdown...
+        if(selected_orgName == selected_OtherText)
+        {
+            //  If nothing has been typed for the organization's name...
+            if(selected_OtherOrgName.length == 0)
+                company_warning_message.innerText = "Company cannot be blank!"
+            //  If only 1 character has been typed for the organization's name...
+            else if(selected_OtherOrgName.length == 1)
+                company_warning_message.innerText = "Company name must be longer than one character."
+            //  (Users cannot enter in 'Other' for their company name!)
+            else if(selected_OtherOrgName == selected_OtherText)
+                company_warning_message.innerText = "Company name is invalid. Please enter in another name."
+            //  If nothing has been typed for the organization's name...
+            else
+                company_warning_message.innerText = ""
+        }
+        //  If anything else has been selected from the dropdown...
         else
-            company_warning_message.innerText = ""
-
+        {
+            //  If an empty space has been selected.....
+            if(selected_orgName.length == 0)
+                company_warning_message.innerText = "Company cannot be blank!"
+            //  If a company name has been selected.....
+            else
+                company_warning_message.innerText = ""
+        }
+            
+        //  If nothing has been typed for the the job title.....
         if(input_job_title.value.length == 0)
             job_title_warning_message.innerText = "Job Title cannot be blank!"
+        //  If only 1 character has been typed for the the job title.....
         else if(input_job_title.value.length == 1)
             job_title_warning_message.innerText = "Job Title must be longer than one character."
+        //  Otherwise, if a valid string of characters has been typed for the the job title.....
         else
             job_title_warning_message.innerText = ""
-        
     }
 
     function reset_error_messages(form_idx){

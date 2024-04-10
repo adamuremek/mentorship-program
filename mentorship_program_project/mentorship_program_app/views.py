@@ -44,12 +44,13 @@ import json
 from typing import Union, Dict
 from datetime import date
 
+from django.core import serializers
 from django.http import HttpResponse, HttpRequest
 from django.template import loader
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect
 from django.utils import timezone
-
+from django.shortcuts import get_object_or_404
 from utils import development
 from utils.development import print_debug
 from utils import security
@@ -229,9 +230,13 @@ def register_mentee(req):
 
 def register_mentor(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
+    
     if not Interest.objects.exists():
         Interest.create_default_interests()
-        
+
+    if not Organization.objects.exists():
+        Organization.create_default_company_names()
+
         # C:\Users\andyp\OneDrive\Documents\GitHub\mentorship-program\mentorship_program_project
     
     country_codes : Dict
@@ -240,6 +245,10 @@ def register_mentor(req):
         country_codes = json.load(file)
         country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
     #sorted(json.load(file))
+    
+    org_data_set = Organization.objects.all().values()
+    org_data_json = json.dumps(list(org_data_set))
+    
     context = {
         'interestlist': Interest.objects.all(),
 
@@ -248,10 +257,53 @@ def register_mentor(req):
         
         'country_codes' : country_codes,
 
+        'companyname' : org_data_set.all(),
+        'companyLIST': org_data_json,
+
         'companytypelist': [
+            'Academic Research Group',
+            'Aerospace Engineering',
+            'Agriculture',
+            'Automotive',
+            'Banking',
+            'Business Process Outsourcing',
+            'Chemical Engineering',
+            'College or University',
+            'Construction',
+            'Cybersecurity',
+            'Digital Marketing',
+            'E-commerce',
+            'Energy and Utilities',
+            'Entertainment',
+            'Finance',
+            'Government Agency',
+            'Industrial Automation',
+            'Insurance',
+            'Internet Service Provider (ISP)',
+            'IT Consulting',
+            'IT Services',
+            'Logistics',
             'Manufacturing',
-            'Computer Science', 
-            'Math?'],
+            'Medical',
+            'Mobile App',
+            'Multimedia',
+            'Nonprofit',
+            'Payment Processing',
+            'Pharmaceutical',
+            'Public Health',
+            'Real Estate',
+            'Robotics',
+            'Satellite Communication Provider',
+            'Smart Home',
+            'Software Development Consulting',
+            'Sports Management',
+            'Sporting Events',
+            'Streaming Platform',
+            'Transportation',
+            'Telemedicine',
+            'Video Game Development',
+            'Virtual Reality',
+            'Wireless Communication Provider'],
             
         'experiencelist': [
             '0-4 years',
@@ -263,7 +315,6 @@ def register_mentor(req):
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-
     }
     return HttpResponse(template.render(context, req))
 
@@ -327,7 +378,7 @@ def account_activation_mentor(request):
     context = {}
     return HttpResponse(template.render(context, request))
     
-from django.shortcuts import get_object_or_404
+
 
 def get_mentor_data_from_mentor(mentor : 'Mentor',session_user : 'User')->dict:
     """
@@ -549,7 +600,16 @@ def admin_reported_users(request):
     template = loader.get_template('admin/admin_reported_users.html')
 
     user_reports_dict = UserReport.get_unresolved_reports_grouped_by_user()
-    context = {"user_reports_dict": user_reports_dict}
+    all_reports = UserReport.get_all_reports_grouped_by_user()
+    result = {key: all_reports[key] for key in all_reports if key not in user_reports_dict}
+    resolved_reports = UserReport.get_resolved_reports_grouped_by_user()
+    
+
+    
+    context = {"user_reports_dict": user_reports_dict,
+               "all_reports": all_reports,
+               "resolved_reports":resolved_reports,
+               }
     return HttpResponse(template.render(context,request))
 
 # view goes to mentor_group_view

@@ -154,6 +154,16 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     else:
         you_have_a_new_request(mentor_account.cls_email_address)
 
+
+    # check to make sure a mentorship doesn't already exist
+    mentor_account_mentor = Mentor.objects.get(account_id=mentor_account.id)
+    mentees = Mentee.objects.all().filter(mentor=mentor_account_mentor)
+
+    for mentee in mentees: 
+        if mentee_id == mentee.account_id:
+            return bad_request_400("mentee already in mentorship with this mentor")
+
+
     mentorship_request = MentorshipRequest.create_request(mentor_account.id,mentee_account.id, user.id)
     if type(mentorship_request) == int:
         #there was an error creating the request
@@ -223,15 +233,8 @@ def verify_mentee_ug_status(req : HttpRequest) -> HttpResponse:
     inactive_mentees = User.objects.filter(cls_date_joined__lte=date.today() - relativedelta(years=4), str_role="Mentee", bln_account_disabled=False, bln_active=True)
 
     for mentee in inactive_mentees:
-        #Disable account
-        mentee.bln_account_disabled = True
-
-        #Set inactive
-        mentee.bln_active = False
-        mentee.cls_active_changed_date = date.today()
-        mentee.save()
+        User.disable_user(mentee, "Mentee was deactivated for not being an undergrad")
         # record logs
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user=mentee)
 
     return redirect('/admin_dashboard')
 
@@ -352,7 +355,7 @@ def resolve_report(req: HttpRequest) -> HttpResponse:
         return bad_request_400("\n".join(errors))
     else:
         report_id = req.POST['report_id']
-        UserReport.resolve_report(report_id)
+        UserReport.resolve_report(report_id, user)
         return redirect('/admin_reported_users')
 
 @security.Decorators.require_login(bad_request_400)
@@ -409,6 +412,6 @@ def report_user(req: HttpRequest) -> HttpResponse:
         reported_user_id = req.POST['reported_user_id']
         report_type = req.POST['report_type']
         report_reason = req.POST['report_reason']
-        UserReport.create_user_report(report_type, report_reason, reported_user_id)
+        UserReport.create_user_report(user, report_type, report_reason, reported_user_id)
         alert_admins_of_reported_user()
         return redirect('/universal_profile/' + reported_user_id)

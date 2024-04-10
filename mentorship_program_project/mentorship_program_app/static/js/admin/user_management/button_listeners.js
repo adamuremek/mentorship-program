@@ -29,7 +29,7 @@ const add_new_organization_modal = detereminers.determine_add_new_organization_m
 
 
 // Set save button listener
-save_button.addEventListener('click', event_queue.save_event);
+save_button.addEventListener('click',  event_queue.save_event);
 
 // Set cancel button listener
 cancel_button.addEventListener('click', event_queue.cancel_event);
@@ -59,23 +59,26 @@ filter_organization_button.addEventListener('click', function() { filters.toggle
 for (let mentee_bar of mentee_bars)
 {
     // Set button listener for add
-    detereminers.determine_add_button(mentee_bar).addEventListener('click', function() { event_queue.add_mentor_mentee_event(mentee_bar) });
+    detereminers.determine_add_button(mentee_bar).addEventListener('click', function() { event_queue.add_mentor_mentee_event(mentee_bar); });
 
     // Set button listener for remove mentor
-    detereminers.determine_remove_button(mentee_bar).addEventListener('click', function() { event_queue.remove_mentor_mentee_event(mentee_bar) });
+    detereminers.determine_remove_button(mentee_bar).addEventListener('click', function() { event_queue.remove_mentor_mentee_event(mentee_bar); });
+
+    // Set button listener for view profile
+    detereminers.determine_view_button(mentee_bar).addEventListener('click', function() { event_queue.view_event(mentee_bar); });
 
     // Check if there deactivate button 
     if (detereminers.determine_disable_button(mentee_bar) != null)
     {
         // Set button listener for deactivate button
-        detereminers.determine_disable_button(mentee_bar).addEventListener('click', function() { event_queue.disable_event(mentee_bar) });
+        detereminers.determine_disable_button(mentee_bar).addEventListener('click', function() { event_queue.disable_event(mentee_bar); });
     }
 
     // Check if there reactivate button 
     if (detereminers.determine_enable_button(mentee_bar) != null)
     {
         // Set button listener for reactivate button
-        detereminers.determine_enable_button(mentee_bar).addEventListener('click', function() { event_queue.reable_event(mentee_bar) });
+        detereminers.determine_enable_button(mentee_bar).addEventListener('click', function() { event_queue.reable_event(mentee_bar); });
     }
 }
 
@@ -86,20 +89,23 @@ for (let mentor_bar of mentor_bars)
     mentor_bar.addEventListener('click', function() { event_queue.mentor_clicked_event(mentor_bar); });
 
     // Set button listener for selecting mentees filter
-    detereminers.determine_mentor_mentee(mentor_bar).addEventListener('click', function() { filters.attempt_mentor_mentee_filter(mentor_bar) });
+    detereminers.determine_mentor_mentee(mentor_bar).addEventListener('click', function() { event_queue.view_mentee_event(mentor_bar); });
+
+    // Set button listener for view profile
+    detereminers.determine_view_button(mentor_bar).addEventListener('click', function() { event_queue.view_event(mentor_bar); });
 
     // Check if there deactivate button 
     if (detereminers.determine_disable_button(mentor_bar) != null)
     {
         // Set button listener for deactivate button
-        detereminers.determine_disable_button(mentor_bar).addEventListener('click', function() { event_queue.disable_event(mentor_bar) });
+        detereminers.determine_disable_button(mentor_bar).addEventListener('click', function() { event_queue.disable_event(mentor_bar); });
     }
 
     // Check if there reactivate button 
     if (detereminers.determine_enable_button(mentor_bar) != null)
     {
         // Set button listener for reactivate button
-        detereminers.determine_enable_button(mentor_bar).addEventListener('click', function() { event_queue.reable_event(mentor_bar) });
+        detereminers.determine_enable_button(mentor_bar).addEventListener('click', function() { event_queue.reable_event(mentor_bar); });
     }
 
     // Set button listener for organization promote button

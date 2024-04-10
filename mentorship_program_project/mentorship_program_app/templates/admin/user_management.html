@@ -13,6 +13,10 @@
 {% endblock %}
 
 {% block main_content %}
+    <div id="loading-overlay">
+        <div class="loading"></div>
+    </div>
+
     <div class="hidden_element" id="organization_counter">
         {{ organization_counter }}
     </div>
@@ -28,7 +32,7 @@
     <div class="admin_user_management_container">
         <div>
             <a href="/dashboard" class="return-link">
-                <p class="admin_user_management_header_elements" id="admin_user_management_small_text"><img src="{% static 'images/white-dropdown-arrow.png' %}" id="address_arrow"> Admin  Dashboard / User Management</p>
+                <p class="admin_user_management_header_elements" id="admin_user_management_small_text"><img src="{% static 'images/left-arrow.png' %}" id="address_arrow"> Admin  Dashboard / User Management</p>
             </a>
             <h1 class="admin_user_management_header_elements" id="admin_user_management_large_text">Mentor Applications</h1>
         </div>
@@ -88,9 +92,7 @@
             </div>
         </div>
 
-        <div class="user_management_message_bar" id="admin_user_management_medium_text">
-            PLACEHOLDER MESSAGE
-        </div>
+        <div class="user_management_message_bar_inactive" id="admin_user_management_medium_text"></div>
         
         <div class="user_board_button_container">
             <button class="admin_user_management_button" id="save_button" title="Save events">Save</button>
