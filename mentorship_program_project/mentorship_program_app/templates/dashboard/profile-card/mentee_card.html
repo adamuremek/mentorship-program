@@ -60,27 +60,31 @@
 		<div class="card-button card-request-btn card-request-btn-user-id:{{ user.id }} 
                             {% if user.is_requested_by_session %}
                             	card-button-cancel
-                            {% elif session_user.has_maxed_requests_as_mentee or session_user.mentor.has_maxed_mentees %}
+                            {% elif session_user.has_maxed_requests_as_mentee or session_user.has_mentor or session_user.mentor.has_maxed_mentees %}
                             	card-button-disabled
 		                    {% endif %}
 		  ">
-		  {% if not user.is_requested_by_session %}
-			  {% if role.value == 'Mentee' %}
-				{% if session_user.has_maxed_requests_as_mentee %}
-					Maximum Request Amount Reached
-				{% else %}
-					Request Mentor
-				{% endif %}
-			  {% else %}
-			  	{% if session_user.mentor.has_maxed_mentees %}
-					Maximum Request Amount Reached
-				{% else %}
-					Request Mentee
-				{% endif %}
-			  {% endif %}
-		  {% else %}
-        	Cancel Request
-		  {% endif %}
+        {% if not session_user.has_mentor %}
+           {% if not user.is_requested_by_session %}
+              {% if role.value == 'Mentee' %}
+               {% if session_user.has_maxed_requests_as_mentee %}
+                  Maximum Request Amount Reached
+               {% else %}
+                  Request Mentor
+               {% endif %}
+              {% else %}
+               {% if session_user.mentor.has_maxed_mentees %}
+                  Maximum Request Amount Reached
+               {% else %}
+                  Request Mentee
+               {% endif %}
+              {% endif %}
+           {% else %}
+            Cancel Request
+           {% endif %}
+        {% else %}
+            Already In A Mentorship
+        {% endif %}
 		</div>
 	
 
