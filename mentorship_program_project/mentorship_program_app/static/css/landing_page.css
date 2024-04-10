@@ -479,7 +479,9 @@ input:-moz-autofill:active {
 
 #forgot-password-container {
     display: block;
-    padding-left: 10px;
+    padding-left: 1em;
+    margin-left: 1em;
+    margin-bottom: 1em;
 }
 
 /* Not needed ~ artifact */
@@ -514,7 +516,7 @@ input:-moz-autofill:active {
     font-weight: 400;
     font-size: .85rem;
     letter-spacing: 1.15px;
-    margin-left: 10px;
+    /*margin-left: 10px;*/
 }
 
 .submit-buttons {
@@ -545,6 +547,7 @@ input:-moz-autofill:active {
 
     font-family: var(--ff-primary);
     color: var(--clr-font-primary);
+
 
     /* Below allows modals to be centered in the screen */
     position: fixed;

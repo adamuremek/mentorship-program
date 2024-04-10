@@ -194,6 +194,7 @@ def THESECONDMOVE(req):
 
 def register_mentee(req):
     template = loader.get_template('sign-in card/single_page_mentee.html')
+    is_mentee : bool = True
     if not Interest.objects.exists():
         Interest.create_default_interests()
     
@@ -206,6 +207,8 @@ def register_mentee(req):
         
     
     context = {
+        'is_mentee' : is_mentee,
+        
         'interestlist':  Interest.objects.all(),
         
         'menteeEmailMessage': "You MUST use your SVSU.EDU email address.",
@@ -234,6 +237,7 @@ def register_mentee(req):
 
 def register_mentor(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
+    is_mentee : bool = False
     if not Interest.objects.exists():
         Interest.create_default_interests()
         
@@ -246,6 +250,7 @@ def register_mentor(req):
         country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
     #sorted(json.load(file))
     context = {
+        'is_mentee' : is_mentee,
         'interestlist': Interest.objects.all(),
 
         'pronounlist1': ['', 'he', 'she', 'they'],
