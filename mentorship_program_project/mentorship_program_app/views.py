@@ -61,7 +61,6 @@ from .models import Interest
 from .models import Mentor
 from .models import UserReport
 from .models import Mentee
-from .models import Company
 
 from .models import MentorshipRequest
 from .models import SystemLogs
@@ -233,8 +232,8 @@ def register_mentor(req):
     
     if not Interest.objects.exists():
         Interest.create_default_interests()
-    if not Company.objects.exists():
-        Company.create_default_company_names()
+    if not Organization.objects.exists():
+        Organization.create_default_company_names()
         
         # C:\Users\andyp\OneDrive\Documents\GitHub\mentorship-program\mentorship_program_project
     
@@ -253,7 +252,7 @@ def register_mentor(req):
         
         'country_codes' : country_codes,
 
-        'companyname': Company.objects.all(),
+        'companyname': Organization.objects.all(),
 
         'companytypelist': [
             'Academic Research Group',

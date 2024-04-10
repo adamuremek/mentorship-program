@@ -1570,6 +1570,81 @@ class Organization(SVSUModelData,Model):
     admin_mentor = OneToOneField('Mentor', related_name='administered_organizations', on_delete=models.CASCADE, null=True) 
 
 
+    @staticmethod
+    def create_org(str_org : str, str_orgType : str = None) -> 'Organization' :
+        try:
+            return Organization.objects.create(
+                str_org_name = str_org,
+                str_industry_type = str_orgType
+            )
+        except :
+            return None
+    
+    @staticmethod
+    def get_org(str_name : str) -> 'Organization' :
+        try:
+            return Organization.objects.filter(str_org_name = str_name).first()
+        except:
+            return None
+
+    @staticmethod
+    def update_orgName(str_name : str, str_new_org_name : str = None) -> 'Organization' :
+        try:
+            company : 'Organization' = Organization.objects.filter(str_org_name = str_name)
+        
+            if str_new_org_name != None :
+                company.str_org_name = str_new_org_name
+
+            company.save()
+
+            return company
+        except:
+            return None
+        
+    @staticmethod
+    def update_orgType(str_name : str, str_new_company_type : str = None) -> 'Organization' :
+        try:
+            company : 'Organization' = Organization.objects.filter(str_org_name = str_name)
+        
+            if str_new_company_type != None :
+                company.str_industry_type = str_new_company_type
+
+            company.save()
+
+            return company
+        except:
+            return None
+        
+    @staticmethod
+    def create_default_company_names():
+        default_company_names = [
+            "Auto Owner's Insurance",
+            "Dow",
+            "Google"]
+        
+        for company in default_company_names:
+            Organization.get_or_create_company_name(company)
+    
+    @staticmethod
+    def delete_company(str_name : str) -> 'Organization' :
+        try:
+            company : 'Organization' = Organization.objects.filter(str_org_name = str_name)
+            company.delete()
+
+            return company
+        except:
+            return None
+        
+    @staticmethod
+    def get_or_create_company_name(str_name : str) -> 'Organization':
+        try:
+            ret_company = Organization.objects.get(str_org_name = str_name)
+            return ret_company
+        except ObjectDoesNotExist:
+            #TODO: put in try catch to account for connection issues
+            Organization.objects.create(str_org_name=str_name).save()
+
+
 class Mentor(SVSUModelData,Model):
     """
     Description
@@ -2896,109 +2971,3 @@ class PasswordResetToken(models.Model):
 class WhitelistedEmails(SVSUModelData,Model):
     # 320 is max length of an email address
     str_email = CharField(max_length = 320)
-
-
-class Company(SVSUModelData,Model):
-    """
-    Description
-    -----------
-    Company is a class that represents database access objects
-    for each company name that a user has entered in.
-    
-    Properties
-    ----------
-
-    
-    Instance Functions
-    ------------------
-    
-
-    Static Functions
-    ----------------
-
-    
-    Magic Functions
-    ---------------
-    NONE
-
-    Authors
-    -------
-    🌟 Isaiah Galaviz 🌟
-    """
-
-    strCompany = CharField(max_length=100, null=False, unique=True)
-    strType = CharField(max_length=100, default=None)
-
-    @staticmethod
-    def create_company(str_company : str, str_companyType : str = None) -> 'Company' :
-        try:
-            return Company.objects.create(
-                strCompany = str_company,
-                strType = str_companyType
-            )
-        except :
-            return None
-    
-    @staticmethod
-    def get_company(str_company_name : str) -> 'Company' :
-        try:
-            return Company.objects.filter(strCompany = str_company_name).first()
-        except:
-            return None
-
-    @staticmethod
-    def update_companyName(str_company_name : str, str_new_company_name : str = None) -> 'Company' :
-        try:
-            company : 'Company' = Company.objects.filter(strCompany = str_company_name)
-        
-            if str_new_company_name != None :
-                company.strCompany = str_new_company_name
-
-            company.save()
-
-            return company
-        except:
-            return None
-        
-    @staticmethod
-    def update_companyType(str_company_name : str, str_new_company_type : str = None) -> 'Company' :
-        try:
-            company : 'Company' = Company.objects.filter(strCompany = str_company_name)
-        
-            if str_new_company_type != None :
-                company.strType = str_new_company_type
-
-            company.save()
-
-            return company
-        except:
-            return None
-        
-    @staticmethod
-    def create_default_company_names():
-        default_company_names = [
-            "Auto Owner's Insurance",
-            "Dow",
-            "Google"]
-        
-        for company in default_company_names:
-            Company.get_or_create_company_name(company)
-    
-    @staticmethod
-    def delete_company(str_company_name : str) -> 'Company' :
-        try:
-            company : 'Company' = Company.objects.filter(strCompany = str_company_name)
-            company.delete()
-
-            return company
-        except:
-            return None
-        
-    @staticmethod
-    def get_or_create_company_name(str_company_name : str) -> 'Company':
-        try:
-            ret_company = Company.objects.get(strCompany = str_company_name)
-            return ret_company
-        except ObjectDoesNotExist:
-            #TODO: put in try catch to account for connection issues
-            Company.objects.create(strCompany=str_company_name).save()
