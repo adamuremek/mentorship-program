@@ -496,16 +496,17 @@ class User(SVSUModelData,Model):
 
 
         sub_query = ""
-        not_taken = ""
+        not_taken = "1=1"
         if self.is_mentee():
             sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
-            
-            not_taken = f"""
-                            SELECT id <> {self.mentee.mentor.id} as value FROM 
-                                    mentorship_program_app_mentor as m 
-                                WHERE
-                                    m.account_id = tu.id
-                        """
+           
+            if self.mentee.mentor:
+                not_taken = f"""
+                                SELECT id <> {self.mentee.mentor.id} as value FROM 
+                                        mentorship_program_app_mentor as m 
+                                    WHERE
+                                        m.account_id = tu.id
+                            """
         else:
             sub_query = \
                 f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id=t1.user_id AND mentor_id={self.id}"

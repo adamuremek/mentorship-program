@@ -109,7 +109,6 @@ def dashboard(req):
         ).order_by(
                 'is_requested_by_session','str_last_name' #make sure all mentors who we can cancel get displayed up top
         ).exclude(
-                mentor__id=session_user.mentee.mentor.id
         )
 
         users = [user.sanitize_black_properties() for user in card_data]
@@ -151,10 +150,11 @@ def dashboard(req):
     #    print(u.request_count)
 
     #filter out existing mentor relationships on the dashboard
+
     if session_user.is_mentor():
         card_data = card_data.exclude(mentee__mentor__id = session_user.mentor.id)
     elif session_user.is_mentee() and session_user.mentee.mentor:
-        card_data = card_data.exclude(id=session_user.mentee.mentor.account.id)
+        card_data = card_data.exclude(mentor__id=session_user.mentee.mentor.id)
 
 
     print(f"finished exlusion @ {get_runtime()-start_time}")
