@@ -7,6 +7,9 @@ jobs:
     if: github.repository == 'adamuremek/mentorship-program'
     runs-on: self-hosted
     steps:
+      - name: Run update script
+        run: /home/k3suser/mentorship-program/ansible/update.sh
+      
       - name: Checkout dev branch 
         uses: actions/checkout@v4
         with:
