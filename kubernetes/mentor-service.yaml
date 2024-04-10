@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mentor-service
+spec:
+  type: ClusterIP
+  selector:
+    app: mentorship_program
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

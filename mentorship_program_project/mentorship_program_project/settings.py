@@ -31,7 +31,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DEBUG', default=True))
+# DEBUG IS SET TO FALSE BY DEFAULT TO FAIL CLOSED
+DEBUG = False
+if os.environ.get('DEBUG'):
+    DEBUG = os.environ.get('DEBUG').lower() == 'true' or os.environ.get('DEBUG').lower() == '1'
 
 if(DEBUG):
     ALLOWED_HOSTS = ['*']
@@ -40,7 +43,7 @@ else:
 
 
 # We need to add any origins that the server is hosted on to this list.
-CSRF_TRUSTED_ORIGINS = ['https://mentorship-program-dev.jordananodjo.com']
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', default='').split(' ')
 
 # Application definition
 
@@ -163,7 +166,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # set up user loaded media urls
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = "/media"
 
 
 #EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend' #####for debuging

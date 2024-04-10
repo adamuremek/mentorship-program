@@ -1,0 +1,12 @@
+all:
+  hosts:
+    server01:
+      ansible_host: 127.0.0.1
+      ansible_user: user
+  children:
+    database_server:
+      hosts:
+        server01:
+    k3s_server:
+      hosts:
+        server01:
