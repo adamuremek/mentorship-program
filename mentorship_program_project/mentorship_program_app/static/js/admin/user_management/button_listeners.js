@@ -29,12 +29,7 @@ const add_new_organization_modal = detereminers.determine_add_new_organization_m
 
 
 // Set save button listener
-save_button.addEventListener('click', ()=>{
-    console.log("what")
-    event_queue.save_event
-    location.reload()
-    console.log("what")
-});
+save_button.addEventListener('click',  event_queue.save_event);
 
 // Set cancel button listener
 cancel_button.addEventListener('click', event_queue.cancel_event);
@@ -94,7 +89,7 @@ for (let mentor_bar of mentor_bars)
     mentor_bar.addEventListener('click', function() { event_queue.mentor_clicked_event(mentor_bar); });
 
     // Set button listener for selecting mentees filter
-    detereminers.determine_mentor_mentee(mentor_bar).addEventListener('click', function() { filters.attempt_mentor_mentee_filter(mentor_bar); });
+    detereminers.determine_mentor_mentee(mentor_bar).addEventListener('click', function() { event_queue.view_mentee_event(mentor_bar); });
 
     // Set button listener for view profile
     detereminers.determine_view_button(mentor_bar).addEventListener('click', function() { event_queue.view_event(mentor_bar); });

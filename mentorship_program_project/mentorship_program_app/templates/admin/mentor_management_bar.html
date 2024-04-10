@@ -80,9 +80,15 @@
             </button>
         
             {% if mentor.account.account != session_user_account %}
-                <button class="admin_user_management_button_clear_active" id="transfer_role_super_admin_button" title="Transfer roles">
-                    <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
-                </button>
+                {% if organization.id %}
+                    <button class="admin_user_management_button_clear_active" id="transfer_role_super_admin_button" title="Transfer roles">
+                        <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
+                    </button>
+                {% else %}
+                    <button class="admin_user_management_button_clear_inactive" id="transfer_role_super_admin_button" title="Transfer roles">
+                        <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
+                    </button>
+                {% endif %}
             {% endif %}
         {% elif user_organization_admin_flag %}
             {% if mentor.account.account == session_user_account %}

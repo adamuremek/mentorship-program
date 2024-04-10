@@ -1651,7 +1651,7 @@ def admin_create_new_org(req : HttpRequest, org_name : str):
     if not user_from_session.is_super_admin():
         return bad_request_400("Permission denied")
     org = Organization.objects.create(str_org_name=org_name)
-    SystemLogs.objects.create(str_event=SystemLogs.Event.ORGANIZATION_CREATED_EVENT, str_detail=f'Handled by: {user_from_session.id}, Added: {org.str_org_name}')
+    SystemLogs.objects.create(str_event=SystemLogs.Event.ORGANIZATION_CREATED_EVENT, str_details=f'Handled by: {user_from_session.id}, Added: {org.str_org_name}')
     return HttpResponse("Organization created")
 
 def admin_delete_org(req: HttpRequest, org_id: int):
@@ -1680,7 +1680,7 @@ def admin_delete_org(req: HttpRequest, org_id: int):
     if not user_from_session.is_super_admin():
         return bad_request_400("Permission denied")
     org = Organization.objects.get(id=org_id)
-    SystemLogs.objects.create(str_event=SystemLogs.Event.ORGANIZATION_DELETED_EVENT, str_detail=f'Handled by: {user_from_session.id}, Deleted: {org.str_org_name}')
+    SystemLogs.objects.create(str_event=SystemLogs.Event.ORGANIZATION_DELETED_EVENT, str_details=f'Handled by: {user_from_session.id}, Deleted: {org.str_org_name}')
     org.delete()
     return HttpResponse("Organization deleted")
 

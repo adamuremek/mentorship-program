@@ -31,6 +31,38 @@ export function update_remove_organization(organization_bar)
 
 }
 
+// Function removes passed mentor bar element from organization and adds it to unailifated mentors 
+export function update_remove_from_organization(mentor_bar)
+{
+    // Removing mentor bar from organization
+    mentor_bar.remove();
+
+    // Determine mentor bar continer, then add mentor bar to unaffiliated mentors
+    determiners.determine_mentor_bar_container().appendChild(mentor_bar);
+
+    //Determine and update to remove promote organization admin button
+    update_not_show(determiners.determine_promote_organization_button(mentor_bar));
+
+    // Add decouple button to mentor bar
+    update_not_show(determiners.determine_decouple_button(mentor_bar));
+
+    // Determeine if session user is super admin
+    if (determiners.determine_session_user_admin_flag())
+    {
+        // Session user is a super admin
+        // Remove transfer role button from mentor bar
+        update_not_show(determiners.determine_transfer_role_super_admin_button(mentor_bar));
+
+    }
+    else 
+    {
+        // Session user is a organization admin
+        // Remove transfer own role button from mentor bar
+        update_not_show(determiners.determine_transfer_role_organization_admin_button(mentor_bar));
+
+    }
+}
+
 // Function updates passed organization bar to include passed mentor bar and update passed mentor bar to include a promote 
 // organization button.
 export function update_add_to_organization(organization_bar, mentor_bar)
@@ -43,6 +75,25 @@ export function update_add_to_organization(organization_bar, mentor_bar)
 
     // Determine and update to have promote organization admin button
     update_show(determiners.determine_promote_organization_button(mentor_bar));
+
+    // Determine and update to have decouple mentor button
+    update_show(determiners.determine_decouple_button(mentor_bar));
+
+    // Determeine if session user is super admin
+    if (determiners.determine_session_user_admin_flag())
+    {
+        // Session user is a super admin
+        // Remove transfer role button from mentor bar
+        update_show(determiners.determine_transfer_role_super_admin_button(mentor_bar));
+
+    }
+    else 
+    {
+        // Session user is a organization admin
+        // Remove transfer own role button from mentor bar
+        update_show(determiners.determine_transfer_role_organization_admin_button(mentor_bar));
+
+    }
 
 }
 
@@ -82,20 +133,6 @@ export function update_demote_organization_admin(organization_bar)
 
         });
     }
-}
-
-// Function removes passed mentor bar element from organization and adds it to unailifated mentors 
-export function update_remove_from_organization(mentor_bar)
-{
-    // Removing mentor bar from organization
-    mentor_bar.remove();
-
-    // Determine mentor bar continer, then add mentor bar to unaffiliated mentors
-    determiners.determine_mentor_bar_container().appendChild(mentor_bar);
-
-    //Determine and update to remove promote organization admin button
-    update_not_show(determiners.determine_promote_organization_button(mentor_bar));
-
 }
 
 // Function will remove passed mentee id from mentee values in passed user bar, and decrement mentee value in passed user bar

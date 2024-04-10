@@ -80,6 +80,7 @@
 
 #create_organization_button {
     width: 90%;
+    height: fit-content;
 }
 
 #organization-input {
@@ -185,15 +186,6 @@
     display: none;
 }
 
-.admin_user_management_button_clear_active:hover,
-.admin_user_management_word_button_active:hover,
-.admin_user_management_button_clear_inactive:hover,
-.admin_user_management_word_button_inactive:hover,
-.mentee_counter_container:hover {
-    background: rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-}
-
 .admin_user_management_button {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 15px;
@@ -206,6 +198,16 @@
     min-height: 4vh;
 
     margin: 0.5%;
+    cursor: pointer;
+}
+
+.admin_user_management_button_clear_active:hover,
+.admin_user_management_word_button_active:hover,
+.admin_user_management_button_clear_inactive:hover,
+.admin_user_management_word_button_inactive:hover,
+.mentee_counter_container:hover,
+.admin_user_management_button:hover {
+    background: rgba(0, 0, 0, 0.3);
     cursor: pointer;
 }
 

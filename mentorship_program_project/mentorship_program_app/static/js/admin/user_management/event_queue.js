@@ -2,6 +2,7 @@
 import * as determiners from "./determiners.js";
 import * as updaters from "./updaters.js";
 import * as sorters from "./sorting.js";
+import * as filters from "./filtering.js";
 
 // Enum values for event types
 const EVENT_TYPES = {
@@ -408,7 +409,7 @@ function remove_queue_elements()
 
 // Function checks if the queue is not empty and then will check for flag and first events for add mentor, remove mentor, 
 // edit organiztion, or transfer role. Else will do nothing
-function check_cancel_event()
+export function check_cancel_event()
 {
     // Check if event queue is not empty
     if (!event_queue.isEmpty())
@@ -580,9 +581,6 @@ function edit_organization_event(organization_bar)
 
             // Add mentor bar to organization bar
             updaters.update_add_to_organization(organization_bar, mentor_bar);
-
-            // Add decouple button to mentor bar
-            updaters.update_show(determiners.determine_decouple_button(mentor_bar));
 
             // Determine and pass edit organization button to be set off
             updaters.update_off_button_style(determiners.determine_edit_organization_button(mentor_bar));
@@ -951,6 +949,16 @@ export function view_event(user_bar)
     }
 }
 
+export function view_mentee_event(user_bar)
+{
+    // Check and cancel last event if needed
+    check_cancel_event(); 
+
+    // Attempt to filter mentee bars by clicked user bar
+    filters.attempt_mentor_mentee_filter(user_bar);
+
+}
+
 // Function will takes in user bar, checks it is not disabled or toggled and has a mentor, cancel in progress event creation. If disabled will do
 // nothing, else if toggled will update button style to remove active, else will update and style button then create a add mentor mentee event using 
 // current user id.
@@ -1108,10 +1116,6 @@ export function disable_event(user_bar)
                 // Check if there is a mentor
                 if (mentor_bar != null)
                 {
-                    // // Create and store remove mentor events to remove mentor in queue
-                    // event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, mentee_id);
-                    // event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
-
                     // Update mentor bar to remove mentee from mentee list
                     updaters.update_decerment_mentor_mentees(mentor_bar, mentee_id);
 
@@ -1132,10 +1136,6 @@ export function disable_event(user_bar)
 
                 // Determine mentee id from mentee bar
                 mentee_id = determiners.determine_id(mentee_bar);
-
-                // // Create and store remove mentor events to remove mentor in queue
-                // event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, mentee_id);
-                // event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
 
                 // Update mentor bar to remove mentee id and decremenent
                 updaters.update_decerment_mentor_mentees(user_bar, mentee_id);
@@ -1226,35 +1226,6 @@ export function mentor_clicked_event(user_bar)
     
     }
 }
-
-// export function promote_super_mentor_event(user_bar)
-// {
-//     // Check if account is not disabled
-//     if (!determiners.determine_disabled_value(user_bar))
-//     {
-//         // Determine user id from hidden value in passed user bar
-//         const user_id = determiners.determine_id(user_bar);
-
-//         // Determine session user bar
-//         const session_user_bar = determiners.determine_session_user_bar();
-
-//         // Determine session user id
-//         const session_user_id = determiners.determine_id(session_user_bar);
-
-//         // Determine promote super button
-//         const promote_super_button = determiners.determine_promote_super_button(user_bar);
-
-//         // Hide promote super button from promoted user bar
-//         updaters.update_mentor_bar_remove_promote_super_button(promote_super_button);
-
-//         // Create and store promote organization mentor event in queue
-//         event_queue.enqueue(EVENT_TYPES.PROMOTE_SUPER_FIRST, session_user_id);
-
-//         // Create and store promote organization organzation event in queue
-//         event_queue.enqueue(EVENT_TYPES.PROMOTE_SUPER_SECOND, user_id);
-        
-//     }
-// }
 
 // Function takes in user bar element, will cancel in progress event creation, attempts to promote mentor to organization adminn and add promote organization admin event,
 // Checks if user bar's organziation bar is valid, if so will demote current organization admin, promote passed user bar organization, update button styling, sort bar mentor elements,
@@ -1507,10 +1478,7 @@ export function decouple_mentor_event(user_bar)
 
     // Remove mentor bar from organization to unaffiliated mentors
     updaters.update_remove_from_organization(user_bar);
-
-    // Remove decouple button from mentor bar
-    updaters.update_not_show(determiners.determine_decouple_button(user_bar));
-
+    
     // Update organization transfer buttons
     updaters.update_organization_transfer_buttons(organization_bar);
 
