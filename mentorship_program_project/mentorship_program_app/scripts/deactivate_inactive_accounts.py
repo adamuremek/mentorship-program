@@ -72,11 +72,14 @@ def run() -> None:
     count = 0
     for user in inactive_users:
         #Set inactive
-        user.bln_active = False
+        User.make_user_inactive(user)
         user.cls_active_changed_date = date.today()
         user.save()
         #Record logs
-        SystemLogs.objects.create(str_event=SystemLogs.Event.user_DEACTIVATED, specified_user=user)
+        if user.is_mentee():
+            SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_INACTIVATED_EVENT, specified_user=user)
+        elif user.is_mentor():
+            SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_INACTIVATED_EVENT, specified_user=user)
         count = count + 1
 
     print(f"Deactivated {count} accounts.")

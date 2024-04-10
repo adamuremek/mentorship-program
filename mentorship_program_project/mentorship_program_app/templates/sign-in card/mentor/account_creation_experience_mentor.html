@@ -1,7 +1,20 @@
 <div class="sign-in-card-content">
     <div class="sign-in-card-element">
         <p class="sign-in-card-text-normal">Company:</p>
-        <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp." maxlength="100">
+        <div>
+            <select id="select-company-name" name="company-name" onchange="getValue(id)">
+                <option></option>
+                {% for company in companyname %}
+                <option>
+                    {{company.str_org_name}}
+                </option>
+                {% endfor %}
+                <option>Other</option>
+            </select>
+        </div>
+        <div>
+            <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp." maxlength="100" style="visibility: hidden;">
+        </div>
         <p id="frm-company-warning-message" class="error-message"></p>
     </div>
 
@@ -38,3 +51,24 @@
         <button type="button" class="sign-in-card-option-button">Next</button>
     </div>
 </div>
+
+<script>
+    function getValue(select_id){
+        const selectElement = document.getElementById(select_id)
+        const selectedText = selectElement.options[selectElement.selectedIndex].text
+        
+        const showString = 'Other'
+
+        console.log("Selected Element: " + selectElement)
+        console.log("Selected Text: " + selectedText)
+
+        if(selectedText == showString)
+        {
+            document.getElementById("organization").style.visibility = 'visible'
+        }
+        else 
+        {
+            document.getElementById("organization").style.visibility = 'hidden'
+        }
+    }
+</script>

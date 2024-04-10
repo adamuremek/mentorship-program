@@ -716,7 +716,7 @@ class User(SVSUModelData,Model):
 
     str_first_name : CharField =  CharField(max_length=747,null=True)
     str_last_name : CharField =  CharField(max_length=747, null=True) 
-    str_phone_number : CharField = CharField(max_length=19, null=True)
+    str_phone_number : CharField = CharField(max_length=20, null=True)
     str_last_login_date = DateField(default=timezone.now)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
@@ -1570,6 +1570,81 @@ class Organization(SVSUModelData,Model):
     admin_mentor = OneToOneField('Mentor', related_name='administered_organizations', on_delete=models.CASCADE, null=True) 
 
 
+    @staticmethod
+    def create_org(str_org : str, str_orgType : str = None) -> 'Organization' :
+        try:
+            return Organization.objects.create(
+                str_org_name = str_org,
+                str_industry_type = str_orgType
+            )
+        except :
+            return None
+    
+    @staticmethod
+    def get_org(str_name : str) -> 'Organization' :
+        try:
+            return Organization.objects.filter(str_org_name = str_name).first()
+        except:
+            return None
+
+    @staticmethod
+    def update_orgName(str_name : str, str_new_org_name : str = None) -> 'Organization' :
+        try:
+            company : 'Organization' = Organization.objects.filter(str_org_name = str_name)
+        
+            if str_new_org_name != None :
+                company.str_org_name = str_new_org_name
+
+            company.save()
+
+            return company
+        except:
+            return None
+        
+    @staticmethod
+    def update_orgType(str_name : str, str_new_company_type : str = None) -> 'Organization' :
+        try:
+            company : 'Organization' = Organization.objects.filter(str_org_name = str_name)
+        
+            if str_new_company_type != None :
+                company.str_industry_type = str_new_company_type
+
+            company.save()
+
+            return company
+        except:
+            return None
+        
+    @staticmethod
+    def create_default_company_names():
+        default_company_names = [
+            "Auto Owner's Insurance",
+            "Dow",
+            "Google"]
+        
+        for company in default_company_names:
+            Organization.get_or_create_company_name(company)
+    
+    @staticmethod
+    def delete_company(str_name : str) -> 'Organization' :
+        try:
+            company : 'Organization' = Organization.objects.filter(str_org_name = str_name)
+            company.delete()
+
+            return company
+        except:
+            return None
+        
+    @staticmethod
+    def get_or_create_company_name(str_name : str) -> 'Organization':
+        try:
+            ret_company = Organization.objects.get(str_org_name = str_name)
+            return ret_company
+        except ObjectDoesNotExist:
+            #TODO: put in try catch to account for connection issues
+            Organization.objects.create(str_org_name=str_name).save()
+
+
 class Mentor(SVSUModelData,Model):
     """
     Description
@@ -1903,6 +1978,11 @@ class MentorshipRequest(SVSUModelData,Model):
         Tanner Williams 🦞
         """
 
+        #prevent accepting of new requests when you are already in a mentorship
+        if self.mentee.is_mentee() and self.mentee.mentee.mentor != None:
+            print("they have a mentor")
+            return False
+
         # record logs
         # record the mentee since the mentor can be gathered from it later
         mentor,mentee = session_user.create_mentorship_from_user_ids(
@@ -1962,13 +2042,15 @@ class MentorshipRequest(SVSUModelData,Model):
         MENTOR_MAXED_MENTEES = -1
         MENTEE_MAXED_REQUEST_AMOUNT = -2
         DATABASE_ERROR = -3
+        MENTEE_HAS_MENTOR = -4
         
         @staticmethod
         def error_code_to_string(code : int)->str:
             return [
              "MENTOR_MAXED_MENTEES",
              "MENTEE_MAXED_REQUEST_AMOUNT",
-             "DATABASE_ERROR"
+             "DATABASE_ERROR",
+             "MENTEE_HAS_MENTOR"
             ][-(code+1)]
 
     @staticmethod
@@ -2020,9 +2102,12 @@ class MentorshipRequest(SVSUModelData,Model):
 
             #prevent mentees from creating too many requests
             requester_user_account = User.objects.get(id=requester_id)
-            if requester_user_account.is_mentee() \
-            and requester_user_account.mentee.has_maxed_request_count():
-                return MentorshipRequest.ErrorCode.MENTEE_MAXED_REQUEST_AMOUNT
+            if requester_user_account.is_mentee():
+                if requester_user_account.mentee.has_maxed_request_count():
+                    return MentorshipRequest.ErrorCode.MENTEE_MAXED_REQUEST_AMOUNT
+                if requester_user_account.mentee.mentor != None:
+                    print("we will not finish the request!")
+                    return MentorshipRequest.ErrorCode.MENTEE_HAS_MENTOR
 
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,
@@ -2287,8 +2372,10 @@ class UserReport(SVSUModelData,Model):
     str_report_type = CharField(max_length=15, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
     bln_resolved = BooleanField(default=False)
+    date_resolved = DateField(default=timezone.now)
+    resolved_comment = CharField(max_length=3500, null=True)
 
-    def create_user_report(str_provided_report_type: str, str_provided_report_body: str, int_user_id: int) -> bool:
+    def create_user_report(reporter: User, str_provided_report_type: str, str_provided_report_body: str, int_user_id: int) -> bool:
         """
         Description
         -----------
@@ -2322,12 +2409,14 @@ class UserReport(SVSUModelData,Model):
         """
         try:
             user = User.objects.get(id=int_user_id)
-            UserReport.objects.create(
+            report = UserReport.objects.create(
                 str_report_type = str_provided_report_type,
                 str_report_body = str_provided_report_body,
                 user = user,
                 bln_resolved = False,
             ).save()
+
+            SystemLogs.objects.create(str_event=SystemLogs.Event.REPORT_CREATED_EVENT, specified_user=user, str_details=f"Reported by: {reporter.id}, Report: {report.id}")
             return True
         except Exception as e:
             return False
@@ -2444,6 +2533,11 @@ class UserReport(SVSUModelData,Model):
         user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all().filter(bln_resolved=False)) for user in users_with_reports}
         return user_reports_dict
     
+    def get_all_reports_grouped_by_user() -> dict[User, list]:
+        users_with_reports = User.objects.annotate(report_count=Count('userreport')).filter(report_count__gt=0).prefetch_related('userreport_set')
+        user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all()) for user in users_with_reports}
+        return user_reports_dict
+        
     @staticmethod
     def resolve_report(int_report_id: int, resolver: User):
         """
@@ -2681,6 +2775,12 @@ class SystemLogs(SVSUModelData,Model):
         MENTOR_APPROVED_EVENT = "Mentor approved"
         MENTOR_DENIED_EVENT = "Mentor denied"
         REPORT_RESOLVED_EVENT ="Report resolved"
+        REPORT_CREATED_EVENT = "Report created"
+        MENTEE_INACTIVATED_EVENT = "Mentee inactivated"
+        MENTOR_INACTIVATED_EVENT = "Mentor inactivated"
+        ORGANIZATION_DELETED_EVENT = "Organization deleted"
+        ORGANIZATION_CREATED_EVENT = "Organization added"
+        MENTOR_ORGANIZATION_CHANGED_EVENT = "Mentor's organization changed"
         
     str_event = CharField(max_length=500, choices=Event.choices, default='')
     str_details = CharField(max_length=500, default='')
@@ -2732,7 +2832,6 @@ class ProfileImg(SVSUModelData,Model):
     Authors
     -------
     🌟 Isaiah Galaviz 🌟
-
     """
     #   The user that the image is associated with; set it as the primary key
     user = OneToOneField(
@@ -2892,8 +2991,6 @@ class PasswordResetToken(models.Model):
             return True, "Password successfully reset, Rerouting you to home page."  # Password reset successful
         except PasswordResetToken.DoesNotExist:
             return False,  "Invalid Link"
-
-
 
    
 class WhitelistedEmails(SVSUModelData,Model):

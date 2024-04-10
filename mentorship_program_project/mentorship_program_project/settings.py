@@ -165,10 +165,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+
+#EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend' #####for debuging
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.svsu.edu'  # SMTP server address
+# EMAIL_PORT = 25  # Port for sending emails (587 is the default for TLS)
+# EMAIL_USE_TLS = False  # Whether to use TLS (True/False)
+# EMAIL_HOST_USER = 'wings@svsu.edu'
+# #EMAIL_HOST_PASSWORD = 'rjrl aldq kjee ybfv'
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587  # Gmail SMTP port for STARTTLS
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'wingsmentorapp@gmail.com'
 EMAIL_HOST_PASSWORD = 'rjrl aldq kjee ybfv'
-

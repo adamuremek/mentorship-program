@@ -122,6 +122,7 @@ urlpatterns = [
     path("create_note", under_development.create_note, name="create_note"),
     path("update_note", under_development.update_note, name="update_note"),
     path("remove_note", under_development.remove_note, name="remove_note"),
+    path("resolve_report", under_development.resolve_report, name="resolve_report"),
     path("available_mentees", under_development.available_mentees, name="available_mentees"),
     path("process_file", under_development.process_file, name="process_file"),
     path("add_remove_mentees_from_file", under_development.add_remove_mentees_from_file, name="add_remove_mentees_from_file"),

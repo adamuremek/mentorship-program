@@ -115,16 +115,16 @@ def create_systemlog_sheet(workbook: Workbook):
     # Get all SystemLogs
     # Order them by: Event Name, Date Created On
     # Selecting: Event Name, Date Created On, User ID, User's Full Name
-    all_system_logs = SystemLogs.objects.order_by("-cls_log_created_on").annotate(
+    all_system_logs = SystemLogs.objects.order_by("-cls_log_created_on_sortable").annotate(
     full_name=Concat('specified_user__str_first_name', Value(' '), 'specified_user__str_last_name')
-    ).values_list('str_event', 'cls_log_created_on', 'specified_user__id', 'full_name')
+    ).values_list('str_event', 'cls_log_created_on', 'specified_user__id', 'full_name', 'str_details')
 
     # Append header info
-    worksheet.append(["Event", "Log Created On", "User ID", "User Full Name"])
+    worksheet.append(["Event", "Log Created On", "User ID", "User Full Name", "Details"])
 
     # Used to store the widths of the columns, populated by loop below
     # Default values are based on header lengths
-    column_widths = [7.57, 16.14, 8.86, 16.14]
+    column_widths = [7.57, 16.14, 8.86, 16.14, 5.82]
 
     # Iterate through all logs, add them to the sheet, then record their text length
     for index, log in enumerate(all_system_logs, 1):
@@ -134,22 +134,25 @@ def create_systemlog_sheet(workbook: Workbook):
         data_widths = [len(str(worksheet[f"A{index}"].value).strip()), 
                       len(str(worksheet[f"B{index}"].value).strip()), 
                       len(str(worksheet[f"C{index}"].value).strip()),
-                      len(str(worksheet[f"D{index}"].value).strip())]
+                      len(str(worksheet[f"D{index}"].value).strip()),
+                      len(str(worksheet[f"E{index}"].value).strip())]
         
         # Checking if the new widths surpasses the previous width, if so, replace it
         column_widths[0] = data_widths[0] if data_widths[0] > column_widths[0] else column_widths[0]
         column_widths[1] = data_widths[1] if data_widths[1] > column_widths[1] else column_widths[1]
         column_widths[2] = data_widths[2] if data_widths[2] > column_widths[2] else column_widths[2]
         column_widths[3] = data_widths[3] if data_widths[3] > column_widths[3] else column_widths[3]
+        column_widths[4] = data_widths[4] if data_widths[4] > column_widths[4] else column_widths[4]
 
     # Resize columns to fit the data 
     worksheet.column_dimensions["A"].width = column_widths[0] + 2
     worksheet.column_dimensions["B"].width = column_widths[1] + 2
     worksheet.column_dimensions["C"].width = column_widths[2] + 2
     worksheet.column_dimensions["D"].width = column_widths[3] + 2
+    worksheet.column_dimensions["E"].width = column_widths[4] + 2
 
     # Apply autofilter to the columns
-    table_range = f"A1:D{len(all_system_logs) + 1}"
+    table_range = f"A1:E{len(all_system_logs) + 1}"
     
     table = Table(displayName="SystemLogs", ref=table_range)
     style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
@@ -233,7 +236,6 @@ def generate_report(req : HttpRequest):
     )
     
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
-    # response['Refresh'] = '0; url=' + req.path
     return response
 
 

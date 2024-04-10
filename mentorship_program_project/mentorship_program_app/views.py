@@ -49,7 +49,7 @@ from django.template import loader
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect
 from django.utils import timezone
-
+from django.shortcuts import get_object_or_404
 from utils import development
 from utils.development import print_debug
 from utils import security
@@ -229,8 +229,11 @@ def register_mentee(req):
 
 def register_mentor(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
+    
     if not Interest.objects.exists():
         Interest.create_default_interests()
+    if not Organization.objects.exists():
+        Organization.create_default_company_names()
         
         # C:\Users\andyp\OneDrive\Documents\GitHub\mentorship-program\mentorship_program_project
     
@@ -240,6 +243,7 @@ def register_mentor(req):
         country_codes = json.load(file)
         country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
     #sorted(json.load(file))
+    
     context = {
         'interestlist': Interest.objects.all(),
 
@@ -247,6 +251,8 @@ def register_mentor(req):
         'pronounlist2': ['', 'him', 'her', 'them'],
         
         'country_codes' : country_codes,
+
+        'companyname': Organization.objects.all(),
 
         'companytypelist': [
             'Academic Research Group',
@@ -303,7 +309,6 @@ def register_mentor(req):
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-
     }
     return HttpResponse(template.render(context, req))
 
@@ -367,7 +372,7 @@ def account_activation_mentor(request):
     context = {}
     return HttpResponse(template.render(context, request))
     
-from django.shortcuts import get_object_or_404
+
 
 def get_mentor_data_from_mentor(mentor : 'Mentor',session_user : 'User')->dict:
     """
@@ -589,7 +594,9 @@ def admin_reported_users(request):
     template = loader.get_template('admin/admin_reported_users.html')
 
     user_reports_dict = UserReport.get_unresolved_reports_grouped_by_user()
-    context = {"user_reports_dict": user_reports_dict}
+    all_reports = UserReport.get_all_reports_grouped_by_user()
+    context = {"user_reports_dict": user_reports_dict,
+               "all_reports": all_reports}
     return HttpResponse(template.render(context,request))
 
 # view goes to mentor_group_view
