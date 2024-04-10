@@ -1521,12 +1521,20 @@ def add_remove_mentees_from_file(req : HttpRequest):
     removed_mentees = banana_split[1].split(",") if len(banana_split) > 1 else []
 
 
-    #print(added_users)                                   # replace
-    #reactivate = User.objects.filter(cls_email_address__in=added_users)
+   
+    
 
-    #loop reactivate
-                        # bln_account_disabled = False
-                        #  .save()
+    # Reactivate users by setting bln_account_disabled to False
+    reactivate_users = User.objects.filter(cls_email_address__in=added_mentees)
+
+    # Loop through the queryset and update each user object
+    for user in reactivate_users:
+        print(user.cls_email_address)
+        user.bln_account_disabled = False
+        user.save()
+
+
+
     added_list = []
     for mentee_email in added_mentees:
         added_list.append(WhitelistedEmails(str_email=mentee_email))
