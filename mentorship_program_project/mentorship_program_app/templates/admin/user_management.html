@@ -13,6 +13,10 @@
 {% endblock %}
 
 {% block main_content %}
+    <div id="loading-overlay">
+        <div class="loading"></div>
+    </div>
+
     <div class="hidden_element" id="organization_counter">
         {{ organization_counter }}
     </div>
@@ -88,9 +92,7 @@
             </div>
         </div>
 
-        <div class="user_management_message_bar" id="admin_user_management_medium_text">
-            PLACEHOLDER MESSAGE
-        </div>
+        <div class="user_management_message_bar_inactive" id="admin_user_management_medium_text"></div>
         
         <div class="user_board_button_container">
             <button class="admin_user_management_button" id="save_button" title="Save events">Save</button>

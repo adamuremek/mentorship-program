@@ -179,19 +179,6 @@ export function update_disable_bar(user_bar)
     update_on_button_style(user_bar);
 }
 
-// Updates bar style to invisible
-export function update_not_visable(bar)
-{
-    bar.style.display = "none";
-
-}
-
-export function update_visable(input)
-{
-    input.style.display = "block";
-
-}
-
 // Cycle through passed bar's styles to include white borders
 export function update_valid_choice_bar_styles(passed_bars)
 {
@@ -298,7 +285,6 @@ export function update_mentee_bar_remove(user_bar)
 
         // Switch remove and add buttons
         update_buttons_toggle_off(remove_button, add_button);
-        // update_mentee_bar_show_add_button(remove_button, add_button);
 
     }
 }
@@ -314,8 +300,7 @@ export function update_mentee_bar_add(user_bar, mentor_id)
     const remove_button = determiners.determine_remove_button(user_bar);
 
     // Switch add and remove buttons
-    update_buttons_toggle_on(remove_button, add_button)
-    // update_mentee_bar_remove_button(remove_button, add_button);
+    update_buttons_toggle_on(remove_button, add_button);
 
 }
 
@@ -368,7 +353,22 @@ export function update_organization_transfer_buttons(organitization_bar)
     });
 }
 
-// -=-=;
+// Updates loading overlay to show
+export function update_loading()
+{
+    // Deteremine and set loading overlay to show
+    determiners.deteremine_loading_overlay().style.display = "block";
+
+}
+
+// Updates loading overlay to now show
+export function update_not_loading()
+{
+    // Deteremine and set loading overlay to not show
+    determiners.deteremine_loading_overlay().style.display = "none";
+
+}
+
 // Updates passed element to show. Remove input inactive class and add active class to input
 export function update_show(input)
 {
@@ -410,6 +410,21 @@ export function update_show(input)
         // Input is organzation bar
         input.classList.remove("organization_management_bar_container_inactive");
         input.classList.add("organization_management_bar_container_active");
+
+    }
+    // Check if input is create organziation message bar
+    else if (determiners.deteremine_if_create_organization_message_bar(input))
+    {
+        // Input is create organization message bar
+        input.classList.remove("create_organization_message_bar_inactive");
+        input.classList.add("create_organization_message_bar_active");
+
+    }
+    // Check if input is user managment message bar
+    else if (determiners.deteremine_if_user_maanagement_message_bar(input))
+    {
+        input.classList.remove("user_management_message_bar_inactive");
+        input.classList.add("user_management_message_bar_active");
 
     }
 }
@@ -455,6 +470,21 @@ export function update_not_show(input)
         // Input is organzation bar
         input.classList.remove("organization_management_bar_container_active");
         input.classList.add("organization_management_bar_container_inactive");
+
+    }    
+    // Check if input is create organziation message bar
+    else if (determiners.deteremine_if_create_organization_message_bar(input))
+    {
+        // Input is create organization message bar
+        input.classList.remove("create_organization_message_bar_active");
+        input.classList.add("create_organization_message_bar_inactive");
+
+    }
+    // Check if input is user managment message bar
+    else if (determiners.deteremine_if_user_maanagement_message_bar(input))
+    {
+        input.classList.remove("user_management_message_bar_active");
+        input.classList.add("user_management_message_bar_inactive");
 
     }
 }

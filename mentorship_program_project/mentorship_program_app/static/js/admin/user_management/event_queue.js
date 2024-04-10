@@ -83,6 +83,8 @@ let add_mentor_flag = 0;
 let remove_mentor_flag = 0;
 let edit_organization_flag = 0;
 let transfer_role_flag = 0;
+let execution_flag = 0;
+
 
 // Create valid mentee user bar storage
 let valid_mentor_bars = []
@@ -811,62 +813,78 @@ function transfer_role_event(user_bar)
 // message to successful save message, else will update user management message to unsucessful save message and remove and queue elements.
 export async function save_event()
 {
-    // Intintlize valid flag to false
-    let valid_flag = false;
-
-    // Determine user mangement message element
-    const user_management_message = determiners.determine_user_management_message();
-
-    // Check and cancel last event if needed
-    check_cancel_event();
-
-    // Check event queue
-    if (execute_events())
+    // Check execution flag is not true
+    if (!execution_flag)
     {
-        // Set valid flag to true 
-        valid_flag = true;
+        // Intintlize valid flag to false
+        let valid_flag = false;
 
-        // Set valid flag execute request queue value
-        // TODO TESTING UNCOMMENT WHEN READY TO EXECUTE
-        valid_flag = await execute_request(execution_queue);
+        // Set execution flag to be true
+        execution_flag = 1;
 
-        // Check if not valid reponse
-        if (!valid_flag)
+        // Set loading overlay to show 
+        updaters.update_loading();
+
+        // Determine user mangement message element
+        const user_management_message = determiners.determine_user_management_message();
+
+        // Check and cancel last event if needed
+        check_cancel_event();
+
+        // Check event queue
+        if (execute_events())
         {
-            // Create and store error event in queue
-            event_queue.enqueue("Database error", "Invalid request to database");
+            // Set valid flag to true 
+            valid_flag = true;
+
+            // Set valid flag execute request queue value
+            // TODO TESTING UNCOMMENT WHEN READY TO EXECUTE
+            valid_flag = await execute_request(execution_queue);
+
+            // Check if not valid reponse
+            if (!valid_flag)
+            {
+                // Create and store error event in queue
+                event_queue.enqueue("Database error", "Invalid request to database");
+
+            }
 
         }
 
+        // Check if valid execution
+        if (valid_flag)
+        {
+            // Update user management message with successful message
+            user_management_message.innerHTML = "Save Successful";
+
+            // Update user management to be visable
+            updaters.update_show(user_management_message);
+            
+        }
+        // Else save was unsuccessful
+        else
+        {
+            // Store current event in queue
+            const current_event = event_queue.dequeue();
+
+            // Update user management message with unsucessful message
+            user_management_message.innerHTML = "Error: type = " + current_event.type + ", data = " + current_event.data;
+
+            // Update user management to be visable
+            updaters.update_show(user_management_message);
+
+            // Remove queue elements
+            remove_queue_elements();
+
+        }
+
+        // Set exectuon flag to be off
+        execution_flag = 0;
+
+        // Set loading overlay to not show
+        updaters.update_not_loading();
+
     }
-
-    // Check if valid execution
-    if (valid_flag)
-    {
-        // Update user management message with successful message
-        user_management_message.innerHTML = "Save Successful";
-
-        // Update user management to be visable
-        updaters.update_bar_visible(user_management_message);
-        
-    }
-    // Else save was unsuccessful
-    else
-    {
-        // Store current event in queue
-        const current_event = event_queue.dequeue();
-
-        // Update user management message with unsucessful message
-        user_management_message.innerHTML = "Error: type = " + current_event.type + ", data = " + current_event.data;
-
-        // Update user management to be visable
-        updaters.update_bar_visible(user_management_message);
-
-        // Remove queue elements
-        remove_queue_elements();
-
-    }
-
 }
 
 // Function will remove and user mangement message being displayed if queue is empty, else will update message to display a cancel
@@ -881,7 +899,7 @@ export function cancel_event()
     {
         // Queue is empty
         // Update user management to be hidden
-        updaters.update_not_visable(user_management_message);
+        updaters.update_not_show(user_management_message);
 
     }
     else
@@ -891,7 +909,7 @@ export function cancel_event()
         user_management_message.innerHTML = "Canceled queue of events";
 
         // Update user management to be visable
-        updaters.update_visable(user_management_message);
+        updaters.update_show(user_management_message);
 
         // Cancel queue
         remove_queue_elements();
@@ -1532,8 +1550,19 @@ export function create_orgnization_event()
     const new_organization_name = new_organization_name_element.value.trim();
     new_organization_name_element.value = "";
 
+    // Check if name input is an empty string
+    if (new_organization_name == "")
+    {
+        // Name is empty
+        // Update message to empty string
+        message_bar_element.innerHTML = "";
+
+        // Show message is not already
+        updaters.update_not_show(message_bar_element);
+
+    }
     // Check if there already an organization with that name
-    if (determiners.determine_if_organization_name_unique(new_organization_name))
+    else if (determiners.determine_if_organization_name_unique(new_organization_name))
     {
         // Name is unique
         // Update organization counter value to increase by 1
@@ -1552,11 +1581,12 @@ export function create_orgnization_event()
         // Update message to creation valid
         message_bar_element.innerHTML = new_organization_name + " creation is valid";
 
-        // Show message if visable
-        updaters.update_bar_visible(message_bar_element);
+        // Show message if created
+        updaters.update_show(message_bar_element);
 
         // Create and store add organzation organization event in queue
         event_queue.enqueue(EVENT_TYPES.CREATE_ORGANIZATION, new_organization_name);
+
     }
     else
     {
@@ -1565,7 +1595,8 @@ export function create_orgnization_event()
         message_bar_element.innerHTML = "Error: " + new_organization_name +" is non-unique";
 
         // Show message is hidden
-        updaters.update_bar_visible(message_bar_element);
+        updaters.update_show(message_bar_element);
+        
     }
 
 }
@@ -1597,7 +1628,7 @@ export function remove_organization_event(organization_bar)
         message_bar_element.innerHTML = "";
 
         // Update user management message to hidden
-        updaters.update_not_visable(message_bar_element);
+        updaters.update_not_show(message_bar_element);
 
         // Create and store remove organzation organization event in queue
         event_queue.enqueue(EVENT_TYPES.REMOVE_ORGANIZATION, organization_id);
@@ -1609,7 +1640,7 @@ export function remove_organization_event(organization_bar)
         message_bar_element.innerHTML = "Error: " + organization_name + " is not empty";
 
         // Update user management message to show
-        updaters.update_visable(message_bar_element);
+        updaters.update_show(message_bar_element);
 
     }
 }
