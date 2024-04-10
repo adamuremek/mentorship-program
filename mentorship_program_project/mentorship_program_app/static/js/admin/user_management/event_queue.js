@@ -71,6 +71,12 @@ class queue
 
     }
 
+    cancel()
+    {
+        this.events = this.events.slice(0, -1);
+
+    }
+
     isEmpty()
     {
         return (this.events.length == 0);
@@ -408,26 +414,26 @@ function check_cancel_event()
     if (!event_queue.isEmpty())
     {
         // Check if add event is in progress and last event is a add mentor mentee event
-        if (add_mentor_flag & event_queue.peek_end().type == EVENT_TYPES.ADD_MENTOR_MENTEE)
+        if (add_mentor_flag && event_queue.peek_end().type == EVENT_TYPES.ADD_MENTOR_MENTEE)
         {
             // Cancel add mentor event
             cancel_add_mentor_event();
 
         }
         // Check if remove event is in progress and last event is a remove mentor event
-        else if (remove_mentor_flag & event_queue.peek_end().type == EVENT_TYPES.REMOVE_MENTOR_MENTEE)
+        else if (remove_mentor_flag && event_queue.peek_end().type == EVENT_TYPES.REMOVE_MENTOR_MENTEE)
         {
             cancel_remove_mentor_event();
 
         }
         // Check if edit organization is in progess and last event is a edit organization mentor event
-        else if (edit_organization_flag & event_queue.peek_end().type == EVENT_TYPES.EDIT_ORGANIZATION_MENTOR)
+        else if (edit_organization_flag && event_queue.peek_end().type == EVENT_TYPES.EDIT_ORGANIZATION_MENTOR)
         {
             cancel_edit_organization_event();
 
         }
         // Check if transfer role is in progress and last event is a transfer role super first event
-        else if (transfer_role_flag & event_queue.peek_end().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST)
+        else if (transfer_role_flag && event_queue.peek_end().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST)
         {
             cancel_transfer_role_event();
 
@@ -439,11 +445,10 @@ function check_cancel_event()
 function cancel_add_mentor_event()
 {
     // Determine prev user bar
-    // const mentee_bar = determiners.return_mentee_bar_from_id(event_queue.peek_end().data);
     const mentee_bar = determiners.return_mentee_bar_from_user_id(event_queue.peek_end().data);
 
     // Remove add mentor mentee event
-    event_queue.dequeue();
+    event_queue.cancel();
 
     // Reset add mentor flag
     add_mentor_flag = 0;
@@ -460,11 +465,10 @@ function cancel_add_mentor_event()
 function cancel_remove_mentor_event()
 {
     // Determine prev user bar
-    // const mentee_bar = determiners.return_mentee_bar_from_id(event_queue.peek_end().data);
     const mentee_bar = determiners.return_mentee_bar_from_user_id(event_queue.peek_end().data);
 
     // Remove remove mentor mentee event
-    event_queue.dequeue();
+    event_queue.cancel();
 
     // Reset remove mentor flag
     remove_mentor_flag = 0;
@@ -474,6 +478,7 @@ function cancel_remove_mentor_event()
 
     // Determine and reset remove button style
     updaters.update_off_button_style(determiners.determine_remove_button(mentee_bar));
+
 }
 
 // Function remvoes the last queue in the event queue, then resets the edit organiztion flag, then update buttons
@@ -483,7 +488,7 @@ function cancel_edit_organization_event()
     const mentor_bar = determiners.return_mentor_bar_from_id(event_queue.peek_end().data);
 
     // Remove promote organzation event
-    event_queue.dequeue();
+    event_queue.cancel();
 
     // Reset promote organzation flag
     edit_organization_flag = 0;
@@ -493,6 +498,7 @@ function cancel_edit_organization_event()
 
     // Determeine and reset edit organiztion button style
     updaters.update_off_button_style(determiners.determine_edit_organization_button(mentor_bar));
+
 }
 
 // Function remvoes the last queue in the event queue, then resets the transfer role flag, then update buttons
@@ -502,7 +508,7 @@ function cancel_transfer_role_event()
     const mentor_bar = determiners.return_mentor_bar_from_id(event_queue.peek_end().data);
 
     // Remove promote organzation event
-    event_queue.dequeue();
+    event_queue.cancel();
 
     // Reset transfer role flag
     transfer_role_flag = 0;
@@ -512,6 +518,7 @@ function cancel_transfer_role_event()
 
     // Determine and reset transfer role button button style
     updaters.update_off_button_style( determiners.determine_transfer_role_super_admin_button(mentor_bar));
+
 }
 
 
@@ -615,7 +622,6 @@ function add_mentor_event(user_bar)
     const user_id = determiners.determine_user_id(user_bar);
 
     // Determine prev user bar from id
-    // const prev_user_bar = determiners.return_mentee_bar_from_id(prev_event.data);
     const prev_user_bar = determiners.return_mentee_bar_from_user_id(prev_event.data);
 
     // Determine add buttons from mentee bar
@@ -659,7 +665,6 @@ function remove_mentor_event(user_bar)
     const user_id = determiners.determine_user_id(user_bar);
 
     // Create stroage for temp user bar
-    // const prev_user_bar = determiners.return_mentee_bar_from_id(prev_event.data);
     const prev_user_bar = determiners.return_mentee_bar_from_user_id(prev_event.data);
 
     // Determine user mentee element from user bar
@@ -715,7 +720,6 @@ function transfer_role_event(user_bar)
     let prev_event = event_queue.peek_end();
 
     // Create stroage for temp user bar
-    // const prev_user_bar = determiners.return_mentee_bar_from_id(prev_event.data);
     const prev_user_bar = determiners.return_mentor_bar_from_id(prev_event.data);
 
     // Determine transfer role button from mentor bar
@@ -1104,9 +1108,9 @@ export function disable_event(user_bar)
                 // Check if there is a mentor
                 if (mentor_bar != null)
                 {
-                    // Create and store remove mentor events to remove mentor in queue
-                    event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, mentee_id);
-                    event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
+                    // // Create and store remove mentor events to remove mentor in queue
+                    // event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, mentee_id);
+                    // event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
 
                     // Update mentor bar to remove mentee from mentee list
                     updaters.update_decerment_mentor_mentees(mentor_bar, mentee_id);
@@ -1129,9 +1133,9 @@ export function disable_event(user_bar)
                 // Determine mentee id from mentee bar
                 mentee_id = determiners.determine_id(mentee_bar);
 
-                // Create and store remove mentor events to remove mentor in queue
-                event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, mentee_id);
-                event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
+                // // Create and store remove mentor events to remove mentor in queue
+                // event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTEE, mentee_id);
+                // event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
 
                 // Update mentor bar to remove mentee id and decremenent
                 updaters.update_decerment_mentor_mentees(user_bar, mentee_id);
@@ -1596,7 +1600,7 @@ export function create_orgnization_event()
 
         // Show message is hidden
         updaters.update_show(message_bar_element);
-        
+
     }
 
 }
