@@ -4,7 +4,7 @@ from django.http import HttpRequest
 from ..models import User
 
 
-from_email = "wingsmentorapp@gmail.com"
+from_email = settings.EMAIL_HOST_USER
 
 def notifications_on(email : str):
 	user = User.objects.get(cls_email_address=email)
@@ -81,7 +81,7 @@ def reset_token_email(request: HttpRequest, recipient: str, token: str):
 	message = f"""
 	Please <a href="{reset_link}">Click Here</a> to reset your WINGS password.
 	"""
-	send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient], html_message=message)
+	send_mail(subject, message, from_email, [recipient], html_message=message)
 
 
 def alert_admins_of_reported_user():
@@ -92,7 +92,7 @@ def alert_admins_of_reported_user():
 
 	A user has been reported and action is required. Please review and take action in the application.
 	"""
-	send_mail(subject, message, from_email, [admins])
+	send_mail(subject, message, from_email, admins)
 
 
 def email_for_mentorship_acceptance(mentor_email : str, mentee_email : str):

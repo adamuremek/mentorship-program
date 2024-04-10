@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_email = document.getElementById('email');
     const input_phone = document.getElementById('phone');
     const input_password = document.getElementById('password')
+    const input_confirm_password = document.getElementById('confirm-password')
 
     const input_company = document.getElementById('organization')
     // const input_company_type = document.getElementById('company-type')
@@ -311,14 +312,12 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     function is_password_valid(){
        
             // Requirement 1: Password should contain 12 or more characters
-            if (input_password.value.length < 12) {
+            if (input_password.value.length < 12)
               return false;
-            }
           
             // Requirement 2: Password should contain 36 or less characters
-            if (input_password.value.length > 36) {
+            if (input_password.value.length > 36)
               return false;
-            }
           
             // Requirement 3: Password should contain a combination of uppercase letters, lowercase letters, at least one number, and at least one symbol
             const uppercaseRegex = /[A-Z]/;
@@ -335,6 +334,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             ) {
               return false;
             }
+
+            // Ensure passwords match
+            if(input_password.value != input_confirm_password.value)
+                return false;
           
             return true;
     }
@@ -467,6 +470,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             password_warning_message.innerText = "Password must be 36 or fewer characters.";
         } else if (!/[A-Z]/.test(input_password.value) || !/[a-z]/.test(input_password.value) || !/[0-9]/.test(input_password.value) || !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(input_password.value) || emojiRegex.test(input_password.value)) {
             password_warning_message.innerText = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.";
+        } else if(input_password.value != input_confirm_password.value) {
+            password_warning_message.innerText = "Passwords must match"
         } else {
             password_warning_message.innerText = "";
         }

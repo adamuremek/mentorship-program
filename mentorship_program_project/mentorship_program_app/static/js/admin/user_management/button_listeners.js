@@ -29,7 +29,12 @@ const add_new_organization_modal = detereminers.determine_add_new_organization_m
 
 
 // Set save button listener
-save_button.addEventListener('click', event_queue.save_event);
+save_button.addEventListener('click', ()=>{
+    console.log("what")
+    event_queue.save_event
+    location.reload()
+    console.log("what")
+});
 
 // Set cancel button listener
 cancel_button.addEventListener('click', event_queue.cancel_event);

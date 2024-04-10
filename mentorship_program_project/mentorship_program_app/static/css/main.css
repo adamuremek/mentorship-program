@@ -552,6 +552,7 @@ select {
 
     padding-top: 3.5%;
     padding-bottom: 3.5%;
+    padding-left: 3.5%;
 
     border-radius: .5em;
 }
@@ -570,7 +571,7 @@ select {
     position: relative;
 }
 
-#toggle-password {
+.password-visibility {
     position: absolute;
     top: 50%;
     right: 10px;
@@ -579,7 +580,7 @@ select {
     cursor: pointer;
 }
 
-#toggle-password img {
+.password-visibility img {
     height: auto;
     width: 2em;
 }

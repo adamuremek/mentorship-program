@@ -34,13 +34,15 @@
             </a>
             <h1 class="admin_user_management_header_elements" id="admin_user_management_large_text">Mentee Management</h1>
         </div>
-
+        {% if not file_name  %}
         <form method="post" enctype="multipart/form-data" action="/process_file">
             {% csrf_token %}
             <!-- <label for="fileUpload">Choose file to upload:</label> -->
-            <input type="file" id="fileUpload" name="fileUpload">
+            Enter a .txt file<br>
+            <input type="file" id="fileUpload" name="fileUpload" accept=".txt">
             <button class="admin_user_management_button" type="submit">Upload</button>
         </form>
+        {% endif %}
         <div class="dual_user_board_container">
             <div class="user_board_container">
                 <div class="user_board_title_container">
@@ -97,8 +99,10 @@
                 
             </div>
         </div>
+        {% if file_name  %}
         <button class="admin_user_management_button" id="save_button">Save</button>
         <button class="admin_user_management_button" id="cancel_button">Cancel</button>
+        {% endif %}
     </div>
 
     <script src = "{% static 'js/backend_requests.js' %}"></script>
@@ -131,7 +135,7 @@
         })
 
         cancel_button.addEventListener('click', e =>{
-            location.reload()
+            window.location.href = "/available_mentees"
         })
 
         save_button.addEventListener('click', async function(e){
@@ -151,7 +155,6 @@
             if(response.redirected)
                 window.location.href = response.url
 
-            // add1Δadd2Δadd3Δadd4ωremove3Δremove4Δremove5
         })  
         
 

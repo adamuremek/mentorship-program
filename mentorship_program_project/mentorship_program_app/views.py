@@ -49,7 +49,7 @@ from django.template import loader
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect
 from django.utils import timezone
-
+from django.shortcuts import get_object_or_404
 from utils import development
 from utils.development import print_debug
 from utils import security
@@ -367,7 +367,7 @@ def account_activation_mentor(request):
     context = {}
     return HttpResponse(template.render(context, request))
     
-from django.shortcuts import get_object_or_404
+
 
 def get_mentor_data_from_mentor(mentor : 'Mentor',session_user : 'User')->dict:
     """
@@ -589,7 +589,9 @@ def admin_reported_users(request):
     template = loader.get_template('admin/admin_reported_users.html')
 
     user_reports_dict = UserReport.get_unresolved_reports_grouped_by_user()
-    context = {"user_reports_dict": user_reports_dict}
+    all_reports = UserReport.get_all_reports_grouped_by_user()
+    context = {"user_reports_dict": user_reports_dict,
+               "all_reports": all_reports}
     return HttpResponse(template.render(context,request))
 
 # view goes to mentor_group_view

@@ -20,9 +20,10 @@
 		<form action="/universal_profile/{{user.id}}" method="POST">
 			{% csrf_token %}
 			<input type="hidden" name="id" value="{{ user.id }}" />
-			<input type="image" class="card-profile-image" alt="Login" src="{{ user.profile_img.img.url }}" />
+			<!-- <div>{{users_with_profile}}</div> -->
+			<input type="image" class="card-profile-image" alt="N/A" src="{{ users_with_profile|get_value:user.id }}" />
 		</form>
-	
+	<!--8=====================================================D~~~~~~~~~-->
 	
 		<div class="card-gray-part">		  
 

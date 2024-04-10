@@ -716,7 +716,7 @@ class User(SVSUModelData,Model):
 
     str_first_name : CharField =  CharField(max_length=747,null=True)
     str_last_name : CharField =  CharField(max_length=747, null=True) 
-    str_phone_number : CharField = CharField(max_length=19, null=True)
+    str_phone_number : CharField = CharField(max_length=20, null=True)
     str_last_login_date = DateField(default=timezone.now)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
@@ -2287,8 +2287,10 @@ class UserReport(SVSUModelData,Model):
     str_report_type = CharField(max_length=15, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
     bln_resolved = BooleanField(default=False)
+    date_resolved = DateField(default=timezone.now)
+    resolved_comment = CharField(max_length=3500, null=True)
 
-    def create_user_report(str_provided_report_type: str, str_provided_report_body: str, int_user_id: int) -> bool:
+    def create_user_report(reporter: User, str_provided_report_type: str, str_provided_report_body: str, int_user_id: int) -> bool:
         """
         Description
         -----------
@@ -2322,12 +2324,14 @@ class UserReport(SVSUModelData,Model):
         """
         try:
             user = User.objects.get(id=int_user_id)
-            UserReport.objects.create(
+            report = UserReport.objects.create(
                 str_report_type = str_provided_report_type,
                 str_report_body = str_provided_report_body,
                 user = user,
                 bln_resolved = False,
             ).save()
+
+            SystemLogs.objects.create(str_event=SystemLogs.Event.REPORT_CREATED_EVENT, specified_user=user, str_details=f"Reported by: {reporter.id}, Report: {report.id}")
             return True
         except Exception as e:
             return False
@@ -2444,6 +2448,11 @@ class UserReport(SVSUModelData,Model):
         user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all().filter(bln_resolved=False)) for user in users_with_reports}
         return user_reports_dict
     
+    def get_all_reports_grouped_by_user() -> dict[User, list]:
+        users_with_reports = User.objects.annotate(report_count=Count('userreport')).filter(report_count__gt=0).prefetch_related('userreport_set')
+        user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all()) for user in users_with_reports}
+        return user_reports_dict
+        
     @staticmethod
     def resolve_report(int_report_id: int, resolver: User):
         """
@@ -2681,6 +2690,12 @@ class SystemLogs(SVSUModelData,Model):
         MENTOR_APPROVED_EVENT = "Mentor approved"
         MENTOR_DENIED_EVENT = "Mentor denied"
         REPORT_RESOLVED_EVENT ="Report resolved"
+        REPORT_CREATED_EVENT = "Report created"
+        MENTEE_INACTIVATED_EVENT = "Mentee inactivated"
+        MENTOR_INACTIVATED_EVENT = "Mentor inactivated"
+        ORGANIZATION_DELETED_EVENT = "Organization deleted"
+        ORGANIZATION_CREATED_EVENT = "Organization added"
+        MENTOR_ORGANIZATION_CHANGED_EVENT = "Mentor's organization changed"
         
     str_event = CharField(max_length=500, choices=Event.choices, default='')
     str_details = CharField(max_length=500, default='')

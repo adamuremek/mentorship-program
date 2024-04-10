@@ -7,7 +7,8 @@
             "bl8 bl8 bl8 bl8"
             "bl9 bl9 bl9 bl9"
             "bl0 bl0 bl0 bl0"
-            "blx blx blx blx";
+            "blx blx blx blx"
+            "bl11 bl11 bl11 bl11";
     }
 
     .program-statistics div {
@@ -30,7 +31,8 @@
             "bl8 bl8"
             "bl9 bl9"
             "bl0 bl0"
-            "blx blx";
+            "blx blx"
+            "bl11 bl11";
     }
 
     .program-statistics div {
@@ -62,7 +64,8 @@
             "bl7"
             "bl8"
             "bl9"
-            "bl0";
+            "bl0"
+            "bl11";
     }
 }
 
@@ -195,6 +198,9 @@ h3 {
 
 .btn-edit-interests {
     grid-area: blx;
+}
+.btn-process-file{
+    grid-area: bl11;
 }
 
 li {

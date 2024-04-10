@@ -419,6 +419,6 @@ def report_user(req: HttpRequest) -> HttpResponse:
         reported_user_id = req.POST['reported_user_id']
         report_type = req.POST['report_type']
         report_reason = req.POST['report_reason']
-        UserReport.create_user_report(report_type, report_reason, reported_user_id)
+        UserReport.create_user_report(user, report_type, report_reason, reported_user_id)
         alert_admins_of_reported_user()
         return redirect('/universal_profile/' + reported_user_id)

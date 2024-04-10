@@ -1,0 +1,34 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
+
+<dialog class="modal resolve-report-modal" id="resolve-report-modal">
+    <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
+    <div class="modal-container">
+        <form id="resolve-report-form" action="{% url 'resolve_report' %}" class="frm-note-creator" method="post">
+            {% csrf_token %}
+
+            {% if false %}
+                <h2>Past Incidents:</h2>
+                <div class="modal-line"><hr></div>
+            {% endif %}
+
+            <h2>Resolve Report</h2>
+            <div class="modal-line"><hr></div>
+            
+            <div class="container">
+                <h3 class="heading">Comments:</h3>
+                <p class="subheading">HELP ME! HELP MEEEE! AAAAAAAAAAHHHHHHHHHHHHH</p>
+                <textarea id="comments" rows="12" name="resolution-notes" maxlength="1000" class="user-input" placeholder="Listen here motherfucker..."></textarea>
+            </div>
+
+            <div id="ban-user-decision">
+                <label for="decision">Ban User??</label>
+                <input type="checkbox" name="decision" id="decision"> 
+            </div>
+            
+            <button type="button" class="btn-modal-submit" id="btn-resolve-note">Resolve</button>
+
+        </form>
+    </div>
+</dialog>

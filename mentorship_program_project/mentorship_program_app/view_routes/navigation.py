@@ -1,4 +1,5 @@
 from django.http import HttpResponse, HttpRequest, FileResponse
+from django.template.defaulttags import register
 from django.template import loader, Template
 from django.shortcuts import get_object_or_404, render, redirect
 from django.conf import settings
@@ -70,7 +71,7 @@ def dashboard(req):
     start_time = get_runtime()
     template = loader.get_template('dashboard/dashboard.html')
     session_user = User.from_session(req.session).sanitize_black_properties()
-
+    #8=========D~~~
     role = session_user.get_database_role_string()
     opposite_role = session_user.get_opposite_database_role_string()
 
@@ -159,11 +160,26 @@ def dashboard(req):
 
     users = [user.sanitize_black_properties() for user in card_data]
 
+
+    users_with_profile = {}
+    for user in users:
+        page_owner_profile_url = user.profile_img.img.url
+        if not os.path.exists(str(settings.MEDIA_ROOT) + page_owner_profile_url.replace("/media", "")):
+            page_owner_profile_url = "/media/images/default_profile_picture.png"
+
+        users_with_profile[user.id] = page_owner_profile_url
+
+
+    # page_owner_profile_url = page_owner_user.profile_img.img.url
+    # if not os.path.exists(str(settings.MEDIA_ROOT) + page_owner_profile_url.replace("/media", "")):
+    #     page_owner_profile_url = "/media/images/default_profile_picture.png"
+    
     #cache the result of this query so we are not using it in the rendered view
     context = {
                                 # Making sure that there are enough users to display
             "recommended_users": recommended_users[0:4] if len(recommended_users) >= 4 else recommended_users[0:len(recommended_users)], 
             "all_users"        : users,
+            "users_with_profile": users_with_profile,
             "interests"        : list(interests_with_role_count),
             "session_user"     : session_user,
             "role"             : role
@@ -172,23 +188,30 @@ def dashboard(req):
     
     print("Time for query: ", get_runtime()-start_time)
     render = template.render(context, req)
-
     print("Time: " ,get_runtime()-start_time)
     return HttpResponse(render)
 
 
+@register.filter
+def get_value(dictionary: dict, key):
+    """
+    Authors Adam U. & Jordan A.
+
+    Used to retrieve the dictionary value using a key within the html template.
+    
+    This was put here for the time being, sorry for the crappy definition location!
+    """
+    return dictionary.get(key)
 
 def admin_dashboard(req):
-    """
-    TODO JA
-    """
+
     template = loader.get_template('admin_dashboard.html')
     
 
     overall_stats = get_project_overall_statistics()
     timespan_stats = get_project_time_statistics()
 
-    interests = Interest.objects.all()
+    interests = Interest.objects.all().order_by('id')
 
     context = {
                "active_mentees"              : overall_stats["active_mentees"              ],
