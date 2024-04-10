@@ -70,8 +70,8 @@
             var org_data = JSON.parse('{{ companyLIST|escapejs }}')
             temp_orgObject = org_data.find(obj => obj.str_org_name === select_nameText);
 
-            //  CODE NEEDS TO BE IMPLEMENTED FOR AUTOFILL;
-            //  THE INDUSTRY TYPE NEEDS TO DYNAMICALLY BE SELECTED BASED ON WHICHEVER
+            //  SEE IF AN AUTOFILL CAN BE IMPLEMENTED;
+            //  THE INDUSTRY TYPE NEEDS TO DYNAMICALLY BE SELECTED (company type) BASED ON WHICHEVER
             //  ORGANIZATION NAME IS SELECTED (industry type also needs to be saved and be carried over
             //  to every organization object for this to work).
             console.log("Organization: " + temp_orgObject.str_org_name + ", Type: " + temp_orgObject.str_industry_type)
