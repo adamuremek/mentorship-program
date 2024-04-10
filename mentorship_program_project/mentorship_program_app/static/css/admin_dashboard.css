@@ -197,7 +197,7 @@ h3 {
     grid-area: blx;
 }
 
-li {
+.hero-container li {
     padding: 0.5em;
     list-style-position: inside;
 }
