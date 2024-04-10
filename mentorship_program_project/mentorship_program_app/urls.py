@@ -141,6 +141,8 @@ urlpatterns = [
     
     # CURRENTLY STATIC ROUTE -JASON
     path('admin_reported_users/', views.admin_reported_users, name='admin_reported_users'),
+    
+    # TODO is this ever called???
     path('admin_reported_users/resolve_report/', backend_requests.resolve_report, name='admin_resolve_report'),
     path('report_user/', backend_requests.report_user, name='report_user'),
 
