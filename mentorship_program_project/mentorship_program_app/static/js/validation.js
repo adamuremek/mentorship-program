@@ -413,7 +413,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     //  Take info from textfield for the organization name
                     //  if "Other" was selected from the dropdown
                     //  (Check if selection is valid).
-                    is_valid = selected_OtherOrgName.length > 0 &&
+                    is_valid = selected_OtherOrgName != selected_OtherText &&
+                        selected_OtherOrgName.length > 0 &&
                         input_job_title.value.length > 0
                 }
                 else
@@ -528,6 +529,9 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             //  If only 1 character has been typed for the organization's name...
             else if(selected_OtherOrgName.length == 1)
                 company_warning_message.innerText = "Company name must be longer than one character."
+            //  (Users cannot enter in 'Other' for their company name!)
+            else if(selected_OtherOrgName == selected_OtherText)
+                company_warning_message.innerText = "Company name is invalid. Please enter in another name."
             //  If nothing has been typed for the organization's name...
             else
                 company_warning_message.innerText = ""
