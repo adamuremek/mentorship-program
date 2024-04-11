@@ -3,13 +3,8 @@ kind: Ingress
 metadata:
   name: mentor-ingress
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-staging"
     kubernetes.io/ingress.class: "nginx"
 spec:
-  #  tls:
-  #  - hosts:
-  #    - "localhost"
-  #    secretName: tls
   rules:
     - host: "localhost"
       http:

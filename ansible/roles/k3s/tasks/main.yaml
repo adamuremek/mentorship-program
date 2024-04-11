@@ -40,33 +40,16 @@
   shell:
     cmd: "kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller --timeout=90s"
 
-- name: Install cert-manager
-  shell:
-    cmd: "kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml"
-
 - name: Create ingress config
   template:
     src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-mentor-ingress.yaml"
     dest: "/{{ absolute_project_path }}/kubernetes/ingress-controller/mentor-ingress.yaml"
 
-- name: Create production issuer config
-  template:
-    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-prod-issuer.yaml"
-    dest: "/{{ absolute_project_path }}/kubernetes/ingress-controller/prod-issuer.yaml"
-
-- name: Create staging issuer config
-  template:
-    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-staging-issuer.yaml"
-    dest: "/{{ absolute_project_path }}/kubernetes/ingress-controller/staging-issuer.yaml"
-
-#TODO: different configs depending on prod or staging
 - name: Apply configs
   shell:
     cmd: "kubectl apply -f {{ item }}"
   with_items:
     - "/{{ absolute_project_path }}/kubernetes/ingress-controller/mentor-ingress.yaml"
-    #- "/{{ absolute_project_path }}/kubernetes/ingress-controller/prod-issuer.yaml"
-    #- "/{{ absolute_project_path }}/kubernetes/ingress-controller/staging-issuer.yaml"
 
 - name: Rolling update
   shell:
