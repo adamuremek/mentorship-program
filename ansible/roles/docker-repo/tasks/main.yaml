@@ -1,0 +1,57 @@
+- name: Install Docker dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+      - python3-docker
+    state: present
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker apt repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+
+- name: Update APT Cache
+  apt:
+    update_cache: yes
+
+- name: Install Docker
+  apt:
+    name: 
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
+    update_cache: true
+
+- name: Start Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Pull Docker registry image
+  docker_image:
+    name: registry
+    state: present
+    source: pull
+
+- name: Run local Docker registry
+  docker_container: 
+    name: local_registry
+    image: registry
+    state: started
+    restart_policy: always
+    container_default_behavior: no_defaults
+
+    ports: 
+      - "5000:5000"

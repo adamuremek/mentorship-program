@@ -1,0 +1,6 @@
+- name: Set up kubernetes
+  hosts: k3s_server
+  become: true
+
+  roles:
+    - k3s

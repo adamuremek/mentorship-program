@@ -719,7 +719,8 @@ def remove_note(req: HttpRequest):
     return redirect(f"/universal_profile/{user.id}")
 
 def resolve_report(req: HttpRequest):
-    if not User.from_session(req.session).is_super_admin():
+    resolver = User.from_session(req.session)
+    if not resolver.is_super_admin():
         return bad_request_400("permission denied!")
 
     if req.method == "POST":
@@ -732,14 +733,18 @@ def resolve_report(req: HttpRequest):
         # decision == true means user was banned
         decision = 'decision' in req.POST
         # get the report
+
+
         report = UserReport.objects.get(id=id)
         report.bln_resolved = True
         report.date_resolved = timezone.now()
         report.resolved_comment = comment
-        
+
+        user = User.objects.get(id=user_id)
+        SystemLogs.objects.create(str_event=SystemLogs.Event.REPORT_RESOLVED_EVENT, specified_user=user, str_details=f"Handled by: {resolver.id}, Report: {id}")
+
         # if the user was banned, disable their account, and resolve any other issues they have
         if decision:
-            user = User.objects.get(id=user_id)
             User.disable_user(user, f"User was deactivated from report: {id}")
             # get the other outstanding reports
             other_reports = UserReport.objects.filter(user_id=user_id, bln_resolved=False)

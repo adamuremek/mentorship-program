@@ -2550,7 +2550,7 @@ class UserReport(SVSUModelData,Model):
         user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all().filter(bln_resolved=True)) for user in users_with_reports}
         return user_reports_dict
     
-        
+    # is never called :C
     @staticmethod
     def resolve_report(int_report_id: int, resolver: User):
         """
@@ -2582,8 +2582,9 @@ class UserReport(SVSUModelData,Model):
         report = UserReport.get_report_id(int_report_id)
         report.bln_resolved = True
         report.save()
-
-        SystemLogs.objects.create(str_event=SystemLogs.Event.REPORT_RESOLVED_EVENT, specified_user=report.user, str_details=f"Handled by: {resolver.id}, Report: {int_report_id}")
+        
+        print("fuck...it was called")
+        # SystemLogs.objects.create(str_event=SystemLogs.Event.REPORT_RESOLVED_EVENT, specified_user=report.user, str_details=f"Handled by: {resolver.id}, Report: {int_report_id}")
 
 
 class Notes(SVSUModelData,Model):
