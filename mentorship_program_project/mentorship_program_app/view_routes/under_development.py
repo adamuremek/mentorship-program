@@ -228,7 +228,6 @@ def register_mentor(req: HttpRequest):
         organization = None
         if(not Organization.objects.filter(str_org_name=req.POST["organization"]).exists()):
             organization = Organization.objects.create(str_org_name=req.POST["organization"])
-            organization.admin_mentor = pending_mentor_object
             organization.save()
 
         else:
@@ -878,6 +877,10 @@ def universalProfile(req : HttpRequest, user_id : int):
     for interest in interests:
         user_interests.append(interest)
 
+    # Declare phone number info incase of mentor
+    user_phone_number = ""
+    user_country_code = ""
+
     # all interests (used for editing profile)
     all_interests = Interest.objects.all()
     pendingList = []
@@ -915,6 +918,15 @@ def universalProfile(req : HttpRequest, user_id : int):
         for pending in pendingRequests:
             if pending.mentor_id != pending.requester:
                 pendingList.append(User.objects.get(id=pending.mentee_id))
+        
+        user_phone_full = profile_page_owner.str_phone_number
+        if user_phone_full != None or user_phone_full != "":
+            user_phone_full = user_phone_full.split(" ")
+            user_country_code = user_phone_full[0]
+            user_phone_number = " ".join(user_phone_full[1:])
+
+    user_pronouns = page_owner_user.str_preferred_pronouns
+    user_pronouns = user_pronouns.split("/") if user_pronouns != "/" else ["",""]
     
     # Ensure that the profile picture exist
     # If not use the default profile picture
@@ -927,13 +939,6 @@ def universalProfile(req : HttpRequest, user_id : int):
         country_codes = json.load(file)
         country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
     
-    user_pronouns = page_owner_user.str_preferred_pronouns
-    user_pronouns = user_pronouns.split("/") if user_pronouns != "/" else ["",""]
-
-    user_phone_full = profile_page_owner.str_phone_number.split(" ")
-    print(user_phone_full)
-    # user_country_code  if user_phone_full else '+1' 
-
 
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
@@ -956,8 +961,8 @@ def universalProfile(req : HttpRequest, user_id : int):
                 'pronoun1': user_pronouns[0],
                 'pronoun2': user_pronouns[1],
                 'country_codes' : country_codes,
-                'user_country_code' : user_phone_full[0],
-                'user_phone_number' : " ".join(user_phone_full[1:])
+                'user_country_code' : user_country_code,
+                'user_phone_number' : user_phone_number
                }
     return HttpResponse(template.render(context,req))
 
