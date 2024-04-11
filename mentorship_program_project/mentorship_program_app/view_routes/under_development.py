@@ -573,7 +573,7 @@ def enable_user(req:HttpRequest):
     # Get the user and set their disabled field to False
     user = User.objects.get(id=id)
     user.bln_account_disabled = False
-    
+    user.bln_active = True    
     # Save changes to user object
     user.save()
     
