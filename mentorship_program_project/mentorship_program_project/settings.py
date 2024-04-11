@@ -16,7 +16,7 @@ from dotenv import load_dotenv, find_dotenv
 import saml2
 import saml2.saml
 from os import path
-
+import mimetypes
 # Load .env file
 load_dotenv(find_dotenv())
 
@@ -32,7 +32,7 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-
+mimetypes.add_type("text/css", ".css", True)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 if os.environ.get('DEBUG'):
