@@ -273,8 +273,8 @@ form * {
 }
 
 .federated-li-container {
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin-top: 0%;
+    margin-bottom: 15px;
 }
 
 .login-buttons {
@@ -283,7 +283,7 @@ form * {
     width: 100%;
     padding: 0 10px;
     margin-top: 10px;
-    border-radius: 50px;
+    border-radius: 25px;
     outline: none;
     font-size: 1rem;
     font-weight: 500;
@@ -364,7 +364,7 @@ form * {
 }
 
 .or-container {
-    /* margin-top: 7.5px; */
+    margin-top: 7.5px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -374,7 +374,7 @@ form * {
     height: 1px;
     background-color: rgba(211, 211, 211, 0.6);
     /* background-color: #E6E6E6; */
-    flex-grow: 1;
+    /* flex-grow: 1; */
     margin: 0 10px;
 }
 
@@ -385,15 +385,14 @@ form * {
 .or {
     display: flex;
     justify-content: center;
-    /* margin-top: 5px; */
+    margin-top: 8px;
     color: #FFFFFF;
     font-size: 15px;
 }
 
 .email-password-fields {
-    display: block;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 input,
@@ -487,18 +486,12 @@ input:-moz-autofill:active {
     font-family: var(--ff-roboto);
 }
 
-#forgot-pass-btn {
-    padding-bottom: 10px;
-}
-
 #forgot-password-container {
-    /* display: block;
+    display: block;
     padding-left: 1em;
     margin-left: 1em;
-    margin-bottom: 1em; */
-    margin-top: 0px;
+    margin-bottom: 1em;
 }
-
 
 /* Not needed ~ artifact */
 /* #li-btn {
@@ -512,32 +505,6 @@ input:-moz-autofill:active {
     background-color: #4a5a7d;
 } */
 
-/* #mentor-li-lbl {
-    font-weight: 400;
-    letter-spacing: 1.5px;
-    text-align: center;
-} */
-
-#svsu-li-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: hsl(218, 37%, 25%);
-    /* vertical-align: middle; */
-}
-
-#svsu-li-btn img {
-    height: 25px;
-    /* vertical-align: middle; */
-    margin-right: 15px;
-    /* margin-left: auto; */
-}
-
-#svsu-li-btn:hover,
-#svsu-li-btn:focus-visible {
-    background-color: hsl(220, 32%, 27%);
-}
-
 .text-btn {
     margin-top: 7.5px;
     color: #2CA0EF;
@@ -550,7 +517,6 @@ input:-moz-autofill:active {
 .text-btn:hover,
 .text-btn:focus-visible {
     color: #2db6f1;
-    text-decoration: underline;
 }
 
 
@@ -568,7 +534,6 @@ input:-moz-autofill:active {
     font-weight: var(--fw-medium);
     color: var(--clr-font-primary);
     background-color: var(--clr-btn-submit);
-    margin-top: 10px;
 }
 
 .submit-buttons:hover,
@@ -576,20 +541,8 @@ input:-moz-autofill:active {
     background-color: var(--clr-btn-submit-highlight);
 }
 
-.text-padding-container {
-    display: block;
-    width: 95%;
-    justify-content: center;
-    padding: 0 10px;
-    margin-top: 5px;
-}
-
 #su-p {
     padding-top: 5px;
-}
-
-#su-link {
-    text-decoration: none;
 }
 
 .modal {
