@@ -41,7 +41,8 @@ WHO   WHEN     WHAT
 from datetime import datetime
 import os
 import tarfile
-from mentorship_program_project.settings import MEDIA_ROOT, BACKUP_DATABASE_ROOT
+from mentorship_program_project.settings import MEDIA_ROOT, BACKUP_DATABASE_ROOT, MEDIA_URL
+from utils.database_backup import *
 
 def run():
     #print("Hello World :)")
@@ -74,25 +75,24 @@ def run():
     Justin Goupil
     """
     try:
+        print (MEDIA_URL)
         str_time_stamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         backup_file = f"media_{str_time_stamp}"
         backup_file_path = f"{BACKUP_DATABASE_ROOT}/{backup_file}"
         tarball_path = f"{backup_file_path}.tar.gz"
 
-        #print(str_time_stamp +"\t"+ backup_file +"\n"+ backup_file_path +"\n"+ tarball_path +"\n" + f'{os.path.abspath(os.environ.get("MEDIA_ROOT"))}\images')
-        #return 0
-
-        # Create tarball
-        #with tarfile.open(f'{os.path.abspath(os.environ.get("MEDIA_ROOT"))}\images', 'x:gz') as tar:
-        #    tar.add(tarball_path, arcname=os.path.basename(backup_file_path))
-
         with tarfile.open(tarball_path, "w:gz") as tar:
             tar.add(f'{MEDIA_ROOT}\images', arcname=os.path.basename(f'{MEDIA_ROOT}\images'))
         
-        print(f"Media folder has been backedup in {tarball_path}.")
+        #Remove the oldest file
+        remove_oldest_file("media",".tar.gz")
+
+        print(f"Media folder has been backed up in {tarball_path}.")
         return 0
             
     except FileExistsError as e:
         #This should never happen, but just in case it does.
         print(f"This file already exists: {backup_file_path}\nError: {e}\n")
         return 1
+    
+

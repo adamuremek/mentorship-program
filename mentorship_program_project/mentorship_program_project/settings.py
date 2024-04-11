@@ -180,6 +180,9 @@ MEDIA_ROOT = os.getenv("MEDIA_ROOT", f"{BASE_DIR}/media/")
 BACKUP_DATABASE_URL = "/DATABASE_BACKUPS/"
 BACKUP_DATABASE_ROOT = os.getenv("BACKUP_ROOT", f"{BASE_DIR}/DATABASE_BACKUPS/")
 
+# Number of backups to be maintained
+BACKUP_DATABASE_COUNT = 3
+
 #EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend' #####for debuging
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

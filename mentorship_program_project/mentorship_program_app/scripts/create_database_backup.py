@@ -40,6 +40,7 @@ from datetime import datetime
 import os
 import tarfile
 from mentorship_program_project.settings import BACKUP_DATABASE_ROOT
+from utils.database_backup import *
 
 def run():
     """
@@ -69,6 +70,9 @@ def run():
     -------
     Justin Goupil
     """
+    DB_NAME = os.environ.get('DB_NAME')
+
+ 
 
     try:
         str_time_stamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -100,6 +104,9 @@ def run():
 
         #Remove the uncompressed file
         os.remove(backup_file_path)
+
+        #Remove the oldest file
+        remove_oldest_file(DB_NAME, ".sql.tar.gz")
 
 
         print(f"Backup created successfully: {os.path.abspath(tarball_path)}")
