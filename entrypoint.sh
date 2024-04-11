@@ -22,5 +22,8 @@ then
     echo "Done collecting static"
 fi
 
+# Copy default media files into the media directory
+cp -r /mentorship_program/mentorship_program_project/media/* /media/
+
 # Execute the default docker cmd or one passed to the entrypoint script
 exec "$@"
