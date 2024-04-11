@@ -14,7 +14,7 @@
             <p id="frm-company-warning-message" class="error-message"></p>
         </div>
         <div>
-            <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp." maxlength="100" style="visibility: hidden;">
+            <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp." maxlength="100" style="display: none;">
         </div>
         
     </div>
@@ -62,11 +62,11 @@
 
         if(select_nameText == selected_OtherText)
         {
-            document.getElementById("organization").style.visibility = 'visible'
+            document.getElementById("organization").style.display = 'flex'
         }
         else 
         {
-            document.getElementById("organization").style.visibility = 'hidden'
+            document.getElementById("organization").style.display = 'none'
             var org_data = JSON.parse('{{ companyLIST|escapejs }}')
             temp_orgObject = org_data.find(obj => obj.str_org_name === select_nameText);
 

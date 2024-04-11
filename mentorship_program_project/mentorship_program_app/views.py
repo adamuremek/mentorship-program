@@ -258,7 +258,9 @@ def register_mentor(req):
     org_data_set = Organization.objects.all().values()
     org_data_json = json.dumps(list(org_data_set))
     
+    
     context = {
+        'user' : None,
         'is_mentee' : is_mentee,
         'interestlist': Interest.objects.all(),
 
@@ -314,7 +316,9 @@ def register_mentor(req):
             'Video Game Development',
             'Virtual Reality',
             'Wireless Communication Provider'],
-            
+        
+        # If this needs to be changed
+        # also change it in the mentor mentee group page
         'experiencelist': [
             '0-4 years',
             '5-9 years', 

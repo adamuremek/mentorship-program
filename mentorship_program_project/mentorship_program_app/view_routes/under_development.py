@@ -19,17 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.utils import timezone
 
-"""
-TODO: if a mentee wants to register to be a mentor, possibly have them sign up again
-through the mentor sign up route and update their role user entry in the DB to mentor when approved
-
-TODO: Have mentors fill out more information when signing up so the admin get a better 
-
-TODO: Send email when mentor is approved/declined
-
-"""
-
-
+from typing import Dict
 
 def is_ascii(s: str) -> str:
     '''
@@ -806,6 +796,8 @@ def view_mentor_by_admin(req: HttpRequest):
         for interest in interests:
             user_interests.append(interest.strInterest)
 
+
+
         context = {"first_name": user.str_first_name,
                    "last_name": user.str_last_name,
                    "job_title": mentor.str_job_title,
@@ -814,7 +806,7 @@ def view_mentor_by_admin(req: HttpRequest):
                    "experience" : mentor.str_experience,
                    "phone" : phone,
                    "email" : email,
-                   "user" : user.sanitize_black_properties()
+                   "user" : user.sanitize_black_properties(),
                    }
         return HttpResponse(template.render(context, req))
 
@@ -929,7 +921,20 @@ def universalProfile(req : HttpRequest, user_id : int):
     page_owner_profile_url = page_owner_user.profile_img.img.url
     if not os.path.exists(str(settings.MEDIA_ROOT) + page_owner_profile_url.replace("/media", "")):
         page_owner_profile_url = "/media/images/default_profile_picture.png"
-          
+        
+    country_codes : Dict
+    with open('mentorship_program_app/view_routes/countries.json', 'r') as file:
+        country_codes = json.load(file)
+        country_codes = sorted(country_codes, key=lambda item: item["dial_code"])
+    
+    user_pronouns = page_owner_user.str_preferred_pronouns
+    user_pronouns = user_pronouns.split("/") if user_pronouns != "/" else ["",""]
+
+    user_phone_full = profile_page_owner.str_phone_number.split(" ")
+    print(user_phone_full)
+    # user_country_code  if user_phone_full else '+1' 
+
+
     context = {
                 "signed_in_user": signed_in_user.sanitize_black_properties(),
                 "is_page_owner": is_page_owner,
@@ -945,6 +950,14 @@ def universalProfile(req : HttpRequest, user_id : int):
                 "num_mentees" : num_mentees,
                 "mentees_or_mentor" : mentees_or_mentor,
                 "report_types" : report_types,
+                'experiencelist': ['0-4 years','5-9 years', '10+ years'],
+                'pronounlist1': ['', 'he', 'she', 'they'],
+                'pronounlist2': ['', 'him', 'her', 'them'],
+                'pronoun1': user_pronouns[0],
+                'pronoun2': user_pronouns[1],
+                'country_codes' : country_codes,
+                'user_country_code' : user_phone_full[0],
+                'user_phone_number' : " ".join(user_phone_full[1:])
                }
     return HttpResponse(template.render(context,req))
 
@@ -1052,7 +1065,17 @@ def save_profile_info(req : HttpRequest, user_id : int):
     if req.method == "POST":
         #Get the user being modified
         page_owner_user = User.objects.get(id=user_id)
+        if page_owner_user.is_mentor():
+            if "select-experience" in req.POST:
+                page_owner_user.mentor.str_experience = req.POST["select-experience"]
+            if "job-title-input" in req.POST:
+                page_owner_user.mentor.str_job_title = req.POST["job-title-input"]
 
+        if "firstname-edit" in req.POST:
+            page_owner_user.str_first_name = req.POST["firstname-edit"]
+        
+        if "lastname-edit" in req.POST:
+            page_owner_user.str_last_name = req.POST["lastname-edit"]
         #Change profile picture
         if "profile_image" in req.FILES:
             new_pfp = req.FILES["profile_image"]
@@ -1060,6 +1083,14 @@ def save_profile_info(req : HttpRequest, user_id : int):
             # update_profile_img(user_id, new_pfp)
             
             page_owner_user.profile_img.img.save(new_pfp.name, new_pfp)
+        #Change prefered pronouns
+        
+        if "pronouns1" in req.POST or "pronouns2" in req.POST:
+            page_owner_user.str_preferred_pronouns = f"{req.POST['pronouns1']}/{req.POST['pronouns2']}" 
+
+        if "phone-country-code" in req.POST or "phone-edit" in req.POST:
+            page_owner_user.str_phone_number = f"{req.POST['phone-country-code']} {req.POST['phone-edit']}"
+            pass
 
         #Set the new interests
         new_interests: list = req.POST.getlist("selected_interests")
@@ -1072,7 +1103,7 @@ def save_profile_info(req : HttpRequest, user_id : int):
         if page_owner_user.is_mentor():
             if req.POST["max_mentees"]:
                 page_owner_user.mentor.int_max_mentees = req.POST["max_mentees"]
-                page_owner_user.mentor.save()
+            page_owner_user.mentor.save()
 
         #Set the new bio
         page_owner_user.str_bio = req.POST["bio"]
