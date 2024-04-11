@@ -505,8 +505,8 @@ def admin_user_management(request):
             'account': mentee,
             'id': str(mentee),
             'mentor': mentee.mentor
-        })
-
+        }) 
+        
     context = {
         'mentees': mentees,
         'unaffiliated_mentors': [
@@ -520,7 +520,6 @@ def admin_user_management(request):
         'role': session_user.str_role,
 
         'session_user_account': session_user,
-        'organization_counter': Organization.objects.count(),
 
         'user_admin_flag': session_user.is_super_admin(),
         'user_organization_admin_flag': session_user.is_an_org_admin()

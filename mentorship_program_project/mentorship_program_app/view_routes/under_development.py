@@ -1585,7 +1585,7 @@ def edit_mentors_org(req : HttpRequest, mentor_id: int, org_id : int):
     old_org = User.objects.get(id=mentor_account.account_id).get_organization()
     new_org = Organization.objects.get(id=org_id)
     mentor_account.organization.set([new_org])
-    SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_ORGANIZATION_CHANGED_EVENT, str_detail=f'Handled by: {user_from_session.id},  {new_org.str_org_name} -> {old_org.id}')
+    SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_ORGANIZATION_CHANGED_EVENT, str_details=f'Handled by: {user_from_session.id},  {new_org.str_org_name} -> {old_org}')
     # mentor_account.organization.remove(new_org)
 
     return HttpResponse("Organization updated")
@@ -1755,3 +1755,33 @@ def toggle_notifications(req : HttpRequest, status : bool):
     user.save()
 
     return HttpResponse("Status Updated")
+
+def get_next_org(req: HttpRequest):
+    '''
+    Description
+    -----------
+    Function creates a tempary placehold organization stores the id, then deletes it, returns the string value of the next created organization object. This operation is restricted to super admins only, ensuring that only authorized users can see organization records from the system.
+
+    Parameters
+    ----------
+    - req : HttpRequest
+        The HTTP request object containing the session of the currently logged-in user. Used to verify if the user possesses super admin privileges.
+
+    Returns
+    -------
+    HttpResponse
+        Returns an HTTP response indicating the outcome of the operation. If successful, it confirms that the organization was deleted. If the operation fails due to lack of permissions or if the specified organization does not exist, it returns a 400 Bad Request response.
+
+    Authors
+    -------
+    - Anthony P.
+    '''
+    user_from_session = User.from_session(req.session)
+    if not user_from_session.is_super_admin():
+        return bad_request_400("Permission denied")
+    
+    temp_org = Organization.objects.create(str_org_name="PLACEHOLDER")
+    organization_id = str(temp_org)
+    temp_org.delete()
+
+    return JsonResponse({'organization_id': organization_id})

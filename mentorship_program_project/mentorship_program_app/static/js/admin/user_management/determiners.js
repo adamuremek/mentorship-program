@@ -1026,6 +1026,20 @@ export function determine_bar_filter_buttons()
 
 }
 
+// Function determines id from the passed string then, converts value to number and multiple by -1 to invert value for placeholder array index
+export function determine_new_organization_placeholder_index(id)
+{
+    return Number( determine_id_from_string(id) ) * -1;    
+
+}
+
+// Function determines if the passed organization id is greater than 0, meaning it is a placeholder id
+export function determine_if_placeholder_organization_id(id)
+{
+    return( Number( determine_id_from_string(id) ) < 0 );
+
+}
+
 
 
 // // Returns value based on if there is not unaffiliated mentors in the mentor bar container

@@ -127,8 +127,6 @@ async function attempt_mentor_report(mentor_id) {
 */
 function attempt_create_new_organziation(organzation_name)
 {
-	// return "/create_new_orgnization/" + organzation_name;
-
     return new Request("/create_new_orgnization/" + organzation_name, {
                             method: "POST",
                             headers: {
@@ -144,8 +142,6 @@ function attempt_create_new_organziation(organzation_name)
 */
 function attempt_remove_organization(orgnaization_id)
 {
-	// return "/delete_orgnization/" + orgnaization_id;
-
 	return new Request("/delete_orgnization/" + orgnaization_id, {
 			method: "POST",
 			headers: {
@@ -300,6 +296,23 @@ async function view_profile(user_id)
 	window.open("/universal_profile/" + user_id, '_blank');
 }
 
+/*
+* requests that the back end returns the last created organzation's ids --ANTHONY PETERS
+*/
+async function attempt_get_next_created_organization_id()
+{
+	const response = await fetch("/get_next_organization_id", {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'X-CSRFToken': csrftoken
+			},
+			mode: 'same-origin'
+	}).then(response => response.json());
+
+	return response.organization_id;
+
+}
 
 
 
