@@ -228,7 +228,6 @@ def register_mentor(req: HttpRequest):
         organization = None
         if(not Organization.objects.filter(str_org_name=req.POST["organization"]).exists()):
             organization = Organization.objects.create(str_org_name=req.POST["organization"])
-            organization.admin_mentor = pending_mentor_object
             organization.save()
 
         else:
