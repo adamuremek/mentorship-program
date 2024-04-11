@@ -30,9 +30,26 @@
                     </div>
                     <div class="line"></div>
 
-                    <button type="button" class="login-buttons" id="show-li-btn">Mentor Tools</button>
+                    <div class="federated-li-container">
+                        <!-- DONT CHANGE THIS ID. CRUCIAL FOR JAVASCRIPT EXECUTION -->
+                        <!-- FUTHERMORE, DONT CHANGE ANY ID WITHOUT THOROUGHLY CHECKING FOR OTHER CRITICAL OCCURANCES -->
+                        <button type="button" class="login-buttons" id="svsu-li-btn">
+                            <img src="{% static 'images/svsu-block.jpg' %}" alt="">
+                            Student Portal
+                        </button>
+                    </div>
 
-                    <div class="email-password-fields" style="display:none">
+                    <div class="or-container | or">
+                        <div class="line"></div>
+                        <div class="or-text">or</div>
+                        <div class="line"></div>
+                    </div>
+
+                    <!-- <button type="button" class="login-buttons" id="show-li-btn">Mentor Portal</button> -->
+
+                    <!-- <h1 id="mentor-li-lbl">Mentor Portal</h1> -->
+
+                    <div class="email-password-fields">
                         <input type="email" id="email" name="email" placeholder="Email">
                         <div class="password-container">
                             <input type="password" id="password" class="password-hidden" name="password" placeholder="Password">
@@ -47,17 +64,15 @@
                                 </svg>
                             </button>
                         </div>
-                        <button type="button" class="login-buttons" id="li-btn" style="width:80%;margin:.5em auto;height:2em;">Mentor Login</button>
-                        <p id="frm-warning-message" class="error-message"></p>
-                        <div id="forgot-password-container">
-                            <p id="su-p"><span id="su-span">Don't have an account?</span> <span class="text-btn" tabindex="0"><a class="text-btn" id="su-link" href="/role_selection">Sign Up</a></span></p>
-                            <p><span class="text-btn" id="forgot-pass-btn" tabindex="0">Forgot Password?</span></p>
+                        <div class="text-padding-container">
+                            <span class="text-btn" id="forgot-pass-btn" tabindex="0">Forgot Password?</span>
                         </div>
-                        <div class="line"></div>
+                        <p id="frm-warning-message" class="error-message"></p>
+                        <button type="button" class="login-buttons | submit-buttons" id="li-btn">Login</button>
+                        <div class="text-padding-container" id="forgot-password-container">
+                            <p id="su-p"><span id="su-span">Don't have an account?</span> <span class="text-btn" tabindex="0"><a class="text-btn" id="su-link" href="/role_selection">Sign Up</a></span></p>
+                        </div>
                     </div>
-                    <!-- DONT CHANGE THIS ID. CRUCIAL FOR JAVASCRIPT EXECUTION -->
-                    <!-- FUTHERMORE, DONT CHANGE ANY ID WITHOUT THOROUGHLY CHECKING FOR OTHER CRITICAL OCCURANCES -->
-                    <button type="button" class="login-buttons" id="svsu-li-btn">SVSU Portal</button>
                 </form>
             </div>
         </div>
@@ -79,13 +94,13 @@
         }
     });
     
-    const mentor_input_fields = document.getElementsByClassName('email-password-fields')[0]
-    document.getElementById('show-li-btn').addEventListener('click', () => {
-        if(mentor_input_fields.style.display == 'block')
-            mentor_input_fields.style.display = 'none'
-        else
-            mentor_input_fields.style.display = 'block'
-    })
+    // const mentor_input_fields = document.getElementsByClassName('email-password-fields')[0]
+    //  document.getElementById('show-li-btn').addEventListener('click', () => {
+    //     if(mentor_input_fields.style.display == 'block')
+    //       mentor_input_fields.style.display = 'none'
+    //   else
+    //       mentor_input_fields.style.display = 'block'
+    // })
 </script>
 
 {% endblock %}
