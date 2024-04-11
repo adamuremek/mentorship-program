@@ -237,6 +237,9 @@ SAML_ATTRIBUTE_MAPPING = {
     'givenName': ('first_name', ),
     'surname': ('last_name', ),
     'objectIdentifier': ('object_identifier', ),
+    'email': ('email', 'username'),
+    'firstName': ('first_name', ),
+    'lastName': ('last_name', ),
 }
 
 # From djangosaml2 docs
