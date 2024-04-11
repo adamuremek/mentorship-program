@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: deactivate-inactive-accounts
+spec:
+  schedule: "* 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: web
+            image: localhost:5000/project-kubernetes
+            envFrom:
+            - secretRef:
+                name: mentor-secret
+            - configMapRef:
+                name: mentor-config
+            command:
+            - /bin/sh
+            - -c
+            - python /mentorship_program/mentorship_program_project/manage.py runscript deactivate_inactive_accounts
+          restartPolicy: OnFailure

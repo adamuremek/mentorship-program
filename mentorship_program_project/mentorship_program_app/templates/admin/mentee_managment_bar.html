@@ -1,86 +1,82 @@
 {% load static %}
 
-<div class="mentee_management_bar" >
-    <div id="user_account">
-        {{ mentee.id }}
-    </div>
+<div class="mentee_management_bar_container_active">
+    <div class="mentee_management_bar" >
+        <div id="account">
+            {{ mentee.id }}
+        </div>
 
-    <div id="user_mentor">
-        {{ mentee.mentor }}
-    </div>
+        <div id="user_account">
+            {{ mentee.account.account }}
+        </div>
 
-    <div id="session_user_flag">
-        {% if mentee.id == session_user_account %}
-            1
-        {% else %}
-            0
-        {% endif %}
-    </div>
+        <div id="user_mentor">
+            {{ mentee.mentor.account }}
+        </div>
 
-    <img class="card-profile-image" src="{{ user.img_user_profile.url }}"/>
+        <div id="session_user_flag">
+            {% if mentor.account.account == session_user_account %}
+                1
+            {% else %}
+                0
+            {% endif %}
+        </div>
+
+        <div id="user_account_disabled">
+            {% if mentee.account.account.bln_account_disabled %}
+                1    
+            {% else %}
+                0
+            {% endif %}
+        </div>
 
         <p class="user_management_bar_name" id="admin_user_management_medium_text">  
-                {{ mentee.account.str_first_name }} {{ mentee.account.str_last_name }}
+                {{ mentee.account.account.str_first_name }} {{ mentee.account.account.str_last_name }}
         </p>
 
-    {% if not mentee.mentor %}
-        <button class="admin_user_management_button_clear_active" id="plus_button">
-            <img class="user_management_icon" src="{% static 'images/icons/add-icon.png' %}">
-        </button>
-        
-        <button class="admin_user_management_button_clear_inactive" id="remove_button">
-            <img class="user_management_icon" src="{% static 'images/icons/remove-icon.png' %}">
-        </button>
-    {% else %}
-        <button class="admin_user_management_button_clear_inactive" id="plus_button">
-            <img class="user_management_icon" src="{% static 'images/icons/add-icon.png' %}">
-        </button>
+    </div>
 
-        <button class="admin_user_management_button_clear_active" id="remove_button">
-            <img class="user_management_icon" src="{% static 'images/icons/remove-icon.png' %}">
-        </button>
-    {% endif %}
-    
-    <button class="admin_user_management_button_clear_active" id="{{mentee.account.id}}">
-        <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
-    </button>
-
-    {% if mentee.account.bln_account_disabled %}
-        <div id="user_account_disabled">
-            1
-        </div>
-    {% else %}
-        <div id="user_account_disabled">
-            0
-        </div>
-    {% endif %}
-
-    {% if user_admin_flag %}
-        {% if not mentee.deactivated %}
-            <button class="admin_user_management_button_clear_active" id="trashcan_button">
-                <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+    <div class="mentee_management_bar" >
+        {% if not mentee.mentor %}
+            <button class="admin_user_management_button_clear_active" id="plus_button" title="Add mentor">
+                <img class="user_management_icon" src="{% static 'images/icons/add-icon.png' %}">
             </button>
-
-            <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button">
-                <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+            
+            <button class="admin_user_management_button_clear_inactive" id="remove_button" title="Remove mentor">
+                <img class="user_management_icon" src="{% static 'images/icons/remove-icon.png' %}">
             </button>
         {% else %}
-            <button class="admin_user_management_button_clear_inactive" id="trashcan_button">
-                <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+            <button class="admin_user_management_button_clear_inactive" id="plus_button" title="Add mentor">
+                <img class="user_management_icon" src="{% static 'images/icons/add-icon.png' %}">
             </button>
 
-            <button class="admin_user_management_button_clear_active" id="trashcan_off_button">
-                <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+            <button class="admin_user_management_button_clear_active" id="remove_button" title="Remove mentor">
+                <img class="user_management_icon" src="{% static 'images/icons/remove-icon.png' %}">
             </button>
         {% endif %}
-    {% endif %}
+        
+        <button class="admin_user_management_button_clear_active" id="view_button" title="View account page">
+            <img class="user_management_icon" src="{% static 'images/icons/eye-icon.png' %}">
+        </button>
 
-    <hr>
+        {% if user_admin_flag %}
+            {% if not mentee.deactivated %}
+                <button class="admin_user_management_button_clear_active" id="trashcan_button" title="Disable account">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+                </button>
 
+                <button class="admin_user_management_button_clear_inactive" id="trashcan_off_button" title="Enable account">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+                </button>
+            {% else %}
+                <button class="admin_user_management_button_clear_inactive" id="trashcan_button" title="Disable account">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-icon.png' %}">
+                </button>
+
+                <button class="admin_user_management_button_clear_active" id="trashcan_off_button" title="Enable account">
+                    <img class="user_management_icon" src="{% static 'images/icons/trashcan-off-icon.png' %}">
+                </button>
+            {% endif %}
+        {% endif %}
+    </div>
 </div>
-
-<script>
-    document.getElementById("{{ mentee.account.id }}").addEventListener("click", function() {
-      window.location.href = "{% url 'universal_profile' mentee.account.id %}";
-    });
-</script>

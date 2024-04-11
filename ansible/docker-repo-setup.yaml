@@ -1,0 +1,7 @@
+- name: Set up local Docker repository
+  hosts: k3s_server
+  become: true
+
+
+  roles:
+    - docker-repo

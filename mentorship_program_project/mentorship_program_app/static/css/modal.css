@@ -15,8 +15,8 @@
 
 /* ----- Modal Component Styling ----- */
 
-.container {
-    padding-bottom: 10px;
+.modal .container {
+    padding-bottom: 1em;
 }
 
 .modal {
@@ -134,7 +134,8 @@
     line-height: 1.1em;
     border-radius: 4px;
     border: none;
-    background-color: rgba(255, 255, 255, 0.07);
+    background-color: var(--clr-btn-submit);
+
     box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
 
     padding: .5em;
@@ -145,7 +146,7 @@
     overflow: scroll;
 }
 
-#btn-create-note {
+.btn-modal-submit {
     font-family: var(--ff-primary);
     font-size: 2rem;
     font-weight: var(--fw-medium);
@@ -170,4 +171,43 @@
 #btn-create-note:hover,
 #btn-create-note:focus-visible {
     background-color: var(--clr-btn-submit-highlight);
+}
+
+.btn-modal-submit:hover,
+.btn-modal-submit:focus-visible {
+    background-color: var(--clr-btn-submit-highlight);
+}
+
+.btn-remove-interest, #btn-add-interest {
+    background: inherit;
+    font-size: large;
+    border-radius: 25px;
+    width: 2em;
+}
+
+#modal_deleted_interests {
+    display: none;
+}
+
+.modal .interest-id {
+    width: 3em;
+    text-align: center;
+}
+
+.modal textarea {
+    resize: none;
+    width: 90%;
+    padding: .25em
+}
+
+.modal input[type=checkbox] {
+    width: auto;
+    margin: 0 0.5em;
+    width: 1em;
+}
+
+#ban-user-decision {
+    display: flex;
+    width: 100%;
+    justify-content: center;
 }

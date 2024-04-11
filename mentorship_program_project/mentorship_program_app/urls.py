@@ -87,6 +87,17 @@ urlpatterns = [
    # path('profile_pic/<int:user_id>')
     #=================================================#
 
+            # ROUTES FOR USER MANGAGEMENT PAGE
+    path('create_new_orgnization/<str:org_name>', under_development.admin_create_new_org, name='create new organization'),
+    path('delete_orgnization/<int:org_id>', under_development.admin_delete_org, name='delete organization'),
+    path('edit_mentor_organization/<int:mentor_id>/<int:org_id>', under_development.edit_mentors_org, name='edit mentor organization'),
+    path('remove_mentors_org/<int:mentor_id>/<int:org_id>', under_development.remove_mentors_org, name='remove mentor organization'),
+    path('promote_organization_admin/<int:promoted_mentor_id>', under_development.promote_org_admin, name='prmote mentor to organization admin'),
+    path('disable_user', under_development.disable_user, name='disable user'),
+    path('enable_user', under_development.enable_user, name='enable user'),
+    path('create_mentorship/<int:mentee_user_account_id>/<int:mentor_user_account_id>', under_development.create_mentorship, name='add mentorship'),
+    path('delete_mentorship/<int:mentee_user_account_id>', under_development.delete_mentorship, name='remove mentorship'),
+
     
     ##RESETTING PASSWORD ROUTE feel free to move to better spot in file - Tanner 🦞
     path("reset_request", under_development.reset_request, name="reset_request"),
@@ -104,18 +115,20 @@ urlpatterns = [
     path("view_mentor_by_admin", under_development.view_mentor_by_admin, name="view_mentor_by_admin"),
     path("admin_dashboard", navigation.admin_dashboard, name="admin_dashboard"),
     path("generate_report", navigation.generate_report, name="generate_report"),
-    path("group_view", under_development.group_view, name="group_view"),
+    path("update_interests", under_development.update_interests, name="update_interests"),
     path("universal_profile/<int:user_id>", under_development.universalProfile, name="universal_profile"),
     path("delete_mentorship/<int:mentee_user_account_id>", under_development.delete_mentorship, name="delete_mentorship"),
     path("change_password", under_development.change_password, name="change_password"),
     path("create_note", under_development.create_note, name="create_note"),
     path("update_note", under_development.update_note, name="update_note"),
     path("remove_note", under_development.remove_note, name="remove_note"),
+    path("resolve_report", under_development.resolve_report, name="resolve_report"),
     path("available_mentees", under_development.available_mentees, name="available_mentees"),
     path("process_file", under_development.process_file, name="process_file"),
     path("add_remove_mentees_from_file", under_development.add_remove_mentees_from_file, name="add_remove_mentees_from_file"),
     path("deactivate_your_own_account", under_development.deactivate_your_own_account, name="deactivate_your_own_account"),
     path("promote_org_admin/<int:promoted_mentor_id>", under_development.promote_org_admin, name="promote_org_admin"),
+    path("toggle_notifications/<status>", under_development.toggle_notifications, name="toggle_notifications"),
     #path("request-mentor", under_development.request_mentor, name="request-mentor"),
     
     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN
@@ -128,6 +141,8 @@ urlpatterns = [
     
     # CURRENTLY STATIC ROUTE -JASON
     path('admin_reported_users/', views.admin_reported_users, name='admin_reported_users'),
+    
+    # TODO is this ever called???
     path('admin_reported_users/resolve_report/', backend_requests.resolve_report, name='admin_resolve_report'),
     path('report_user/', backend_requests.report_user, name='report_user'),
 
@@ -167,7 +182,10 @@ urlpatterns = [
     path('dev/test_login'                 , development_views.test_login_page                 ,name='test login'),
     path('dev/is_logged_in'               , development_views.is_logged_in_test               ,name='logged in test'),
     path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships"),
-    path('dev/test_database_join'         , development_views.test_database_speed, name='test database joins' )
+    path('dev/test_database_join'         , development_views.test_database_speed, name='test database joins' ),
+
+    path('saml/login', views.saml_login, name='saml_login'),
+
 ]
 
 if settings.DEBUG:

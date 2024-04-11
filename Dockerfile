@@ -18,6 +18,9 @@ RUN pip install -r requirements.txt
 # Install netcat to check if databse is running
 RUN apt-get update && apt-get install -y netcat-openbsd
 
+# Saml requirements
+RUN apt-get install -y xmlsec1
+
 # Create static directory
 RUN mkdir /static
 

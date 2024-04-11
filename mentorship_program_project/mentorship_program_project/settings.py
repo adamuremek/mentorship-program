@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv, find_dotenv
+import saml2
+import saml2.saml
+from os import path
 
 # Load .env file
 load_dotenv(find_dotenv())
@@ -31,7 +34,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DEBUG', default=True))
+DEBUG = False
+if os.environ.get('DEBUG'):
+    DEBUG = os.environ.get('DEBUG').lower() == 'true' or os.environ.get('DEBUG').lower() == '1'
+
 
 if(DEBUG):
     ALLOWED_HOSTS = ['*']
@@ -40,7 +46,7 @@ else:
 
 
 # We need to add any origins that the server is hosted on to this list.
-CSRF_TRUSTED_ORIGINS = ['https://mentorship-program-dev.jordananodjo.com']
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', default='').split(' ')
 
 # Application definition
 
@@ -53,10 +59,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'mentorship_program_app',
+
+    'djangosaml2',
 ]
 
 
 MIDDLEWARE = [
+    'csp.middleware.CSPMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -65,7 +74,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
+    'djangosaml2.middleware.SamlSessionMiddleware',
 ]
+
 
 if DEBUG:
     # debug tool to help with query stuff
@@ -141,7 +152,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'US/Eastern'
 
 USE_I18N = True
 
@@ -163,7 +174,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # set up user loaded media urls
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = "/media"
+
+
+#EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend' #####for debuging
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.svsu.edu'  # SMTP server address
+# EMAIL_PORT = 25  # Port for sending emails (587 is the default for TLS)
+# EMAIL_USE_TLS = False  # Whether to use TLS (True/False)
+# EMAIL_HOST_USER = 'wings@svsu.edu'
+# #EMAIL_HOST_PASSWORD = 'rjrl aldq kjee ybfv'
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -172,3 +194,170 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'wingsmentorapp@gmail.com'
 EMAIL_HOST_PASSWORD = 'rjrl aldq kjee ybfv'
 
+
+# Content Security Policy
+# TODO: use hashes or nonces instead of unsafe-inline
+CSP_IMG_SRC = ("'self'", "'unsafe-inline'", 'data:')
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'fonts.googleapis.com', 'fonts.gstatic.com')
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", 'code.jquery.com')
+CSP_FONT_SRC = ("'self'", 'fonts.gstatic.com')
+CSP_DEFAULT_SRC = ("'self'")
+
+
+# For saml auth
+SESSION_COOKIE_SECURE = True
+SAML_SESSION_COOKIE_SAMESITE = 'None'
+
+AUTHENTICATION_BACKENDS = [
+    'djangosaml2.backends.Saml2Backend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Redirect here to log in with saml
+LOGIN_URL = '/saml2/login'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Redirects for after sucessful saml login and logout
+LOGIN_REDIRECT_URL = '/saml/login'
+ACS_DEFAULT_REDIERCT_URL = '/saml/login'
+LOGOUT_REDIRECT_URL = '/'
+
+# Create a new django user if they don't exist
+SAML_CREATE_UNKNOWN_USER = True
+
+# Attribute to check against existing django users
+SAML_DJANGO_USER_MAIN_ATTRIBUTE = 'email'
+SAML_DJANGO_USER_MAIN_ATTRIBUTE_LOOKUP = '__iexact'
+
+SAML_LOGOUT_REQUEST_PREFERRED_BINDING = saml2.BINDING_HTTP_REDIRECT
+SAML_IGNORE_LOGOUT_ERRORS = True
+
+SAML_ATTRIBUTE_MAPPING = {
+    'emailAddress': ('email', 'username'),
+    'givenName': ('first_name', ),
+    'surname': ('last_name', ),
+    'objectIdentifier': ('object_identifier', ),
+    'email': ('email', 'username'),
+    'firstName': ('first_name', ),
+    'lastName': ('last_name', ),
+}
+
+# From djangosaml2 docs
+SAML_CONFIG = {
+    # full path to the xmlsec1 binary programm
+  'xmlsec_binary': '/usr/bin/xmlsec1',
+
+  # your entity id, usually your subdomain plus the url to the metadata view
+  'entityid': f'https://{os.environ.get('DOMAIN')}/saml2/metadata/',
+
+  # directory with attribute mapping
+  #'attribute_map_dir': path.join(BASE_DIR, 'saml/attribute-maps'),
+
+  # Permits to have attributes not configured in attribute-mappings
+  # otherwise...without OID will be rejected
+  'allow_unknown_attributes': True,
+
+  # this block states what services we provide
+  'service': {
+      # we are just a lonely SP
+      'sp' : {
+          'name': 'WINGS Development',
+          'name_id_format': saml2.saml.NAMEID_FORMAT_TRANSIENT,
+
+          # For Okta add signed logout requests. Enable this:
+          # "logout_requests_signed": True,
+
+          'endpoints': {
+              # url and binding to the assetion consumer service view
+              # do not change the binding or service name
+              'assertion_consumer_service': [
+                  (f'https://{os.environ.get('DOMAIN')}/saml2/acs/',
+                   saml2.BINDING_HTTP_POST),
+                  ], 
+              # url and binding to the single logout service view
+              # do not change the binding or service name
+              'single_logout_service': [
+                  # Disable next two lines for HTTP_REDIRECT for IDP's that only support HTTP_POST. Ex. Okta:
+                  (f'https://{os.environ.get('DOMAIN')}/saml2/ls/',
+                   saml2.BINDING_HTTP_REDIRECT),
+                  (f'https://{os.environ.get('DOMAIN')}/saml2/ls/post',
+                   saml2.BINDING_HTTP_POST),
+                  ],
+              },
+
+          'signing_algorithm':  saml2.xmldsig.SIG_RSA_SHA256,
+          'digest_algorithm':  saml2.xmldsig.DIGEST_SHA256,
+
+           # Mandates that the identity provider MUST authenticate the
+           # presenter directly rather than rely on a previous security context.
+          'force_authn': False,
+
+           # Enable AllowCreate in NameIDPolicy.
+          'name_id_format_allow_create': False,
+
+           # attributes that this project need to identify a user
+          'required_attributes': [
+                                  'ObjectIdentifier',
+                                  'Email',
+                                  'Given Name',
+                                  'Surname',
+                                  ],
+
+           # attributes that may be useful to have but not required
+          #'optional_attributes': ['eduPersonAffiliation'],
+
+          'want_response_signed': False,
+          'authn_requests_signed': True,
+          'logout_requests_signed': True,
+          # Indicates that Authentication Responses to this SP must
+          # be signed. If set to True, the SP will not consume
+          # any SAML Responses that are not signed.
+          'want_assertions_signed': True,
+
+          'only_use_keys_in_metadata': True,
+
+          # When set to true, the SP will consume unsolicited SAML
+          # Responses, i.e. SAML Responses for which it has not sent
+          # a respective SAML Authentication Request.
+          'allow_unsolicited': True,
+
+          # in this section the list of IdPs we talk to are defined
+          # This is not mandatory! All the IdP available in the metadata will be considered instead.
+          'idp': {
+              # we do not need a WAYF service since there is
+              # only an IdP defined here. This IdP should be
+              # present in our metadata
+
+              # the keys of this dictionary are entity ids
+              os.environ.get('SAML_IDP_ENTITY_ID'): {
+                  'single_sign_on_service': {
+                      saml2.BINDING_HTTP_REDIRECT: os.environ.get('SAML_IDP_SSO_URL'),
+                      },
+                  'single_logout_service': {
+                      saml2.BINDING_HTTP_POST: os.environ.get('SAML_IDP_SLO_URL'),
+                      }
+                  },
+              },
+          },
+      },
+
+  # where the remote metadata is stored, local, remote or mdq server.
+  # One metadatastore or many ...
+  'metadata': {
+      #'local': [path.join(BASE_DIR, 'saml/remote_metadata.xml')],
+      'remote': [{"url": os.environ.get('SAML_IDP_METADATA_URL')}],
+      },
+
+  # set to 1 to output debugging information
+  'debug': 1,
+
+  # Signing
+  'key_file': path.join(BASE_DIR, 'saml/private.key'),  # private part
+  'cert_file': path.join(BASE_DIR, 'saml/public.pem'),  # public part
+
+  # Encryption
+  'encryption_keypairs': [{
+      'key_file': path.join(BASE_DIR, 'saml/private.key'),  # private part
+      'cert_file': path.join(BASE_DIR, 'saml/public.pem'),  # public part
+  }],
+}

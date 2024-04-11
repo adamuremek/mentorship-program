@@ -1,0 +1,56 @@
+- name: Install k3s
+  shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik" sh -
+
+- name: Install k3s dependencies
+  apt:
+    name:
+      - python3-kubernetes
+    state: present
+
+- name: Enable k3s service
+  systemd:
+    name: k3s
+    state: restarted
+    enabled: yes
+
+    
+- name: Add longhorn storage
+  shell:
+    cmd: "kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.6.0/deploy/longhorn.yaml"
+  
+
+- name: Apply k3s resources
+  shell:
+    cmd: "kubectl apply -f {{ item }}"
+  with_items:
+    - "/{{ absolute_project_path }}/kubernetes/storage-class.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/media-pvc.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/static-pvc.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/mentor-configmap.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/mentor-secret.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/mentor-deployment.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/mentor-service.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/jobs/inactive-accounts.yaml"
+
+- name: Apply ingress-nginx
+  shell:
+    cmd: "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml"
+
+- name: Wait for ingress-nginx rollout to finish
+  shell:
+    cmd: "kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller --timeout=90s"
+
+- name: Create ingress config
+  template:
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-mentor-ingress.yaml"
+    dest: "/{{ absolute_project_path }}/kubernetes/ingress-controller/mentor-ingress.yaml"
+
+- name: Apply configs
+  shell:
+    cmd: "kubectl apply -f {{ item }}"
+  with_items:
+    - "/{{ absolute_project_path }}/kubernetes/ingress-controller/mentor-ingress.yaml"
+
+- name: Rolling update
+  shell:
+    cmd: "kubectl rollout restart deployment/mentor"

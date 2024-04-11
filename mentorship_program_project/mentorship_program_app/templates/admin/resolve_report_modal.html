@@ -1,0 +1,52 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
+
+<dialog class="modal resolve-report-modal" id="resolve-report-modal">
+    <header class="modal-header"><img src="../static/images/x-16.png" alt="Exit Note Creation" class="modal-exit" id="modal-exit" tabindex="0"></header>
+    <div class="modal-container">
+        <form id="resolve-report-form" action="{% url 'resolve_report' %}" class="frm-note-creator" method="post">
+            {% csrf_token %}
+            
+            {% for the_user, the_reports in resolved_reports.items %}
+                {% if user.id == the_user.id %}
+                    <h2>Past Reports</h2>
+                    {% for the_report in the_reports %}
+                        <div class="past-report-container">  
+                            <h3>{{the_report.str_report_body}}</h3>
+                            <p>Report Type: {{the_report.str_report_type}}</p>
+                            {% if the_report.resolved_comment %}
+                                <h4>Resolution: {{the_report.resolved_comment}}</h4>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                <div class="modal-line" style="margin:1em"><hr></div>
+                {% endif %}
+            {% endfor %}
+<!-- bln_account_disabled -->
+<!--  if true, that user is banned -->
+            <h2>Resolve Report</h2>
+            <h3>Report Details: {{report.str_report_body}}</h3>
+            <p>Report Type: {{report.str_report_type}}</p>
+
+            <div class="modal-line" style="margin:1em"><hr></div>
+            
+            <div class="container">
+                <h3 class="heading">Report Comments:</h3>
+                <p class="subheading">Details about the issue and resolution</p>
+                <textarea id="comments" rows="12" name="comment" maxlength="1000" class="user-input" placeholder="Insert details about issue..."></textarea>
+            </div>
+
+            <div id="ban-user-decision">
+                <label for="decision">Ban User??</label>
+                <input type="checkbox" name="decision" id="decision"> 
+            </div>
+
+            <input type="hidden" name="report-id" value="{{report.id}}">
+            <input type="hidden" name="user-id" value="{{report.user_id}}">
+            
+            <button type="submit" class="btn-modal-submit" id="btn-resolve-note">Resolve</button>
+
+        </form>
+    </div>
+</dialog>

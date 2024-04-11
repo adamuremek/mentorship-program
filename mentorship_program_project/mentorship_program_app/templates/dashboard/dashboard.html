@@ -7,7 +7,8 @@ Dashboard
 {% endblock %}
 
 {% block style %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mentee_card.css' %}">
 {% endblock %}
 
 {% block main_content %}
@@ -61,7 +62,11 @@ Dashboard
 
                             <div id="inner-popup-content">
                                 <div class="popup-search-box">
-                                    <input type="text" name="search-interests" placeholder="Search Interests" onkeyup="filterInterests()">
+                                    {% if session_user.is_mentee %}
+                                        <input type="text" name="search-interests" placeholder="Search Interests" onkeyup="filterInterestsWithCompany()">
+                                    {% else %}
+                                        <input type="text" name="search-interests" placeholder="Search Interests" onkeyup="filterInterests()">
+                                    {% endif %}
                                 </div>
 
                                 <div class="popup-checkboxes">
@@ -69,7 +74,11 @@ Dashboard
 
                                     {% for interest in interests %}
                                         <div class="popup-checkbox-item {{ interest.strInterest }}">
-                                            <input type="checkbox" id="cb{{forloop.counter}}" name="{{ interest.strInterest }}" onchange="filterInterests()">
+                                            {% if session_user.is_mentee %}
+                                                <input type="checkbox" id="cb{{forloop.counter}}" name="{{ interest.strInterest }}" onchange="filterInterestsWithCompany()">
+                                            {% else %}
+                                                <input type="checkbox" id="cb{{forloop.counter}}" name="{{ interest.strInterest }}" onchange="filterInterests()">
+                                            {% endif %}
                                             <label for="cb{{forloop.counter}}">{{interest.strInterest}} ({{interest.mentor_count}})</label>
                                         </div>
                                     {% endfor %}
@@ -79,6 +88,12 @@ Dashboard
                         </div>
                     </div>
                 </div>
+                {% if user.is_mentee %}
+                    <div class="available-search-company">
+                        <img class="search-icon" src="{% static 'images/search-icon.png' %}">
+                        <input type="text" placeholder="Search by Company" id="searchByCompanyField" oninput="filterInterestsWithCompany()">
+                    </div>
+                {% endif %}
 
                 <div class="available-search-name">
                     <img class="search-icon" src="{% static 'images/search-icon.png' %}">
@@ -112,6 +127,7 @@ Dashboard
 	let session_user_id = "{{ session_user.id }}";
 	let is_mentee_str = "{{ role }}";
 	let is_mentee = is_mentee_str == 'Mentee';
+   let has_mentor = "True"=="{{ session_user.has_mentor }}";
 </script>
 <script src = "{% static 'js/dashboard/dashboard_request_button.js' %}"></script>
 <script>
@@ -152,7 +168,7 @@ Dashboard
     filterInterests = () => {
         const users = document.getElementsByClassName('available-card')
         const search_bar = document.getElementById('searchByNameField')
-
+        
         // params
         const search_query = search_bar.value.toLowerCase()
         const selected_filters = getInterestFilters();
@@ -164,7 +180,6 @@ Dashboard
             const does_username_match = username.includes(search_query);
             // i.e. User interests are a subset of selected interests
             const do_interests_match = Array.from(selected_filters).every(filter => Array.from(user.classList).includes(filter));
-
             if(!does_username_match || !do_interests_match) {
                 user.style.display = 'none';
             } else {
@@ -172,6 +187,46 @@ Dashboard
             }
         }
     }
+
+    filterInterestsWithCompany = () => {
+        const users = document.getElementsByClassName('available-card')
+        const search_bar = document.getElementById('searchByNameField')
+        const search_by_company = document.getElementById('searchByCompanyField')
+        
+        // params
+        const search_query = search_bar.value.toLowerCase()
+        const selected_filters = getInterestFilters();
+        const search_company_query = search_by_company.value.toLowerCase()
+
+        for(const user of users) {
+
+            const username = user.getElementsByClassName('card-name')[0].innerHTML.toLowerCase();
+            const company = user.getElementsByClassName('card-organization')[0].innerHTML.toLowerCase();
+
+            const does_username_match = username.includes(search_query);
+            const does_company_match = company.includes(search_company_query)
+            // i.e. User interests are a subset of selected interests
+            const do_interests_match = Array.from(selected_filters).every(filter => Array.from(user.classList).includes(filter));
+            if(!does_username_match || !does_company_match || !do_interests_match) {
+                user.style.display = 'none';
+            } else {
+                user.style.display = 'block';
+            }
+        }
+    }
+
+
+    // -------------------- <<< MAKE CARDS CLICKABLE >>> -------------------- \\
+    document.addEventListener('DOMContentLoaded', () => {
+        const cards = document.getElementsByClassName('card')
+        if(cards)
+            for (card of cards)
+            {
+                const profile_form = card.getElementsByTagName('form')[0]
+                card.getElementsByClassName('profile-view-zone')[0].addEventListener('click', () => profile_form.submit())
+            }
+    })
+    
 </script>
 
 

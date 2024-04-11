@@ -47,9 +47,12 @@
 document.addEventListener('DOMContentLoaded', winloaded => {
 
     const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Validates <{string}@{string}.{string}>
+    //const new_regex_email = /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/ 
     const regex_email_name = /[!#$%^&*()+\[\]{}|\\;:'",<>\/?=~`]/;
     const regex_svsu = /^[^\s@]+@svsu[.]edu$/ // Validates <{string}@{svsu}.{edu}>
     const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
+    const regex_name = /^[a-zA-Z]+([ \-']{0,1}[a-zA-Z]+){0,2}[.]{0,1}$/ 
+    //Validates name including hyphens, apostrophies, and suffix (with period)
 
     // const is_student = document.getElementById('register-form-mentee')
 
@@ -59,8 +62,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_email = document.getElementById('email');
     const input_phone = document.getElementById('phone');
     const input_password = document.getElementById('password')
+    const input_confirm_password = document.getElementById('confirm-password')
 
-    const input_company = document.getElementById('organization')
+    const input_companyDropD = document.getElementById('select-company-name')
+    const input_companyTextF = document.getElementById('organization')
     // const input_company_type = document.getElementById('company-type')
     // const input_experience = document.getElementById('experience')
     const input_job_title = document.getElementById('jobTitle')
@@ -68,7 +73,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     const input_interests = document.getElementById('interests')
 
     const btn_user_agree = document.getElementById('btnUserAgree')
-    const warning_message = document.getElementById('must-accept-agreement-error')
+
+    const agreement_warning_message = document.getElementById('must-accept-agreement-error')
     const first_name_warning_message = document.getElementById('frm-first-name-warning-message')
     const last_name_warning_message = document.getElementById('frm-last-name-warning-message')
     const email_warning_message = document.getElementById('frm-email-warning-message')
@@ -117,12 +123,26 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         const input_value = e.target.value.replace(/\d/g, ""); // Remove numeric characters
         // Set input to new value
         e.target.value = input_value;
+        const regex_result = regex_name.test(e.target.value)
+
+        // Visually indicate Regex Success
+        if(regex_result)
+            input_first_name.style.backgroundColor = GREEN
+        else
+            input_first_name.style.backgroundColor = RED
     })
 
     input_last_name.addEventListener("input", e => {
         const inputValue = e.target.value.replace(/\d/g, ""); // Remove numeric characters
         // Set input to new value
         e.target.value = inputValue;
+        const regex_result = regex_name.test(e.target.value)
+
+        // Visually indicate Regex Success
+        if(regex_result)
+            input_last_name.style.backgroundColor = GREEN
+        else
+            input_last_name.style.backgroundColor = RED
     })
 
 
@@ -212,8 +232,11 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
     // Assign event listener to each button
     for (button of buttons) {
-        button.addEventListener('click', e => {
-            if (!is_page_valid(cur_id + 1))
+        button.addEventListener('click', async e => {
+            
+            let valid = await is_page_valid(cur_id + 1)
+     
+            if (!valid )
                 return
             snippets[cur_id].style = 'display: none;'
 
@@ -247,7 +270,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
      * @param {int} form_idx Index of current page of registration form
      * @returns Status of form component ( true=completed )
      */
-    function is_page_valid(form_idx) {
+    async function  is_page_valid(form_idx) {
         // Use form validation for ? mentee | mentor
         const form_function = is_student ? is_mentee_page_valid : is_mentor_page_valid
         let is_valid = true
@@ -255,19 +278,23 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         switch (form_idx) {
             case 1: // Name and Pronouns
                 is_valid = input_first_name.value.length > 0 &&
-                    input_last_name.value.length > 0
+                    input_last_name.value.length > 0 && regex_name.test(input_first_name.value)
+                    && regex_name.test(input_last_name.value)
+                
                                 
                 if(!is_valid)
                     display_error_message_for_name()
                 else
                     reset_error_messages(form_idx)
                 break
+                
 
             case 2: // Email | Phone | Password
                 is_valid = regex_custom.test(input_email.value) &&
                     regex_phone.test(input_phone.value) &&
-                    !email_already_exist(input_email.value) &&
+                    ! await email_already_exist(input_email.value) &&
                     is_password_valid()
+                 
                 if(!is_valid)
                     display_error_message_for_email_phone_password()
                 else
@@ -277,6 +304,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             default:
                 is_valid = form_function(form_idx)
         }
+ 
 
         return is_valid
     }
@@ -285,34 +313,34 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     function is_password_valid(){
        
             // Requirement 1: Password should contain 12 or more characters
-            if (input_password.value.length < 12) {
+            if (input_password.value.length < 12)
               return false;
-            }
           
             // Requirement 2: Password should contain 36 or less characters
-            if (input_password.value.length > 36) {
+            if (input_password.value.length > 36)
               return false;
-            }
           
             // Requirement 3: Password should contain a combination of uppercase letters, lowercase letters, at least one number, and at least one symbol
             const uppercaseRegex = /[A-Z]/;
             const lowercaseRegex = /[a-z]/;
             const numberRegex = /[0-9]/;
             const symbolRegex = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
-          
+            const emojiRegex = /([\u{1F600}-\u{1F64F}|\u{1F300}-\u{1F5FF}|\u{1F680}-\u{1F6FF}|\u{1F700}-\u{1F77F}|\u{1F780}-\u{1F7FF}|\u{1F800}-\u{1F8FF}|\u{1F900}-\u{1F9FF}|\u{1FA00}-\u{1FA6F}|\u{1FA70}-\u{1FAFF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}|\u{231A}-\u{231B}|\u{23E9}-\u{23EC}|\u{23F0}|\u{23F3}|\u{25FD}-\u{25FE}|\u{2614}-\u{2615}|\u{2648}-\u{2653}|\u{267F}|\u{2693}|\u{26A1}|\u{26AA}-\u{26AB}|\u{26BD}-\u{26BE}|\u{26C4}-\u{26C5}|\u{26CE}|\u{26D4}|\u{26EA}-\u{26EB}|\u{26F2}-\u{26F3}|\u{26F5}|\u{26FA}|\u{26FD}|\u{2705}|\u{270A}-\u{270B}|\u{2728}|\u{274C}|\u{274E}|\u{2753}-\u{2755}|\u{2757}|\u{2795}-\u{2797}|\u{27B0}|\u{27BF}|\u{2934}-\u{2935}|\u{2B05}-\u{2B07}|\u{2B1B}-\u{2B1C}|\u{2B50}|\u{2B55}|\u{3030}|\u{303D}|\u{3297}|\u{3299}|\u{FE0F}|\u{200D}|\u{20E3}|\u{E0020}-\u{E007F}]+|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]|\uD83D[\uDE80-\uDEFF])/gu;
             if (
               !uppercaseRegex.test(input_password.value) ||
               !lowercaseRegex.test(input_password.value) ||
               !numberRegex.test(input_password.value) ||
-              !symbolRegex.test(input_password.value)
+              !symbolRegex.test(input_password.value) ||
+              emojiRegex.test(input_password.value)
             ) {
               return false;
             }
+
+            // Ensure passwords match
+            if(input_password.value != input_confirm_password.value)
+                return false;
           
             return true;
-          
-          
-          
     }
 
      async function email_already_exist(email){
@@ -343,7 +371,6 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
 
 
-
     function is_mentee_page_valid(form_idx) {
         // If flag becomes false, a form component failed validation
         let is_valid = true
@@ -360,7 +387,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     document.getElementById('register-form-mentee').submit()
                 else 
                 {
-                    warning_message.innerText = "You must accept the user agreement\
+                    agreement_warning_message.innerText = "You must accept the user agreement\
                     in order to register."
                 } 
                 break
@@ -372,12 +399,33 @@ document.addEventListener('DOMContentLoaded', winloaded => {
     function is_mentor_page_valid(form_idx) {
         // If flag becomes false, a form component failed validation
         let is_valid = true
+
+        //  Take the current selections/entered input for the user's information..... 
+        //  the user's interests, and their response to the user agreement
+        var selected_orgName = input_companyDropD.options[input_companyDropD.selectedIndex].text
+        var selected_OtherText = "Other"
+        var selected_OtherOrgName = input_companyTextF.value
+
         switch (form_idx) {
-           
-            case 3: // company information
-                is_valid = input_company.value.length > 0 &&
-                    input_job_title.value.length > 0
-                //input_company-type.value != none ??
+            case 3:     //  Company information
+                if(selected_orgName == selected_OtherText)
+                {
+                    //  Take info from textfield for the organization name
+                    //  if "Other" was selected from the dropdown
+                    //  (Check if selection is valid).
+                    is_valid = selected_OtherOrgName != selected_OtherText &&
+                        selected_OtherOrgName.length > 0 &&
+                        input_job_title.value.length > 0
+                }
+                else
+                {
+                    //  Otherwise, take the text from what was selected
+                    //  from the dropdown
+                    //  (Check if selection is valid).
+                    is_valid = selected_orgName.length > 0 &&
+                        input_job_title.value.length > 0
+                }
+                //input_companyDropD-type.value != none ??
                 //input_expeience.value != none    ??
                 if(is_valid)
                     reset_error_messages(form_idx)
@@ -396,7 +444,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     document.getElementById('register-form-mentor').submit()
                 else
                 {
-                    warning_message.innerText = "You must accept the user agreement\
+                    agreement_warning_message.innerText = "You must accept the user agreement\
                     in order to register."
                 } 
                 break
@@ -418,17 +466,22 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
         if(input_first_name.value.length == 0)
             first_name_warning_message.innerText = "First name cannot be blank!"
+        else if(!regex_name.test(input_first_name.value))
+            first_name_warning_message.innerText = "Invalid first name."
         else
             first_name_warning_message.innerText = ""
         
         if(input_last_name.value.length == 0)
             last_name_warning_message.innerText = "Last name cannot be blank!"
+        else if(!regex_name.test(input_last_name.value))
+            last_name_warning_message.innerText = "Invalid last name."
         else
             last_name_warning_message.innerText = ""
     }
 
     async function display_error_message_for_email_phone_password(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
+        const emojiRegex = /([\u{1F600}-\u{1F64F}|\u{1F300}-\u{1F5FF}|\u{1F680}-\u{1F6FF}|\u{1F700}-\u{1F77F}|\u{1F780}-\u{1F7FF}|\u{1F800}-\u{1F8FF}|\u{1F900}-\u{1F9FF}|\u{1FA00}-\u{1FA6F}|\u{1FA70}-\u{1FAFF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}|\u{231A}-\u{231B}|\u{23E9}-\u{23EC}|\u{23F0}|\u{23F3}|\u{25FD}-\u{25FE}|\u{2614}-\u{2615}|\u{2648}-\u{2653}|\u{267F}|\u{2693}|\u{26A1}|\u{26AA}-\u{26AB}|\u{26BD}-\u{26BE}|\u{26C4}-\u{26C5}|\u{26CE}|\u{26D4}|\u{26EA}-\u{26EB}|\u{26F2}-\u{26F3}|\u{26F5}|\u{26FA}|\u{26FD}|\u{2705}|\u{270A}-\u{270B}|\u{2728}|\u{274C}|\u{274E}|\u{2753}-\u{2755}|\u{2757}|\u{2795}-\u{2797}|\u{27B0}|\u{27BF}|\u{2934}-\u{2935}|\u{2B05}-\u{2B07}|\u{2B1B}-\u{2B1C}|\u{2B50}|\u{2B55}|\u{3030}|\u{303D}|\u{3297}|\u{3299}|\u{FE0F}|\u{200D}|\u{20E3}|\u{E0020}-\u{E007F}]+|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]|\uD83D[\uDE80-\uDEFF])/gu;
 
         if (input_password.value.length == 0) {
             password_warning_message.innerText = "Password cannot be blank!";
@@ -436,8 +489,10 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             password_warning_message.innerText = "Password must be 12 or more characters.";
         } else if (input_password.value.length > 36) {
             password_warning_message.innerText = "Password must be 36 or fewer characters.";
-        } else if (!/[A-Z]/.test(input_password.value) || !/[a-z]/.test(input_password.value) || !/[0-9]/.test(input_password.value) || !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(input_password.value)) {
+        } else if (!/[A-Z]/.test(input_password.value) || !/[a-z]/.test(input_password.value) || !/[0-9]/.test(input_password.value) || !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(input_password.value) || emojiRegex.test(input_password.value)) {
             password_warning_message.innerText = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.";
+        } else if(input_password.value != input_confirm_password.value) {
+            password_warning_message.innerText = "Passwords must match"
         } else {
             password_warning_message.innerText = "";
         }
@@ -461,21 +516,46 @@ document.addEventListener('DOMContentLoaded', winloaded => {
 
     function display_error_message_for_mentor(){
         //Descriptive errors will be displayed to the user depending on what is wrong with their data
+        var selected_orgName = input_companyDropD.options[input_companyDropD.selectedIndex].text
+        var selected_OtherText = "Other"
+        var selected_OtherOrgName = input_companyTextF.value
 
-        if(input_company.value.length == 0)
-            company_warning_message.innerText = "Company cannot be blank!"
-        else if(input_company.value.length == 1)
-        company_warning_message.innerText = "Company name must be longer than one character."
+        //  If 'Other' has been selected from the dropdown...
+        if(selected_orgName == selected_OtherText)
+        {
+            //  If nothing has been typed for the organization's name...
+            if(selected_OtherOrgName.length == 0)
+                company_warning_message.innerText = "Company cannot be blank!"
+            //  If only 1 character has been typed for the organization's name...
+            else if(selected_OtherOrgName.length == 1)
+                company_warning_message.innerText = "Company name must be longer than one character."
+            //  (Users cannot enter in 'Other' for their company name!)
+            else if(selected_OtherOrgName == selected_OtherText)
+                company_warning_message.innerText = "Company name is invalid. Please enter in another name."
+            //  If nothing has been typed for the organization's name...
+            else
+                company_warning_message.innerText = ""
+        }
+        //  If anything else has been selected from the dropdown...
         else
-            company_warning_message.innerText = ""
-
+        {
+            //  If an empty space has been selected.....
+            if(selected_orgName.length == 0)
+                company_warning_message.innerText = "Company cannot be blank!"
+            //  If a company name has been selected.....
+            else
+                company_warning_message.innerText = ""
+        }
+            
+        //  If nothing has been typed for the the job title.....
         if(input_job_title.value.length == 0)
             job_title_warning_message.innerText = "Job Title cannot be blank!"
+        //  If only 1 character has been typed for the the job title.....
         else if(input_job_title.value.length == 1)
             job_title_warning_message.innerText = "Job Title must be longer than one character."
+        //  Otherwise, if a valid string of characters has been typed for the the job title.....
         else
             job_title_warning_message.innerText = ""
-        
     }
 
     function reset_error_messages(form_idx){

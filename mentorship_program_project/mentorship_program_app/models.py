@@ -361,7 +361,6 @@ class Interest(SVSUModelData,Model):
             ret_int = Interest.objects.get(strInterest = str_interest)
             return ret_int
         except ObjectDoesNotExist:
-            #TODO: put in try catch to account for connection issues
             Interest.objects.create(strInterest=str_interest).save()
 
 
@@ -453,12 +452,12 @@ class User(SVSUModelData,Model):
         super().__init__(*args,**kwargs) #let django cook
         
         #mark cached functions so we don't over query the database
-        self.cache = security.Decorators.FunctionCache()
+        self.function_cache = security.Decorators.FunctionCache()
         
         #decorate cachable functions on the init level so python understands when to remove
         #the cached data
-        self.is_mentee = self.cache.create_cached_function(self.is_mentee)
-        self.is_mentor = self.cache.create_cached_function(self.is_mentor)
+        self.is_mentee = self.function_cache.create_cached_function(self.is_mentee)
+        self.is_mentor = self.function_cache.create_cached_function(self.is_mentor)
 
 
 
@@ -467,6 +466,13 @@ class User(SVSUModelData,Model):
         first_name = self.str_first_name if self.str_first_name != None else " "
         last_name =  self.str_last_name if self.str_last_name != None else " "
         return first_name + " " + last_name
+    
+    def is_an_org_admin(self)->bool:
+        try:
+            Organization.objects.get(admin_mentor_id=self.mentor.id)
+            return True
+        except:
+            return False
 
     def get_recomended_users(self,limit : int =4):
         """
@@ -488,33 +494,27 @@ class User(SVSUModelData,Model):
 
 
 
-        
-        #TODO: we should probably get this going specifically through djangos orm's
-        #       idk if thats possible tho since this is doing a self join on a table to 
-        #       get the data we need, def more research is required
 
-        sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
-        
-        #TODO: actually get this filtering
-        not_taken = f"""
-                        SELECT COUNT(*)=0 FROM 
-                                mentorship_program_app_mentee as ment 
-                            INNER JOIN 
-                                mentorship_program_app_mentor as m 
-                            ON 
-                                m.id = mentor_id 
-                            WHERE 
-                                ment.id = {self.id} AND m.id = tu.id
-                    """
-
-
-        if self.is_mentor():
+        sub_query = ""
+        not_taken = "1=1"
+        if self.is_mentee():
+            sub_query = f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id={self.id} AND mentor_id=t1.user_id"
+           
+            if self.mentee.mentor:
+                not_taken = f"""
+                                SELECT id <> {self.mentee.mentor.id} as value FROM 
+                                        mentorship_program_app_mentor as m 
+                                    WHERE
+                                        m.account_id = tu.id
+                            """
+        else:
             sub_query = \
                 f"SELECT COUNT(*) FROM mentorship_program_app_mentorshiprequest WHERE mentee_id=t1.user_id AND mentor_id={self.id}"
 
             not_taken = f"SELECT COUNT(mentor_id)<1 FROM mentorship_program_app_mentee WHERE account_id = tu.id"
         
-        return User.objects.raw(
+
+        query = \
                     f"""
                     SELECT DISTINCT t1.user_id AS id,
                                     str_first_name,
@@ -534,7 +534,7 @@ class User(SVSUModelData,Model):
                        ORDER BY likeness DESC
                        LIMIT {limit};
                     """
-                    )
+        return User.objects.raw(query)
 
         
         #quick and dirty method
@@ -554,6 +554,80 @@ class User(SVSUModelData,Model):
 
         #return ret_val
 
+    def get_organization(self) -> list[str]:
+        """
+        Description
+        -----------
+        Gets the names of the organizations that a user belongs to
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - [str]: A list of organizations associated with the user
+
+        Example Usage
+        -------------
+
+        >>> User.get_organization()
+        '[ABC Corp]'
+
+        Authors
+        -------
+        Adam C.
+        """
+        if self.is_mentor:
+            #prefetch_related to reduce database queries
+            this_mentor = Mentor.objects.prefetch_related('organization').get(account=self)
+            organizations = this_mentor.organization.all()
+            #ideally this check isn't necessary since all mentors must have an organization, but some of the test users
+            #don't currently have orgs, so this handles those cases
+            if organizations.exists():  
+                return [org.str_org_name for org in organizations]
+            else:
+                return ['No organization associated']
+        return ['None']
+    
+    def get_job_title(self) -> str:
+        """
+        Description
+        -----------
+        Gets a user's job title if they are a mentor
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - str: A user's job title if they are a mentor
+
+        Example Usage
+        -------------
+
+        >>> User.get_job_title()
+        'Software Developer'
+
+        Authors
+        -------
+        Adam C.
+        """
+        if self.is_mentor:
+            this_mentor = Mentor.objects.get(account=self)
+            if(this_mentor.str_job_title != ""):
+                return this_mentor.str_job_title
+            else:
+                return 'No job title associated'
 
     def get_backend_only_properties(self)-> list[str]:
         """
@@ -635,18 +709,19 @@ class User(SVSUModelData,Model):
     str_password_hash =  CharField(max_length=1000, null=True, blank=False)
     str_password_salt =  CharField(max_length=1000, null=True, blank=False)
     str_role = CharField(max_length=15, choices=Role.choices, default='')
-    cls_date_joined = DateField(default=date.today)
-    cls_active_changed_date = DateField(default=date.today)
+    cls_date_joined = DateField(default=timezone.now)
+    cls_active_changed_date = DateField(default=timezone.now)
     bln_active = BooleanField(default=True)
     bln_account_disabled =  BooleanField(default=False)
 
     str_first_name : CharField =  CharField(max_length=747,null=True)
     str_last_name : CharField =  CharField(max_length=747, null=True) 
-    str_phone_number : CharField = CharField(max_length=15, null=True)
-    str_last_login_date = DateField(default=date.today)
+    str_phone_number : CharField = CharField(max_length=20, null=True)
+    str_last_login_date = DateField(default=timezone.now)
     str_gender = CharField(max_length=35, default='')
     str_preferred_pronouns = CharField(max_length=50, null=True)
     str_bio = CharField(max_length=5000, default='')
+    bln_notifications = BooleanField(default=True)
     #foregn key fields
     interests = models.ManyToManyField(Interest)
         
@@ -1001,11 +1076,6 @@ class User(SVSUModelData,Model):
         #make sure to remove all MentorShipRequests that are in the database still, since this mentee now has a mentor
         MentorshipRequest.remove_all_from_mentee(mentee_account)
 
-        # record logs
-        # record the mentee since the mentor can be gathered from it later
-        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT, 
-                                  specified_user= User.objects.get(id=mentee_user_account_id))
-
         return (mentee_account,mentee_account.mentor)
 
     @staticmethod
@@ -1047,8 +1117,7 @@ class User(SVSUModelData,Model):
             return User.ErrorCode.AlreadySelectedEmail
 
         generated_user_salt = security.generate_salt()
-        #TODO: emails need to be validated, send a sacrifical lamb
-        #to the regex gods
+
         return User.objects.create(
                     str_password_hash = security.hash_password(
                                             password_plain_text,
@@ -1181,24 +1250,26 @@ class User(SVSUModelData,Model):
         return user_info
     
     @staticmethod
-    def make_user_inactive(user :"User"):
+    def make_user_inactive(user :"User", reason : str):
         user.bln_active = False
-        
+        # if you're a mentee, get rid of your mentor and all pending requests
         if user.is_mentee():
-            user.mentor = None
+            mentee_account = Mentee.objects.get(account_id=user.id)
+            mentee_account.mentor = None
+            mentee_account.save()
             MentorshipRequest.objects.filter(mentee_id=user.id).delete()
+            SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_INACTIVATED_EVENT, specified_user= User.objects.get(id=user.id), str_details=reason)
+        # if you're a mentor, get rid of your mentees and get rid of your pending requests
         if user.is_mentor():
             mentor_account = Mentor.objects.get(account_id=user.id)
-            if mentor_account.is_admin_of_organization(mentor_account.organization):
-                Organization.find_new_org_admin()
-
             MentorshipRequest.objects.filter(mentor_id=user.id).delete()
-            mentees_for_mentor = Mentee.objects.filter(mentor_id=user.id)
+            mentees_for_mentor = Mentee.objects.filter(mentor_id=mentor_account.id)
             for mentee in mentees_for_mentor:
                 mentee.mentor = None
             Mentee.objects.bulk_update(mentees_for_mentor, ['mentor'])
+            SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_INACTIVATED_EVENT, specified_user= User.objects.get(id=user.id), str_details=reason)
         user.save()
-
+        
     @staticmethod
     def reactivate_user(user: "User"):
         if user.bln_account_disabled:
@@ -1207,10 +1278,11 @@ class User(SVSUModelData,Model):
         user.save()
         
     @staticmethod
-    def disable_user(user:"User"):
+    def disable_user(user:"User", reason):
         user.bln_account_disabled = True
         user.save()
-        User.make_user_inactive(user)
+        
+        User.make_user_inactive(user, reason)
     
     # @property
     # def img_user_profile(self):
@@ -1501,18 +1573,80 @@ class Organization(SVSUModelData,Model):
 
     admin_mentor = OneToOneField('Mentor', related_name='administered_organizations', on_delete=models.CASCADE, null=True) 
 
+    @staticmethod
+    def create_org(str_org : str, str_orgType : str = None) -> 'Organization' :
+        try:
+            return Organization.objects.create(
+                str_org_name = str_org,
+                str_industry_type = str_orgType
+            )
+        except :
+            return None
+    
+    @staticmethod
+    def get_org(str_name : str) -> 'Organization' :
+        try:
+            return Organization.objects.filter(str_org_name = str_name).first()
+        except:
+            return None
 
     @staticmethod
-    def find_new_org_admin(org_id : int):
-        # this might not work tbh
-        organization = Organization.objects.get(id=org_id)
-        # get all mentors within an organziation and order them by id
-        mentors = organization.mentor_set.all().order_by('id') 
-        # get the second oldest mentor in an org, who will become the new org admin
-        second_oldest_mentor = mentors[1:2].first()
-        # assign them as the new org admin
-        organization.admin_mentor = second_oldest_mentor
-        organization.save()
+    def update_orgName(str_name : str, str_new_org_name : str = None) -> 'Organization' :
+        try:
+            company : 'Organization' = Organization.objects.filter(str_org_name = str_name)
+        
+            if str_new_org_name != None :
+                company.str_org_name = str_new_org_name
+
+            company.save()
+
+            return company
+        except:
+            return None
+        
+    @staticmethod
+    def update_orgType(str_name : str, str_new_company_type : str = None) -> 'Organization' :
+        try:
+            company : 'Organization' = Organization.objects.filter(str_org_name = str_name)
+        
+            if str_new_company_type != None :
+                company.str_industry_type = str_new_company_type
+
+            company.save()
+
+            return company
+        except:
+            return None
+        
+    @staticmethod
+    def create_default_company_names():
+        default_company_names = [
+            "Auto Owner's Insurance",
+            "Dow",
+            "Google"]
+        
+        for company in default_company_names:
+            Organization.get_or_create_company_name(company)
+    
+    @staticmethod
+    def delete_company(str_name : str) -> 'Organization' :
+        try:
+            company : 'Organization' = Organization.objects.filter(str_org_name = str_name)
+            company.delete()
+
+            return company
+        except:
+            return None
+        
+    @staticmethod
+    def get_or_create_company_name(str_name : str) -> 'Organization':
+        try:
+            ret_company = Organization.objects.get(str_org_name = str_name)
+            return ret_company
+        except ObjectDoesNotExist:
+            #TODO: put in try catch to account for connection issues
+            Organization.objects.create(str_org_name=str_name).save()
+
 
 class Mentor(SVSUModelData,Model):
     """
@@ -1547,6 +1681,11 @@ class Mentor(SVSUModelData,Model):
     -------
     
     """
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.cache = security.Decorators.FunctionCache()
+        self.has_maxed_mentees = self.cache.create_cached_function(self.has_maxed_mentees)
 
     def has_maxed_mentees(self)->bool:
         """
@@ -1593,13 +1732,7 @@ class Mentor(SVSUModelData,Model):
         return self.organizations.all() & other.organizations.all()
         
     int_max_mentees = IntegerField(default=4)
-   
-    # TODO:
-    # I think theres a way to make this a read only query to the db
-    # which is what it prolly should be so our data states
-    # don't get de synced
-    # -dk
-    #int_recommendations = IntegerField(default=0)
+
 
     str_job_title = CharField(max_length=100)
     str_experience = CharField(max_length=50, default='')
@@ -1848,6 +1981,11 @@ class MentorshipRequest(SVSUModelData,Model):
         Tanner Williams 🦞
         """
 
+        #prevent accepting of new requests when you are already in a mentorship
+        if self.mentee.is_mentee() and self.mentee.mentee.mentor != None:
+            print("they have a mentor")
+            return False
+
         # record logs
         # record the mentee since the mentor can be gathered from it later
         mentor,mentee = session_user.create_mentorship_from_user_ids(
@@ -1859,10 +1997,11 @@ class MentorshipRequest(SVSUModelData,Model):
             
             return False
 
+        # record logs
+        # record the mentee since the mentor can be gathered from it later
         SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
                                   specified_user=mentee.account)
-
-       
+        
         MentorshipRequest.remove_all_from_mentee(mentee)
         print("AHH GOOD")
         return True
@@ -1906,13 +2045,15 @@ class MentorshipRequest(SVSUModelData,Model):
         MENTOR_MAXED_MENTEES = -1
         MENTEE_MAXED_REQUEST_AMOUNT = -2
         DATABASE_ERROR = -3
+        MENTEE_HAS_MENTOR = -4
         
         @staticmethod
         def error_code_to_string(code : int)->str:
             return [
              "MENTOR_MAXED_MENTEES",
              "MENTEE_MAXED_REQUEST_AMOUNT",
-             "DATABASE_ERROR"
+             "DATABASE_ERROR",
+             "MENTEE_HAS_MENTOR"
             ][-(code+1)]
 
     @staticmethod
@@ -1964,15 +2105,23 @@ class MentorshipRequest(SVSUModelData,Model):
 
             #prevent mentees from creating too many requests
             requester_user_account = User.objects.get(id=requester_id)
-            if requester_user_account.is_mentee() \
-            and requester_user_account.mentee.has_maxed_request_count():
-                return MentorshipRequest.ErrorCode.MENTEE_MAXED_REQUEST_AMOUNT
+            if requester_user_account.is_mentee():
+                if requester_user_account.mentee.has_maxed_request_count():
+                    return MentorshipRequest.ErrorCode.MENTEE_MAXED_REQUEST_AMOUNT
+                if requester_user_account.mentee.mentor != None:
+                    print("we will not finish the request!")
+                    return MentorshipRequest.ErrorCode.MENTEE_HAS_MENTOR
 
             mentor_ship_request = MentorshipRequest.objects.create(
                 mentor_id = int_mentor_user_id,
                 mentee_id = int_mentee_user_id,
                 requester = requester_id
             )
+
+            # record logs
+            SystemLogs.objects.create(str_event=SystemLogs.Event.REQUEST_MENTORSHIP_EVENT, 
+                                    specified_user= User.objects.get(id=requester_id))
+
             return mentor_ship_request
         except Exception as e:
             print(e)
@@ -2211,14 +2360,12 @@ class UserReport(SVSUModelData,Model):
         Authors
         -------
         Adam C.
+        Jordan A.
         """
         CONDUCT = 'Conduct'
         PROFILE = 'Profile'
         RESPONSIVENESS = 'Responsiveness'
         OTHER = 'Other'
-
-
-        # TODO: Add different issue
 
     user = ForeignKey(
         User,
@@ -2228,8 +2375,11 @@ class UserReport(SVSUModelData,Model):
     str_report_type = CharField(max_length=15, choices=ReportType.choices, default='')
     str_report_body = CharField(max_length = 3500)
     bln_resolved = BooleanField(default=False)
+    date_resolved = DateField(null=True)
+    date_reported = DateField(default=timezone.now)
+    resolved_comment = CharField(max_length=3500, null=True)
 
-    def create_user_report(str_provided_report_type: str, str_provided_report_body: str, int_user_id: int) -> bool:
+    def create_user_report(reporter: User, str_provided_report_type: str, str_provided_report_body: str, int_user_id: int) -> bool:
         """
         Description
         -----------
@@ -2263,12 +2413,14 @@ class UserReport(SVSUModelData,Model):
         """
         try:
             user = User.objects.get(id=int_user_id)
-            UserReport.objects.create(
+            report = UserReport.objects.create(
                 str_report_type = str_provided_report_type,
                 str_report_body = str_provided_report_body,
                 user = user,
                 bln_resolved = False,
             ).save()
+
+            SystemLogs.objects.create(str_event=SystemLogs.Event.REPORT_CREATED_EVENT, specified_user=user, str_details=f"Reported by: {reporter.id}, Report: {report.id}")
             return True
         except Exception as e:
             return False
@@ -2385,8 +2537,22 @@ class UserReport(SVSUModelData,Model):
         user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all().filter(bln_resolved=False)) for user in users_with_reports}
         return user_reports_dict
     
+    def get_all_reports_grouped_by_user() -> dict[User, list]:
+        users_with_reports = User.objects.annotate(report_count=Count('userreport')).filter(report_count__gt=0).prefetch_related('userreport_set')
+        user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all()) for user in users_with_reports}
+        return user_reports_dict
+    
     @staticmethod
-    def resolve_report(int_report_id: int):
+    def get_resolved_reports_grouped_by_user() -> dict[User, list]:
+        
+        # TODO: make this less cursed
+        users_with_reports = User.objects.annotate(report_count=Count('userreport', filter=Q(userreport__bln_resolved=True))).filter(report_count__gt=0).prefetch_related('userreport_set')
+        user_reports_dict: dict[User, list[UserReport]] = {user: list(user.userreport_set.all().filter(bln_resolved=True)) for user in users_with_reports}
+        return user_reports_dict
+    
+    # is never called :C
+    @staticmethod
+    def resolve_report(int_report_id: int, resolver: User):
         """
         Description
         -----------
@@ -2416,6 +2582,9 @@ class UserReport(SVSUModelData,Model):
         report = UserReport.get_report_id(int_report_id)
         report.bln_resolved = True
         report.save()
+        
+        print("fuck...it was called")
+        # SystemLogs.objects.create(str_event=SystemLogs.Event.REPORT_RESOLVED_EVENT, specified_user=report.user, str_details=f"Handled by: {resolver.id}, Report: {int_report_id}")
 
 
 class Notes(SVSUModelData,Model):
@@ -2451,7 +2620,7 @@ class Notes(SVSUModelData,Model):
     str_title = CharField(max_length=100)
     str_public_body = CharField(max_length=7000, null=True, blank=True)
     str_private_body = CharField(max_length=7000, null=True, blank=True)
-    cls_created_on = DateField(default=date.today)
+    cls_created_on = DateField(default=timezone.now)
 
 
     user = ForeignKey(User, on_delete = models.CASCADE)
@@ -2501,7 +2670,6 @@ class Notes(SVSUModelData,Model):
                 str_title = str_title,
                 str_public_body = str_public_body,
                 str_private_body = str_private_body,
-                cls_created_on = date.today(),
                 user = user
             )
             print("Note created")
@@ -2546,7 +2714,8 @@ class Notes(SVSUModelData,Model):
         } for note in pvt_notes]
             
 
-        
+#TODO add systemlogs for verify mentee ug status
+#TODO add systemlogs for User management page
 class SystemLogs(SVSUModelData,Model):
     """
     Description
@@ -2614,12 +2783,26 @@ class SystemLogs(SVSUModelData,Model):
         MENTOR_REGISTER_EVENT = "Mentor applied"
         MENTEE_DEACTIVATED_EVENT = "Mentee deactivated"
         MENTOR_DEACTIVATED_EVENT = "Mentor deactivated"
+        INTERESTS_CREATED_EVENT = "Interest created"
+        INTERESTS_UPDATED_EVENT = "Interest updated"
+        INTERESTS_DELETED_EVENT = "Interest deleted"
+        MENTOR_APPROVED_EVENT = "Mentor approved"
+        MENTOR_DENIED_EVENT = "Mentor denied"
+        REPORT_RESOLVED_EVENT ="Report resolved"
+        REPORT_CREATED_EVENT = "Report created"
+        MENTEE_INACTIVATED_EVENT = "Mentee inactivated"
+        MENTOR_INACTIVATED_EVENT = "Mentor inactivated"
+        ORGANIZATION_DELETED_EVENT = "Organization deleted"
+        ORGANIZATION_CREATED_EVENT = "Organization added"
+        MENTOR_ORGANIZATION_CHANGED_EVENT = "Mentor's organization changed"
+        AUTO_RESOLVE_EVENT = "User's reports were resolved automatically"
         
-
     str_event = CharField(max_length=500, choices=Event.choices, default='')
-    cls_log_created_on = DateField(default=date.today)
+    str_details = CharField(max_length=500, default='')
+    cls_log_created_on = DateField(default=timezone.now)
+    cls_log_created_on_sortable = DateTimeField(default=timezone.now)
     specified_user = models.ForeignKey('User', on_delete=models.CASCADE, null=True)
-
+    #TODO maybe add a handled by/resolved by field?
     
 
 
@@ -2664,7 +2847,6 @@ class ProfileImg(SVSUModelData,Model):
     Authors
     -------
     🌟 Isaiah Galaviz 🌟
-
     """
     #   The user that the image is associated with; set it as the primary key
     user = OneToOneField(
@@ -2824,8 +3006,6 @@ class PasswordResetToken(models.Model):
             return True, "Password successfully reset, Rerouting you to home page."  # Password reset successful
         except PasswordResetToken.DoesNotExist:
             return False,  "Invalid Link"
-
-
 
    
 class WhitelistedEmails(SVSUModelData,Model):

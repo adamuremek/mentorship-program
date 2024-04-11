@@ -18,42 +18,8 @@ from django.contrib import admin
 from django.urls import include, path
 from mentorship_program_app import views
 
-# urlpatterns = [
-#     path('', views.default, name='default'),
-#     path('landing/', views.landing, name='landing'),
-#     path('landing-post/', views.landingPost, name='landing-post'),
-    
-#     path('dashboard/', views.dashboard, name='dashboard'),
-#     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
-#     path('profile-card/', views.profileCard, name='profile-card'),
-
-#     path('mentor_group_view/', views.mentor_group_view, name='mentor_group_view'),
-    
-#     # -------------------- <<< BIG MOVE TEMPORARY >>> -------------------- #
-#     path('bigmove/', views.BIGMOVE, name='bigmove'),
-#     path('thebigmove/', views.THEBIGMOVE, name='thebigmove'),
-#     path('thesecondmove/', views.THESECONDMOVE, name='thesecondmove'),
-    
-#     path('register/mentee/', views.register_mentee, name='register_mentee'),
-#     path('register/mentor/', views.register_mentor, name='register_mentor'),
-
-#     # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING
-#     path('role_selection/', views.role_selection, name='role_selection'),
-
-#     path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
-#     path('account_activation_mentee_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid_mentee'),
-#     path('account_activation_mentee_valid/', views.account_activation_valid_mentee, name='account_activation_valid_mentee'),
-#     # path('account_creation_1_mentee/', views.account_creation_1_mentee, name='account_creation_1_mentee'),
-#     # path('account_creation_2_mentee/', views.account_creation_2_mentee, name='account_creation_2_mentee'),
-#     # path('account_creation_3_mentee/', views.account_creation_3_mentee, name='account_creation_3_mentee'),
-#     # path('account_creation_4_mentee/', views.account_creation_4_mentee, name='account_creation_4_mentee'),
-
-#     path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
-#     path('account_creation_0_mentor/', views.account_creation_0_mentor, name='account_creation_0_mentor'),
-#     path('account_creation_1_mentor/', views.account_creation_1_mentor, name='account_creation_1_mentor'),
-#     path('account_creation_2_mentor/', views.account_creation_2_mentor, name='account_creation_2_mentor'),
-# ]
 urlpatterns = [
-    path('', include('mentorship_program_app.urls'))
+    path('', include('mentorship_program_app.urls')),
+    path('saml2/', include('djangosaml2.urls')),
 ]
 development_urls = []

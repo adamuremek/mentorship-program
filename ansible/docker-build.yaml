@@ -1,0 +1,6 @@
+- name: Bulid and push Docker images
+  hosts: k3s_server
+  become: true
+
+  roles:
+    - role: docker-build

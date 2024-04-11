@@ -17,8 +17,14 @@
     <div class="hero-container">
 
         <div class="column-left">
+            <div class="link-container">
+                <a href="" class="return-link" id="return-btn-combined-views" onclick="event.preventDefault(); history.back();">
+                    <img src="../static/images/left-arrow.png" alt="" class="left-arrow">
+                    Back
+                </a>
+            </div>
             <div class="profile-container">
-                <img src="{{page_owner_user.profile_img.img.url}}" id="profile_pic" class="profile-picture">
+                <img src="{{page_owner_profile_url}}" id="profile_pic" class="profile-picture">
                 <div id="edit_profile_overlay" class="profile-picture-edit-overlay" style="display: none;">
                     Change Photo
                 </div>
@@ -46,7 +52,7 @@
             
             <ul>
                     {% for mentee in mentees_or_mentor %}
-                    <li class="mentee-manager">
+                    <li class="mentee-manager" id="current-mentee">
                         <a href="{% url 'universal_profile' mentee.id %}">
                             <h4>{{mentee.str_first_name}}</h4>
                             <h4>{{mentee.str_last_name}}</h4>
@@ -82,7 +88,7 @@
                             <!-- I SWEAR TO GOD, DO NOT TOUCH THIS. -->
                             <div class="please-fuck-off-and-die">
                             <a class="button-pending-action-container" href="{% if signed_in_user.is_mentee %}{% url 'accept_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'accept_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
-                                <button type="button" class="button-pending-action">&#10003;</button>
+                                <button type="button" class="button-pending-action" id="accept-mentee-btn">&#10003;</button>
                             </a>
                             <a class="button-pending-action-container" href="{% if signed_in_user.is_mentee %}{% url 'reject_mentorship_request' mentee_user_account_id=page_owner_user.id mentor_user_account_id=request.id %}{% else %}{% url 'reject_mentorship_request' mentee_user_account_id=request.id mentor_user_account_id=page_owner_user.id %}{% endif %}">
                                 <button type="button" class="button-pending-action">&#10007;</button>
@@ -131,8 +137,14 @@
                    
                     {% endif %}
 
-                    <h2>{{page_owner_user.str_job_title}}</h2>
-                    <h3>{{organization}}</h3>
+                    <div class="job-title-and-organization">
+                        {% if page_owner_user.is_mentor %}
+                            <h3>{{ page_owner_user.get_job_title }} at 
+                            {% for org in page_owner_user.get_organization %}
+						        {{ org }} </h3>
+					        {% endfor %}
+                        {% endif %}
+                    </div>
 
                     {% if interests %}
                         <h2>Specializations / Areas of Expertise:</h2>
@@ -170,8 +182,9 @@
             <hr>
             <div class="row-overview">
                 <h2 id="overview-title">Overview:</h2>
-                <textarea class="note" id="bio" name="bio" rows="20" cols="200"
-                    readonly>{{page_owner_user.cleaned_bio}}</textarea>
+                <textarea class="note" id="bio" name="bio" rows="20" cols="200" 
+                placeholder = "Welcome to WINGS! Please use this area to introduce yourself. You can include things like your hobbies, interests, goals, and your availability." 
+                readonly>{{page_owner_user.cleaned_bio}}</textarea>
             </div>
             </form>
             
@@ -273,11 +286,34 @@
 
     removeButton = document.getElementById('remove-btn');
 
+    if(removeButton)
     removeButton.addEventListener('click', function () {
         confirmationBln = confirm('Are you sure you want to remove this user?');
 
         if (!confirmationBln) {
             event.preventDefault();
+        }
+    });
+</script>
+
+<!--Script to alert mentor when they have reached their max mentee limit-->
+<script>
+    var max_mentees_value = "{{ max_mentees }}";
+    var cur_num_mentees;
+    var acceptButton;
+
+    acceptButton = document.getElementById('accept-mentee-btn');
+    cur_num_mentees = document.querySelectorAll('#current-mentee').length;
+
+    if(acceptButton)
+    acceptButton.addEventListener('click', function () {
+        //message for if user just filled their capacity
+        if (cur_num_mentees == (max_mentees_value - 1)) {
+            alert('You are now at your max capacity for mentees. To continue adding mentees, edit your Max Mentees');
+        } 
+        //message for if user already is at their capacity
+        else if (cur_num_mentees > (max_mentees_value - 1)) {
+            alert('You have already reached your max capactity for mentees. To continue adding mentees, edit your Max Mentees');
         }
     });
 </script>
@@ -402,11 +438,28 @@
         })
 
         $('#profile_image').change(function (event) {
+            let file = event.target.files[0] // Get the selected file
+
+            // Check the file size
+            if (file.size > 4500000) { // If the file is lrgaer than 4.5 MB
+                alert('The file is too large. Please upload a file smaller than 4.5 MB.')
+                return // Stop the function
+            }
+            
+            if (
+                file.type !== 'image/jpeg' &&
+                file.type !== 'image/png' &&
+                file.type !== 'image/gif'
+            ) {
+                alert('Please upload a PNG, JPEG, or GIF image file.');
+                return; // Stop the function
+            }
+
             let reader = new FileReader();
             reader.onload = function (e) {
                 $('#profile_pic').attr('src', e.target.result) // Set preview image source to selected file
             }
-            reader.readAsDataURL(event.target.files[0]); // Read the selected file as Data URL
+            reader.readAsDataURL(file); // Read the selected file as Data URL
         })
     })
 
@@ -422,7 +475,7 @@
     <script>
 
         // -------------------- <<< DO NOT DELETE >>> -------------------- \\
-        // -------------------- <<< NOT USELESS >>> -------------------- \\
+        // -------------------- <<< NOTES CODE >>> -------------------- \\
 
         const btn_add_note = document.getElementById('btn-add-note');
 
@@ -437,12 +490,29 @@
         const add_modal = Array.from(lst_note_modal).pop()
 
         // Don't worry about this for a second ;)
+        // Actually just dont worry about it
+        // If you can't understand it I dont care
         if(btn_add_note)
+        {
             btn_add_note.addEventListener('click', () => add_modal.showModal())
+            const btn_submit = add_modal.querySelector('#btn-create-note')
+            const title = add_modal.querySelector('#note-title-input');
+            const input_public = add_modal.querySelector('#public-notes');
+            const input_private = add_modal.querySelector('#private-notes');
+            const note_form = add_modal.querySelector('#note-form');
+            
+            btn_submit.addEventListener('click', () => {
+                if(title.value.length > 0 && (input_public.value.length > 0 || input_private.value.length > 0)) 
+                    note_form.submit()
+                
+                else if(title.value.length == 0)
+                    title.focus()
+                
+                else if(input_public.value.length == 0 || input_private.value.length == 0)
+                    input_public.focus()
+            })
+        }
 
-        console.log(lst_note_modal)
-        console.log('what the hell')
-        console.log(lst_btn_view_note)
         if(lst_btn_view_note.length > 0)
             for(let i = 0; i < lst_btn_view_note.length; i++) 
                 lst_btn_view_note[i].addEventListener('click', () => lst_note_modal[i].showModal())

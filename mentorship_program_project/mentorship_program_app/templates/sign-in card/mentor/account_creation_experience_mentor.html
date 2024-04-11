@@ -1,8 +1,22 @@
 <div class="sign-in-card-content">
     <div class="sign-in-card-element">
         <p class="sign-in-card-text-normal">Company:</p>
-        <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp." maxlength="100">
-        <p id="frm-company-warning-message" class="error-message"></p>
+        <div>
+            <select id="select-company-name" name="company-name" onchange="getValue(id)">
+                <option></option>
+                {% for company in companyname %}
+                <option>
+                    {{company.str_org_name}}
+                </option>
+                {% endfor %}
+                <option>Other</option>
+            </select>
+            <p id="frm-company-warning-message" class="error-message"></p>
+        </div>
+        <div>
+            <input type="text" id="organization" name="organization" placeholder="e.g. ABC Corp." maxlength="100" style="visibility: hidden;">
+        </div>
+        
     </div>
 
     <div class="sign-in-card-element-horizontal">
@@ -38,3 +52,29 @@
         <button type="button" class="sign-in-card-option-button">Next</button>
     </div>
 </div>
+
+<script>
+    function getValue(select_id){
+        const select_nameElem = document.getElementById(select_id)
+        const select_nameText = select_nameElem.options[select_nameElem.selectedIndex].text
+        const select_typeElem = document.getElementById("select-company-type")
+        const selected_OtherText = 'Other'
+
+        if(select_nameText == selected_OtherText)
+        {
+            document.getElementById("organization").style.visibility = 'visible'
+        }
+        else 
+        {
+            document.getElementById("organization").style.visibility = 'hidden'
+            var org_data = JSON.parse('{{ companyLIST|escapejs }}')
+            temp_orgObject = org_data.find(obj => obj.str_org_name === select_nameText);
+
+            //  SEE IF AN AUTOFILL CAN BE IMPLEMENTED;
+            //  THE INDUSTRY TYPE NEEDS TO DYNAMICALLY BE SELECTED (company type) BASED ON WHICHEVER
+            //  ORGANIZATION NAME IS SELECTED (industry type also needs to be saved and be carried over
+            //  to every organization object for this to work).
+            console.log("Organization: " + temp_orgObject.str_org_name + ", Type: " + temp_orgObject.str_industry_type)
+        }
+    }
+</script>
