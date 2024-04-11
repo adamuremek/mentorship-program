@@ -7,8 +7,5 @@ jobs:
     if: github.repository == 'adamuremek/mentorship-program'
     runs-on: self-hosted
     steps:
-      - name: Run update script on dev server
+      - name: Run update script
         run: /home/k3suser/mentorship-program/ansible/update.sh
-
-      - name: Run update script on prod server
-        run: ssh cs471-production@471-prod /home/cs471-production/mentorship-program/ansible/update.sh
