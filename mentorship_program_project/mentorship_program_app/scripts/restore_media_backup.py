@@ -38,6 +38,7 @@ WHO   WHEN     WHAT
 
 import os
 import tarfile
+from mentorship_program_project.settings import MEDIA_ROOT
 
 def run():
     #print("Hello World :)")
@@ -79,7 +80,7 @@ def run():
         return 1
     
     extract_file(tar_path)
-    print(f"Media folder has been restored from {tar_path}.")
+    print(f"\nMedia folder has been restored from {tar_path}.")
     return 0
     
 
@@ -92,6 +93,6 @@ def extract_file(tar_path):
     with tarfile.open(tar_path, 'r') as tar:
         for member in tar.getmembers():            
             file = member.name
-            tar.extract(member, os.environ.get("MEDIA_ROOT"))
+            tar.extract(member, MEDIA_ROOT)
                       
     return file

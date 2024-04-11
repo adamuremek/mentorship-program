@@ -176,6 +176,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.getenv("MEDIA_ROOT", f"{BASE_DIR}/media/")
 
+# set up database backup path
+BACKUP_DATABASE_URL = "/DATABASE_BACKUPS/"
+BACKUP_DATABASE_ROOT = os.getenv("BACKUP_ROOT", f"{BASE_DIR}/DATABASE_BACKUPS/")
+
+# Number of backups to be maintained
+BACKUP_DATABASE_COUNT = 3
 
 #EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend' #####for debuging
 
