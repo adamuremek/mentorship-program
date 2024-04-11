@@ -7,27 +7,45 @@
     <div class="modal-container">
         <form id="resolve-report-form" action="{% url 'resolve_report' %}" class="frm-note-creator" method="post">
             {% csrf_token %}
-
-            {% if false %}
-                <h2>Past Incidents:</h2>
-                <div class="modal-line"><hr></div>
-            {% endif %}
-
+            
+            {% for the_user, the_reports in resolved_reports.items %}
+                {% if user.id == the_user.id %}
+                    <h2>Past Reports</h2>
+                    {% for the_report in the_reports %}
+                        <div class="past-report-container">  
+                            <h3>{{the_report.str_report_body}}</h3>
+                            <p>Report Type: {{the_report.str_report_type}}</p>
+                            {% if the_report.resolved_comment %}
+                                <h4>Resolution: {{the_report.resolved_comment}}</h4>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                <div class="modal-line" style="margin:1em"><hr></div>
+                {% endif %}
+            {% endfor %}
+<!-- bln_account_disabled -->
+<!--  if true, that user is banned -->
             <h2>Resolve Report</h2>
-            <div class="modal-line"><hr></div>
+            <h3>Report Details: {{report.str_report_body}}</h3>
+            <p>Report Type: {{report.str_report_type}}</p>
+
+            <div class="modal-line" style="margin:1em"><hr></div>
             
             <div class="container">
-                <h3 class="heading">Comments:</h3>
-                <p class="subheading">HELP ME! HELP MEEEE! AAAAAAAAAAHHHHHHHHHHHHH</p>
-                <textarea id="comments" rows="12" name="resolution-notes" maxlength="1000" class="user-input" placeholder="Listen here motherfucker..."></textarea>
+                <h3 class="heading">Report Comments:</h3>
+                <p class="subheading">Details about the issue and resolution</p>
+                <textarea id="comments" rows="12" name="comment" maxlength="1000" class="user-input" placeholder="Insert details about issue..."></textarea>
             </div>
 
             <div id="ban-user-decision">
                 <label for="decision">Ban User??</label>
                 <input type="checkbox" name="decision" id="decision"> 
             </div>
+
+            <input type="hidden" name="report-id" value="{{report.id}}">
+            <input type="hidden" name="user-id" value="{{report.user_id}}">
             
-            <button type="button" class="btn-modal-submit" id="btn-resolve-note">Resolve</button>
+            <button type="submit" class="btn-modal-submit" id="btn-resolve-note">Resolve</button>
 
         </form>
     </div>

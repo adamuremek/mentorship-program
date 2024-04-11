@@ -30,7 +30,9 @@
                     </div>
                     <div class="line"></div>
 
-                    <div class="email-password-fields">
+                    <button type="button" class="login-buttons" id="show-li-btn">Mentor Tools</button>
+
+                    <div class="email-password-fields" style="display:none">
                         <input type="email" id="email" name="email" placeholder="Email">
                         <div class="password-container">
                             <input type="password" id="password" class="password-hidden" name="password" placeholder="Password">
@@ -45,15 +47,17 @@
                                 </svg>
                             </button>
                         </div>
-								<p id="frm-warning-message" class="error-message"></p>
+                        <button type="button" class="login-buttons" id="li-btn" style="width:80%;margin:.5em auto;height:2em;">Mentor Login</button>
+                        <p id="frm-warning-message" class="error-message"></p>
                         <div id="forgot-password-container">
+                            <p id="su-p"><span id="su-span">Don't have an account?</span> <span class="text-btn" tabindex="0"><a class="text-btn" id="su-link" href="/role_selection">Sign Up</a></span></p>
                             <p><span class="text-btn" id="forgot-pass-btn" tabindex="0">Forgot Password?</span></p>
                         </div>
+                        <div class="line"></div>
                     </div>
                     <!-- DONT CHANGE THIS ID. CRUCIAL FOR JAVASCRIPT EXECUTION -->
                     <!-- FUTHERMORE, DONT CHANGE ANY ID WITHOUT THOROUGHLY CHECKING FOR OTHER CRITICAL OCCURANCES -->
-                    <button type="button" class="login-buttons" id="li-btn">Login</button>
-                    <p id="su-p"><span id="su-span">Don't have an account?</span> <span class="text-btn" tabindex="0"><a class="text-btn" id="su-link" href="/role_selection">Sign Up</a></span></p>
+                    <button type="button" class="login-buttons" id="svsu-li-btn">SVSU Portal</button>
                 </form>
             </div>
         </div>
@@ -75,6 +79,13 @@
         }
     });
     
+    const mentor_input_fields = document.getElementsByClassName('email-password-fields')[0]
+    document.getElementById('show-li-btn').addEventListener('click', () => {
+        if(mentor_input_fields.style.display == 'block')
+            mentor_input_fields.style.display = 'none'
+        else
+            mentor_input_fields.style.display = 'block'
+    })
 </script>
 
 {% endblock %}

@@ -233,15 +233,8 @@ def verify_mentee_ug_status(req : HttpRequest) -> HttpResponse:
     inactive_mentees = User.objects.filter(cls_date_joined__lte=date.today() - relativedelta(years=4), str_role="Mentee", bln_account_disabled=False, bln_active=True)
 
     for mentee in inactive_mentees:
-        #Disable account
-        mentee.bln_account_disabled = True
-
-        #Set inactive
-        mentee.bln_active = False
-        mentee.cls_active_changed_date = date.today()
-        mentee.save()
+        User.disable_user(mentee, "Mentee was deactivated for not being an undergrad")
         # record logs
-        SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user=mentee)
 
     return redirect('/admin_dashboard')
 

@@ -19,6 +19,7 @@ from django.urls import include, path
 from mentorship_program_app import views
 
 urlpatterns = [
-    path('', include('mentorship_program_app.urls'))
+    path('', include('mentorship_program_app.urls')),
+    path('saml2/', include('djangosaml2.urls')),
 ]
 development_urls = []

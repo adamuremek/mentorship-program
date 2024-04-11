@@ -142,6 +142,8 @@ urlpatterns = [
     
     # CURRENTLY STATIC ROUTE -JASON
     path('admin_reported_users/', views.admin_reported_users, name='admin_reported_users'),
+    
+    # TODO is this ever called???
     path('admin_reported_users/resolve_report/', backend_requests.resolve_report, name='admin_resolve_report'),
     path('report_user/', backend_requests.report_user, name='report_user'),
 
@@ -181,7 +183,10 @@ urlpatterns = [
     path('dev/test_login'                 , development_views.test_login_page                 ,name='test login'),
     path('dev/is_logged_in'               , development_views.is_logged_in_test               ,name='logged in test'),
     path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships"),
-    path('dev/test_database_join'         , development_views.test_database_speed, name='test database joins' )
+    path('dev/test_database_join'         , development_views.test_database_speed, name='test database joins' ),
+
+    path('saml/login', views.saml_login, name='saml_login'),
+
 ]
 
 if settings.DEBUG:

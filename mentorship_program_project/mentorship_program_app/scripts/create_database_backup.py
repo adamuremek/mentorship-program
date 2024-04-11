@@ -56,7 +56,7 @@ def run():
 
     Returns
     -------
-    - None
+    - An integer exit code 0 for success or 1 for failure.
 
     Example Usage
     -------------

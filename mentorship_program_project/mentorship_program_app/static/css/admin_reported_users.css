@@ -19,7 +19,6 @@ h3 {
 
 .search-name-container {
     display: flex;
-    width: 100%;
 }
 
 .search-name {
@@ -72,8 +71,26 @@ h3 {
     padding-right: 10px;
 }
 
+#show-resolved {
+    align-self: center;
+}
+
+.checkbox-container {
+    display: flex;
+    margin-right: 1em;
+    margin-left: auto;
+}
+
+.reported-user {
+    margin-bottom: 1em;
+}
+
 .reported-user-role{
     visibility:hidden;
+}
+
+.past-report-container {
+    margin-bottom: 1em;
 }
 
 .filter {

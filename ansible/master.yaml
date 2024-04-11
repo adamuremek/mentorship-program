@@ -1,0 +1,12 @@
+- name: Master playbook
+  hosts: localhost
+  gather_facts: false
+  become: true
+
+
+- import_playbook: ./postgres-setup.yaml
+- import_playbook: ./saml-setup.yaml
+- import_playbook: ./docker-repo-setup.yaml
+- import_playbook: ./docker-build.yaml
+- import_playbook: ./k3s-secret.yaml
+- import_playbook: ./k3s-setup.yaml

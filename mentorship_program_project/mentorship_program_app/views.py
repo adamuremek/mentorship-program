@@ -51,6 +51,8 @@ from django.db.models import Count, Q
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from django.utils.crypto import get_random_string
+
 from utils import development
 from utils.development import print_debug
 from utils import security
@@ -194,6 +196,7 @@ def THESECONDMOVE(req):
 
 def register_mentee(req):
     template = loader.get_template('sign-in card/single_page_mentee.html')
+    is_mentee : bool = True
     if not Interest.objects.exists():
         Interest.create_default_interests()
     
@@ -206,6 +209,8 @@ def register_mentee(req):
         
     
     context = {
+        'is_mentee' : is_mentee,
+        
         'interestlist':  Interest.objects.all(),
         
         'menteeEmailMessage': "You MUST use your SVSU.EDU email address.",
@@ -220,6 +225,10 @@ def register_mentee(req):
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 
+        'user': req.user,
+        # TODO: replace this or get rid of password for mentees. 
+        # For now it is just generating a password so I can test without modifying validation code
+        'random_password': get_random_string(length=30) + "1A!",
     }
     return HttpResponse(template.render(context, req))
 
@@ -230,7 +239,7 @@ def register_mentee(req):
 
 def register_mentor(req):
     template = loader.get_template('sign-in card/single_page_mentor.html')
-    
+    is_mentee : bool = False
     if not Interest.objects.exists():
         Interest.create_default_interests()
 
@@ -250,6 +259,7 @@ def register_mentor(req):
     org_data_json = json.dumps(list(org_data_set))
     
     context = {
+        'is_mentee' : is_mentee,
         'interestlist': Interest.objects.all(),
 
         'pronounlist1': ['', 'he', 'she', 'they'],
@@ -534,6 +544,10 @@ def admin_user_management(request):
 @security.Decorators.require_login(invalid_request_401)
 def logout(request):
     if security.logout(request.session):
+         # if the user is logged in with django's auth (through saml)
+        if request.user.is_authenticated:
+            # log them out through saml
+            return redirect("/saml2/logout")
         return redirect("/")
     #TODO: redirect this to a correct form ||||| probably done - Tanner
     response = HttpResponse("an internal error occured, unable to log you out, STAY FOREVER")
@@ -600,8 +614,15 @@ def admin_reported_users(request):
 
     user_reports_dict = UserReport.get_unresolved_reports_grouped_by_user()
     all_reports = UserReport.get_all_reports_grouped_by_user()
+    result = {key: all_reports[key] for key in all_reports if key not in user_reports_dict}
+    resolved_reports = UserReport.get_resolved_reports_grouped_by_user()
+    
+
+    
     context = {"user_reports_dict": user_reports_dict,
-               "all_reports": all_reports}
+               "all_reports": all_reports,
+               "resolved_reports":resolved_reports,
+               }
     return HttpResponse(template.render(context,request))
 
 # view goes to mentor_group_view
@@ -667,4 +688,22 @@ def test_login_page(request):
     template = loader.get_template("dev/test_login.html")
     return HttpResponse(template.render({},request))
 
+# sucessful saml logins redirect here
+# the built in django user will be logged in, but our user will not be, and it might not even exist yet (first time sign in)
+def saml_login(request):
+    user = request.user
 
+    # Invalid saml login. Probably cannot get to this page, but good to be sure
+    if not user:
+        #TODO: add a error message
+        return redirect('landing')
+    
+    if not User.objects.filter(cls_email_address=user.email).exists():
+        #TODO: The registration flow still needs some work, but it at least functions now
+        return redirect('/register/mentee')
+
+    # User exists, log them in
+    user = User.objects.get(cls_email_address=user.email)
+    security.set_logged_in(request.session,user)
+    return redirect('/dashboard')
+    

@@ -1,0 +1,19 @@
+debug: 0
+db: "postgres"
+db_engine: "django.db.backends.postgresql"
+db_name: 
+db_user: 
+db_password: 
+db_host: 
+db_port: 
+secret_key: 
+django_allowed_hosts: 
+domain: 
+acme_email: 
+absolute_project_path: "/home/user/mentorship-program"
+# space separated. Must start with http:// or https://
+csrf_trusted_origins:
+saml_idp_entity_id: 
+saml_idp_sso_url: 
+saml_idp_slo_url: 
+saml_idp_metadata_url:

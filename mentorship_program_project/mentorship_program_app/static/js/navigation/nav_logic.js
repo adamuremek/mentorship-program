@@ -37,9 +37,12 @@ const openMobileSidebarBtn = document.getElementById('open-mobile-sidebar-btn');
 const closeMobileSidebarBtn = document.getElementById('close-mobile-sidebar-btn');
 const menuBtnPNav = document.getElementById('menu-btn-pnav');
 
-openMobileSidebarBtn.addEventListener('click', openMobileSidebar);
-closeMobileSidebarBtn.addEventListener('click', closeMobileSidebar);
-menuBtnPNav.addEventListener('click', sidebarController);
+if(openMobileSidebarBtn)
+    openMobileSidebarBtn.addEventListener('click', openMobileSidebar);
+if(closeMobileSidebarBtn)
+    closeMobileSidebarBtn.addEventListener('click', closeMobileSidebar);
+if(menuBtnPNav)
+    menuBtnPNav.addEventListener('click', sidebarController);
 
 // This routine is responsible for controlling the sidebar element of the sites
 // primary navigation. It contains logic checking if the sidebar is displayed,

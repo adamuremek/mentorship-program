@@ -1,0 +1,85 @@
+- name: Install Postgres
+  apt:
+    name: postgresql
+    state: present
+
+- name: Install psycopg2
+  apt:
+    name: python3-psycopg2
+    state: present
+
+# TODO: Change to only listen on k3s_server hosts
+- name: Ensure PostgreSQL is listening on *
+  lineinfile:
+    dest: /etc/postgresql/14/main/postgresql.conf
+    regexp: '^listen_addresses\s*='
+    line: "listen_addresses='*'"
+    state: present
+
+- name: Ensure correct port
+  lineinfile:
+    dest: /etc/postgresql/14/main/postgresql.conf
+    regexp: '^port\s*='
+    line: "port='{{ db_port }}'"
+    state: present
+
+- name: Restart postgres service
+  service:
+    name: postgresql
+    state: restarted
+
+
+- name: Add new configuration to "pg_hba.conf"
+  blockinfile:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    block: |
+      host    all             all             0.0.0.0/0                md5
+      host    all             all             ::/0                     md5
+
+- name: Restart postgres service
+  service:
+    name: postgresql
+    state: restarted
+
+- name: Change peer identification to trust
+  shell: /bin/sed -i '/^local/s/peer/trust/' /etc/postgresql/14/main/pg_hba.conf
+
+- name: Restart postgres service
+  service:
+    name: postgresql
+    state: restarted
+
+- name: Enable postgres service
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: Create postgres user
+  postgresql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    port: "{{ db_port }}"
+    encrypted: yes
+    state: present
+    
+- name: Create database
+  postgresql_db:
+    name: "{{ db_name }}"
+    port: "{{ db_port }}"
+    state: present
+
+- name: Install acl to allow non-root
+  apt:
+    name: acl
+    state: present
+
+- name: Grant privileges to user
+  postgresql_privs:
+    db: "{{ db_name }}"
+    privs: "ALL"
+    type: database
+    role: "{{ db_user }}"
+    port: "{{ db_port }}"
+  become: true
+  become_user: postgres
