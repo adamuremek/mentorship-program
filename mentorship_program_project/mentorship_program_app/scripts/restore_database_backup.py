@@ -42,6 +42,7 @@ import subprocess
 import urllib.parse
 import os
 import tarfile
+from mentorship_program_project.settings import BACKUP_DATABASE_ROOT
 
 def run():
     """
@@ -82,7 +83,7 @@ def run():
     try:
         sql_file = extract_sql_file(tar_path)
 
-        restore_database(f'{os.environ.get("DB_BACKUP_PATH")}\{sql_file}')
+        restore_database(f'{BACKUP_DATABASE_ROOT}\{sql_file}')
 
         print(f"\n\nThe database has been restore from {tar_path}\n")
 
@@ -105,7 +106,7 @@ def extract_sql_file(tar_path):
         for member in tar.getmembers():
             if(member.name.endswith('.sql')):
                 sql_file = member.name
-                tar.extract(member, os.environ.get("DB_BACKUP_PATH"))
+                tar.extract(member, BACKUP_DATABASE_ROOT)
             else:
                 raise FileNotFoundError("No SQL file was found.")
                 
@@ -125,5 +126,5 @@ def restore_database(sql_file):
         os.remove(sql_file)
 
     except Exception as e:
-        str_error_msg = f"Error encounterd"
+        str_error_msg = f"Error encounterd: "
         print(str_error_msg)

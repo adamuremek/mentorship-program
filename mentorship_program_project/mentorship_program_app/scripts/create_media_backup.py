@@ -41,6 +41,7 @@ WHO   WHEN     WHAT
 from datetime import datetime
 import os
 import tarfile
+from mentorship_program_project.settings import MEDIA_ROOT, BACKUP_DATABASE_ROOT
 
 def run():
     #print("Hello World :)")
@@ -75,7 +76,7 @@ def run():
     try:
         str_time_stamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         backup_file = f"media_{str_time_stamp}"
-        backup_file_path = f"{os.path.abspath(os.environ.get('DB_BACKUP_PATH'))}/{backup_file}"
+        backup_file_path = f"{BACKUP_DATABASE_ROOT}/{backup_file}"
         tarball_path = f"{backup_file_path}.tar.gz"
 
         #print(str_time_stamp +"\t"+ backup_file +"\n"+ backup_file_path +"\n"+ tarball_path +"\n" + f'{os.path.abspath(os.environ.get("MEDIA_ROOT"))}\images')
@@ -86,7 +87,7 @@ def run():
         #    tar.add(tarball_path, arcname=os.path.basename(backup_file_path))
 
         with tarfile.open(tarball_path, "w:gz") as tar:
-            tar.add(f'{os.environ.get("MEDIA_ROOT")}\images', arcname=os.path.basename(f'{os.environ.get("MEDIA_ROOT")}\images'))
+            tar.add(f'{MEDIA_ROOT}\images', arcname=os.path.basename(f'{MEDIA_ROOT}\images'))
         
         print(f"Media folder has been backedup in {tarball_path}.")
         return 0

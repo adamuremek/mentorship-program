@@ -39,6 +39,7 @@ import urllib.parse
 from datetime import datetime
 import os
 import tarfile
+from mentorship_program_project.settings import BACKUP_DATABASE_ROOT
 
 def run():
     """
@@ -72,11 +73,11 @@ def run():
     try:
         str_time_stamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         backup_file = f"{os.environ.get('DB_NAME')}_{str_time_stamp}.sql"
-        backup_file_path = f"{os.path.abspath(os.environ.get('DB_BACKUP_PATH'))}/{backup_file}"
+        backup_file_path = f"{BACKUP_DATABASE_ROOT}/{backup_file}"
         tarball_path = f"{backup_file_path}.tar.gz"
 
-        if not os.path.exists(os.path.abspath(os.environ.get('DB_BACKUP_PATH'))):
-            raise FileNotFoundError(f"The directory does not exist: {os.path.abspath(os.environ.get('DB_BACKUP_PATH'))}")
+        if not os.path.exists(BACKUP_DATABASE_ROOT):
+            raise FileNotFoundError(f"The directory does not exist: {BACKUP_DATABASE_ROOT}")
 
         str_encoded_password = urllib.parse.quote_plus(os.environ.get("DB_PASSWORD"))
 
