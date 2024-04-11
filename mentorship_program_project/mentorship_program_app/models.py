@@ -628,6 +628,40 @@ class User(SVSUModelData,Model):
                 return this_mentor.str_job_title
             else:
                 return 'No job title associated'
+    def get_experience(self) -> str:
+        """
+        Description
+        -----------
+        Gets a user's job title if they are a mentor
+
+        Parameters
+        ----------
+        (None)
+
+        Optional Parameters
+        -------------------
+        (None)
+
+        Returns
+        -------
+        - str: A user's job title if they are a mentor
+
+        Example Usage
+        -------------
+
+        >>> User.get_job_title()
+        'Software Developer'
+
+        Authors
+        -------
+        Adam C.
+        """
+        if self.is_mentor:
+            this_mentor = Mentor.objects.get(account=self)
+            if(this_mentor.str_experience != ""):
+                return this_mentor.str_experience
+            else:
+                return ''
 
     def get_backend_only_properties(self)-> list[str]:
         """

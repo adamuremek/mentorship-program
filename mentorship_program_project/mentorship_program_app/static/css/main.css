@@ -662,7 +662,7 @@ select {
 }
 
 #phone_country_code {
-    width: 30%;
+    width: auto;
     margin-right: .5em;
 }
 

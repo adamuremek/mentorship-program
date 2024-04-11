@@ -174,8 +174,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # set up user loaded media urls
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = "/media"
+MEDIA_ROOT = os.getenv("MEDIA_ROOT", f"{BASE_DIR}/media/")
 
+# set up database backup path
+BACKUP_DATABASE_URL = "/DATABASE_BACKUPS/"
+BACKUP_DATABASE_ROOT = os.getenv("BACKUP_ROOT", f"{BASE_DIR}/DATABASE_BACKUPS/")
+
+# Number of backups to be maintained
+BACKUP_DATABASE_COUNT = 3
 
 #EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend' #####for debuging
 
@@ -248,7 +254,7 @@ SAML_CONFIG = {
   'xmlsec_binary': '/usr/bin/xmlsec1',
 
   # your entity id, usually your subdomain plus the url to the metadata view
-  'entityid': f'https://{os.environ.get('DOMAIN')}/saml2/metadata/',
+  'entityid': f'https://{os.environ.get("DOMAIN")}/saml2/metadata/',
 
   # directory with attribute mapping
   #'attribute_map_dir': path.join(BASE_DIR, 'saml/attribute-maps'),
@@ -271,16 +277,16 @@ SAML_CONFIG = {
               # url and binding to the assetion consumer service view
               # do not change the binding or service name
               'assertion_consumer_service': [
-                  (f'https://{os.environ.get('DOMAIN')}/saml2/acs/',
+                  (f'https://{os.environ.get("DOMAIN")}/saml2/acs/',
                    saml2.BINDING_HTTP_POST),
                   ], 
               # url and binding to the single logout service view
               # do not change the binding or service name
               'single_logout_service': [
                   # Disable next two lines for HTTP_REDIRECT for IDP's that only support HTTP_POST. Ex. Okta:
-                  (f'https://{os.environ.get('DOMAIN')}/saml2/ls/',
+                  (f'https://{os.environ.get("DOMAIN")}/saml2/ls/',
                    saml2.BINDING_HTTP_REDIRECT),
-                  (f'https://{os.environ.get('DOMAIN')}/saml2/ls/post',
+                  (f'https://{os.environ.get("DOMAIN")}/saml2/ls/post',
                    saml2.BINDING_HTTP_POST),
                   ],
               },

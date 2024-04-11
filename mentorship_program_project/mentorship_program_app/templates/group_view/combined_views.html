@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block main_content %}
-
+<form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data"> 
 <section class="hero">
     <div class="hero-container">
 
@@ -30,7 +30,6 @@
                 </div>
             </div>
             <br>
-
             {% if page_owner_user.str_role != signed_in_user.str_role and not signed_in_user.mentee.mentor.account.id == page_owner_user.id %}
                 {% if signed_in_user.has_requested_this_user %} 
                     <button type="button" id="btn_profile_request" disabled>Requested!</button>
@@ -44,7 +43,7 @@
             <button id="btn_profile_report">Report</button>
             {% include 'group_view/report_modal.html' with report_types=report_types %}
             {%endif%}
-            {% if  page_owner_user.is_mentee and mentees_or_mentor %}
+            {% if page_owner_user.is_mentee and mentees_or_mentor %}
                 <h3>Mentor: </h3>
             {% elif page_owner_user.is_mentor and mentees_or_mentor %}
                 <h3>Mentees: </h3>
@@ -104,12 +103,18 @@
         </div>
         <div class="column-right">
             
-            <form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data">
+            <div> 
                 {% csrf_token %}
                 <input type="file" id="profile_image" name="profile_image" style="display: none;">
                 <div class="row-titles">
                     <div class="top-title">
-                        <h1>{{page_owner_user.str_first_name}} {{page_owner_user.str_last_name}}{% if page_owner_user.is_mentor%}'s Mentorship Group{% endif %}</h1>
+                        <div class="header-display" style="display: block;">
+                            <h1>{{ page_owner_user.str_first_name }} {{ page_owner_user.str_last_name }}{% if page_owner_user.is_mentor %}'s Mentorship Group{% endif %}</h1>
+                        </div>
+                        <div class="header-edit" style="display: none;">
+                            First Name: <input type="text" id="firstname-edit" name="firstname-edit" value="{{ page_owner_user.str_first_name }}" class="edit-header-input" maxlength="1000">
+                            Last Name: <input type="text" id="lastname-edit" name="lastname-edit" value="{{ page_owner_user.str_last_name }}" class="edit-header-input" maxlength="1000">
+                        </div>
                         {% if is_page_owner %}
                         <span class="iHateMyself">
                             <button type="button" class="button-edit" id="button-edit"
@@ -122,28 +127,73 @@
                         {% endif %}
                     </div>
 
-                    {% if page_owner_user.str_preferred_pronouns != None %}
-                    <h4>{{page_owner_user.str_preferred_pronouns}}</h4>
-                    {% endif %}
+                    
+
+                    <div class="pronoun-display" style="display: flex;">
+                        {% if page_owner_user.str_preferred_pronouns != None %}     
+                        <h4>{{page_owner_user.str_preferred_pronouns}}</h4>
+                        {% endif %}
+                    </div>
+
+                    <div class="pronoun-edit" style="display: none;">
+                        <p class="sign-in-card-text-normal">Preferred Pronoun(s):</p>
+                        <select name="pronouns1" id="pronoun-one">
+                            <option value="{{pronoun1}}" selected>{{pronoun1}}</option>
+                            {% for pronoun in pronounlist1 %}
+                                {% if pronoun != pronoun1 %}
+                                <option>{{pronoun}}</option>
+                                {% endif %}
+                            {% endfor %}
+                           
+                        </select> /
+                        <select name="pronouns2" id="pronoun-two">
+                            <option value="{{pronoun2}}" selected>{{pronoun2}}</option>
+                            {% for pronoun in pronounlist2 %}
+                                {% if pronoun != pronoun2 %}
+                                <option>{{pronoun}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
 
                     {% if page_owner_user.is_mentor %}
                     <label for="select-max-mentees">Max Mentees: </label>
                     <select disabled name="max_mentees" id="select-max-mentees">
                             {% for i in num_mentees %}
-                                <option >{{i}}</option>
+                                <option>{{i}}</option>
                             {% endfor %}
                     </select>
 
                    
                     {% endif %}
+                   
+                        <div class="job-title-and-organization">
+                            {% if page_owner_user.is_mentor %}
+                            <div class="job-title-display" style="display: block;">
+                                <h3>{{page_owner_user.get_experience}} {{ page_owner_user.get_job_title }} at 
+                                {% for org in page_owner_user.get_organization %}
+                                    {{ org }} </h3>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
 
-                    <div class="job-title-and-organization">
-                        {% if page_owner_user.is_mentor %}
-                            <h3>{{ page_owner_user.get_job_title }} at 
-                            {% for org in page_owner_user.get_organization %}
-						        {{ org }} </h3>
-					        {% endfor %}
-                        {% endif %}
+                        <div class="job-title-edit" style="display: none;">
+                            Job Title: <input type="text" id="job-title-input" name="job-title-input" value="{{ page_owner_user.get_job_title }}" class="edit-job-title-input"  maxlength="100">
+                            <span class="experience-edit">
+                            <p class="sign-in-card-text-normal">Experience:</p>
+                         
+                            <select id="select-experience" name="select-experience">
+                                <option value="{{page_owner_user.get_experience}}">{{page_owner_user.get_experience}}</option>
+                                {% for experience in experiencelist %}
+                                    {% if experience != page_owner_user.get_experience %}
+                                    <option value="{{experience}}">{{experience}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </span>
+                            <p id="frm-experience-warning-message" class="error-message"></p>
+                        </div>
                     </div>
 
                     {% if interests %}
@@ -174,8 +224,22 @@
             <hr>
             <div class="row-communication-methods">
                 <h2>Communication Method(s):</h2>
+                <div class="phone-view" style="display: block;">
                 {% if page_owner_user.is_mentor %}
-                <p>Phone: {{page_owner_user.str_phone_number}}</p>
+                    <p>Phone: {{page_owner_user.str_phone_number}}</p>
+                </div>
+
+                <div class="phone-edit" style="display: none;">
+
+                <select id="phone_country_code" name="phone-country-code">
+                    {% for code in country_codes %}
+                    {% if code != user_country_code %}
+                    <option value="{{ code.dial_code }}">{{ code.dial_code }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                Phone: <input type="text" id="phone-edit" name="phone-edit" value="{{ user_phone_number }}">
+                </div>
                 {% endif %}
                 <p>Email: {{page_owner_user.cls_email_address}}</p>
             </div>
@@ -186,8 +250,8 @@
                 placeholder = "Welcome to WINGS! Please use this area to introduce yourself. You can include things like your hobbies, interests, goals, and your availability." 
                 readonly>{{page_owner_user.cleaned_bio}}</textarea>
             </div>
+        </div>
             </form>
-            
             {% if page_owner_user.is_mentor %}
                 <hr>
                 <div class="row-notes">
@@ -234,7 +298,7 @@
         
     </div>
 </section>
-
+</form>
 
 {% include 'group_view/note_modal.html' %}
 <script src = "{% static 'js/backend_requests.js' %}"></script>
@@ -267,11 +331,10 @@
             overviewTitle.innerText = 'Overview:'
         }
     });
-
+    let submitable = true
     //when user clicks save button and overview's length is over max length, alert user and keep them on page
     saveButton.addEventListener('click', function () {
         bioLength = bioTextArea.value.length;
-
         if (bioLength > MAX_OVERVIEW_LENGTH) {
             alert('Overview exceeds 5000 characters. Please shorten Overview');
             event.preventDefault();
@@ -368,7 +431,7 @@
             let mentor = null
             
 
-            if("{{page_owner_user.is_mentee}}" === "True"){ //This is FUCKING retarded bro....
+            if("{{page_owner_user.is_mentee}}" === "True"){ 
                 mentee = "{{page_owner_user.mentee.account.id}}"
                 mentor = "{{signed_in_user.mentor.account.id}}" 
             } else {
@@ -385,6 +448,11 @@
     function changeEditToSave(event) {
         event.preventDefault()
 
+        const attr_none = 'none';
+        const attr_flex = 'flex';
+        const attr_block = 'block'
+        const attr_inline_block = 'inline-block';
+
         //Save button bullshit and shananiganz
         let editBtn = document.getElementById("button-edit")
         let saveBtn = document.getElementById("button-save")
@@ -397,9 +465,34 @@
         let user_interests = document.querySelectorAll(".user_interests")
         let max_mentees = document.getElementById('select-max-mentees')
 
+        // make name editable
+        let headerDisplay = document.querySelector(".header-display");
+        let headerEdit = document.querySelector(".header-edit");
+        headerDisplay.style.display = attr_none;
+        headerEdit.style.display = attr_block;
+        // make job title editable
+        let jobTitleDisplay = document.querySelector(".job-title-display");
+        let jobTitleEdit = document.querySelector(".job-title-edit");
+        // phone AHHHH
+        let phoneDisplay = document.querySelector(".phone-view");
+        let phoneEdit = document.querySelector(".phone-edit");
+        
+        jobTitleDisplay.style.display = attr_none;
+        jobTitleEdit.style.display = attr_block;
+
+        phoneDisplay.style.display = attr_none;
+        phoneEdit.style.display = attr_block;
+
+        // make pronouns editable
+        let pronounDisplay = document.querySelector(".pronoun-display");
+        let pronounEdit = document.querySelector(".pronoun-edit");
+
+        pronounDisplay.style.display = attr_none;
+        pronounEdit.style.display = attr_flex;
+        
         //Make editable elements visible and selectable
         bioTextArea.readOnly = false
-        editPfpOverlay.style.display = "flex"
+        editPfpOverlay.style.display = attr_flex
         if(max_mentees)
             max_mentees.disabled = false
 
@@ -409,15 +502,15 @@
 
         //This makes all available interests visible
         allInterestsButtons.forEach(button => {
-            button.style.display = "inline-block"
+            button.style.display = attr_inline_block
             button.getElementsByTagName('input')[0].classList.add('hover_interest')
         })
 
         //Make edit button invisible
-        editBtn.style.display = "none"
+        editBtn.style.display = attr_none
         //Make save and cancel buttons visible
-        cancelBtn.style.display = "inline-block"
-        saveBtn.style.display = "inline-block"
+        cancelBtn.style.display = attr_inline_block
+        saveBtn.style.display = attr_inline_block
     }
 
     function interestClicked(event) {
@@ -469,10 +562,56 @@
             document.getElementById('report-modal').showModal();
         });
     }
+    const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
+    const input_phone = document.getElementById('phone-edit')
+
+    let previous_value = input_phone.value
+    input_phone.addEventListener("input", e => {
+        let input_value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+        // Account for backspaces on non-numeric characters
+        if (input_value === previous_value)
+            input_value = input_value.slice(0, -1)
+
+
+        // User backspaces with one number. Remove '('
+        if (input_value.length == 0) {
+            input_value = ''
+            // Format as '( XXX )'
+        } else if (input_value.length <= 3) {
+            input_value = '(' + input_value + ')'; // Start with (
+            // Format as '( XXX ) XXX'
+        } else if (input_value.length <= 6) {
+            input_value = '(' + input_value.substring(0, 3) + ') ' + input_value.substring(3);
+            // Format as '( XXX ) XXX-XXXX'
+        } else {
+            input_value = '(' + input_value.substring(0, 3) + ') ' + input_value.substring(3, 6) + '-' + input_value.substring(6, 10); // Format as (XXX) XXX-XXXX
+        }
+
+        // Record value for next iteration
+        previous_value = input_value.replace(/\D/g, "")
+        // Set input to new value
+        e.target.value = input_value;
+
+        const regex_result = regex_phone.test(e.target.value)
+        const RED = 'firebrick'
+        const GREEN = 'forestgreen'
+        // Visually indicate Regex Success
+        if (regex_result){
+            console.log("submitable")
+            input_phone.style.backgroundColor = GREEN
+            saveButton.disabled = false
+        }
+        else{
+            console.log("unsubmitable")
+            input_phone.style.backgroundColor = RED
+            //input_phone.focus()
+            saveButton.disabled = true
+        }
+    });
 
 </script>
 
-    <script>
+<script>
 
         // -------------------- <<< DO NOT DELETE >>> -------------------- \\
         // -------------------- <<< NOTES CODE >>> -------------------- \\
@@ -551,6 +690,36 @@
                 console.error('Error:', error);
             });
         }
+        
+        const regex_name = /^[a-zA-Z]+([ \-']{0,1}[a-zA-Z]+){0,2}[.]{0,1}$/ 
+        const input_first_name = document.getElementById("firstname-edit")
+        const input_last_name = document.getElementById("lastname-edit")
+
+        input_first_name.addEventListener("input", e => {
+            const input_value = e.target.value.replace(/\d/g, ""); // Remove numeric characters
+            // Set input to new value
+            e.target.value = input_value;
+            const regex_result = regex_name.test(e.target.value)
+
+            // Visually indicate Regex Success
+            if(regex_result)
+                input_first_name.style.backgroundColor = GREEN
+            else
+                input_first_name.style.backgroundColor = RED
+        })
+
+        input_last_name.addEventListener("input", e => {
+            const inputValue = e.target.value.replace(/\d/g, ""); // Remove numeric characters
+            // Set input to new value
+            e.target.value = inputValue;
+            const regex_result = regex_name.test(e.target.value)
+
+            // Visually indicate Regex Success
+            if(regex_result)
+                input_last_name.style.backgroundColor = GREEN
+            else
+                input_last_name.style.backgroundColor = RED
+        })
 
     // -------------------- <<< UPDATE NOTE SECTION >>> -------------------- \\
 

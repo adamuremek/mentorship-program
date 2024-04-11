@@ -92,7 +92,6 @@ let edit_organization_flag = 0;
 let transfer_role_flag = 0;
 let execution_flag = 0;
 
-
 // Create valid mentee user bar storage
 let valid_mentor_bars = []
 
@@ -105,9 +104,12 @@ updaters.update_all_organization_admin_bars();
 // Update valid and invalid mentors
 valid_mentor_bars = determiners.return_updated_mentor_list();
 
-// Create queues for events 
+// Create queue events 
 const event_queue = new queue;
+
+// Create arrays for request and created organization ids
 const execution_queue = new Array;
+const new_organization_ids = new Array;
 
 // Sort all bar elements
 sorters.sort_all_bar_elements_alphabetically();
@@ -116,11 +118,18 @@ sorters.sort_all_bar_elements_alphabetically();
 
 
 
-function execute_events()
+async function execute_events()
 {
+    // Create storage for starting placeholder id
+    let starting_placeholder_id;
+
     // Initlize last event and valid flags
     let last_event_flag = 0;
     let valid_flag = 1;
+    let placeholder_found_flag = 0;
+
+    // Initlize temp new organization counter
+    let temp_new_organization_counter = 0;
 
     // Loop through queue while queue is not empty and execution is valid 
     while (!event_queue.isEmpty() && valid_flag) {
@@ -146,9 +155,6 @@ function execute_events()
                     {
                         // Set mentor id
                         let mentor_id = event_queue.dequeue().data;
-
-                        // Remove add mentor mentor event and create a mentorship between mentee and mentor
-                        alert("Create mentorship between mentee=" + current_event.data + " & mentor=" + mentor_id);
 
                         // Determine id from passed strings and create mentorship
                         execution_queue.push(attempt_create_mentorship(determiners.determine_id_from_string(current_event.data), 
@@ -178,9 +184,6 @@ function execute_events()
                         // Set mentor id
                         let mentor_id = event_queue.dequeue().data;
 
-                        // Remove remove mentor mentor event and remove mentorship between mentee and mentor
-                        alert("Remove mentorship between mentee=" + current_event.data + " & mentor=" + mentor_id);
-
                         // Determine id from passed string and remove mentorship
                         execution_queue.push(attempt_delete_mentorship(determiners.determine_id_from_string(current_event.data)));
 
@@ -199,9 +202,6 @@ function execute_events()
                 
             // Check for disable event
             case EVENT_TYPES.DISABLE:
-                // Executing events
-                alert("disable " + current_event.data);
-
                 // Determine id from passed string and disable user
                 execution_queue.push(attempt_disable_user(determiners.determine_id_from_string(current_event.data)));
 
@@ -209,8 +209,6 @@ function execute_events()
 
             // Check for reable event
             case EVENT_TYPES.REABLE:
-                alert("reable " + current_event.data);
-
                 // Determine id from passed string and enable user 
                 execution_queue.push(attempt_enable_user(determiners.determine_id_from_string(current_event.data)));
 
@@ -227,8 +225,14 @@ function execute_events()
                         // Set organization id
                         let organization_id = event_queue.dequeue().data;
 
-                        // Remove promte organization organization event and promote mentor to organzation admin
-                        alert("Promote mentor=" + current_event.data + " to org admin of org=" + organization_id);
+                        // Determeine if organization id is a placeholder
+                        if (determiners.determine_if_placeholder_organization_id(organization_id))
+                        {
+                            // Id is a placeholder
+                            // Determine and update new organization id from new organization id array 
+                            organization_id = new_organization_ids[determiners.determine_new_organization_placeholder_index(organization_id) - 1];
+
+                        }
 
                         // Promote organization admin
                         // Determine id from passed string and promote mentor to organization admin
@@ -258,8 +262,14 @@ function execute_events()
                         // Set organization id
                         let organization_id = event_queue.dequeue().data;
 
-                        // Remove edit organization organization event and edit organization
-                        alert("Edit org for mentor=" + current_event.data + " to org=" + organization_id);
+                        // Determeine if organization id is a placeholder
+                        if (determiners.determine_if_placeholder_organization_id(organization_id))
+                        {
+                            // Id is a placeholder
+                            // Determine and update new organization id from new organization id array 
+                            organization_id = new_organization_ids[determiners.determine_new_organization_placeholder_index(organization_id) - 1];
+
+                        }
 
                         // Equivlent to promoting, there is only one organization admin, will be reaplaced by second mentor id
                         // Determine id from passed string and promote mentor to organization admin
@@ -289,11 +299,6 @@ function execute_events()
                     {
                         // Set second mentor id
                         let mentor_id = event_queue.dequeue().data;
-
-                        // // Remove role from first mentor and add to second
-                        // alert("Transfer role from " + current_event.data + " to " + mentor_id + "organization style");
-                        alert("Promote " + mentor_id + " to organization admin, demote " + current_event.data + " to mentor");
-
     
                         // TODO NEED TESTING BUT ABOVE WORKS FINE
                         // Equivlent to promoting, there is only one organization admin, will be reaplaced by second mentor id
@@ -316,10 +321,6 @@ function execute_events()
                         // Set second mentor id
                         let mentor_id = event_queue.dequeue().data;
 
-                        // Remove role from first mentor and add to second
-                        // alert("Transfer role from " + current_event.data + " to " + mentor_id + "super style");
-                        alert("Promote " + mentor_id + " to organization admin, demote " + current_event.data + " to mentor");
-
                         // Equivlent to promoting, there is only one organization admin, will be reaplaced by second mentor id
                         // Determine id from passed string and promote mentor to organization admin
                         execution_queue.push(attempt_promote_mentor_to_organization_admin(determiners.determine_id_from_string(mentor_id)));
@@ -340,8 +341,14 @@ function execute_events()
                         // Set organization id
                         let organization_id = event_queue.dequeue().data;
 
-                        // Remove decouple organziation event and decouple mentor from organization
-                        alert("decouple mentor=" + current_event.data + " from organization= " + organization_id);
+                        // Determeine if organization id is a placeholder
+                        if (determiners.determine_if_placeholder_organization_id(organization_id))
+                        {
+                            // Id is a placeholder
+                            // Determine and update new organization id from new organization id array 
+                            organization_id = new_organization_ids[determiners.determine_new_organization_placeholder_index(organization_id) - 1];
+                                
+                        }
 
                         // Remove orgaization relationship from mentor
                         execution_queue.push(attempt_remove_mentors_org(determiners.determine_id_from_string(current_event.data),
@@ -354,6 +361,23 @@ function execute_events()
 
             // Check for create organization event
             case EVENT_TYPES.CREATE_ORGANIZATION:
+                // Check if placeholder organization is not already found
+                if (!placeholder_found_flag)
+                {
+                    // Deteremine starting placeholder id by finding next created organization id then adding 
+                    starting_placeholder_id = (Number( determiners.determine_id_from_string( await attempt_get_next_created_organization_id()) ) + 1);
+
+                    // Update placeholder found flag to be true
+                    placeholder_found_flag = 1;
+
+                }
+
+                // Store dynamically determeined organziation ids in new organization id array at inverted index 
+                new_organization_ids[temp_new_organization_counter] = "Organization object (" + (starting_placeholder_id + temp_new_organization_counter) + ")"
+            
+                // Update temp new organizatio counter to increase by 1
+                temp_new_organization_counter++;
+
                 // Determine id from string and create organization
                 execution_queue.push(attempt_create_new_organziation(current_event.data));
 
@@ -361,8 +385,20 @@ function execute_events()
 
             // Check for remove organization event
             case EVENT_TYPES.REMOVE_ORGANIZATION:
+                // Set organization id
+                let organization_id = current_event.data;
+
+                // Determeine if organization id is a placeholder
+                if (determiners.determine_if_placeholder_organization_id(organization_id))
+                {
+                    // Id is a placeholder
+                    // Determine and update new organization id from new organization id array 
+                    organization_id = new_organization_ids[determiners.determine_new_organization_placeholder_index(organization_id) - 1];
+                        
+                }
+
                 // Determine id from string and remove organization
-                execution_queue.push(attempt_remove_organization(determiners.determine_id_from_string(current_event.data)));
+                execution_queue.push(attempt_remove_organization(determiners.determine_id_from_string(organization_id)));
             
                 break;
         
@@ -389,7 +425,7 @@ function execute_events()
             
         }
     }
-
+    
     // Return boolean if exeuection is valid
     return valid_flag;
 
@@ -824,23 +860,22 @@ export async function save_event()
         // Set execution flag to be true
         execution_flag = 1;
 
-        // Set loading overlay to show 
-        updaters.update_loading();
-
         // Determine user mangement message element
         const user_management_message = determiners.determine_user_management_message();
+
+        // Set loading overlay to show 
+        updaters.update_loading();
 
         // Check and cancel last event if needed
         check_cancel_event();
 
-        // Check event queue
-        if (execute_events())
-        {
-            // Set valid flag to true 
-            valid_flag = true;
+        // Deteremine if event queue is valid
+        valid_flag = await execute_events();
 
+        // Check valid flag
+        if (valid_flag)
+        {
             // Set valid flag execute request queue value
-            // TODO TESTING UNCOMMENT WHEN READY TO EXECUTE
             valid_flag = await execute_request(execution_queue);
 
             // Check if not valid reponse
@@ -850,7 +885,6 @@ export async function save_event()
                 event_queue.enqueue("Database error", "Invalid request to database");
 
             }
-
         }
 
         // Check if valid execution
@@ -861,6 +895,9 @@ export async function save_event()
 
             // Update user management to be visable
             updaters.update_show(user_management_message);
+
+            // Refresh page
+            location.reload();
             
         }
         // Else save was unsuccessful
@@ -878,13 +915,13 @@ export async function save_event()
             // Remove queue elements
             remove_queue_elements();
 
+            // Set loading overlay to not show
+            updaters.update_not_loading();
+
         }
 
         // Set exectuon flag to be off
         execution_flag = 0;
-
-        // Set loading overlay to not show
-        updaters.update_not_loading();
 
     }
 }
@@ -1538,7 +1575,7 @@ export function create_orgnization_event()
     {
         // Name is unique
         // Update organization counter value to increase by 1
-        organization_counter.innerHTML = Number(organization_counter.innerHTML.trim()) + 1;
+        organization_counter.innerHTML = Number( determiners.determine_id_from_string(organization_counter.innerHTML) ) - 1;
 
         // Pass name, id, and trigger events to create new organization bar 
         updaters.update_create_organization(new_organization_name, "Organization object (" + organization_counter.innerHTML + ")", 

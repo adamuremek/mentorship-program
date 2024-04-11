@@ -97,6 +97,7 @@ urlpatterns = [
     path('enable_user', under_development.enable_user, name='enable user'),
     path('create_mentorship/<int:mentee_user_account_id>/<int:mentor_user_account_id>', under_development.create_mentorship, name='add mentorship'),
     path('delete_mentorship/<int:mentee_user_account_id>', under_development.delete_mentorship, name='remove mentorship'),
+    path('get_next_organization_id', under_development.get_next_org, name='get last organziation id'),
 
     
     ##RESETTING PASSWORD ROUTE feel free to move to better spot in file - Tanner 🦞
