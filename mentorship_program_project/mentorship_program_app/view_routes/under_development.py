@@ -315,7 +315,10 @@ def register_mentee(req: HttpRequest):
     Tanner W. 🦞
     '''
     if req.method == "POST":
-        incoming_email: str = req.POST["email"]
+        if req.user.is_authenticated:
+            incoming_email: str = req.user.email
+        else:   
+            return HttpRequest ("You have no permission to use my app")
         # Uncomment this if we choose to use the file to verify mentee eligiblity
         ################################################################
             # DO NOT DELETE THE 2 LINES THAT ARE COMMENTED OUT BELOW
