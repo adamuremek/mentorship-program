@@ -112,8 +112,8 @@
                             <h1>{{ page_owner_user.str_first_name }} {{ page_owner_user.str_last_name }}{% if page_owner_user.is_mentor %}'s Mentorship Group{% endif %}</h1>
                         </div>
                         <div class="header-edit" style="display: none;">
-                            First Name: <input type="text" id="firstname-edit" name="firstname-edit" value="{{ page_owner_user.str_first_name }}" class="edit-header-input" maxlength="1000">
-                            Last Name: <input type="text" id="lastname-edit" name="lastname-edit" value="{{ page_owner_user.str_last_name }}" class="edit-header-input" maxlength="1000">
+                            First Name: <input type="text" id="firstname-edit" name="firstname-edit" value="{{ page_owner_user.str_first_name }}" class="edit-header-input" maxlength="100">
+                            Last Name: <input type="text" id="lastname-edit" name="lastname-edit" value="{{ page_owner_user.str_last_name }}" class="edit-header-input" maxlength="100">
                         </div>
                         {% if is_page_owner %}
                         <span class="iHateMyself">
