@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block main_content %}
-<form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data"> 
+
 <section class="hero">
     <div class="hero-container">
 
@@ -102,7 +102,7 @@
             </ul>
         </div>
         <div class="column-right">
-            
+        <form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data">     
             <div> 
                 {% csrf_token %}
                 <input type="file" id="profile_image" name="profile_image" style="display: none;">
@@ -165,8 +165,8 @@
                     </select>
 
                    
-                   
-                   
+                    {% endif %}
+                    {% if page_owner_user.is_mentor %}
                         <div class="job-title-and-organization">
                             {% if page_owner_user.is_mentor %}
                             <div class="job-title-display" style="display: block;">
@@ -176,7 +176,7 @@
                                 {% endfor %}
                             {% endif %}
                         </div>
-                        {% endif %}
+                    {% endif %}
 
                         <div class="job-title-edit" style="display: none;">
                             Job Title: <input type="text" id="job-title-input" name="job-title-input" value="{{ page_owner_user.get_job_title }}" class="edit-job-title-input"  maxlength="100">
