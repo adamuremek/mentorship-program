@@ -168,16 +168,15 @@
                     {% endif %}
                     {% if page_owner_user.is_mentor %}
                         <div class="job-title-and-organization">
-                            {% if page_owner_user.is_mentor %}
                             <div class="job-title-display" style="display: block;">
                                 <h3>{{page_owner_user.get_experience}} {{ page_owner_user.get_job_title }} at 
                                 {% for org in page_owner_user.get_organization %}
                                     {{ org }} </h3>
                                 {% endfor %}
-                            {% endif %}
                         </div>
                     {% endif %}
 
+                    {% if page_owner_user.is_mentor %}
                         <div class="job-title-edit" style="display: none;">
                             Job Title: <input type="text" id="job-title-input" name="job-title-input" value="{{ page_owner_user.get_job_title }}" class="edit-job-title-input"  maxlength="100">
                             <span class="experience-edit">
@@ -195,6 +194,7 @@
                             <p id="frm-experience-warning-message" class="error-message"></p>
                         </div>
                     </div>
+                    {% endif %}
 
                     {% if interests %}
                         <h2>Specializations / Areas of Expertise:</h2>
