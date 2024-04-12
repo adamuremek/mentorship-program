@@ -130,8 +130,9 @@
                     
 
                     <div class="pronoun-display" style="display: flex;">
-                        {% if page_owner_user.str_preferred_pronouns != None %}     
-                        <h4>{{page_owner_user.str_preferred_pronouns}}</h4>
+                        
+                        {% if page_owner_user.str_preferred_pronouns != None and page_owner_user.str_preferred_pronouns != "/" %}     
+                        <h4>{{ page_owner_user.str_preferred_pronouns }}</h4>
                         {% endif %}
                     </div>
 
