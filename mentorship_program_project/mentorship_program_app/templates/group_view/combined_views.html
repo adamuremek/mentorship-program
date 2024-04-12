@@ -165,7 +165,7 @@
                     </select>
 
                    
-                    {% endif %}
+                   
                    
                         <div class="job-title-and-organization">
                             {% if page_owner_user.is_mentor %}
@@ -176,7 +176,7 @@
                                 {% endfor %}
                             {% endif %}
                         </div>
-                        
+                        {% endif %}
 
                         <div class="job-title-edit" style="display: none;">
                             Job Title: <input type="text" id="job-title-input" name="job-title-input" value="{{ page_owner_user.get_job_title }}" class="edit-job-title-input"  maxlength="100">
