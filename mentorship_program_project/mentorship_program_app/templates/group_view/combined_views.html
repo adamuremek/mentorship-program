@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block main_content %}
-<form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data"> 
+
 <section class="hero">
     <div class="hero-container">
 
@@ -102,7 +102,7 @@
             </ul>
         </div>
         <div class="column-right">
-            
+        <form action="{% url 'save_profile_info' user_id=user_id%}" method="post" enctype="multipart/form-data">     
             <div> 
                 {% csrf_token %}
                 <input type="file" id="profile_image" name="profile_image" style="display: none;">
@@ -112,8 +112,8 @@
                             <h1>{{ page_owner_user.str_first_name }} {{ page_owner_user.str_last_name }}{% if page_owner_user.is_mentor %}'s Mentorship Group{% endif %}</h1>
                         </div>
                         <div class="header-edit" style="display: none;">
-                            First Name: <input type="text" id="firstname-edit" name="firstname-edit" value="{{ page_owner_user.str_first_name }}" class="edit-header-input" maxlength="1000">
-                            Last Name: <input type="text" id="lastname-edit" name="lastname-edit" value="{{ page_owner_user.str_last_name }}" class="edit-header-input" maxlength="1000">
+                            First Name: <input type="text" id="firstname-edit" name="firstname-edit" value="{{ page_owner_user.str_first_name }}" class="edit-header-input" maxlength="100">
+                            Last Name: <input type="text" id="lastname-edit" name="lastname-edit" value="{{ page_owner_user.str_last_name }}" class="edit-header-input" maxlength="100">
                         </div>
                         {% if is_page_owner %}
                         <span class="iHateMyself">
@@ -167,18 +167,17 @@
 
                    
                     {% endif %}
-                   
+                    {% if page_owner_user.is_mentor %}
                         <div class="job-title-and-organization">
-                            {% if page_owner_user.is_mentor %}
                             <div class="job-title-display" style="display: block;">
                                 <h3>{{page_owner_user.get_experience}} {{ page_owner_user.get_job_title }} at 
                                 {% for org in page_owner_user.get_organization %}
                                     {{ org }} </h3>
                                 {% endfor %}
-                            {% endif %}
                         </div>
-                        
+                    {% endif %}
 
+                    {% if page_owner_user.is_mentor %}
                         <div class="job-title-edit" style="display: none;">
                             Job Title: <input type="text" id="job-title-input" name="job-title-input" value="{{ page_owner_user.get_job_title }}" class="edit-job-title-input"  maxlength="100">
                             <span class="experience-edit">
@@ -196,6 +195,7 @@
                             <p id="frm-experience-warning-message" class="error-message"></p>
                         </div>
                     </div>
+                    {% endif %}
 
                     {% if interests %}
                         <h2>Specializations / Areas of Expertise:</h2>
@@ -407,11 +407,11 @@
 ////////////////////////////////////////////////////// Needed for max mentees option box to display properly, old method wasnt workin on certain cases 🦞
        // Get the max mentees value from the context
         const max_mentees_value = "{{ max_mentees }}";
-        console.log(max_mentees_value)
+
         
         const select_max_mentees = document.getElementById('select-max-mentees');
 
-        
+        if (select_max_mentees){
         const options = select_max_mentees.getElementsByTagName('option');
         for (let i = 0; i < options.length; i++) {
             if (options[i].value === max_mentees_value) {
@@ -419,6 +419,7 @@
                 options[i].selected = true;
                 break;  // Exit the loop after setting the selected option
             }
+        }
         }
 //////////////////////////////////////////////
 
@@ -478,11 +479,15 @@
         let phoneDisplay = document.querySelector(".phone-view");
         let phoneEdit = document.querySelector(".phone-edit");
         
-        jobTitleDisplay.style.display = attr_none;
-        jobTitleEdit.style.display = attr_block;
+        if(jobTitleDisplay)
+            jobTitleDisplay.style.display = attr_none;
+        if(jobTitleEdit)
+            jobTitleEdit.style.display = attr_block;
 
-        phoneDisplay.style.display = attr_none;
-        phoneEdit.style.display = attr_block;
+        if(phoneDisplay)
+            phoneDisplay.style.display = attr_none;
+        if(phoneEdit)
+            phoneEdit.style.display = attr_block;
 
         // make pronouns editable
         let pronounDisplay = document.querySelector(".pronoun-display");
@@ -566,49 +571,52 @@
     const regex_phone = /^\(\d{3}\) \d{3}-\d{4}$/;
     const input_phone = document.getElementById('phone-edit')
 
-    let previous_value = input_phone.value
-    input_phone.addEventListener("input", e => {
-        let input_value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-        // Account for backspaces on non-numeric characters
-        if (input_value === previous_value)
-            input_value = input_value.slice(0, -1)
-
-
-        // User backspaces with one number. Remove '('
-        if (input_value.length == 0) {
-            input_value = ''
-            // Format as '( XXX )'
-        } else if (input_value.length <= 3) {
-            input_value = '(' + input_value + ')'; // Start with (
-            // Format as '( XXX ) XXX'
-        } else if (input_value.length <= 6) {
-            input_value = '(' + input_value.substring(0, 3) + ') ' + input_value.substring(3);
-            // Format as '( XXX ) XXX-XXXX'
-        } else {
-            input_value = '(' + input_value.substring(0, 3) + ') ' + input_value.substring(3, 6) + '-' + input_value.substring(6, 10); // Format as (XXX) XXX-XXXX
-        }
-
-        // Record value for next iteration
-        previous_value = input_value.replace(/\D/g, "")
-        // Set input to new value
-        e.target.value = input_value;
-
-        const regex_result = regex_phone.test(e.target.value)
-        const RED = 'firebrick'
-        const GREEN = 'forestgreen'
-        // Visually indicate Regex Success
-        if (regex_result){
-            console.log("submitable")
-            input_phone.style.backgroundColor = GREEN
-            saveButton.disabled = false
-        }
-        else{
-            console.log("unsubmitable")
-            input_phone.style.backgroundColor = RED
-            //input_phone.focus()
-            saveButton.disabled = true
-        }
-    });
+    if(input_phone)
+    {
+        let previous_value = input_phone.value
+        input_phone.addEventListener("input", e => {
+            let input_value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+            // Account for backspaces on non-numeric characters
+            if (input_value === previous_value)
+                input_value = input_value.slice(0, -1)
+    
+    
+            // User backspaces with one number. Remove '('
+            if (input_value.length == 0) {
+                input_value = ''
+                // Format as '( XXX )'
+            } else if (input_value.length <= 3) {
+                input_value = '(' + input_value + ')'; // Start with (
+                // Format as '( XXX ) XXX'
+            } else if (input_value.length <= 6) {
+                input_value = '(' + input_value.substring(0, 3) + ') ' + input_value.substring(3);
+                // Format as '( XXX ) XXX-XXXX'
+            } else {
+                input_value = '(' + input_value.substring(0, 3) + ') ' + input_value.substring(3, 6) + '-' + input_value.substring(6, 10); // Format as (XXX) XXX-XXXX
+            }
+    
+            // Record value for next iteration
+            previous_value = input_value.replace(/\D/g, "")
+            // Set input to new value
+            e.target.value = input_value;
+    
+            const regex_result = regex_phone.test(e.target.value)
+            const RED = 'firebrick'
+            const GREEN = 'forestgreen'
+            // Visually indicate Regex Success
+            if (regex_result){
+                console.log("submitable")
+                input_phone.style.backgroundColor = GREEN
+                saveButton.disabled = false
+            }
+            else{
+                console.log("unsubmitable")
+                input_phone.style.backgroundColor = RED
+                //input_phone.focus()
+                saveButton.disabled = true
+            }
+        });
+    }
 
 </script>
 
