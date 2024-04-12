@@ -226,8 +226,8 @@ def register_mentee(req):
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 
         'user': req.user,
-        # TODO: replace this or get rid of password for mentees. 
-        # For now it is just generating a password so I can test without modifying validation code
+        # # TODO: replace this or get rid of password for mentees. 
+        # # For now it is just generating a password so I can test without modifying validation code
         'random_password': get_random_string(length=30) + "1A!",
     }
     return HttpResponse(template.render(context, req))
@@ -576,6 +576,8 @@ def login_uname_text(request):
         response = HttpResponse(json.dumps({"warning":"The username/password you have entered is incorrect."}))
         response.status_code = 401
         return response
+        
+
  
     #valid login
     if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
