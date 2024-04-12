@@ -59,18 +59,8 @@ from utils import security
 
 from .view_routes.status_codes import bad_request_400
 
-from .models import User
-from .models import Interest
-from .models import Mentor
-from .models import UserReport
-from .models import Mentee
-
-from .models import MentorshipRequest
-from .models import SystemLogs
-from .models import ProfileImg
-from .models import Organization
 from .models import *
-# from .models import MentorReports # (Deprecated??)
+
 from .view_routes.navigation import landing
 
 
