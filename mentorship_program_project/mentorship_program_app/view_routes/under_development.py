@@ -226,12 +226,16 @@ def register_mentor(req: HttpRequest):
             return HttpResponse(f"Email {incoming_email} already exsists!")
 
         organization = None
+        if req.POST["select-company-type"]:
+            organization = req.POST["select-company-type"]
+        else:
+            organization = req.POST["organization"]
         if(not Organization.objects.filter(str_org_name=req.POST["organization"]).exists()):
-            organization = Organization.objects.create(str_org_name=req.POST["organization"])
+            organization = Organization.objects.create()
             organization.save()
 
         else:
-            organization = Organization.objects.get(str_org_name=req.POST["organization"])
+            organization = Organization.objects.get(str_org_name=organization)
             
         pending_mentor_object.account.cls_email_address = incoming_email
         pending_mentor_object.account.str_first_name = req.POST["fname"]
