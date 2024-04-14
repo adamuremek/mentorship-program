@@ -601,7 +601,8 @@ def login_uname_text(request):
 def change_settings(request):
     user = User.from_session(request.session)
     template = loader.get_template('settings.html')
-    context = {"bln_notifications_on": user.bln_notifications}
+    context = {"bln_notifications_on": user.bln_notifications,
+               "is_mentee": user.is_mentee()}
     return HttpResponse(template.render(context,request))
 
 # view goes to currently static view reported users page
