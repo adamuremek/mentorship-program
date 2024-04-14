@@ -90,6 +90,7 @@ function validateForm(event) {
             message.style.display = "inline-block"
         }
         if (newPassword1.length < 12){
+            console.log("here")
             event.preventDefault()
             message.innerHTML = "Passwords must be more than 12 characters"
             message.style.display = "inline-block"
@@ -100,11 +101,11 @@ function validateForm(event) {
             message.style.display = "inline-block"
         }
         if (
-          !uppercaseRegex.test(newPassword1.value) ||
-          !lowercaseRegex.test(newPassword1.value) ||
-          !numberRegex.test(newPassword1.value) ||
-          !symbolRegex.test(newPassword1.value) ||
-          emojiRegex.test(newPassword1.value)
+          !uppercaseRegex.test(newPassword1) ||
+          !lowercaseRegex.test(newPassword1) ||
+          !numberRegex.test(newPassword1) ||
+          !symbolRegex.test(newPassword1) ||
+          emojiRegex.test(newPassword1)
         ) {
             event.preventDefault()
             message.innerHTML = "Passwords must contain one capital letter, lowercase letter, a number, and a symbol"
