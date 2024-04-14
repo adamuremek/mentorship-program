@@ -226,7 +226,7 @@ def register_mentor(req: HttpRequest):
             return HttpResponse(f"Email {incoming_email} already exsists!")
 
         organization = None
-        if req.POST['company-name']:
+        if req.POST['company-name'] and not req.POST['company-name'] == "Other":
             organization = req.POST['company-name']
         else:
             organization = req.POST["organization"]
@@ -1625,13 +1625,13 @@ def promote_org_admin(req : HttpRequest, promoted_mentor_id : int):
     
     # if user is not super admin, check if they're the org admin for the org being changed
     if not user_from_session.is_super_admin():
-
         mentor_account = Mentor.objects.get(account=user_from_session.id)
         current_org_admin = Organization.objects.get(mentor=mentor_account).admin_mentor
-        is_org_admin = current_org_admin == mentor_account
-
+        is_org_admin = current_org_admin.id == mentor_account.id
+        print("org")
     else:
-        print(True)
+        print("super admin")
+        
     if not user_from_session.is_super_admin() and not is_org_admin:
         return bad_request_400("Permission denied")
     

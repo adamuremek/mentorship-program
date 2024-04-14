@@ -45,7 +45,7 @@ from typing import Union, Dict
 from datetime import date
 
 from django.core import serializers
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.template import loader
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect
@@ -246,6 +246,8 @@ def register_mentor(req):
     #sorted(json.load(file))
     
     org_data_set = Organization.objects.all().values()
+    companynames = [{'str_org_name': org_data['str_org_name'][:20] + "..." if len(org_data['str_org_name']) > 20 else org_data['str_org_name']} for org_data in Organization.objects.all().values()]
+
     org_data_json = json.dumps(list(org_data_set))
     
     
@@ -259,7 +261,7 @@ def register_mentor(req):
         
         'country_codes' : country_codes,
 
-        'companyname' : org_data_set.all(),
+        'companyname' : companynames, #org_data_set.all()
         'companyLIST': org_data_json,
 
         'companytypelist': [
@@ -474,7 +476,7 @@ def admin_user_management(request):
         # return HttpResponse(organization, mentees_with_mentors_in_organization)
 
     else:
-        return bad_request_400("Access Denied")
+        return HttpResponseRedirect("/dashboard")
 
 
     # Cycle through organizations
@@ -701,6 +703,9 @@ def saml_login(request):
 
     # User exists, log them in
     user = User.objects.get(cls_email_address=user.email)
+    if not user.bln_active:
+        user.bln_active = True
+        user.save() 
     security.set_logged_in(request.session,user)
     return redirect('/dashboard')
     
