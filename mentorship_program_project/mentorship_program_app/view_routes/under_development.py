@@ -226,11 +226,13 @@ def register_mentor(req: HttpRequest):
             return HttpResponse(f"Email {incoming_email} already exsists!")
 
         organization = None
-        if req.POST["select-company-type"]:
-            organization = req.POST["select-company-type"]
+        if req.POST['company-name']:
+            organization = req.POST['company-name']
         else:
             organization = req.POST["organization"]
-        if(not Organization.objects.filter(str_org_name=req.POST["organization"]).exists()):
+        print("org", organization)
+        print("req: ", req.POST)
+        if(not Organization.objects.filter(str_org_name=organization).exists()):
             organization = Organization.objects.create()
             organization.save()
 
