@@ -3,7 +3,12 @@
 {% load static %}
 
 {% block title %}
-¯\_(Profile)_/¯
+{{ page_owner_user.str_first_name }}'s 
+{% if page_owner_user.is_mentor %}
+    Group
+{% else %}
+    Profile
+{% endif %}
 {% endblock %}
 
 {% block style %}
