@@ -152,7 +152,8 @@ def request_mentor(req : HttpRequest,mentee_id : int,mentor_id : int)->HttpRespo
     if user.id == mentor_account.id:
         you_have_a_new_request(mentee_account.cls_email_address)
     else:
-        you_have_a_new_request(mentor_account.cls_email_address)
+        if not Mentee.objects.get(account_id=user.id).mentor:
+            you_have_a_new_request(mentor_account.cls_email_address)
 
 
     # check to make sure a mentorship doesn't already exist
@@ -230,7 +231,7 @@ def verify_mentee_ug_status(req : HttpRequest) -> HttpResponse:
     Jordan Anodjo
     """
 
-    inactive_mentees = User.objects.filter(cls_date_joined__lte=date.today() - relativedelta(years=4), str_role="Mentee", bln_account_disabled=False, bln_active=True)
+    inactive_mentees = User.objects.filter(cls_date_joined__lte=date.today() - relativedelta.relativedelta(years=4), str_role="Mentee", bln_account_disabled=False, bln_active=True)
 
     for mentee in inactive_mentees:
         User.disable_user(mentee, "Mentee was deactivated for not being an undergrad")

@@ -1356,8 +1356,8 @@ def reset_request(req: HttpRequest):
         return HttpResponse(False)
     
     valid, message, token = PasswordResetToken.create_reset_token(user_id=user.id)
-    
-    reset_token_email(req, recipient=user.cls_email_address, token=token) # Pass req along with recipient email and token
+    if not user.is_mentee():
+        reset_token_email(req, recipient=user.cls_email_address, token=token) # Pass req along with recipient email and token
     return HttpResponse(True)
 
 

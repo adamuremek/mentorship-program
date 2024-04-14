@@ -246,6 +246,7 @@ def register_mentor(req):
     #sorted(json.load(file))
     
     org_data_set = Organization.objects.all().values()
+    # Truncates when above 20 characters and appends '...'
     companynames = [{'str_org_name': org_data['str_org_name'][:20] + "..." if len(org_data['str_org_name']) > 20 else org_data['str_org_name']} for org_data in Organization.objects.all().values()]
 
     org_data_json = json.dumps(list(org_data_set))
@@ -261,7 +262,7 @@ def register_mentor(req):
         
         'country_codes' : country_codes,
 
-        'companyname' : companynames, #org_data_set.all()
+        'companyname' : companynames, # org_data_set.all()
         'companyLIST': org_data_json,
 
         'companytypelist': [

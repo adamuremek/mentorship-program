@@ -37,6 +37,7 @@ from ..models import User
 from ..models import SystemLogs
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from ..view_routes.emails import *
 
 def run() -> None:
     """
@@ -68,6 +69,10 @@ def run() -> None:
     """
     #Get a list of all active users who have not logged in in the last 6 months
     inactive_users = User.objects.filter(str_last_login_date__lte=date.today() - relativedelta(days=180), bln_account_disabled=False, bln_active=True)
+    soon_to_be_inactive_users = User.objects.filter(str_last_login_date=date.today() - relativedelta(days=173), bln_account_disabled=False, bln_active=True)
+
+    for user in soon_to_be_inactive_users:
+        account_deactivating_soon(user.cls_email_address)
 
     count = 0
     for user in inactive_users:
@@ -76,5 +81,6 @@ def run() -> None:
         user.cls_active_changed_date = date.today()
         user.save()
         count = count + 1
+        account_deactivated_email(user.cls_email_address)
 
     print(f"Deactivated {count} accounts.")
