@@ -528,7 +528,6 @@
         event.preventDefault()
 
         let saveDisplayed = document.getElementById("button-save")
-        console.log(saveDisplayed)
 
         //Basically, if the profile is not in edit mode, dont allow the interest selection to be changed.
         if (saveDisplayed === null || saveDisplayed.style.display !== "inline-block") {
@@ -610,12 +609,10 @@
             const GREEN = 'forestgreen'
             // Visually indicate Regex Success
             if (regex_result){
-                console.log("submitable")
                 input_phone.style.backgroundColor = GREEN
                 saveButton.disabled = false
             }
             else{
-                console.log("unsubmitable")
                 input_phone.style.backgroundColor = RED
                 //input_phone.focus()
                 saveButton.disabled = true
