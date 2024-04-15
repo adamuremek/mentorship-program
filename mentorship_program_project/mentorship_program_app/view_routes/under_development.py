@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import inspect
 from collections.abc import Callable
@@ -18,6 +19,8 @@ from ..views import login_uname_text
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.utils import timezone
+
+from ..models import *
 
 from typing import Dict
 
@@ -404,7 +407,6 @@ def view_pending_mentors(req: HttpRequest):
     Andrew P.
     '''
     session_user = User.from_session(req.session)
-
     is_super_admin = session_user.is_super_admin()
 
     if not(is_super_admin):
