@@ -70,7 +70,10 @@
 <script src = '{% static "js/landing_page/login_form.js" %}'></script>
 <script type = 'module' src = '{% static "js/landing_page/forgot_pass_modals.js" %}'></script>
 <script src = '{% static "js/landing_page/password_visibility.js" %}'></script>
+
 <script>
+
+    // Ensure Enter button presses initiate a button click instead of implicit form submission
     var input = document.getElementById("frm-login");
     input.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
@@ -79,6 +82,7 @@
         }
     });
     
+    // Show relevant input fields for mentors when following their login workflow
     const mentor_input_fields = document.getElementsByClassName('email-password-fields')[0]
     document.getElementById('show-li-btn').addEventListener('click', () => {
         if(mentor_input_fields.style.display == 'block')

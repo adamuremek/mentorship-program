@@ -16,7 +16,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from mentorship_program_app import views
 
 urlpatterns = [
     path('', include('mentorship_program_app.urls')),

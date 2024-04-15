@@ -35,6 +35,9 @@
         </div>
     </div>
 </div>
+
+<script src="{% static 'js/reset_password.js' %}"></script>
+<!--
 <script>
 
     // Assign focus to the first input field for user input
@@ -51,8 +54,6 @@
         // Focus the first input field for user input
         focusInputPass1();
     });
-
-    
 
 
     function is_password_valid(password){
@@ -110,7 +111,6 @@
         var newpassword = document.getElementById('new-password').value;
     var renewpassword = document.getElementById('re-new-password').value;
 
-    console.log(token)
         if(!is_password_valid(newpassword)){
              // Token is invalid
 
@@ -182,4 +182,6 @@
         xhttp.send("token=" + token + "&new-password=" + encodeURIComponent(newpassword));
     }
 </script>
+
+-->
 {% endblock %}

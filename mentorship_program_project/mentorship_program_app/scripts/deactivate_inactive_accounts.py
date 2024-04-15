@@ -37,7 +37,7 @@ from ..models import User
 from ..models import SystemLogs
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from ..view_routes.emails import *
+from ..routes.emails import *
 
 def run() -> None:
     """

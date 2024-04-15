@@ -4,7 +4,7 @@ from django.db.models import *
 from .svsu_model import SVSUModelData
 from .user import User
 from .system_logs import SystemLogs
-from .mentee import Mentee
+
 
 class MentorshipRequest(SVSUModelData,Model):
     """

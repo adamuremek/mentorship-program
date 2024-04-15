@@ -1,3 +1,41 @@
+"""
+/*********************************************************************/
+/* FILE NAME: reporting.py                                           */
+/*********************************************************************/
+/* PART OF PROJECT: Mentorship Program                               */
+/*********************************************************************/
+/* WRITTEN BY: Andrew, Jordan and David                              */
+/* DATE CREATED:                                                     */
+/*********************************************************************/
+/* PROJECT PURPOSE:                                                  */
+/*                                                                   */
+/* This project aims to enable comprehensive monitoring and reporting*/
+/* within the mentorship platform, facilitating detailed analytics on*/
+/* user activities, registrations, and system interactions.          */
+/*********************************************************************/
+/* FILE PURPOSE:                                                     */
+/*                                                                   */
+/* This file contains the logic for generating detailed reports on   */
+/* various metrics within the system such as user activities, mentor */
+/* and mentee registration rates, and overall system usage statistics.*/
+/* The data is formatted and outputted as Excel spreadsheets for     */
+/* administrative use.                                               */
+/*********************************************************************/
+/* DJANGO IMPORTED VARIABLE LIST (Alphabetically):                   */
+/*                                                                   */
+/* - HttpRequest: For obtaining details of HTTP requests             */
+/* - HttpResponse: Class for sending HTTP responses                  */
+/* - Workbook: For creating and managing Excel workbooks             */
+/* - Table, TableStyleInfo: For styling Excel tables within workbooks*/
+/*********************************************************************/
+/* MODIFICATION HISTORY:                                             */
+/*********************************************************************/
+/* Date       | Changed By | Changes Made                            */
+/* -----------|------------|---------------------------------------- */
+/*********************************************************************/
+"""
+
+
 from django.http import HttpRequest, HttpResponse
 from datetime import datetime, timedelta
 

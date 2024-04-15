@@ -30,42 +30,44 @@
 
     <script type = 'module' src='{% static "js/navigation/nav_logic.js" %}'></script>
 </body>
-<!-- Script to Append Current Year to bottom of page -->
+
+<!-- Doesn't feel like enough to warrant an individual JS File -->
 <script>
+    // Show current year on bottom of the page
     document.addEventListener('DOMContentLoaded', ()=>{
         const currentYear = new Date().getFullYear();
         document.getElementById('current-year').textContent = currentYear;
     });
 
+
+    // -------------------- ----------------------- -------------------- \\
+    // -------------------- <<< LOADING OVERLAY >>> -------------------- \\
+    // -------------------- ----------------------- -------------------- \\
+
     const load_overlay = document.getElementById('loading-overlay')
     
+    // Assuming overlay exists...
     if(load_overlay)
     {
+        // Show overlay when navigating away from current page
         window.onbeforeunload = () => {
             load_overlay.style.display = 'block'
             return undefined
         };
 
+        // Remove overlay when a new page is being shown
         window.onload = () => {
             load_overlay.style.display = 'none'
             return undefined
         }
 
+        // If a page data was cached, ensure overlay is removed when reloaded
         window.addEventListener('pageshow', () => {
             load_overlay.style.display = 'none'
             return undefined
         });
 
         
-    }
-</script>
-
-<!-- script used to check if light mode is turned on -->
-<script>
-    theme = localStorage.getItem('theme');
-
-    if (theme) {
-        document.body.classList.add(theme);
     }
 </script>
 </html>

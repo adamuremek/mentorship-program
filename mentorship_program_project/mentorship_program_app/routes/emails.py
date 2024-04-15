@@ -1,3 +1,42 @@
+"""
+/*********************************************************************/
+/* FILE NAME: emails.py                                 */
+/*********************************************************************/
+/* PART OF PROJECT: WINGS Mentorship Program                         */
+/*********************************************************************/
+/* WRITTEN BY: Andrew P and Tanner W                                 */
+/* (OFFICIAL) DATE CREATED: Long ago                                 */
+/*********************************************************************/
+/* PROJECT PURPOSE:                                                  */
+/*                                                                   */
+/* The project is designed to support and enhance the mentorship     */
+/* experience between mentors and mentees by providing timely        */
+/* communications and updates through email notifications.           */
+/*********************************************************************/
+/* FILE PURPOSE:                                                     */
+/*                                                                   */
+/* This file defines functions responsible for sending various types */
+/* of email notifications to users based on different actions within */
+/* the mentorship program, such as account status changes, mentorship*/
+/* requests, and administrative alerts.                              */
+/*********************************************************************/
+/* DJANGO IMPORTED VARIABLE LIST (Alphabetically):                   */
+/*                                                                   */
+/* - HttpRequest: Class for handling HTTP requests                   */
+/* - send_mail: Function to send email                               */
+/* - settings: Module containing Django project settings             */
+/*********************************************************************/
+/* MODIFICATION HISTORY:                                             */
+/*********************************************************************/
+/* Date       | Changed By | Changes Made                            */
+/* -----------|------------|---------------------------------------- */
+
+/*********************************************************************/
+
+from
+
+"""
+
 from django.core.mail import send_mail
 from django.conf import settings
 from django.http import HttpRequest
@@ -199,3 +238,4 @@ Thanks,
 
 WINGS
  """
+	send_mail(subject, message,  from_email, [email])

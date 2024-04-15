@@ -10,12 +10,14 @@ from typing import Callable
 from typing import List, Dict
 from django.db.models import Q
 
-#project imports
 from .interest import Interest
-from .organization import Organization
 from .svsu_model import SVSUModelData
+#project imports
 from utils import security
 from django.utils import timezone
+
+from utils import security
+
 
 class User(SVSUModelData,Model):
     """
@@ -86,6 +88,7 @@ class User(SVSUModelData,Model):
         return first_name + " " + last_name
     
     def is_an_org_admin(self)->bool:
+        from .organization import Organization
         try:
             Organization.objects.get(admin_mentor_id=self.mentor.id)
             return True
@@ -367,12 +370,16 @@ class User(SVSUModelData,Model):
         -------
         
         """
+       # from .interest import Interest
+       # from .organization import Organization
+        
         ADMIN = 'Admin'
         MENTOR = 'Mentor'
         MENTEE = 'Mentee'
         MENTOR_PENDING = 'MentorPending'
         GRADUATED = 'Graduated'
         DECLINED = 'Declined'
+        
 
     cls_email_address =  EmailField(null=True,unique=True)  
     str_password_hash =  CharField(max_length=1000, null=True, blank=False)
@@ -639,7 +646,7 @@ class User(SVSUModelData,Model):
 
 
 
-    def get_first_shared_organization(self,other : 'User')->'Organization':
+    def get_first_shared_organization(self,other : 'User'):
         """
         returns the first shared organization if it exists, otherwise None
         """

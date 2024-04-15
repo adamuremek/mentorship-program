@@ -1,4 +1,6 @@
 """
+
+TEST FILE, HERE JUST IN CASE
 contains views that should only be accessable in development mode
 """
 from django.http import HttpRequest, HttpRequest,HttpResponse

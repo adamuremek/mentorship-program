@@ -75,7 +75,7 @@ class Mentee(SVSUModelData,Model):
         """
         simple function that returns true if a given mentee has more mentors than the maximum request count
         """
-        #### DO NOT MOVE THIS IMPORT ###
+                    #### DO NOT MOVE THIS IMPORT ###
         #### It needs to be here to prevent a circular import ###
         from .mentorship_request import MentorshipRequest
 

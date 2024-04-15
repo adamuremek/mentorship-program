@@ -35,12 +35,14 @@
                 </div>
             </div>
             <br>
-            {% if page_owner_user.str_role != signed_in_user.str_role and not signed_in_user.mentee.mentor.account.id == page_owner_user.id %}
+            {% if page_owner_user.str_role != signed_in_user.str_role and not signed_in_user.mentee.mentor.account.id == page_owner_user.id  and not is_admin %}
+
                 {% if signed_in_user.has_requested_this_user %} 
                     <button type="button" id="btn_profile_request" disabled>Requested!</button>
                 {% else %}
                     <button type="button" id="btn_profile_request">Request {{page_owner_user.str_role}}</button>
                 {% endif %}
+
             {% endif %}
 
             <!-- TODO: prevent reporting multiple times in a row -->
@@ -310,8 +312,24 @@
 <script src = "{% static 'js/backend_requests.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!--Script tag for overview logic-->
+<!-- Variables passed into profile.js -->
 <script>
+    const MAX_MENTEES          = '{{ max_mentees }}'
+    const PAGE_OWNER_ID        = '{{ page_owner_user.id }}'
+
+    const IS_PAGE_OWNER_MENTEE = '{{ page_owner_user.is_mentee }}'
+
+    const PAGE_OWNER_MENTEE_ID = '{{ page_owner_user.mentee.account.id }}'
+    const PAGE_OWNER_MENTOR_ID = '{{ page_owner_user.mentor.account.id }}'
+    const SIGNED_IN_MENTOR_ID  = '{{ signed_in_user.mentor.account.id }}'
+    const SIGNED_IN_MENTEE_ID  = '{{ signed_in_user.mentee.account.id }}'
+</script>
+
+<script src="{% static 'js/profile/profile.js' %}"></script>
+
+<!--
+    <script>
+    //Script tag for overview logic
     //The max length that can be stored in the backend is 5000
     const MAX_OVERVIEW_LENGTH = 5000;
     const TOO_LONG_ERROR_MSG = 'Overview must be less than ' + MAX_OVERVIEW_LENGTH + ' characters'
@@ -348,8 +366,8 @@
     });
 </script>
 
-<!--Script tag for warning user before removing mentor/mentee-->
 <script>
+    //Script tag for warning user before removing mentor/mentee
     var removeButton;
     var confirmationBln;
 
@@ -365,8 +383,8 @@
     });
 </script>
 
-<!--Script to alert mentor when they have reached their max mentee limit-->
 <script>
+    //Script to alert mentor when they have reached their max mentee limit
     var max_mentees_value = "{{ max_mentees }}";
     var cur_num_mentees;
     var acceptButton;
@@ -759,5 +777,6 @@
         for(btn of btn_update_note)
             btn.addEventListener('click', () => updateNote())*/
     </script>
+-->
 
 {% endblock %}
