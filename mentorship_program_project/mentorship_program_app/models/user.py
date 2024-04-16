@@ -154,6 +154,7 @@ class User(SVSUModelData,Model):
                             AND t1.user_id = tu.id
                             AND tu.str_role = '{self.get_opposite_database_role_string()}'
                             AND ({not_taken})
+                            AND NOT tu.bln_account_disabled
                        GROUP BY t1.user_id,tu.str_first_name,tu.str_last_name,tu.id
                        ORDER BY likeness DESC
                        LIMIT {limit};
