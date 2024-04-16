@@ -14,7 +14,7 @@ if [ ! -f "./ansible/env.yaml" ]; then
     ${EDITOR:-vi} "./ansible/env.yaml"
 else
     if [ -f "./ansible/env-template.yaml" ]; then
-        DIFF_COMMAND "./ansible/env-template.yaml" "./ansible/env.yaml"
+        $DIFF_COMMAND "./ansible/env.yaml" "./ansible/env-template.yaml"
     else
         ${EDITOR:-vi} "./ansible/env.yaml"
     fi
@@ -27,7 +27,7 @@ if [ ! -f "./ansible/inventory.yaml" ]; then
     ${EDITOR:-vi} "./ansible/inventory.yaml"
 else
     if [ -f "./ansible/inventory-template.yaml" ]; then
-        DIFF_COMMAND "./ansible/inventory-template.yaml" "./ansible/inventory.yaml"
+        $DIFF_COMMAND "./ansible/inventory.yaml" "./ansible/inventory-template.yaml"
     else
         ${EDITOR:-vi} "./ansible/inventory.yaml"
     fi
