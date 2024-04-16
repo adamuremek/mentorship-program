@@ -3,7 +3,6 @@
   gather_facts: false
   become: true
 
-
 - import_playbook: ./postgres-setup.yaml
 - import_playbook: ./saml-setup.yaml
 - import_playbook: ./docker-repo-setup.yaml

@@ -15,3 +15,4 @@ data:
   SAML_IDP_METADATA_URL: "{{ saml_idp_metadata_url }}"
   DB_BACKUP_PATH: "{{ db_backup_path }}"
   MEDIA_ROOT: "{{ media_root }}"
+  GIT_BRANCH: "{{ git_branch }}"
