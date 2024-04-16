@@ -1,6 +1,21 @@
+- name: Add Postgres GPG key
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: Add Postgres apt repository
+  apt_repository:
+    repo: "deb [arch=amd64] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+    state: present
+    filename: postgres
+
+- name: Update APT Cache
+  apt:
+    update_cache: yes
+
 - name: Install Postgres
   apt:
-    name: postgresql
+    name: postgresql-15
     state: present
 
 - name: Install psycopg2
