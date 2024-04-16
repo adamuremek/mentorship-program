@@ -8,10 +8,12 @@ PART OF PROJECT: SVSU Mentorship Program App
 FILE PURPOSE:
 
 A script that restores a backup of the database to the postgresql 
-database specified under DB_NAME in .env.
+database specified under DB_NAME in settings.py.
 This script accepts .sql.tar.gz file type.
+Input file must follow "[DATABASE NAME]_YEAR-MONTH-DAY_HOUR-MINUTE-SECOND.sql.tar.gz" format.
 
 NOTE: THE DATABASE MUST BE EMPTY.
+NOTE: Input file must follow "[DATABASE NAME]_YEAR-MONTH-DAY_HOUR-MINUTE-SECOND.sql.tar.gz" format.
 
 -------------------------------------------------------------------------------
 ENVIRONMENTAL RETURNS:
@@ -49,6 +51,7 @@ def run():
     Description
     -----------
     Restores the database from a path specified by the user.
+    Input file must follow "[DATABASE NAME]_YEAR-MONTH-DAY_HOUR-MINUTE-SECOND.sql.tar.gz" format.
 
     Parameters
     ----------
@@ -66,6 +69,8 @@ def run():
     -------------
 
     >>> python manage.py runscript restore_database_backup
+    "Hello, please enter the direct path of the .sql.tar.gz file."
+    "Tar file direct path: [FULL_PATH]\mentorship-program\mentorship_program_project\DATABASE_BACKUPS\media_2024-04-09_23-20-06.tar.gz"
     "-PRINTS OUT ALL ACTIONS TAKEN-"
     "Database restored successfully."
 
