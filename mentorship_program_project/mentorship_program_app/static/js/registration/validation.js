@@ -196,6 +196,12 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         }
     });
 
+    function is_all_white_space(string){
+        // Returns true if the string contains only white spaces.
+        const ALL_WHITE_SPACE = /^\s*$/
+        return ALL_WHITE_SPACE.test(string);
+    }
+
     // -------------------- --------------------------------------- -------------------- \\
     // -------------------- <<< VISUAL CARD PROGRESSION SECTION >>> -------------------- \\
     // -------------------- --------------------------------------- -------------------- \\
@@ -404,7 +410,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         //  the user's interests, and their response to the user agreement
         var selected_orgName = input_companyDropD.options[input_companyDropD.selectedIndex].text
         var selected_OtherText = "Other"
-        var selected_OtherOrgName = input_companyTextF.value
+        var selected_OtherOrgName = (input_companyTextF.value).trim()
 
         switch (form_idx) {
             case 3:     //  Company information
@@ -415,7 +421,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
                     //  (Check if selection is valid).
                     is_valid = selected_OtherOrgName != selected_OtherText &&
                         selected_OtherOrgName.length > 0 &&
-                        input_job_title.value.length > 0
+                        input_job_title.value.length > 0 &&
+                        !is_all_white_space(selected_OtherOrgName)
                 }
                 else
                 {
@@ -519,6 +526,7 @@ document.addEventListener('DOMContentLoaded', winloaded => {
         var selected_orgName = input_companyDropD.options[input_companyDropD.selectedIndex].text
         var selected_OtherText = "Other"
         var selected_OtherOrgName = input_companyTextF.value
+        
 
         //  If 'Other' has been selected from the dropdown...
         if(selected_orgName == selected_OtherText)
@@ -532,6 +540,8 @@ document.addEventListener('DOMContentLoaded', winloaded => {
             //  (Users cannot enter in 'Other' for their company name!)
             else if(selected_OtherOrgName == selected_OtherText)
                 company_warning_message.innerText = "Company name is invalid. Please enter in another name."
+            else if(is_all_white_space(selected_OtherOrgName))
+                company_warning_message.innerText = "Company name is all white space. Please enter another name."
             //  If nothing has been typed for the organization's name...
             else
                 company_warning_message.innerText = ""
