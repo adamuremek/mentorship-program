@@ -5,13 +5,13 @@
 
 - name: Create export directory for backups
   file:
-    path: /nfs/backup
+    path: "{{ backup_root }}"
     state: directory
 
 - name: Configure exports
   lineinfile:
     path: /etc/exports
-    line: "/nfs/backup *(rw,sync,no_subtree_check,no_root_squash)"
+    line: "{{ backup_root }} *(rw,sync,no_subtree_check,no_root_squash)"
 
 - name: Restart nfs
   service:
