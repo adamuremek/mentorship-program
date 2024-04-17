@@ -156,5 +156,6 @@ backup-pv.yaml
 
 mentor-configmap.yaml
 mentor-secret.yaml
+mentor-deployment.yaml
 
 inventory.yaml
