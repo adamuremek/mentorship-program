@@ -132,7 +132,7 @@ class Interest(SVSUModelData,Model):
             'Embedded Systems',
             'Cloud Computing',
             'Software Engineering',
-            'Distrubuted Systems',
+            'Distributed Systems',
             'Game Development',
             'Cybersecurity',
             'System Analysis']
