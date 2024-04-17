@@ -30,6 +30,8 @@ spec:
               name: static-volume
             - mountPath: "{{ media_root }}"
               name: media-volume
+            - mountPath: "{{ backup_root }}"
+              name: backup-volume
         - name: nginx
           image: localhost:5000/nginx-kubernetes
           volumeMounts:
@@ -46,4 +48,7 @@ spec:
         - name: media-volume
           persistentVolumeClaim:
            claimName: media-pvc
+        - name: backup-volume
+          persistentVolumeClaim:
+           claimName: backup-pvc
       restartPolicy: Always
