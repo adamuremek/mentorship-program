@@ -33,7 +33,9 @@ Dashboard
             <div class="recommended-cards">
                 <!-- 5 Cards should be inserted -->
                 {% for user in recommended_users %}
-                    {% include 'dashboard/profile-card/mentee_card.html' %}
+                    {% if not user.bln_account_disabled %}
+                        {% include 'dashboard/profile-card/mentee_card.html' %}
+                    {% endif %}
                 {% endfor %}
 
             </div>
