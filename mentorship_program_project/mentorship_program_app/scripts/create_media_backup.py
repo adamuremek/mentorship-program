@@ -82,7 +82,7 @@ def run():
         tarball_path = f"{backup_file_path}.tar.gz"
 
         with tarfile.open(tarball_path, "w:gz") as tar:
-            tar.add(f'{MEDIA_ROOT}\images', arcname=os.path.basename(f'{MEDIA_ROOT}\images'))
+            tar.add(f'{MEDIA_ROOT}\\images', arcname=os.path.basename(f'{MEDIA_ROOT}\\images'))
         
         #Remove the oldest file
         remove_oldest_file("media",".tar.gz")
