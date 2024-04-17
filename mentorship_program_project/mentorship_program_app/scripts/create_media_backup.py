@@ -78,11 +78,11 @@ def run():
         print (MEDIA_URL)
         str_time_stamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         backup_file = f"media_{str_time_stamp}"
-        backup_file_path = f"{BACKUP_DATABASE_ROOT}/{backup_file}"
+        backup_file_path = os.path.join(f"{BACKUP_DATABASE_ROOT}", f"{backup_file}")
         tarball_path = f"{backup_file_path}.tar.gz"
 
         with tarfile.open(tarball_path, "w:gz") as tar:
-            tar.add(f'{MEDIA_ROOT}\\images', arcname=os.path.basename(f'{MEDIA_ROOT}\\images'))
+            tar.add(os.path.join(f'{MEDIA_ROOT}', 'images'), arcname=os.path.basename(os.path.join(f'{MEDIA_ROOT}', 'images')))
         
         #Remove the oldest file
         remove_oldest_file("media",".tar.gz")
