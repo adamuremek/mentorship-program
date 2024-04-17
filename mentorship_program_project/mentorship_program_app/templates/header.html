@@ -42,8 +42,10 @@
                 <ul class="mobile-navbar">
                     <li>
                         <a href="" class="disabled-link" id="logo">
-                            <img src="{% static 'images/svsu_header.png' %}" alt="SVSU Logo">
-                            <img src="{% static 'images/wings-logo.png' %}" class="wings-logo" alt="WINGS Logo">
+                            <img src="{% static 'images/svsu_stacked_primary.png' %}" alt="SVSU Logo">
+                            <!-- <img src="{% static 'images/svsu_wings_stacked_primary.png' %}" alt="SVSU Logo"> -->
+                            <!-- <img src="{% static 'images/svsu_wings_stacked_primary (1).png' %}" alt="SVSU Logo"> -->
+                            <!-- <img src="{% static 'images/wings_logo_FV.png' %}" class="wings-logo" alt="WINGS Logo"> -->
                         </a>
                     </li>
                     <li class="account-menu-btn" id="open-mobile-sidebar-btn">
@@ -69,7 +71,7 @@
 
                     {% if user.is_mentor %}
                         <li>
-                            <a href="{% url 'universal_profile' user_id=user.id %}">Mentee Group</a>
+                            <a href="{% url 'universal_profile' user_id=user.id %}">Mentorship Group</a>
                         </li>
                     {% elif user.is_mentee %}
                         <li>
@@ -77,7 +79,7 @@
                         </li>
                         {% if user.mentee.mentor %}
                         <li>
-                            <a href="{% url 'universal_profile' user_id=user.mentee.mentor.account.id %}">Mentor Group</a>
+                            <a href="{% url 'universal_profile' user_id=user.mentee.mentor.account.id %}">Mentorship Group</a>
                         </li>
                         {% endif %}
                     {% endif %}
@@ -116,8 +118,10 @@
                 <ul class="primary-navbar">
                     <li>
                         <a href="" class="disabled-link" id="logo">
-                            <img src="{% static 'images/svsu_header.png' %}" alt="SVSU Logo">
-                            <img src="{% static 'images/wings-logo.png' %}" class="wings-logo" alt="WINGS Logo">
+                            <img src="{% static 'images/svsu_stacked_primary.png' %}" alt="SVSU Logo">
+                            <!-- <img src="{% static 'images/svsu_wings_stacked_primary.png' %}" alt="SVSU Logo"> -->
+                            <!-- <img src="{% static 'images/svsu_wings_stacked_primary (1).png' %}" alt="SVSU Logo"> -->
+                            <!-- <img src="{% static 'images/wings_logo_FV.png' %}" class="wings-logo" alt="WINGS Logo"> -->
                         </a>
                     </li>
                     <!-- <li><img src="{% static 'images/svsu_header.png' %}" alt="SVSU Logo"></li> -->
@@ -126,12 +130,12 @@
                     </li>
                     {% if user.is_mentor %}
                         <li>
-                            <a href="{% url 'universal_profile' user_id=user.id %}">Mentee Group</a>
+                            <a href="{% url 'universal_profile' user_id=user.id %}">Mentorship Group</a>
                         </li>
                     {% elif user.is_mentee %}
                         {% if user.mentee.mentor %}
                         <li>
-                            <a href="{% url 'universal_profile' user_id=user.mentee.mentor.account.id %}">Mentor Group</a>
+                            <a href="{% url 'universal_profile' user_id=user.mentee.mentor.account.id %}">Mentorship Group</a>
                         </li>
                         {% endif %}
                     {% endif %}
@@ -155,8 +159,10 @@
                 <ul class="mobile-navbar">
                     <li>
                         <a href="{% url 'default' %}" id="logo">
-                            <img src="{% static 'images/svsu_header.png' %}" alt="SVSU Logo">
-                            <img src="{% static 'images/wings-logo.png' %}" class="wings-logo" alt="WINGS Logo">
+                            <img src="{% static 'images/svsu_stacked_primary.png' %}" alt="SVSU Logo">
+                            <!-- <img src="{% static 'images/svsu_wings_stacked_primary.png' %}" alt="SVSU Logo"> -->
+                            <!-- <img src="{% static 'images/svsu_wings_stacked_primary (1).png' %}" alt="SVSU Logo"> -->
+                            <!-- <img src="{% static 'images/wings_logo_FV.png' %}" class="wings-logo" alt="WINGS Logo"> -->
                         </a>
                     </li>
                     <li>
@@ -171,8 +177,10 @@
                 <ul class="primary-navbar">
                     <li>
                         <a href="{% url 'default' %}" id="logo">
-                            <img src="{% static 'images/svsu_header.png' %}" alt="SVSU Logo">
-                            <img src="{% static 'images/wings-logo.png' %}" class="wings-logo" alt="WINGS Logo">
+                            <img src="{% static 'images/svsu_stacked_primary.png' %}" alt="SVSU Logo">
+                            <!-- <img src="{% static 'images/svsu_wings_stacked_primary.png' %}" alt="SVSU Logo"> -->
+                            <!-- <img src="{% static 'images/svsu_wings_stacked_primary (1).png' %}" alt="SVSU Logo"> -->
+                            <!-- <img src="{% static 'images/wings_logo_FV.png' %}" class="wings-logo" alt="WINGS Logo"> -->
                         </a>
                     </li>
                     <li>
