@@ -18,11 +18,14 @@
 /* This file is included in 'combined_views.html'                    */
 /*********************************************************************/
 /* DJANGO IMPORTED VARIABLE LIST (Alphabetically):                   */
-/* (MAX_MENTEES): HTMLElement of email input field                   */
-/* (input_phone): HTMLElement of phone input field                   */
-/* (regex_email): Regex used for validating email input              */
-/* (regex_phone): Regex used for validating phone input              */
+/* (MAX_MENTEES) | int: A mentor's max number of possible mentees    */
+/* (IS_PAGE_OWNER_MENTEE) | bool: Is the OWNER of the page a mentee? */
 /*                                                                   */
+/* (PAGE_OWNER_MENTEE_ID) | int: ID of page owner -if user is mentee */
+/* (PAGE_OWNER_MENTOR_ID) | int: ID of page owner -if user is mentor */
+/*                                                                   */
+/* (SIGNED_IN_MENTOR_ID) | int: ID of cur-user (if they are mentor)  */
+/* (SIGNED_IN_MENTEE_ID) | int: ID of cur-user (if they are mentee)  */
 /*********************************************************************/
 /* MODIFICATION HISTORY:                                             */
 /*********************************************************************/
