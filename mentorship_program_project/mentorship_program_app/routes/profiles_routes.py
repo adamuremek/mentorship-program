@@ -41,8 +41,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from mentorship_program_app.models import *
 from .status_codes import bad_request_400
 from utils import security
+from mentorship_program_project.settings import BASE_DIR, MEDIA_URL
 from .emails import *
 from ..models import *
+
 
 from typing import Dict
 @security.Decorators.require_login(bad_request_400)
@@ -290,7 +292,11 @@ def save_profile_info(req : HttpRequest, user_id : int):
     ======
     Adam U. ( ͡° ͜ʖ ͡°) 
 
+    Modification History
+    ====================
+    Justin Goupil - Fix for orphaned profile images when a user replaced their profile image with another. 
     """
+
     if req.method == "POST":
         #Get the user being modified
         page_owner_user = User.objects.get(id=user_id)
@@ -310,8 +316,16 @@ def save_profile_info(req : HttpRequest, user_id : int):
             new_pfp = req.FILES["profile_image"]
 
             # update_profile_img(user_id, new_pfp)
+
+            old_profile_image = f'{BASE_DIR}{page_owner_user.profile_img.img.url}'
+            default_profile_image = f"{BASE_DIR}{MEDIA_URL}images/default_profile_picture.png"
+
+            if not (str(old_profile_image.replace('\\', '/')) == str(default_profile_image)):
+                os.remove(old_profile_image)
             
             page_owner_user.profile_img.img.save(new_pfp.name, new_pfp)
+
+
         #Change prefered pronouns
         
         if "pronouns1" in req.POST or "pronouns2" in req.POST:
