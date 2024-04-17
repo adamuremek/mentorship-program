@@ -1,0 +1,19 @@
+- name: Install nfs server
+  apt:
+    name: nfs-kernel-server
+    state: present
+
+- name: Create export directory for backups
+  file:
+    path: /nfs/backup
+    state: directory
+
+- name: Configure exports
+  lineinfile:
+    path: /etc/exports
+    line: "/nfs/backup *(rw,sync,no_subtree_check,no_root_squash)"
+
+- name: Restart nfs
+  service:
+    name: nfs-kernel-server
+    state: restarted

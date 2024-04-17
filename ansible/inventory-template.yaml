@@ -10,3 +10,6 @@ all:
     k3s_server:
       hosts:
         server01:
+    nfs_server:
+      hosts:
+        server01:

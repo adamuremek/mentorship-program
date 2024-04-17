@@ -88,7 +88,7 @@ def run():
     try:
         sql_file = extract_sql_file(tar_path)
 
-        restore_database(f'{BACKUP_DATABASE_ROOT}\{sql_file}')
+        restore_database(f'{BACKUP_DATABASE_ROOT}\\{sql_file}')
 
         print(f"\n\nThe database has been restore from {tar_path}\n")
 

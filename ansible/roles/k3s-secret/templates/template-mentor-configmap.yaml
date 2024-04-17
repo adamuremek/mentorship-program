@@ -13,6 +13,6 @@ data:
   SAML_IDP_SSO_URL: "{{ saml_idp_sso_url }}"
   SAML_IDP_SLO_URL: "{{ saml_idp_slo_url }}"
   SAML_IDP_METADATA_URL: "{{ saml_idp_metadata_url }}"
-  DB_BACKUP_PATH: "{{ db_backup_path }}"
+  BACKUP_ROOT: "{{ backup_root }}"
   MEDIA_ROOT: "{{ media_root }}"
   GIT_BRANCH: "{{ git_branch }}"
