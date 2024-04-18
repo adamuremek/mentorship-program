@@ -242,7 +242,7 @@ def admin_user_management(request):
         print_debug("loading with role admin")
         # Get all mentee, mentor, and organization data from database
         user_management_mentee_data = Mentee.objects
-        user_management_mentor_data = Mentor.objects
+        user_management_mentor_data = Mentor.objects.filter(account__str_role=User.Role.MENTOR)
         user_management_organizations_data = Organization.objects
 
         orgs = user_management_organizations_data.select_related(
@@ -300,10 +300,11 @@ def admin_user_management(request):
                 'name': organization.str_org_name,
                 'admin_list': [org_admin] if org_admin != None else [], #this def does not need to be a list now
                                                                         #unless we want to re-listify admins which we could do
-                'mentor_list':  [
+                'mentor_list':  #mentor_list
+                                [
                                             get_mentor_data_from_mentor(m,session_user) for m in 
                                             organization.mentor_set.all() 
-                                            if org_admin == None or organization.admin_mentor.id != m.id
+                                            if m.account.str_role==User.Role.MENTOR and (org_admin == None or organization.admin_mentor.id != m.id)
                                 ]
             }
         )
