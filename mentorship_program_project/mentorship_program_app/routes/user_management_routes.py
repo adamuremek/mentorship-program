@@ -272,7 +272,7 @@ def admin_user_management(request):
         #here for others or incase I forget -dk
         organization = Organization.objects.get(admin_mentor_id=session_user.mentor)
         user_management_mentee_data = Mentee.objects.filter(mentor__organization=organization)
-        user_management_mentor_data = Mentor.objects.filter(organization=organization)
+        user_management_mentor_data = Mentor.objects.filter(organization=organization, user__bln_active=True)
 
         user_management_organizations_data = organization
 
