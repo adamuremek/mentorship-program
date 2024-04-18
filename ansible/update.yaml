@@ -9,7 +9,7 @@
         repo: 'https://github.com/adamuremek/mentorship-program.git'
         dest: "{{ absolute_project_path }}"
         update: yes
-        version: k3s
+        version: "{{ git_branch }}"
 
 - import_playbook: ./docker-build.yaml
 - import_playbook: ./k3s-secret.yaml

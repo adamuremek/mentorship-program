@@ -1,7 +1,10 @@
 import bcrypt
+import re
 from django.conf import settings
 from typing import Callable
+from django.http import HttpRequest
 
+from mentorship_program_app.routes.status_codes import bad_request_400
 from base64 import b64encode,b64decode
 
 """
@@ -25,7 +28,7 @@ def logout(session : dict)->bool:
         return True
     return False
 """properly sets the session variable to login"""
-def set_logged_in(session : dict,user : 'User')->bool:
+def set_logged_in(session : dict,user)->bool:
     
     #TODO: circular imports mean that we can't use the 
     #enumerators here which is EVIL
@@ -283,9 +286,7 @@ class Decorators:
         convinence function to use the decorator and return the given function in the cache
         """
         def create_cached_function(self,f:callable,update_frequency = None):
-            return self.cachify(update_frequency)(f)
-
-
+            return self.cachify(update_frequency)(f)    
         
         """
         Description
@@ -322,6 +323,166 @@ class Decorators:
                     return value
                 return wrapper
             return decorator
+        
+#===============Adam stuff=============#
+def is_ascii(s: str) -> str:
+        '''
+        Description
+        -----------
+        Check if a given string is made up of only ASCII characters.
+        
+        Parameters
+        ----------
+        - s (str): The string which is being evaluated for ASCII only characters.
+        
+        Returns
+        -------
+        - str: An empty string ("") if the string only contains ASCII characters. Otherwise, 
+        a message string is returned informing that the string contains non-ASCII characters.
+        
+        Example Usage
+        -------------
+        
+        >>> is_ascii("Goodbye World!")
+        ""
+        >>> is_ascii("💩")
+        "String contains non-ASCII characters."
+        
+        Authors
+        -------
+        Adam U. :)
+        '''
+        
+        #Standard ASCII character set ranges from 0 to 127
+        return "" if all(ord(c) < 128 for c in s) else "String contains non-ASCII characters."
+
+def contains_sql_injection_risk(input_string: str) -> str:
+    '''
+    Description
+    -----------
+    Check if a given string contains SQL query information that could be used
+    to perform as SQL injection attack.
+    
+    Parameters
+    ----------
+    - input_string (str): The string which will be evaluated for SQL tokens.
+    
+    Returns
+    -------
+    - str: An empty string ("") if the string does not contain any SQL tokens. Otherwise,
+    a message string is returned informing of the possible SQL tokens within the provided
+    string.
+    
+    Example Usage
+    -------------
+    
+    >>> contains_sql_injection_risk("Real programmers dont comment their code")
+    ""
+    >>> contains_sql_injection_risk("Uh oh very stinky payload ' OR 1=1 --")
+    "String contains possible SQL tokens."
+    
+    Authors
+    -------
+    Adam U. 8==D~
+    '''
+    
+    # List of patterns to check for
+    patterns = [
+        r"(--|\#|\*|;|=)",
+        r"(SELECT\s|INSERT\s|DELETE\s|UPDATE\s|DROP\s|EXEC\s|UNION\s|ALTER\s|CREATE\s|INDEX\s|REPLACE\s)",
+        r"('|\")"
+    ]
+    
+    # Check if any of the patterns are found in the input_string
+    for pattern in patterns:
+        if re.search(pattern, input_string, re.IGNORECASE):
+            return "String contains possible SQL tokens."  # SQL injection risk found
+    
+    return ""  # No SQL injection risk found
+
+
+VALIDATE_REQ_BODY_ERR_MSSG = "The 'validate_request_body' \
+decorator is typically only used on route callback functions \
+that need one or more of its body's string values verified."
+
+def __validate_request_body(req_callback: Callable, *body_args: str, **kwargs) -> Callable:
+    '''
+    Description
+    -----------
+    
+    This is a decorator function that is used with callback routes receiveding a POST request
+    and verifies the values of data keys passed in with the post request
+
+    Example Usage
+    -------------
+
+    *see "validate_request_body" decorator below
+
+    Authors
+    -------
+    Adam U.
+    '''
+    
+    def wrapper(*args,**kwargs):
+        #The calling function should have at least one argument.
+        if len(args) < 1:
+            raise Exception(f"Function {req_callback.__name__} has no arguments! {VALIDATE_REQ_BODY_ERR_MSSG}")
+        
+        #The first argument of the calling function must be an HttpRequest for it to be a route callback.
+        if not isinstance(args[0], HttpRequest):
+            raise Exception(f"Function {req_callback.__name__} is not a route callback! {VALIDATE_REQ_BODY_ERR_MSSG}")
+        
+        #The decorator must have at least one parameter given to validate.
+        if len(body_args) < 1:
+            raise Exception(f"No body argurments for validation were provided!")
+        
+        #Get the request from the calling route callback function.
+        req: HttpRequest = args[0]
+        
+        if req.method == "POST":
+            #Filter the post request's data dict with the parameters provided into the decorator
+            body_dict: dict = {key:req.POST[key] for key in body_args if key in req.POST}
+            err_mssg: str = ""
+            
+            #Validate each parameter's value
+            for value in body_dict.values():
+                err_mssg = is_ascii(value)
+                #err_mssg = contains_sql_injection_risk(value)
+                
+                if err_mssg != "":
+                    return bad_request_400(f"{err_mssg} | problem_string: {value}")
+        
+        return req_callback(*args,**kwargs)
+    
+    return wrapper
+
+def validate_request_body(*args: str,**kwargs):
+    '''
+    Description
+    -----------
+    Wrapper decorator for the main validation decorator
+
+    Parameters
+    ----------
+
+    folded string list: a parameter list of POST request data keys as strings whose values neeed to be checked
+
+    Example Usage
+    -------------
+
+    @validate_request_body("key1", "key2")
+    def route(req: HttpRequest):
+        --content--
+
+    *when the route is called, the keys' data will be validated based on conditions set in the decorator
+    and will return a 400 error if the validation fails*
+
+    
+    Authors
+    -------
+    Adam U.
+    '''
+    return lambda func: __validate_request_body(func, *args,**kwargs)
 
 
 

@@ -15,8 +15,18 @@ COPY requirements.txt .
 # Install project requirements
 RUN pip install -r requirements.txt
 
+# Install requirements to get specific Postgres version
+RUN apt-get update && apt-get install -y wget gnupg2
+
+# Add PostgreSQL repository
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ bookworm-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+# Install PostgreSQL client
+RUN apt-get update && apt-get install -y postgresql-client-15
+
 # Install netcat to check if databse is running
-RUN apt-get update && apt-get install -y netcat-openbsd
+RUN apt-get install -y netcat-openbsd
 
 # Saml requirements
 RUN apt-get install -y xmlsec1

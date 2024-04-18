@@ -23,6 +23,11 @@
     src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-mentor-deployment.yaml"
     dest: "/{{ absolute_project_path }}/kubernetes/mentor-deployment.yaml"
 
+- name: Create backup pv 
+  template:
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-backup-pv.yaml"
+    dest: "/{{ absolute_project_path }}/kubernetes/backup-pv.yaml"
+
 - name: Apply k3s resources
   shell:
     cmd: "kubectl apply -f {{ item }}"
@@ -35,6 +40,8 @@
     - "/{{ absolute_project_path }}/kubernetes/mentor-deployment.yaml"
     - "/{{ absolute_project_path }}/kubernetes/mentor-service.yaml"
     - "/{{ absolute_project_path }}/kubernetes/jobs/inactive-accounts.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/backup-pv.yaml"
+    - "/{{ absolute_project_path }}/kubernetes/backup-pvc.yaml"
 
 - name: Apply ingress-nginx
   shell:

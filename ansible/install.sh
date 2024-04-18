@@ -1,12 +1,37 @@
 #!/bin/bash
 
-# Set environment variables
-cp ./ansible/env-template.yaml ./ansible/env.yaml
-${EDITOR:-vi} ./ansible/env.yaml
+# Check if vimdiff is available
+if command -v vimdiff &> /dev/null; then
+    DIFF_COMMAND="vimdiff"
+else
+    DIFF_COMMAND="${EDITOR:-vi}"
+fi
+
+# Set environment
+# Check if env.yaml exists
+if [ ! -f "./ansible/env.yaml" ]; then
+    cp "./ansible/env-template.yaml" "./ansible/env.yaml"
+    ${EDITOR:-vi} "./ansible/env.yaml"
+else
+    if [ -f "./ansible/env-template.yaml" ]; then
+        $DIFF_COMMAND "./ansible/env.yaml" "./ansible/env-template.yaml"
+    else
+        ${EDITOR:-vi} "./ansible/env.yaml"
+    fi
+fi
 
 # Set inventory
-cp ./ansible/inventory-template.yaml ./ansible/inventory.yaml
-${EDITOR:-vi} ./ansible/inventory.yaml
+# Check if inventory.yaml exists
+if [ ! -f "./ansible/inventory.yaml" ]; then
+    cp "./ansible/inventory-template.yaml" "./ansible/inventory.yaml"
+    ${EDITOR:-vi} "./ansible/inventory.yaml"
+else
+    if [ -f "./ansible/inventory-template.yaml" ]; then
+        $DIFF_COMMAND "./ansible/inventory.yaml" "./ansible/inventory-template.yaml"
+    else
+        ${EDITOR:-vi} "./ansible/inventory.yaml"
+    fi
+fi
 
 # Install Ansible
 sudo apt-get update

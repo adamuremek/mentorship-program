@@ -23,7 +23,10 @@ then
 fi
 
 # Copy default media files into the media directory
-cp -r /mentorship_program/mentorship_program_project/media/* /media/
+mkdir -p $MEDIA_ROOT
+cp -r /mentorship_program/mentorship_program_project/media/* $MEDIA_ROOT
+
+mkdir -p $BACKUP_ROOT
 
 # Execute the default docker cmd or one passed to the entrypoint script
 exec "$@"

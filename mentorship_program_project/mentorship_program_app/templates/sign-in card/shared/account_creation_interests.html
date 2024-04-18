@@ -24,29 +24,24 @@
     <!-- <input type="hidden" id="interests" name="interests"/> -->
 </div>
 
+<!-- Not putting this in an individual JS file -->
+<!-- Some simple code to ensure interests are correctly added -->
 <script>
-    console.log("loading interest hooks...");
-
+    // Get visible interests, as well as hidden ID fields
     const dynamic_check_marks = document.getElementsByClassName("chk-interest");
     const hidden_interest_input = document.getElementById("interests");
     
-
-    // console.log("\twe found " + dynamic_check_marks.length + " check marks");
-
+    // Append hidden values to input for use in backend processes
     function sync_hidden_interest_input() {
-        //console.log("BEFORE THE INTEREST ROUND UP "+ hidden_interest_input.value);
-
         hidden_interest_input.value = "";
-        for (mark of dynamic_check_marks) {
+        for (mark of dynamic_check_marks)
             if (mark.checked)
                 hidden_interest_input.value += mark.value + ","
-        }
-
-        //console.log("AFTER THE INTEREST ROUND UP "+ hidden_interest_input.value);
     }
 
-    for (mark of dynamic_check_marks) {
+    // Apply function above to all interest check boxes
+    for (mark of dynamic_check_marks)
         mark.onchange = sync_hidden_interest_input;
-    }
+    
 
 </script>

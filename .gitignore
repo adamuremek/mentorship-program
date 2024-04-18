@@ -152,8 +152,10 @@ staging-issuer.yaml
 prod-issuer.yaml
 media-pv.yaml
 static-pv.yaml
+backup-pv.yaml
 
 mentor-configmap.yaml
 mentor-secret.yaml
+mentor-deployment.yaml
 
 inventory.yaml

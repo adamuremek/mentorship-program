@@ -8,6 +8,7 @@ PART OF PROJECT: SVSU Mentorship Program App
 FILE PURPOSE:
 
 A script that restores the media directory from a .tar.gz.
+Input file must follow "media_YEAR-MONTH-DAY_HOUR-MINUTE-SECOND.tar.gz" format.
 
 -------------------------------------------------------------------------------
 ENVIRONMENTAL RETURNS:
@@ -46,6 +47,7 @@ def run():
     Description
     -----------
     Restores the media directory from a backup.
+    File must follow "media_YEAR-MONTH-DAY_HOUR-MINUTE-SECOND.tar.gz" format.
 
     Parameters
     ----------

@@ -31,6 +31,8 @@
 
 </dialog>
 <script src = "{% static 'js/backend_requests.js' %}"></script>
+<script src="{% static 'js/admin/edit_interests.js' %}"></script>
+<!--
 <script>
     const active_interests_container = document.getElementById('modal_interests')
     const btn_add_interest           = document.getElementById('btn-add-interest')
@@ -64,11 +66,16 @@
             btn_revert.classList.add('btn-revert')
             btn_revert.innerHTML='+' // Make button visually indicate re-entry
 
-            new_container.setAttribute('class', 'modal-interest-container active_interest')
+            
+            new_container.setAttribute('class', 'modal-interest-container active_interest') 
             new_container.appendChild(input.cloneNode(true))
             new_container.appendChild(id.cloneNode(true))
             new_container.appendChild(btn_revert)
-
+// I am very sad that we have to work on this
+// me too, im hoping to be done by 5
+// everything works besides this and the request/report button on the profile pages. no idea why theese dont work
+// Does the edit interest addition visually work?
+// no - fuck
             // Allow deleted entries to be re-added
             // Again, I know this is confusing and I'm sorry.
             btn_revert.addEventListener('click', () => {
@@ -143,6 +150,7 @@
     })
 
     document.getElementById('btn-update-interests').addEventListener('click', () => {
+
         const new_list = document.querySelectorAll('#modal_interests .new_interest .interest-input');
         const deleted_list = document.getElementById('modal_deleted_interests').getElementsByClassName('interest-id')
         const edited_list = document.getElementById('modal_interests').getElementsByClassName('active_interest')
@@ -153,7 +161,7 @@
             deleted: [], // id
             edited:  [],  // id, str
         };
-    
+        console.log(new_list)
         // Add new string values to new_items
         new_list.forEach(item => form_data.added.push(item.value));
     
@@ -198,3 +206,4 @@
     })
     
 </script>
+-->

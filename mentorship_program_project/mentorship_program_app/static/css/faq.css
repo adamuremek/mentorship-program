@@ -16,6 +16,18 @@
         font-size: 4em;
         text-align: center;
     }
+
+    .sub-info{
+        padding-top: 2em;
+        padding-bottom: 2em;
+    }
+
+
+    .sub-info h2 {
+        font-size: 3.5em;
+        font-weight: bold;
+        text-align: center;
+    }
 }
 
 @media screen and (max-width: 900px) {
@@ -44,4 +56,8 @@
 
 .section h1 {
     padding-bottom: 0.5em;
+}
+
+.list-answer{
+    padding-left: 1.25em;
 }

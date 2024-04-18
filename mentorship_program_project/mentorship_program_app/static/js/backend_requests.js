@@ -275,10 +275,9 @@ async function execute_request(request_array)
 
 		// Fetch request and wait for response
 		if (String(response.status) != "200")
-		{
+		{	
 			// Update valid flag to false
 			valid_flag = false;
-			
 			break;
 		}
 	}

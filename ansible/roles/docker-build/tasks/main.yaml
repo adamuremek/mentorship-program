@@ -4,7 +4,7 @@
     repo: 'https://github.com/adamuremek/mentorship-program.git'
     dest: "{{ absolute_project_path }}/repo"
     update: yes
-    version: SAML-Auth
+    version: "{{ git_branch }}"
 
 - name: Build Django Docker image
   community.docker.docker_image_build:

@@ -36,157 +36,120 @@ MODIFICATION HISTORY:
 
 WHO     WHEN     WHAT
 WJL   3/3/2024   Added file header comment
+Adam U. 4/15     organized this whole page
 """
 
 from django.urls import include,path, re_path
 
 from django.conf import settings
 from django.conf.urls.static import static
-from mentorship_program_app import views
 
-from .view_routes import navigation
-from .view_routes import under_development
-from .view_routes import backend_requests
-from .view_routes import development as development_views
-
+from .routes import register_routes, profiles_routes, mentorship_routes, user_management_routes, account_routes, login_routes
+from .routes import password_routes, pending_mentor_routes, dashboard_routes, reporting, interests_routes, notes_routes, landing_routes
+from .routes import user_reports_routes, admin_file_management_routes, settings_routes, misc_routes, faq_routes, verify_mentee_undergrad_routes
 
 ##All created urls need to go here
 urlpatterns = [
-
-
+        path("__debug__/", include("debug_toolbar.urls")),
     
-    path("__debug__/", include("debug_toolbar.urls")),
+        #Profile Routes
+        path("save_profile_info/<int:user_id>", profiles_routes.save_profile_info, name="save_profile_info"),
+        path("universal_profile/<int:user_id>", profiles_routes.universalProfile, name="universal_profile"),
 
-    #path('home/', views.home, name='home'),
-    #path('login/', views.login, name='login'),
-    #path('login/success', views.success, name='success'),  ## some urls dont currently have html to go with them
+        #Registration Routes
+        path('register-mentee-test/', register_routes.register_mentee , name='register-mentee-test'),
+        path('register-mentor-form/', register_routes.register_mentor_submit , name='register-mentor-form'),
+        path('register/mentee/', register_routes.register_mentee, name='register_mentee'),
+        path('register/mentor/', register_routes.register_mentor_render, name='register_mentor'),
+        
+        #Login Routes
+        path('login/',login_routes.login_uname_text,name='login'),
+        path('logout/',login_routes.logout,name='logout'),
+        path('saml/login', login_routes.saml_login, name='saml_login'),
+
+        #Landing Routes
+        path('landing-post/', landing_routes.landingPost, name='landing-post'),
+        path('', landing_routes.landing, name='default'),
+
+        #Mentorship Routes
+        path('request_mentor/<int:mentee_id>/<int:mentor_id>', mentorship_routes.request_mentor,name='request mentor'),
+        path('assign_mentee/<int:mentee_account_id>/<int:mentor_account_id>', mentorship_routes.create_mentorship, name='assign mentee to mentor'),
+        path("accept_mentorship_request/<int:mentee_user_account_id>/<int:mentor_user_account_id>",mentorship_routes.accept_mentorship_request,name="accept_mentorship_request"),
+        path("reject_mentorship_request/<int:mentee_user_account_id>/<int:mentor_user_account_id>", mentorship_routes.reject_mentorship_request, name="reject_mentorship_request"),
+        path('create_mentorship/<int:mentee_user_account_id>/<int:mentor_user_account_id>', mentorship_routes.create_mentorship, name='add mentorship'),
+        path("delete_mentorship/<int:mentee_user_account_id>", mentorship_routes.delete_mentorship, name="delete_mentorship"),
+
+        #User Management Routes
+        path('create_new_orgnization/<str:org_name>', user_management_routes.admin_create_new_org, name='create new organization'),
+        path('delete_orgnization/<int:org_id>', user_management_routes.admin_delete_org, name='delete organization'), 
+        path('edit_mentor_organization/<int:mentor_id>/<int:org_id>', user_management_routes.edit_mentors_org, name='edit mentor organization'),
+        path('remove_mentors_org/<int:mentor_id>/<int:org_id>', user_management_routes.remove_mentors_org, name='remove mentor organization'),
+        path('promote_organization_admin/<int:promoted_mentor_id>', user_management_routes.promote_org_admin, name='prmote mentor to organization admin'),
+        path('get_next_organization_id', user_management_routes.get_next_org, name='get last organziation id'),
+        path("promote_org_admin/<int:promoted_mentor_id>", user_management_routes.promote_org_admin, name="promote_org_admin"),
+        path('admin_user_management/', user_management_routes.admin_user_management, name='admin_user_management'),
+
+        #Account Routes
+        path('disable_user', account_routes.disable_user, name='disable user'),
+        path('enable_user', account_routes.enable_user, name='enable user'),
+        path("deactivate_your_own_account", account_routes.deactivate_your_own_account, name="deactivate_your_own_account"),
+
+        #Password Routes
+        path("reset_request", password_routes.reset_request, name="reset_request"),
+        path("reset_password", password_routes.reset_password, name="reset_password"),
+        re_path(r'^request_reset_page(?:/(?P<token>\w{30}))?/$', password_routes.request_reset_page, name="request_reset_page"),
+        path('check_email_for_password_reset', password_routes.check_email_for_password_reset, name='check_email_for_password_reset'),
+        path('check-email', password_routes.check_email, name='check_email'),
+        path("change_password", password_routes.change_password, name="change_password"),
     
+        #Pending Mentor Routes
+        path("view_pending", pending_mentor_routes.view_pending_mentors, name="view_pending"),
+        path("change_mentor_status", pending_mentor_routes.change_mentor_status, name="change_mentor_status"),
+        path("view_mentor_by_admin", pending_mentor_routes.view_mentor_by_admin, name="view_mentor_by_admin"),
+
+        #Dashboard Routes
+        path("admin_dashboard", dashboard_routes.admin_dashboard, name="admin_dashboard"),
+        path('dashboard/', dashboard_routes.dashboard, name='dashboard'),
+
+        #Reporting Rotes
+        path("generate_report", reporting.generate_report, name="generate_report"),
+
+        #Interests Routes
+        path("update_interests", interests_routes.update_interests, name="update_interests"),
+
+        #Notes Routes
+        path("create_note", notes_routes.create_note, name="create_note"),
+        path("update_note", notes_routes.update_note, name="update_note"),
+        path("remove_note", notes_routes.remove_note, name="remove_note"),
+
+        #User Reports Routes
+        path("resolve_report", user_reports_routes.resolve_report, name="resolve_report"),
+        path('admin_reported_users/', user_reports_routes.admin_reported_users, name='admin_reported_users'),
+        path('report_user/', user_reports_routes.report_user, name='report_user'),
+        
+        #Admin File Management Routes
+        path("available_mentees", admin_file_management_routes.available_mentees, name="available_mentees"),
+        path("process_file", admin_file_management_routes.process_file, name="process_file"),
+        path("add_remove_mentees_from_file", admin_file_management_routes.add_remove_mentees_from_file, name="add_remove_mentees_from_file"),
     
-    #================NAVIGATION ROUTES================#
-    path('', navigation.landing, name='default'),     #Now landing
-    path('dashboard/', navigation.dashboard, name='dashboard'),
-    #=================================================#
-    
-    #==================LOGICAL ROUTES=================#
-    path('landing-post/'                                 , views.landingPost                 , name='landing-post'),
-    path('register-test/'                                , under_development.register_mentor , name='register-test'),
-    path("save_profile_info/<int:user_id>", under_development.save_profile_info, name="save_profile_info"),
-    path('register-mentee-test/'                         , under_development.register_mentee , name='register-mentee-test'),
-    path('request_mentor/<int:mentee_id>/<int:mentor_id>',
-            backend_requests.request_mentor,
-            name='request mentor'),
-    path('assign_mentee/<int:mentee_account_id>/<int:mentor_account_id>',
-            under_development.create_mentorship,
-            name='assign mentee to mentor'),
-    path("accept_mentorship_request/<int:mentee_user_account_id>/<int:mentor_user_account_id>",
-         under_development.accept_mentorship_request,
-         name="accept_mentorship_request"),
-    path("reject_mentorship_request/<int:mentee_user_account_id>/<int:mentor_user_account_id>",
-         under_development.reject_mentorship_request,
-         name="reject_mentorship_request"),
-   # path('profile_pic/<int:user_id>')
-    #=================================================#
+        #Settings Routes
+        path("toggle_notifications/<status>", settings_routes.toggle_notifications, name="toggle_notifications"),
+        path('settings', settings_routes.change_settings, name='change_settings'),
 
-            # ROUTES FOR USER MANGAGEMENT PAGE
-    path('create_new_orgnization/<str:org_name>', under_development.admin_create_new_org, name='create new organization'),
-    path('delete_orgnization/<int:org_id>', under_development.admin_delete_org, name='delete organization'),
-    path('edit_mentor_organization/<int:mentor_id>/<int:org_id>', under_development.edit_mentors_org, name='edit mentor organization'),
-    path('remove_mentors_org/<int:mentor_id>/<int:org_id>', under_development.remove_mentors_org, name='remove mentor organization'),
-    path('promote_organization_admin/<int:promoted_mentor_id>', under_development.promote_org_admin, name='prmote mentor to organization admin'),
-    path('disable_user', under_development.disable_user, name='disable user'),
-    path('enable_user', under_development.enable_user, name='enable user'),
-    path('create_mentorship/<int:mentee_user_account_id>/<int:mentor_user_account_id>', under_development.create_mentorship, name='add mentorship'),
-    path('delete_mentorship/<int:mentee_user_account_id>', under_development.delete_mentorship, name='remove mentorship'),
-    path('get_next_organization_id', under_development.get_next_org, name='get last organziation id'),
+        #FAQ Routes
+        path('faq/', faq_routes.faq, name='faq'),
 
-    
-    ##RESETTING PASSWORD ROUTE feel free to move to better spot in file - Tanner 🦞
-    path("reset_request", under_development.reset_request, name="reset_request"),
-    path("reset_password", under_development.reset_password, name="reset_password"),
-    re_path(r'^request_reset_page(?:/(?P<token>\w{30}))?/$', under_development.request_reset_page, name="request_reset_page"),
-    path('check_email_for_password_reset', under_development.check_email_for_password_reset, name='check_email_for_password_reset'),
-    path('check-email', under_development.check_email, name='check_email'),
+        #Verify Mentee Undergrad Routes
+        path("verify-mentee-ug-status/", verify_mentee_undergrad_routes.verify_mentee_ug_status, name='verify_mentee_ug_status'),
 
-
-    #ADAM + ANDREW + JORDAN TESTING
-    path("view_pending", under_development.view_pending_mentors, name="view_pending"),
-    path("change_mentor_status", under_development.change_mentor_status, name="change_mentor_status"),
-    path("disable-user", under_development.disable_user, name="disable-user"),
-    path("enable-user", under_development.enable_user, name="enable-user"),
-    path("view_mentor_by_admin", under_development.view_mentor_by_admin, name="view_mentor_by_admin"),
-    path("admin_dashboard", navigation.admin_dashboard, name="admin_dashboard"),
-    path("generate_report", navigation.generate_report, name="generate_report"),
-    path("update_interests", under_development.update_interests, name="update_interests"),
-    path("universal_profile/<int:user_id>", under_development.universalProfile, name="universal_profile"),
-    path("delete_mentorship/<int:mentee_user_account_id>", under_development.delete_mentorship, name="delete_mentorship"),
-    path("change_password", under_development.change_password, name="change_password"),
-    path("create_note", under_development.create_note, name="create_note"),
-    path("update_note", under_development.update_note, name="update_note"),
-    path("remove_note", under_development.remove_note, name="remove_note"),
-    path("resolve_report", under_development.resolve_report, name="resolve_report"),
-    path("available_mentees", under_development.available_mentees, name="available_mentees"),
-    path("process_file", under_development.process_file, name="process_file"),
-    path("add_remove_mentees_from_file", under_development.add_remove_mentees_from_file, name="add_remove_mentees_from_file"),
-    path("deactivate_your_own_account", under_development.deactivate_your_own_account, name="deactivate_your_own_account"),
-    path("promote_org_admin/<int:promoted_mentor_id>", under_development.promote_org_admin, name="promote_org_admin"),
-    path("toggle_notifications/<status>", under_development.toggle_notifications, name="toggle_notifications"),
-    #path("request-mentor", under_development.request_mentor, name="request-mentor"),
-    
-    # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING FROM LOGAN
-    path('role_selection/', views.role_selection, name='role_selection'),
-    path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
-    path('account_activation_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid'),
-
-    # CURRENTLY STATIC ROUTE TO CHANGE SETTINGS FROM BEN
-    path('settings', views.change_settings, name='change_settings'),
-    
-    # CURRENTLY STATIC ROUTE -JASON
-    path('admin_reported_users/', views.admin_reported_users, name='admin_reported_users'),
-    
-    # TODO is this ever called???
-    path('admin_reported_users/resolve_report/', backend_requests.resolve_report, name='admin_resolve_report'),
-    path('report_user/', backend_requests.report_user, name='report_user'),
-
-    path('dashboard/', navigation.dashboard, name='dashboard'),
-    path('faq/', views.faq, name='faq'),
-    path('profile-card/', views.profileCard, name='profile-card'),
-    
-    path('register/mentee/', views.register_mentee, name='register_mentee'),
-    path('register/mentor/', views.register_mentor, name='register_mentor'),
-    path('thebigmove/', views.THEBIGMOVE, name='thebigmove'),
-
-    # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --ANTHONY PETERS
-    path('account_activation_mentee/', views.account_activation_mentee, name='account_activation_mentee'),
-    path('account_activation_mentee_invalid/', views.account_activation_invalid_mentee, name='account_activation_invalid_mentee'),
-    path('account_activation_mentee_valid/', views.account_activation_valid_mentee, name='account_activation_valid_mentee'),
-    path('account_activation_mentor/', views.account_activation_mentor, name='account_activation_mentor'),
-    path('admin_user_management/', views.admin_user_management, name='admin_user_management'),
-
-    # TEMP PATH FOR TESTBACKEND PROCESSING --ANTHONY PETERS
-    # path('admin_user_management/addMentorshipRequest/', views.admin_user_managment_add_mentorship_request,  name='admin_user_management_add_mentorship_request'),
-
-    # TESTING AND DEV ROUTES WILL NEED TO CHECK/REVIEW BEFORE PUBLISHING --Will and Andy
-    path("verify-mentee-ug-status/", backend_requests.verify_mentee_ug_status, name='verify_mentee_ug_status'),
-
-    #log in and out routes
-    path('login/',views.login_uname_text,name='login'),
-    path('logout/',views.logout,name='logout'),
-
-    #development routes
-    
-    path('dev/show_all_user_roles'        , development_views.display_all_user_roles            ,name='display all user roles'),
-    path('dev/profile_pictures'           , development_views.profile_picture_test            ,name='profile_picture_tests'),
-    path('dev/generate_random_user_data/' , development_views.generate_random_user_data       ,name='generate_random_user_data'),
-    path('dev/populate_default_interests/', development_views.populate_default_interest_values,name='populate_default_interest_values'),
-    path('dev/database_test'              , development_views.test_database_setup             ,name='database_test'),
-    path('dev/delete_users'               , development_views.delete_users                    ,name='delete users'),
-    path('dev/test_login'                 , development_views.test_login_page                 ,name='test login'),
-    path('dev/is_logged_in'               , development_views.is_logged_in_test               ,name='logged in test'),
-    path('dev/show_all_relationships'     , development_views.show_all_relationships, name="show all relationships"),
-    path('dev/test_database_join'         , development_views.test_database_speed, name='test database joins' ),
-
-    path('saml/login', views.saml_login, name='saml_login'),
-
+        #Misc Routes
+        path('role_selection/', misc_routes.role_selection, name='role_selection'),
+        path('account_activation_mentee/', misc_routes.account_activation_mentee, name='account_activation_mentee'),
+        path('account_activation_invalid/', misc_routes.account_activation_invalid_mentee, name='account_activation_invalid'),
+        path('account_activation_mentee_invalid/', misc_routes.account_activation_invalid_mentee, name='account_activation_invalid_mentee'),
+        path('account_activation_mentee_valid/', misc_routes.account_activation_valid_mentee, name='account_activation_valid_mentee'),
+        path('account_activation_mentor/', misc_routes.account_activation_mentor, name='account_activation_mentor'),
+        path('profile-card/', misc_routes.profileCard, name='profile-card'),
 ]
 
 if settings.DEBUG:

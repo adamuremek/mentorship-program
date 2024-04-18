@@ -8,7 +8,7 @@ PART OF PROJECT: SVSU Mentorship Program App
 FILE PURPOSE:
 
 A script that creates a backup of the database to ../DATABASE_BACKUPS 
-or another file specified in the .env file under DB_BACKUP_PATH.
+or another file specified in the settings file under DB_BACKUP_PATH.
 
 -------------------------------------------------------------------------------
 ENVIRONMENTAL RETURNS:
@@ -18,7 +18,8 @@ ENVIRONMENTAL RETURNS:
 SAMPLE INVOCATION:
 
 >>> python manage.py runscript create_database_backup
-"Backup created successfully: [FULL_PATH]\mentorship-program\mentorship_program_project\DATABASE_BACKUPS\mentorship_app_2024-04-09_23-20-06.sql"
+"Backup created successfully: [FULL_PATH]\mentorship-program\mentorship_program_project\DATABASE_BACKUPS\mentorship_app_2024-04-09_23-20-06.sql.tar.sql"
+"Media folder has been backedup in [FULL_PATH]\mentorship-program\mentorship_program_project\DATABASE_BACKUPS\media_2024-04-09_23-20-06.tar.gz"
 
 -------------------------------------------------------------------------------
 GLOBAL VARIABLE LIST (Alphabetically):
@@ -40,13 +41,21 @@ from datetime import datetime
 import os
 import tarfile
 from mentorship_program_project.settings import BACKUP_DATABASE_ROOT
+from mentorship_program_project.settings import MEDIA_ROOT, BACKUP_DATABASE_ROOT, MEDIA_URL
 from utils.database_backup import *
 
 def run():
+    postgresql_backup()
+    media_backup()
+    
+    return 0
+
+
+def postgresql_backup():
     """
     Description
     -----------
-    Dumps the database to a place specified by DB_BACKUP_PATH in .env
+    Dumps the database to a place specified by DB_BACKUP_PATH in settings.py
 
     Parameters
     ----------
@@ -77,7 +86,7 @@ def run():
     try:
         str_time_stamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         backup_file = f"{os.environ.get('DB_NAME')}_{str_time_stamp}.sql"
-        backup_file_path = f"{BACKUP_DATABASE_ROOT}/{backup_file}"
+        backup_file_path = os.path.join(f"{BACKUP_DATABASE_ROOT}", f"{backup_file}")
         tarball_path = f"{backup_file_path}.tar.gz"
 
         if not os.path.exists(BACKUP_DATABASE_ROOT):
@@ -121,3 +130,55 @@ def run():
 
         print(str_error_msg)
         return 1
+    
+def media_backup():
+    #print("Hello World :)")
+    """
+    Description
+    -----------
+    Creates a .tar.gz copy of the media folder and stores it under DB_BACKUP_PATH in the settings file.
+
+    Parameters
+    ----------
+    (None)
+
+    Optional Parameters
+    -------------------
+    (None)
+
+    Returns
+    -------
+    - An integer exit code 0 for success or 1 for failure.
+
+    Example Usage
+    -------------
+
+    >>> python manage.py runscript create_media_backup
+    "Media folder has been backedup in [FULL_PATH]\mentorship-program\mentorship_program_project\DATABASE_BACKUPS\media_2024-04-09_23-20-06.tar.gz"
+
+
+    Authors
+    -------
+    Justin Goupil
+    """
+    try:
+        str_time_stamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        backup_file = f"media_{str_time_stamp}"
+        backup_file_path = f"{BACKUP_DATABASE_ROOT}/{backup_file}"
+        tarball_path = f"{backup_file_path}.tar.gz"
+
+        with tarfile.open(tarball_path, "w:gz") as tar:
+            tar.add(os.path.join(f'{MEDIA_ROOT}', 'images'), arcname=os.path.basename(os.path.join(f'{MEDIA_ROOT}', 'images')))
+        
+        #Remove the oldest file
+        remove_oldest_file("media",".tar.gz")
+
+        print(f"Media folder has been backed up in {tarball_path}.")
+        return 0
+            
+    except FileExistsError as e:
+        #This should never happen, but just in case it does.
+        print(f"This file already exists: {backup_file_path}\nError: {e}\n")
+        return 1
+    
+
