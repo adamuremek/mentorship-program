@@ -86,7 +86,8 @@ def dashboard(req):
             has_maxed_mentees=False,
               bln_active = True,  # Exclude mentors who have maxed out their mentee slots
         ).filter(
-            str_role='Mentor'
+            str_role='Mentor',
+            bln_active=True
         ).select_related(
             'mentor'  # Link each Mentor to the corresponding User account
         ).prefetch_related(
