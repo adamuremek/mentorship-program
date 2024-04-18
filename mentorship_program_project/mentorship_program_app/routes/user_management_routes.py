@@ -224,6 +224,8 @@ def admin_user_management(request):
     Modified: 04/06/2024 Tanner K.
     -   Added functionality for org admins to access page. Primary change is organization 
         creation is directly tied to the boolean bl_user_org_admin and an if/elif block. 
+    Modified: 2024/04/18 Justin Goupil
+    -   mentor_list in organizations.append( . . . ) no longer appends MENTOR_PENDING
     '''
     
     template = loader.get_template('admin/user_management.html')
@@ -242,7 +244,7 @@ def admin_user_management(request):
         print_debug("loading with role admin")
         # Get all mentee, mentor, and organization data from database
         user_management_mentee_data = Mentee.objects
-        user_management_mentor_data = Mentor.objects
+        user_management_mentor_data = Mentor.objects.filter(account__str_role=User.Role.MENTOR)
         user_management_organizations_data = Organization.objects
 
         orgs = user_management_organizations_data.select_related(
@@ -253,7 +255,7 @@ def admin_user_management(request):
                                                     "mentor_set__account",
                                                     "mentor_set___mentee_set__account",
                                                     "mentor_set__administered_organizations"
-                                                    )
+                                                    ).filter(mentor__account__str_role=User.Role.MENTOR)
 
     # Check if user is an organization admin
     elif (session_user.is_an_org_admin()):
@@ -293,6 +295,22 @@ def admin_user_management(request):
         if organization.admin_mentor != None:
             org_admin = get_mentor_data_from_mentor(organization.admin_mentor,session_user)
 
+        #get_mentor_data_from_mentor(m,session_user) 
+        for m in organization.mentor_set.all(): 
+            m = get_mentor_data_from_mentor(m,session_user)
+            #print(m['account'].account.str_role)
+
+            if m['account'].account.str_role==User.Role.MENTOR:
+                if org_admin != None:
+                    if organization.admin_mentor.id != m['account'].id:
+                        #User is not the organization admin.
+                        mentor_list.append(m)
+                else:
+                    #No organization admin exists yet.
+                    mentor_list.append(m)
+            #else
+                #Not a approved mentor.
+        
         organizations.append(
             {
                 'organization': organization,
@@ -300,11 +318,7 @@ def admin_user_management(request):
                 'name': organization.str_org_name,
                 'admin_list': [org_admin] if org_admin != None else [], #this def does not need to be a list now
                                                                         #unless we want to re-listify admins which we could do
-                'mentor_list':  [
-                                            get_mentor_data_from_mentor(m,session_user) for m in 
-                                            organization.mentor_set.all() 
-                                            if org_admin == None or organization.admin_mentor.id != m.id
-                                ]
+                'mentor_list':  mentor_list
             }
         )
 
