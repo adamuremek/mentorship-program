@@ -59,12 +59,12 @@ def mentor_otp_request(request : HttpRequest):
     return HttpResponse(template.render(context, request))
 
 
-def mentor_otp_validate(req: HttpRequest):
+def mentor_otp_validate(request: HttpRequest):
 
-    str_otp_secret_key = req.session['str_otp_secret_key']
-    str_otp_valid_date = req.session['str_otp_valid_date']
+    str_otp_secret_key = request.session['str_otp_secret_key']
+    str_otp_valid_date = request.session['str_otp_valid_date']
 
-    passcode_data = json.loads(req.body.decode("utf-8"))
+    passcode_data = json.loads(request.body.decode("utf-8"))
 
     passcode = passcode_data["password"] if "password" in passcode_data else None
 
@@ -72,6 +72,7 @@ def mentor_otp_validate(req: HttpRequest):
 
     if list_verification[0]:
         #Send them back to the login route to complete the process
+        request.session['mfa_validated'] = True
         return redirect('/valid')
     else:
         response = HttpResponse(json.dumps({"warning":"Passcode was incorrect, please try again."}))

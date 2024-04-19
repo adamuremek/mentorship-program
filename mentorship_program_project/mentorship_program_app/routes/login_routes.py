@@ -83,6 +83,7 @@ def login_uname_text(request):
         return response       
     
     request.session['email'] = uname
+    request.session['mfa_validated'] = False
 
     #redirects to the mentor one time password route
     response = HttpResponse(json.dumps({"new_web_location":'/mentor/2fa'}))
@@ -92,6 +93,10 @@ def complete_login(request):
         
         uname = request.session['email']
         request.session['email'] = None
+
+        if not request.session['mfa_validated']:
+            request.session['mfa_validated'] = False
+            return redirect("/")
 
         #valid login
         if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
