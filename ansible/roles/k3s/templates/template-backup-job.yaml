@@ -29,7 +29,7 @@ spec:
           volumes:
             - name: media-volume
               persistentVolumeClaim:
-              claimName: media-pvc
+                claimName: media-pvc
             - name: backup-volume
               persistentVolumeClaim:
-              claimName: backup-pvc
+                claimName: backup-pvc
