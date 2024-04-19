@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup
+spec:
+  schedule: "{{ backup_cron_string }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: web
+            image: localhost:5000/project-kubernetes
+            envFrom:
+            - secretRef:
+                name: mentor-secret
+            - configMapRef:
+                name: mentor-config
+            command:
+            - /bin/sh
+            - -c
+            - python /mentorship_program/mentorship_program_project/manage.py runscript create_database_backup
+          restartPolicy: OnFailure

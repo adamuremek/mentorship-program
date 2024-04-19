@@ -153,6 +153,7 @@ prod-issuer.yaml
 media-pv.yaml
 static-pv.yaml
 backup-pv.yaml
+backup-job.yaml
 
 mentor-configmap.yaml
 mentor-secret.yaml
