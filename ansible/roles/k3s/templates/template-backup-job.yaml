@@ -16,8 +16,20 @@ spec:
                 name: mentor-secret
             - configMapRef:
                 name: mentor-config
+            volumeMounts:
+            - mountPath: "{{ media_root }}"
+              name: media-volume
+            - mountPath: "{{ backup_root }}"
+              name: backup-volume
             command:
             - /bin/sh
             - -c
             - python /mentorship_program/mentorship_program_project/manage.py runscript create_database_backup
           restartPolicy: OnFailure
+          volumes:
+            - name: media-volume
+              persistentVolumeClaim:
+              claimName: media-pvc
+            - name: backup-volume
+              persistentVolumeClaim:
+              claimName: backup-pvc
