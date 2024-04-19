@@ -144,7 +144,7 @@ def register_mentor_submit(req: HttpRequest):
     else:
         return HttpResponse("Bad :(")
     
-def register_mentee(req: HttpRequest):
+def register_mentee_submit(req: HttpRequest):
     
     '''
     Description
@@ -381,7 +381,7 @@ If you have any questions about this Agreement, please contact us at [Contact In
     return HttpResponse(template.render(context, req))
 
 
-def register_mentee(req):
+def register_mentee_render(req):
     template = loader.get_template('sign-in card/single_page_mentee.html')
     is_mentee : bool = True
     if not Interest.objects.exists():

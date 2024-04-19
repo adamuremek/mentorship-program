@@ -58,9 +58,9 @@ urlpatterns = [
         path("universal_profile/<int:user_id>", profiles_routes.universalProfile, name="universal_profile"),
 
         #Registration Routes
-        path('register-mentee-test/', register_routes.register_mentee , name='register-mentee-test'),
+        path('register-mentee-test/', register_routes.register_mentee_submit , name='register-mentee-test'),
         path('register-mentor-form/', register_routes.register_mentor_submit , name='register-mentor-form'),
-        path('register/mentee/', register_routes.register_mentee, name='register_mentee'),
+        path('register/mentee/', register_routes.register_mentee_render, name='register_mentee'),
         path('register/mentor/', register_routes.register_mentor_render, name='register_mentor'),
         
         #Login Routes
