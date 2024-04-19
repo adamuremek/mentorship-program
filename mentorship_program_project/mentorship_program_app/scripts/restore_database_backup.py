@@ -90,7 +90,7 @@ def run():
 
         restore_database(os.path.join(f'{BACKUP_DATABASE_ROOT}', f'{sql_file}'))
 
-        print(f"\n\nThe database has been restore from {tar_path}\n")
+        print(f"\n\nThe database has been restored from {tar_path}\n")
 
         return 0
     except Exception as e:
