@@ -27,7 +27,21 @@
 	
 		<div class="card-gray-part">		  
 
-			<p class="card-name">{{ user.str_first_name }} {{ user.str_last_name }}</p>
+			<p class="card-name">
+				{# Limit first name to 25 char to fit on card #}
+				{% if user.str_first_name|length > 25 %}
+					{{ user.str_first_name|slice:":25" }}...
+				{% else %}
+					{{ user.str_first_name }}
+				{% endif %}
+				
+				{# Limit last name to 25 char to fit on card #}
+				{% if user.str_last_name|length > 25 %}
+					{{ user.str_first_name|slice:":25" }}...
+				{% else %}
+					{{ user.str_last_name }}
+				{% endif %}
+			</p>
 
 			<!--adds the job title to mentor cards, not sure if we'll need/want this
 			<div class = "card-job-title" id = "card-job-title">
