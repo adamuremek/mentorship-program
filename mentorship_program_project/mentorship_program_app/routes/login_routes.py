@@ -31,10 +31,8 @@
 /*********************************************************************/
 /* Date       | Changed By | Changes Made                            */
 /* -----------|------------|---------------------------------------- */
-/* 2024-04-14 | Tanner     | Added SAML authentication functionality */
+/* 2024-04-14 | Tanner     | Added SAML authentication functionality*/
 /* 2024-04-15 | Dev Team   | Integrated username/password validation */
-/* 2024-04-19 |Justin G.   | Modified login_uname_text to support otp*/
-/*                         | Created complete_login to support MFA   */
 /*********************************************************************/
 """
 
@@ -47,7 +45,6 @@ from utils import security
 from .emails import *
 from django.utils import timezone
 from ..models import *
-from mentorship_program_app.routes.mentor_mfa import *
 
 # sucessful saml logins redirect here
 # the built in django user will be logged in, but our user will not be, and it might not even exist yet (first time sign in)
@@ -80,42 +77,33 @@ def login_uname_text(request):
     if not User.check_valid_login(uname,password):
         response = HttpResponse(json.dumps({"warning":"The username/password you have entered is incorrect."}))
         response.status_code = 401
-        return response       
-    
-    request.session['email'] = uname
-
-    #redirects to the mentor one time password route
-    response = HttpResponse(json.dumps({"new_web_location":'/mentor/2fa'}))
-    return response
-
-def complete_login(request):
+        return response
         
-        uname = request.session['email']
-        request.session['email'] = None
 
-        #valid login
-        if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
-            response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
-            response.status_code = 401
-            return response
-        #disabled account
-        if User.objects.get(cls_email_address=uname).bln_account_disabled:
-            response = HttpResponse(json.dumps({"warning":"Your account has been disabled"}))
-            response.status_code = 401
-            return response
-    
-        user = User.objects.get(cls_email_address=uname)
+ 
+    #valid login
+    if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
+        response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
+        response.status_code = 401
+        return response
 
-        user.str_last_login_date = timezone.now()
-        # if the user deactivated their own account, reactivate it
-        if not user.bln_active and not user.bln_account_disabled:
-            user.bln_active = True
-        user.save()
-        # record logs
-        SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
+    if User.objects.get(cls_email_address=uname).bln_account_disabled:
+        response = HttpResponse(json.dumps({"warning":"Your account has been disabled"}))
+        response.status_code = 401
+        return response
 
-        response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
-        return response  
+    user = User.objects.get(cls_email_address=uname)
+
+    user.str_last_login_date = timezone.now()
+    # if the user deactivated their own account, reactivate it
+    if not user.bln_active and not user.bln_account_disabled:
+        user.bln_active = True
+    user.save()
+    # record logs
+    SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
+
+    response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
+    return response
 
 @security.Decorators.require_login(invalid_request_401)
 def logout(request):
@@ -129,4 +117,3 @@ def logout(request):
     response = HttpResponse("an internal error occured, unable to log you out, STAY FOREVER")
     response.status_code = 500
     return response
-

@@ -16,4 +16,3 @@ sqlparse==0.4.4
 pysaml2==7.5.0
 djangosaml2==1.9.2
 django-csp
-pyotp==2.9.0

@@ -367,6 +367,3 @@ SAML_CONFIG = {
       'cert_file': path.join(BASE_DIR, 'saml/public.pem'),  # public part
   }],
 }
-
-#MENTOR MFA
-PASSCODE_EXPIRATION_MINUTES = 5 #Number of minutes until the passcode expires

@@ -239,11 +239,3 @@ Thanks,
 WINGS
  """
 	send_mail(subject, message,  from_email, [email])
-
-
-def mentor_otp_send_passcode(str_recipient : str, str_otp : str):
-
-	#Email Information
-	str_title = "WINGS Verification"
-	str_body = "Your verification code is "
-	send_mail(str_title, str_body + str_otp, settings.DEFAULT_FROM_EMAIL, [str_recipient])
