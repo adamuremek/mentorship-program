@@ -364,3 +364,25 @@ async function attempt_query_session_user(request=null,data=null) {
 }
 
 
+/*
+* Sends the one time password request to the backend for verification.
+*/
+
+async function attempt_mentor_mfa_password(password) {
+	let verify_request = {type:"password",password:password};
+
+	console.log("Print HERE")
+
+	const req = new Request("otp",{
+							method:"POST",
+							body: JSON.stringify(verify_request),
+							headers: {
+									"Content-type": "application/json; charset=UTF-8",
+									'X-CSRFToken': csrftoken
+								},
+							mode: 'same-origin'
+	});
+
+	let response = await fetch(req);
+	return response;
+}
