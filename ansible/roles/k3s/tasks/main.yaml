@@ -13,7 +13,6 @@
     state: restarted
     enabled: yes
 
-    
 - name: Add longhorn storage
   shell:
     cmd: "kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.6.0/deploy/longhorn.yaml"
@@ -23,10 +22,17 @@
     src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-mentor-deployment.yaml"
     dest: "/{{ absolute_project_path }}/kubernetes/mentor-deployment.yaml"
 
+- name: Get nfs server ip
+  set_fact:
+    nfs_server_ip: "{{ hostvars[groups['nfs_server'][0]]['ansible_host'] }}"
+  when: "'nfs_server' in group_names"
+
 - name: Create backup pv 
   template:
     src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-backup-pv.yaml"
     dest: "/{{ absolute_project_path }}/kubernetes/backup-pv.yaml"
+  vars:
+    nfs_server_ip: "{{ nfs_server_ip }}"
 
 - name: Create backup job
   template:
