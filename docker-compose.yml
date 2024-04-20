@@ -36,7 +36,7 @@ services:
       - 8000:8000
     # Set environment variables inside the container from .env file
     env_file:
-      - ./mentorship_program_project/.env
+      - ./docker/.env
     # Make sure db container is running before starting this one
     depends_on:
       - db
