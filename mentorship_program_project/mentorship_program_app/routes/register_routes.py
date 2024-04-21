@@ -89,18 +89,20 @@ def register_mentor_submit(req: HttpRequest):
             return HttpResponse(f"Email {incoming_email} already exsists!")
 
         organization = None
-        if req.POST['company-name'] and not req.POST['company-name'] == "Other":
-            organization = req.POST['company-name']
+        print("->> ", req.POST['company-name'])
+        if req.POST['company-name'] and req.POST['company-name'] != "Other":
+            print("HERE")
+            organization_name = req.POST['company-name']
         else:
-            organization = req.POST["organization"]
-        print("org", organization)
+            organization_name = req.POST["organization"]
+        print("org", organization_name)
         print("req: ", req.POST)
-        if(not Organization.objects.filter(str_org_name=organization).exists()):
-            organization = Organization.objects.create()
+        if(not Organization.objects.filter(str_org_name=organization_name).exists()):
+            organization = Organization.objects.create(str_org_name=organization_name)
             organization.save()
 
         else:
-            organization = Organization.objects.get(str_org_name=organization)
+            organization = Organization.objects.get(str_org_name=organization_name)
             
         pending_mentor_object.account.cls_email_address = incoming_email
         pending_mentor_object.account.str_first_name = req.POST["fname"]
