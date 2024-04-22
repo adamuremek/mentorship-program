@@ -18,8 +18,8 @@ ENVIRONMENTAL RETURNS:
 SAMPLE INVOCATION:
 
 >>> python manage.py runscript create_database_backup
-"Backup created successfully: [FULL_PATH]\mentorship-program\mentorship_program_project\DATABASE_BACKUPS\mentorship_app_2024-04-09_23-20-06.sql.tar.sql"
-"Media folder has been backedup in [FULL_PATH]\mentorship-program\mentorship_program_project\DATABASE_BACKUPS\media_2024-04-09_23-20-06.tar.gz"
+"Backup created successfully: [FULL_PATH]\\mentorship-program\\mentorship_program_project\\DATABASE_BACKUPS\\mentorship_app_2024-04-09_23-20-06.sql.tar.sql"
+"Media folder has been backedup in [FULL_PATH]\\mentorship-program\\mentorship_program_project\\DATABASE_BACKUPS\\media_2024-04-09_23-20-06.tar.gz"
 
 -------------------------------------------------------------------------------
 GLOBAL VARIABLE LIST (Alphabetically):
@@ -73,7 +73,7 @@ def postgresql_backup():
     -------------
 
     >>> python manage.py runscript create_database_backup
-    "Backup created successfully: [FULL_PATH]\mentorship-program\mentorship_program_project\DATABASE_BACKUPS\mentorship_app_2024-04-09_23-20-06.sql"
+    "Backup created successfully: [FULL_PATH]\\mentorship-program\\mentorship_program_project\DATABASE_BACKUPS\\mentorship_app_2024-04-09_23-20-06.sql"
 
     Authors
     -------
@@ -154,7 +154,7 @@ def media_backup():
     -------------
 
     >>> python manage.py runscript create_media_backup
-    "Media folder has been backedup in [FULL_PATH]\mentorship-program\mentorship_program_project\DATABASE_BACKUPS\media_2024-04-09_23-20-06.tar.gz"
+    "Media folder has been backedup in [FULL_PATH]\\mentorship-program\\mentorship_program_project\DATABASE_BACKUPS\\media_2024-04-09_23-20-06.tar.gz"
 
 
     Authors

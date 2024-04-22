@@ -47,4 +47,4 @@ sudo pip3 install --upgrade pip
 ansible-galaxy collection install -r ./ansible/requirements.yaml
 
 # Run Ansible playbook
-ansible-playbook -i ./ansible/inventory.yaml -e @./ansible/env.yaml -k -K ./ansible/master.yaml
+export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i ./ansible/inventory.yaml -e @./ansible/env.yaml -k -K ./ansible/master.yaml

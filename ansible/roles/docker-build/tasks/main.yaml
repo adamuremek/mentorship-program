@@ -1,11 +1,3 @@
-# pull repo into seperate directory to allow branches other than k3s
-- name: Clone / pull git repo
-  ansible.builtin.git:
-    repo: 'https://github.com/adamuremek/mentorship-program.git'
-    dest: "{{ absolute_project_path }}/repo"
-    update: yes
-    version: "{{ git_branch }}"
-
 - name: Build Django Docker image
   community.docker.docker_image_build:
     name: "localhost:5000/project-kubernetes"
