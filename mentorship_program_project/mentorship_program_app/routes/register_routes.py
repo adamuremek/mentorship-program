@@ -89,18 +89,20 @@ def register_mentor_submit(req: HttpRequest):
             return HttpResponse(f"Email {incoming_email} already exsists!")
 
         organization = None
-        if req.POST['company-name'] and not req.POST['company-name'] == "Other":
-            organization = req.POST['company-name']
+        print("->> ", req.POST['company-name'])
+        if req.POST['company-name'] and req.POST['company-name'] != "Other":
+            print("HERE")
+            organization_name = req.POST['company-name']
         else:
-            organization = req.POST["organization"]
-        print("org", organization)
+            organization_name = req.POST["organization"]
+        print("org", organization_name)
         print("req: ", req.POST)
-        if(not Organization.objects.filter(str_org_name=organization).exists()):
-            organization = Organization.objects.create()
+        if(not Organization.objects.filter(str_org_name=organization_name).exists()):
+            organization = Organization.objects.create(str_org_name=organization_name)
             organization.save()
 
         else:
-            organization = Organization.objects.get(str_org_name=organization)
+            organization = Organization.objects.get(str_org_name=organization_name)
             
         pending_mentor_object.account.cls_email_address = incoming_email
         pending_mentor_object.account.str_first_name = req.POST["fname"]
@@ -144,7 +146,7 @@ def register_mentor_submit(req: HttpRequest):
     else:
         return HttpResponse("Bad :(")
     
-def register_mentee(req: HttpRequest):
+def register_mentee_submit(req: HttpRequest):
     
     '''
     Description
@@ -381,7 +383,7 @@ If you have any questions about this Agreement, please contact us at [Contact In
     return HttpResponse(template.render(context, req))
 
 
-def register_mentee(req):
+def register_mentee_render(req):
     template = loader.get_template('sign-in card/single_page_mentee.html')
     is_mentee : bool = True
     if not Interest.objects.exists():
@@ -408,9 +410,54 @@ def register_mentee(req):
         'country_codes' : country_codes,
         
         'useragreement': 
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." + 
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            '''
+End User License Agreement
+<br><br>
+1. Acceptance of Terms<br>
+By accessing and using WINGS, you agree to be bound by this Agreement. If you do not agree to the terms of this Agreement, do not use the application. 
+<br><br>
+2. Description of Service<br>
+WINGS provides a social networking platform that connects mentors and mentees for the purpose of educational and professional development. Features include profile creation, messaging, post sharing, and community interaction.
+<br><br>
+3. User Obligations<br>
+You agree to provide accurate and complete information when creating your profile and to update your information as necessary.
+You agree to use the application for lawful purposes only and to respect the rights and dignity of other users.
+<br><br>
+4. Privacy Policy<br>
+Our Privacy Policy, which describes how we handle your personal data, is incorporated into this Agreement by reference.
+<br><br>
+5. Intellectual Property<br>
+All content provided on the application is the proprietary property of the application developers or its users with all rights reserved unless otherwise stated.
+Users may post content as long as it does not infringe on the intellectual property rights of others.
+<br><br>
+6. User Content<br>
+You retain all rights to any content you submit, post, or display on or through the application.
+You grant the application a non-exclusive, royalty-free license to use, copy, reproduce, process, adapt, modify, publish, transmit, display, and distribute such content in any and all media or distribution methods.
+<br><br>
+7. Prohibited Conduct<br>
+You are responsible for all your activity in connection with the service.
+You may not use the service for any illegal purpose or in any manner inconsistent with the terms of this Agreement.
+<br><br>
+8. Termination<br>
+We may terminate or suspend your account and bar access to the service immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not limited to a breach of the Terms.
+<br><br>
+9. Disclaimer of Warranties<br>
+The service is provided on an "as is" and "as available" basis. Your use of the service is at your own risk.
+We disclaim all warranties, express or implied, of merchantability, fitness for a particular purpose, or non-infringement.
+<br><br>
+10. Limitation of Liability<br>
+To the fullest extent permitted by law, in no event shall the application, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the service.
+<br><br>
+11. Changes to Terms<br>
+We reserve the right, at our sole discretion, to modify or replace these terms at any time. If a revision is material, we will provide at least 30 days' notice prior to any new terms taking effect.
+<br><br>
+12. Governing Law<br>
+This Agreement shall be governed and construed in accordance with the laws of Michigan, United States, without regard to its conflict of law provisions.
+<br><br>
+Contact Us<br>
+If you have any questions about this Agreement, please contact us at [Contact Information].
+<br><br>
+''',
 
         'user': req.user,
         # # TODO: replace this or get rid of password for mentees. 

@@ -47,6 +47,7 @@ from django.conf.urls.static import static
 from .routes import register_routes, profiles_routes, mentorship_routes, user_management_routes, account_routes, login_routes
 from .routes import password_routes, pending_mentor_routes, dashboard_routes, reporting, interests_routes, notes_routes, landing_routes
 from .routes import user_reports_routes, admin_file_management_routes, settings_routes, misc_routes, faq_routes, verify_mentee_undergrad_routes
+from .routes import mentor_mfa
 
 ##All created urls need to go here
 urlpatterns = [
@@ -57,15 +58,20 @@ urlpatterns = [
         path("universal_profile/<int:user_id>", profiles_routes.universalProfile, name="universal_profile"),
 
         #Registration Routes
-        path('register-mentee-test/', register_routes.register_mentee , name='register-mentee-test'),
+        path('register-mentee-test/', register_routes.register_mentee_submit , name='register-mentee-test'),
         path('register-mentor-form/', register_routes.register_mentor_submit , name='register-mentor-form'),
-        path('register/mentee/', register_routes.register_mentee, name='register_mentee'),
+        path('register/mentee/', register_routes.register_mentee_render, name='register_mentee'),
         path('register/mentor/', register_routes.register_mentor_render, name='register_mentor'),
         
         #Login Routes
         path('login/',login_routes.login_uname_text,name='login'),
         path('logout/',login_routes.logout,name='logout'),
         path('saml/login', login_routes.saml_login, name='saml_login'),
+
+        #Multi-factor Authentication
+        path('mentor/2fa/', mentor_mfa.mentor_otp_request,name='passcode_request'),
+        path('mentor/2fa/otp', mentor_mfa.mentor_otp_validate,name='passcode_validation'),
+        path('valid', login_routes.complete_login,name="complete_login"),
 
         #Landing Routes
         path('landing-post/', landing_routes.landingPost, name='landing-post'),
