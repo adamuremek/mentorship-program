@@ -26,14 +26,14 @@
 # TODO: Change to only listen on k3s_server hosts
 - name: Ensure PostgreSQL is listening on *
   lineinfile:
-    dest: /etc/postgresql/14/main/postgresql.conf
+    dest: /etc/postgresql/15/main/postgresql.conf
     regexp: '^listen_addresses\s*='
     line: "listen_addresses='*'"
     state: present
 
 - name: Ensure correct port
   lineinfile:
-    dest: /etc/postgresql/14/main/postgresql.conf
+    dest: /etc/postgresql/15/main/postgresql.conf
     regexp: '^port\s*='
     line: "port='{{ db_port }}'"
     state: present
@@ -46,7 +46,7 @@
 
 - name: Add new configuration to "pg_hba.conf"
   blockinfile:
-    dest: /etc/postgresql/14/main/pg_hba.conf
+    dest: /etc/postgresql/15/main/pg_hba.conf
     block: |
       host    all             all             0.0.0.0/0                md5
       host    all             all             ::/0                     md5
@@ -57,7 +57,7 @@
     state: restarted
 
 - name: Change peer identification to trust
-  shell: /bin/sed -i '/^local/s/peer/trust/' /etc/postgresql/14/main/pg_hba.conf
+  shell: /bin/sed -i '/^local/s/peer/trust/' /etc/postgresql/15/main/pg_hba.conf
 
 - name: Restart postgres service
   service:

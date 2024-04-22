@@ -61,7 +61,7 @@
 
 - name: Wait for ingress-nginx rollout to finish
   shell:
-    cmd: "kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller --timeout=90s"
+    cmd: "kubectl wait --namespace ingress-nginx --for=condition=complete job/ingress-nginx-admission-patch --timeout=30s && kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s"
 
 - name: Create ingress config
   template:
