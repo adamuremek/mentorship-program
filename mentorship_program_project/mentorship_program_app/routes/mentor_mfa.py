@@ -70,8 +70,7 @@ def mentor_otp_validate(request: HttpRequest):
 
     list_verification = validate_otp_information(str_otp_secret_key, str_otp_valid_date, passcode)
 
-    if True: 
-        #list_verification[0]:
+    if list_verification[0]:
         #Send them back to the login route to complete the process
         request.session['mfa_validated'] = True
         return redirect('/valid')
