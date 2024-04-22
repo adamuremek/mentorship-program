@@ -40,7 +40,12 @@
                 {% if signed_in_user.has_requested_this_user %} 
                     <button type="button" id="btn_profile_request" disabled>Requested!</button>
                 {% else %}
-                    <button type="button" id="btn_profile_request">Request {{page_owner_user.str_role}}</button>
+                    {% if signed_in_user.is_mentor and not mentees_or_mentor.0.id == signed_in_user.mentor.account.id %}
+                        <button type="button" id="btn_profile_request">Request {{page_owner_user.str_role}}</button>
+                    {% elif signed_in_user.is_mentee %}
+                        <button type="button" id="btn_profile_request">Request {{page_owner_user.str_role}}</button>
+                    {% endif %}
+
                 {% endif %}
 
             {% endif %}

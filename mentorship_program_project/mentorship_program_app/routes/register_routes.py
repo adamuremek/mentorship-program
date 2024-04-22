@@ -89,18 +89,20 @@ def register_mentor_submit(req: HttpRequest):
             return HttpResponse(f"Email {incoming_email} already exsists!")
 
         organization = None
-        if req.POST['company-name'] and not req.POST['company-name'] == "Other":
-            organization = req.POST['company-name']
+        print("->> ", req.POST['company-name'])
+        if req.POST['company-name'] and req.POST['company-name'] != "Other":
+            print("HERE")
+            organization_name = req.POST['company-name']
         else:
-            organization = req.POST["organization"]
-        print("org", organization)
+            organization_name = req.POST["organization"]
+        print("org", organization_name)
         print("req: ", req.POST)
-        if(not Organization.objects.filter(str_org_name=organization).exists()):
-            organization = Organization.objects.create()
+        if(not Organization.objects.filter(str_org_name=organization_name).exists()):
+            organization = Organization.objects.create(str_org_name=organization_name)
             organization.save()
 
         else:
-            organization = Organization.objects.get(str_org_name=organization)
+            organization = Organization.objects.get(str_org_name=organization_name)
             
         pending_mentor_object.account.cls_email_address = incoming_email
         pending_mentor_object.account.str_first_name = req.POST["fname"]
@@ -144,7 +146,7 @@ def register_mentor_submit(req: HttpRequest):
     else:
         return HttpResponse("Bad :(")
     
-def register_mentee(req: HttpRequest):
+def register_mentee_submit(req: HttpRequest):
     
     '''
     Description
@@ -381,7 +383,7 @@ If you have any questions about this Agreement, please contact us at [Contact In
     return HttpResponse(template.render(context, req))
 
 
-def register_mentee(req):
+def register_mentee_render(req):
     template = loader.get_template('sign-in card/single_page_mentee.html')
     is_mentee : bool = True
     if not Interest.objects.exists():
