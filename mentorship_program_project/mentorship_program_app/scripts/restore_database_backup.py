@@ -121,7 +121,12 @@ def restore_database(sql_file):
 
     str_encoded_password = urllib.parse.quote_plus(os.environ.get("DB_PASSWORD"))
     
-    command = f'psql -f {sql_file} postgresql://{os.environ.get("DB_USER")}:{str_encoded_password}@{os.environ.get("DB_HOST")}:{os.environ.get("DB_PORT")}/{os.environ.get("DB_NAME")} '
+    command = [
+            'psql',
+            '-f',
+            f'{sql_file}',
+            f'postgresql://{os.environ.get("DB_USER")}:{str_encoded_password}@{os.environ.get("DB_HOST")}:{os.environ.get("DB_PORT")}/{os.environ.get("DB_NAME")}'
+        ]
     
     try:
 
