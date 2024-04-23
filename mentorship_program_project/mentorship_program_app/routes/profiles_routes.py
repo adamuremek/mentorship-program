@@ -319,8 +319,9 @@ def save_profile_info(req : HttpRequest, user_id : int):
 
             old_profile_image = f'{BASE_DIR}{page_owner_user.profile_img.img.url}'
             default_profile_image = f"{BASE_DIR}{MEDIA_URL}images/default_profile_picture.png"
-
-            if not (str(old_profile_image.replace('\\', '/')) == str(default_profile_image)):
+            
+            if not (str(old_profile_image.replace('\\', '/')) == str(default_profile_image) and os.path.exists(old_profile_image)):
+                
                 os.remove(old_profile_image)
             
             page_owner_user.profile_img.img.save(new_pfp.name, new_pfp)

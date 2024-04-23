@@ -975,7 +975,6 @@ class User(SVSUModelData,Model):
     def disable_user(user:"User", reason):
         user.bln_account_disabled = True
         user.save()
-        
         User.make_user_inactive(user, reason)
     
     # @property

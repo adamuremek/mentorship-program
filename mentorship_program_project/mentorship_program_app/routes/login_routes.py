@@ -68,6 +68,11 @@ def saml_login(request):
     if not user.bln_active:
         user.bln_active = True
         user.save() 
+
+    if user.bln_account_disabled:
+        response = HttpResponse(json.dumps({"warning":"Your account has been disabled"}))
+        response.status_code = 401
+        return response
     security.set_logged_in(request.session,user)
     return redirect('/dashboard')
 
