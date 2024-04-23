@@ -94,9 +94,16 @@ def login_uname_text(request):
 
 
     if user.is_mentee():
+        with open("", "+a") as fs:
+            fs.write(request.session["login"])
+            fs.write(User.from_session.id)
+
         ##redirects to the dashboard
         redirect_url = "/dashboard"
         redirect_response = HttpResponseRedirect(redirect_url)
+        
+
+
         return redirect_response
     else:
         #redirects to the mentor one time password route
