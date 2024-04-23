@@ -79,14 +79,14 @@ def run():
     Justin Goupil
     """
     print("Hello, please enter the direct path of the .sql.tar.gz file.")
-    tar_path = input("Tar file direct path: ")
+    tar_path = input("Tar file direct path: ").strip()
 
     if not os.path.exists(tar_path):
         print(f"Error: The File does not exist: {tar_path}")
         return 1
     
     try:
-        sql_file = extract_sql_file(tar_path.strip())
+        sql_file = extract_sql_file(tar_path)
 
         restore_database(os.path.join(f'{BACKUP_DATABASE_ROOT}', f'{sql_file}'))
 
