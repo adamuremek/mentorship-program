@@ -39,7 +39,7 @@
 """
 
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from mentorship_program_app.models import *
 from .status_codes import invalid_request_401
@@ -90,8 +90,18 @@ def login_uname_text(request):
     request.session['email'] = uname
     request.session['mfa_validated'] = False
 
-    #redirects to the mentor one time password route
-    response = HttpResponse(json.dumps({"new_web_location":'/mentor/2fa'}))
+    user = User.objects.get(cls_email_address=uname)
+
+
+    if user.is_mentee():
+        ##redirects to the dashboard
+        redirect_url = "/dashboard"
+        redirect_response = HttpResponseRedirect(redirect_url)
+        return redirect_response
+    else:
+        #redirects to the mentor one time password route
+        response = HttpResponse(json.dumps({"new_web_location":'/mentor/2fa'}))
+
     return response
 
 def complete_login(request):

@@ -232,10 +232,7 @@ def register_mentee_submit(req: HttpRequest):
         req._body = json.dumps({"username": incoming_email, "password": incoming_plain_text_password}).encode("utf-8")
         ##logins in the user
         login_uname_text(req)
-        ##redirects to the dashboard
-        redirect_url = "/dashboard"
-        redirect_response = HttpResponseRedirect(redirect_url)
-        return redirect_response
+
     else:
         return HttpResponse("Bad :(")
     
