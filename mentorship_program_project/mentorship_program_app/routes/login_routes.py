@@ -92,11 +92,9 @@ def login_uname_text(request):
 
     user = User.objects.get(cls_email_address=uname)
 
-
+    
     if user.is_mentee():
-        with open("/logs.txt", "+a") as fs:
-            fs.write(request.session["login"])
-            fs.write(User.from_session.id)
+        security.set_logged_in(request.session,user)
 
         ##redirects to the dashboard
         redirect_url = "/dashboard"
@@ -120,16 +118,18 @@ def complete_login(request):
             request.session['mfa_validated'] = False
             return redirect("/")
 
-        #valid login
-        if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
-            response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
-            response.status_code = 401
-            return response
+
         #disabled account
         if User.objects.get(cls_email_address=uname).bln_account_disabled:
             response = HttpResponse(json.dumps({"warning":"Your account has been disabled"}))
             response.status_code = 401
             return response
+        #valid login
+        if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
+            response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
+            response.status_code = 401
+            return response
+
     
         user = User.objects.get(cls_email_address=uname)
 

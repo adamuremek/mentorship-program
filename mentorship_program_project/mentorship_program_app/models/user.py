@@ -12,6 +12,7 @@ from django.db.models import Q
 
 from .interest import Interest
 from .svsu_model import SVSUModelData
+
 #project imports
 from utils import security
 from django.utils import timezone
@@ -973,8 +974,18 @@ class User(SVSUModelData,Model):
         
     @staticmethod
     def disable_user(user:"User", reason):
+        #### DO NOT MOVE THIS IMPORT ###
+        #### It needs to be here to prevent a circular import ###
+        from .system_logs import SystemLogs
+
         user.bln_account_disabled = True
         user.save()
+        
+        if user.is_mentor():
+            SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, specified_user=user)
+        elif user.is_mentee():
+            SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user=user)
+        
         User.make_user_inactive(user, reason)
     
     # @property
