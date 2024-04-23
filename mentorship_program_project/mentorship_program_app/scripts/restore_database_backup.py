@@ -86,7 +86,7 @@ def run():
         return 1
     
     try:
-        sql_file = extract_sql_file(tar_path)
+        sql_file = extract_sql_file(tar_path.strip())
 
         restore_database(os.path.join(f'{BACKUP_DATABASE_ROOT}', f'{sql_file}'))
 
@@ -115,7 +115,7 @@ def extract_sql_file(tar_path):
             else:
                 raise FileNotFoundError("No SQL file was found.")
                 
-    return sql_file
+    return sql_file.strip()
 
 def restore_database(sql_file):
 
