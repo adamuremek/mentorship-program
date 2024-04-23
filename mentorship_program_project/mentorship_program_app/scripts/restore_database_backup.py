@@ -70,7 +70,7 @@ def run():
 
     >>> python manage.py runscript restore_database_backup
     "Hello, please enter the direct path of the .sql.tar.gz file."
-    "Tar file direct path: [FULL_PATH]\mentorship-program\mentorship_program_project\DATABASE_BACKUPS\media_2024-04-09_23-20-06.tar.gz"
+    "Tar file direct path: [FULL_PATH]\\mentorship-program\\mentorship_program_project\\DATABASE_BACKUPS\\media_2024-04-09_23-20-06.tar.gz"
     "-PRINTS OUT ALL ACTIONS TAKEN-"
     "Database restored successfully."
 

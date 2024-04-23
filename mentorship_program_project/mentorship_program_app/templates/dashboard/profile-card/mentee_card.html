@@ -78,7 +78,7 @@
                             {% elif session_user.has_maxed_requests_as_mentee or session_user.has_mentor or session_user.mentor.has_maxed_mentees %}
                             	card-button-disabled
 		                    {% endif %}
-		  ">
+		  " {% if user.is_requested_by_session and session_user != user %}style="background-color: firebrick; color:whitesmoke"{% endif %}>
         {% if not session_user.has_mentor %}
            {% if not user.is_requested_by_session %}
               {% if role.value == 'Mentee' %}
@@ -94,6 +94,8 @@
                   Request Mentee
                {% endif %}
               {% endif %}
+		   {% elif session_user != user %} <!-- This is some bullshit bro. -->
+		   	Decline Request
            {% else %}
             Cancel Request
            {% endif %}

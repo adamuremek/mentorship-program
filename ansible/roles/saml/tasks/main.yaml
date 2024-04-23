@@ -1,3 +1,15 @@
+- name: Clone / pull git repo
+  ansible.builtin.git:
+    repo: 'https://github.com/adamuremek/mentorship-program.git'
+    dest: "{{ absolute_project_path }}/repo"
+    update: yes
+    version: "{{ git_branch }}"
+
+- name: Create saml directory
+  file:
+    path: "{{ absolute_project_path }}/mentorship_program_project/saml"
+    state: directory
+
 - name: Check for saml private key
   stat:
     path: "{{ absolute_project_path }}/mentorship_program_project/saml/private.key"
@@ -41,7 +53,9 @@
   copy:
     src: "{{ item }}"
     dest: "/{{ absolute_project_path }}/repo/mentorship_program_project/saml/{{ item | basename }}"
+    remote_src: true
   with_items:
     - "{{ absolute_project_path }}/mentorship_program_project/saml/private.key"
     - "{{ absolute_project_path }}/mentorship_program_project/saml/public.pem"
     - "{{ absolute_project_path }}/mentorship_program_project/saml/remote_metadata.xml"
+  become: true

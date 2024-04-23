@@ -20,8 +20,8 @@ SAMPLE INVOCATION:
 >>> python manage.py runscript restore_media_backup
 
     Hello, please enter the direct path of the .tar.gz file.
-    Tar file direct path: C:\Users\User\backups\media_2024-04-10_17-48-18.tar.gz
-    Media folder has been restored from C:\Users\User\backups\media_2024-04-10_17-48-18.tar.gz
+    Tar file direct path: C:\\Users\\User\\backups\\media_2024-04-10_17-48-18.tar.gz
+    Media folder has been restored from C:\\Users\\User\\backups\\media_2024-04-10_17-48-18.tar.gz
 
 -------------------------------------------------------------------------------
 GLOBAL VARIABLE LIST (Alphabetically):
@@ -66,8 +66,8 @@ def run():
 
     >>> python manage.py runscript restore_media_backup
     prompt: Hello, please enter the direct path of the .tar.gz file.
-    Tar file direct path: C:\Users\User\backups\media_2024-04-10_17-48-18.tar.gz
-    Media folder has been restored from C:\Users\User\backups\media_2024-04-10_17-48-18.tar.gz
+    Tar file direct path: C:\\Users\\User\\backups\\media_2024-04-10_17-48-18.tar.gz
+    Media folder has been restored from C:\\Users\\User\\backups\\media_2024-04-10_17-48-18.tar.gz
 
     Authors
     -------
