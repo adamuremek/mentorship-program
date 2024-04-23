@@ -231,7 +231,7 @@ def register_mentee_submit(req: HttpRequest):
         ##adds info to req with correct data names for the login function to work
         req._body = json.dumps({"username": incoming_email, "password": incoming_plain_text_password}).encode("utf-8")
         ##logins in the user
-        login_uname_text(req)
+        return login_uname_text(req)
 
     else:
         return HttpResponse("Bad :(")

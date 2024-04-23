@@ -318,9 +318,9 @@ def save_profile_info(req : HttpRequest, user_id : int):
             # update_profile_img(user_id, new_pfp)
 
             old_profile_image = f'{MEDIA_ROOT}{page_owner_user.profile_img.img.url}'
-            default_profile_image = f"{MEDIA_ROOT}images\\default_profile_picture.png"
+            default_profile_image = f"{MEDIA_ROOT}images/default_profile_picture.png"
             
-            if not (str(old_profile_image.replace('\\', '/')) == str(default_profile_image)) and os.path.exists(old_profile_image):
+            if old_profile_image != default_profile_image and os.path.exists(old_profile_image):
                 print("profile pic has been deleted")
                 os.remove(old_profile_image)
             
