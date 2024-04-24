@@ -143,6 +143,7 @@ def dashboard(req):
     elif session_user.is_mentee() and session_user.mentee.mentor:
         card_data = card_data.exclude(mentor__id=session_user.mentee.mentor.id)
 
+    interests_with_role_count = None
     if session_user.is_mentee():
         interests_with_role_count = Interest.objects.annotate(
                                     mentor_count=Count('mentor', filter=Q(mentee=None))
