@@ -145,15 +145,13 @@ def dashboard(req):
         
     users = [user.sanitize_black_properties() for user in card_data]
     
+    # Moved up for use in interests_with_role_count
     user_ids = [user.id for user in users]
+    
+    # Get interests as well as counts for filterable users with that interests
     interests_with_role_count = Interest.objects.annotate(
                                     mentor_count=Count('user', filter=Q(user__str_role=opposite_role) & Q(user__id__in=user_ids))
-                                    ).values('strInterest', 'mentor_count')
-    # interests_with_role_count = Interest.objects.annotate(
-    #                                 mentor_count=Count('user', filter=Q(user__str_role=opposite_role))
-    #                                 ).values('strInterest', 'mentor_count')
-
-   
+                                    ).values('strInterest', 'mentor_count')   
 
 
     users_with_profile = {}
