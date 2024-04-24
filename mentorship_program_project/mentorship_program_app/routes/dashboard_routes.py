@@ -145,18 +145,9 @@ def dashboard(req):
         
     users = [user.sanitize_black_properties() for user in card_data]
     
-    interests_with_role_count = None
     user_ids = [user.id for user in users]
-    # if session_user.is_mentee():
-    #     interests_with_role_count = Interest.objects.annotate(
-    #                                 mentor_count=Count('mentor', filter=Q(mentee=None))
-    #                                 ).values('strInterest', 'mentor_count')
-    # else:
-    #     interests_with_role_count = Interest.objects.annotate(
-    #                                 mentor_count=Count('mentee', filter=Q(mentor=None))
-    #                                 ).values('strInterest', 'mentor_count')
     interests_with_role_count = Interest.objects.annotate(
-                                    mentor_count=Count('user', filter=Q(user__str_role=opposite_role) | Q(user__id__in=user_ids))
+                                    mentor_count=Count('user', filter=Q(user__str_role=opposite_role) & Q(user__id__in=user_ids))
                                     ).values('strInterest', 'mentor_count')
     # interests_with_role_count = Interest.objects.annotate(
     #                                 mentor_count=Count('user', filter=Q(user__str_role=opposite_role))
