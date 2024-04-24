@@ -562,7 +562,8 @@ export function update_all_disable_bar_style_on() {
   }
 }
 
-// Function will cycle through all organization admin
+// Function will cycle through all organization bars detereming if there is a mentor within organization admin list
+// then updating to not show promote button on user bar. 
 export function update_all_organization_admin_bars() {
   // Determine all organization bars
   const organization_bars = determiners.determine_all_organization_bars();
@@ -580,6 +581,22 @@ export function update_all_organization_admin_bars() {
     });
   });
 }
+
+// Function determines user bar decouple button element and update element to hide it
+export function update_hide_session_user_decouple_button()
+{
+  // Detemine session user bar decouple button and update to hide it
+ const session_user_bar = determiners.determine_session_user_bar();
+
+  // Detemine if session user bar is not null
+  if (session_user_bar != null)
+  {
+    // Determine session user decouple button element and update to be hidden
+    update_not_show(determiners.determine_decouple_button(session_user_bar));
+
+  }
+}
+
 
 // Filtering methods
 // Set all bars elements to visible

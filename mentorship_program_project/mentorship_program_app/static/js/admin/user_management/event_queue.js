@@ -101,6 +101,9 @@ updaters.update_all_disable_bar_style_on();
 // Style admin bars to remove promote to organization admin button
 updaters.update_all_organization_admin_bars();
 
+// Style session user bar to remove decouple button
+updaters.update_hide_session_user_decouple_button();
+
 // Update valid and invalid mentors
 valid_mentor_bars = determiners.return_updated_mentor_list();
 
