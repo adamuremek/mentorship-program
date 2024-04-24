@@ -142,21 +142,27 @@ def dashboard(req):
         card_data = card_data.exclude(mentee__mentor__id = session_user.mentor.id)
     elif session_user.is_mentee() and session_user.mentee.mentor:
         card_data = card_data.exclude(mentor__id=session_user.mentee.mentor.id)
-
+        
+    users = [user.sanitize_black_properties() for user in card_data]
+    
     interests_with_role_count = None
-    if session_user.is_mentee():
-        interests_with_role_count = Interest.objects.annotate(
-                                    mentor_count=Count('mentor', filter=Q(mentee=None))
-                                    ).values('strInterest', 'mentor_count')
-    else:
-        interests_with_role_count = Interest.objects.annotate(
-                                    mentor_count=Count('mentee', filter=Q(mentor=None))
+    user_ids = [user.id for user in users]
+    # if session_user.is_mentee():
+    #     interests_with_role_count = Interest.objects.annotate(
+    #                                 mentor_count=Count('mentor', filter=Q(mentee=None))
+    #                                 ).values('strInterest', 'mentor_count')
+    # else:
+    #     interests_with_role_count = Interest.objects.annotate(
+    #                                 mentor_count=Count('mentee', filter=Q(mentor=None))
+    #                                 ).values('strInterest', 'mentor_count')
+    interests_with_role_count = Interest.objects.annotate(
+                                    mentor_count=Count('user', filter=Q(user__str_role=opposite_role) | Q(user__id__in=user_ids))
                                     ).values('strInterest', 'mentor_count')
     # interests_with_role_count = Interest.objects.annotate(
     #                                 mentor_count=Count('user', filter=Q(user__str_role=opposite_role))
     #                                 ).values('strInterest', 'mentor_count')
 
-    users = [user.sanitize_black_properties() for user in card_data]
+   
 
 
     users_with_profile = {}
