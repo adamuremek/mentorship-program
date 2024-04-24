@@ -447,6 +447,7 @@ input:read-only {
     flex: 1;
     margin: 0 5px;
     text-align: center;
+    overflow: hidden; /* Sorry: This is a shitty solution to a last minute problem :/ */
 }
 
 .note button:not(.note-title) {
