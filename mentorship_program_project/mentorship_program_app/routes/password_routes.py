@@ -83,7 +83,7 @@ def reset_request(req: HttpRequest):
     email = req.POST.get('email', None)
     
     try:
-        user = User.objects.get(cls_email_address=email)
+        user = User.objects.get(cls_email_address=email.lower())
     except ObjectDoesNotExist:
         return HttpResponse(False)
     

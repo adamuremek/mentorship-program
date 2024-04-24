@@ -79,7 +79,7 @@ def saml_login(request):
 def login_uname_text(request):
     login_data = json.loads(request.body.decode("utf-8"))
 
-    uname    = login_data["username"] if "username" in login_data else None
+    uname    = login_data["username"].lower() if "username" in login_data else None
     password = login_data["password"] if "password" in login_data else None
     
     if not User.check_valid_login(uname,password):

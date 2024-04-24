@@ -78,7 +78,7 @@ def register_mentor_submit(req: HttpRequest):
     Andrew P.
     '''
     if req.method == "POST":
-        incoming_email: str = req.POST["email"]
+        incoming_email: str = req.POST["email"].lower()
         incoming_plain_text_password = req.POST["password"]
 
         # create a new user in the database with the role "Pending"
@@ -186,7 +186,7 @@ def register_mentee_submit(req: HttpRequest):
     '''
     if req.method == "POST":
         if req.user.is_authenticated:
-            incoming_email: str = req.user.email
+            incoming_email: str = req.user.email.lower()
         else:   
             return HttpRequest ("You have no permission to use my app")
         # Uncomment this if we choose to use the file to verify mentee eligiblity
