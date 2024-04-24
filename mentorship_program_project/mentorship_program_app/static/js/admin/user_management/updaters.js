@@ -625,14 +625,18 @@ export function update_reset_filter() {
   });
 }
 
-// Updates user bars to hide bars that don't match filter
+// Updates user bars to hide user bars and organization bars that dont include the filtered for name value
 export function update_filter_user_bars(user_input) {
   // Create storage for temp user name
   let current_user_name;
 
+  // Initlize storage for found user flag value
+  let found_user_flag = 0;
+
   // Determine mentee and mentor orgnaiztion bar elements
-  const mentor_bars = determiners.determine_all_mentor_bars();
   const mentee_bars = determiners.determine_all_mentee_bars();
+  const unaffilated_mentor_bars = determiners.determine_all_non_organization_bars();
+  const organization_bars = determiners.determine_all_organization_bars();
 
   // Cycle through mentee bars
   mentee_bars.forEach((mentee_bar) => {
@@ -646,17 +650,108 @@ export function update_filter_user_bars(user_input) {
     }
   });
 
-  // Cycle through mentor bars
-  mentor_bars.forEach((mentor_bar) => {
+  // Cycle through unaffilated mentors
+  unaffilated_mentor_bars.forEach((mentor_bar) => {
     // Determine mentor bar name
     current_user_name = determiners.determine_user_name(mentor_bar);
 
-    // Check if mentor bar name doesn't matche input
-    if (!current_user_name.includes(user_input.trim().toLowerCase())) {
-      // Update mentor bar to be hiddem
+    // Check if mentor bar name dosesn't match input
+    if (!current_user_name.includes(user_input.toLowerCase())) {
+      // Update mentee bar to be hidden
       update_not_show(mentor_bar);
+
     }
   });
+
+  // Cycle through organization
+  organization_bars.forEach((organization_bar) => {
+    // // Check if admin list is not null
+    // if (determiners.determine_organization_admin_list(organization_bar) != null)
+    // {
+      // Determine organization admin list
+      let admin_list = determiners.determine_mentor_bars(determiners.determine_organization_admin_list(organization_bar));
+
+      // Cycle through organization admin list
+      admin_list.forEach((admin_bar) => {
+        // Determine mentor bar name
+        current_user_name = determiners.determine_user_name(admin_bar);
+
+        // Check if mentor bar name dosesn't match input
+        if (!current_user_name.includes(user_input.toLowerCase())) 
+        {
+          // Update mentee bar to be hidden
+          update_not_show(admin_bar);
+
+        }
+        else
+        {
+          // Update found flag value to be true for organization
+          found_user_flag = 1;
+    
+        }
+      });
+    // }
+
+    // // Check if mentor list is not null
+    // if (determiners.determine_organization_mentor_list(organization_bar) != null)
+    // {
+      // Determine organization mentor list
+      let mentor_list = determiners.determine_mentor_bars(determiners.determine_organization_mentor_list(organization_bar));
+
+      // Cycle through organization mentor list
+      mentor_list.forEach((mentor_bar) => {
+        // Determine mentor bar name
+        current_user_name = determiners.determine_user_name(mentor_bar);
+
+        // Check if mentor bar name dosesn't match input
+        if (!current_user_name.includes(user_input.toLowerCase())) 
+        {
+          // Update mentee bar to be hidden
+          update_not_show(mentor_bar);
+
+        }
+        else
+        {
+          // Update found flag value to be true for organization
+          found_user_flag = 1;
+    
+        }
+        
+      });
+    // }
+
+    // Determine if organization included a found user
+    if (found_user_flag)
+    {
+      // User was in organization bar
+      // Update organization bar to show
+      update_show(organization_bar);
+
+    }
+    else
+    {
+      // User was in organization bar
+      // Update organization bar to now show
+      update_not_show(organization_bar);
+
+    }
+
+    // Reset found user flag value
+    found_user_flag = 0;
+    
+  });
+    
+  // // Cycle through mentor bars
+  // mentor_bars.forEach((mentor_bar) => {
+  //   // Determine mentor bar name
+  //   current_user_name = determiners.determine_user_name(mentor_bar);
+
+  //   // Check if mentor bar name doesn't matche input
+  //   if (!current_user_name.includes(user_input.trim().toLowerCase())) {
+  //     // Update mentor bar to be hiddem
+  //     update_not_show(mentor_bar);
+  //   }
+  // });
 }
 
 // Updates organization bars to hide bars that don't match filter
