@@ -2,6 +2,39 @@
 import * as determiners from "./determiners.js";
 
 // Updates display elements
+// Function updates passed message element to include unsaved changes message and show message element
+export function update_message_unsaved(message_bar_element)
+{
+  // Update message element to include unsaved changes
+  message_bar_element.innerHTML = "Unsaved changes";
+
+  // Update message element to show
+  update_show(message_bar_element);
+
+} 
+
+// Function updates passsed message element to include passed text and show message element
+export function update_message_text(message_bar_element, message_bar_text)
+{
+  // Update message element to be empty
+  message_bar_element.innerHTML = message_bar_text;
+
+  // Update message element to show
+  update_show(message_bar_element);
+
+}
+
+// Function updates passed message element to remove text value and hide message element
+export function update_hide_message(message_bar_element)
+{
+  // Update message element to remove text value
+  message_bar_element.innerHTML = "";
+
+  // Update message element to be hidden
+  update_not_show(message_bar_element);
+
+}
+
 // Function updates modal class list to make it visable
 export function show_add_new_organization_modal() {
   // Determine add new organization modal
@@ -199,7 +232,6 @@ export function update_reable_bar(user_bar) {
   );
 
   // Change background color to disabled
-  // -=-=-;
   user_bar.style.background = "none";
 }
 
@@ -216,7 +248,6 @@ export function update_disable_bar(user_bar) {
   );
 
   // Change background color to disabled (grey)
-  // -=-=--;
   update_on_button_style(user_bar);
 }
 
@@ -258,13 +289,11 @@ export function update_reset_choice_bar_styles() {
 // Updates button's style to include darkgrey background
 export function update_on_button_style(button) {
   button.style.background = "darkgray";
-  // -=-=-=;
 }
 
 // Set button to default button backround
 export function update_off_button_style(button) {
   button.style.background = "rgba(128, 128, 128, 0.25)";
-  // -=-=-=-;
 }
 
 // Set all filter buttons to on
