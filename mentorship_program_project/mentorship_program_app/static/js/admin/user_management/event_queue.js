@@ -898,7 +898,7 @@ export async function save_event()
         // Check if valid execution
         if (valid_flag)
         {
-            // Updates message element
+            // Updates message element to successful save message 
             updaters.update_message_text(user_message_element, "Save Successful");
 
             // Refresh page
@@ -911,7 +911,7 @@ export async function save_event()
             // Store current event in queue
             const current_event = event_queue.dequeue();
 
-            // Updates message element
+            // Updates message element to error message
             updaters.update_message_text(user_message_element, "Error: type = " + current_event.type + ", data = " + current_event.data);
 
             // Remove queue elements
@@ -935,27 +935,14 @@ export function cancel_event()
     // Determine user mangemenet message element
     const user_message_element = determiners.determine_user_management_message();
 
-    // Check if event queue is empty
-    if (event_queue.isEmpty())
-    {
-        // Queue is empty
-        // Update user management to be hidden
-        updaters.update_hide_message(user_message_element);
+    // Update user management message to canceled message
+    updaters.update_message_text(user_message_element, "Canceled queue of events");
 
-    }
-    else
-    {
-        // Queue is not empty
-        // Update user management message to unsaved messages
-        updaters.update_message_text(user_message_element, "Canceled queue of events");
+    // Cancel queue
+    remove_queue_elements();
 
-        // Cancel queue
-        remove_queue_elements();
-
-        // Refresh page
-        location.reload();
-
-    }
+    // Refresh page
+    location.reload();
 }
 
 // Can remove method not used, hook for later mentee interaction if needed
@@ -1621,7 +1608,7 @@ export function create_orgnization_event()
         // Sort all organiation bars
         sorters.sort_all_organization_bar_element_alphabetically();
 
-        // Update add new organization modal message bar element with passed text
+        // Update add new organization modal message valid creation message
         updaters.update_message_text(modal_message_element, new_organization_name + " creation is valid");
 
         // Update user management message to unsaved messages
@@ -1637,7 +1624,7 @@ export function create_orgnization_event()
     else
     {
         // Name is not unique
-        // Update add new organization modal message bar element with passed text
+        // Update add new organization modal message invalid creation message 
         updaters.update_message_text(modal_message_element, "Error: " + new_organization_name +" is non-unique");
 
     }
@@ -1676,7 +1663,7 @@ export function remove_organization_event(organization_bar)
     }
     else
     {
-        // Update add new organization modal message bar element with passed text
+        // Update add new organization modal message with error message
         updaters.update_message_text(user_message_element, "Error: " + organization_name + " is not empty");
 
     }
