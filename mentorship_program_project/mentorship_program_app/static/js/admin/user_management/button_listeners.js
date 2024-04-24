@@ -42,7 +42,7 @@ if (add_new_organization_button != null)
 
     // Set exit add new organization button listener
     exit_add_new_organization_button.addEventListener("click", () => { event_queue.hide_add_organization_modal_event(); });
-    
+
 }
 
 // Set up search bar selection to trigger attempt filter methods for users and organziation
@@ -114,21 +114,6 @@ for (let mentor_bar of mentor_bars)
     {
         // Set button listener for edit organization button
         determiners.determine_edit_organization_button(mentor_bar).addEventListener('click', function() { event_queue.edit_organization_mentor_event(mentor_bar) } );
-    }
-
-    // Check if there is transfer role super admin button
-    if (determiners.determine_transfer_role_super_admin_button(mentor_bar) != null)
-    {
-        // Set button listener for transfer role super admin button
-        determiners.determine_transfer_role_super_admin_button(mentor_bar).addEventListener('click', function() { event_queue.transfer_role_super_admin_mentor_event(mentor_bar) });
-    }
-
-    // Check if there is transfer role organization admin button
-    if (determiners.determine_transfer_role_organization_admin_button(mentor_bar) != null)
-    {
-        // Set button listener for transfer role organization admin button
-        determiners.determine_transfer_role_organization_admin_button(mentor_bar).addEventListener('click', function() { event_queue.transfer_role_organization_admin_mentor_event(mentor_bar) });
-
     }
 
     // Set button listener for decouple button

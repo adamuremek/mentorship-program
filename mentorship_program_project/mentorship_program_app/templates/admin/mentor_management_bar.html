@@ -78,28 +78,6 @@
             <button class="admin_user_management_button_clear_active" id="edit_organization_button" title="Edit organization">
                 <img class="user_management_icon" src="{% static 'images/icons/pencil-icon.png' %}">
             </button>
-        
-            {% if mentor.account.account != session_user_account %}
-                {% if organization.id %}
-                    <button class="admin_user_management_button_clear_active" id="transfer_role_super_admin_button" title="Transfer roles">
-                        <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
-                    </button>
-                {% else %}
-                    <button class="admin_user_management_button_clear_inactive" id="transfer_role_super_admin_button" title="Transfer roles">
-                        <img class="user_management_icon" src="{% static 'images/icons/transfer-icon.png' %}">
-                    </button>
-                {% endif %}
-            {% endif %}
-        {% elif user_organization_admin_flag %}
-            {% if mentor.account.account == session_user_account %}
-                <button class="admin_user_management_button_clear_inactive" id="transfer_role_organization_admin_button" title="Transfer own role">
-                    <img class="user_management_icon" src="{% static 'images/icons/transfer-icon-alt.png' %}">
-                </button>
-            {% else %}
-                <button class="admin_user_management_button_clear_active" id="transfer_role_organization_admin_button" title="Transfer own role">
-                    <img class="user_management_icon" src="{% static 'images/icons/transfer-icon-alt.png' %}">
-                </button>
-            {% endif %}
         {% endif %}
 
         {% if organization.id %}
@@ -113,7 +91,5 @@
         {% endif %}
 
     </div>
-
-    <!-- <hr> -->
 
 </div>
