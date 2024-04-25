@@ -106,7 +106,11 @@ Dashboard
             <div class="available-cards">
                     {% for user in all_users %}
                     <div class="card available-card {% for interest in user.interests.all %} {{interest.strInterest}}{% endfor %}">
-                        {% include 'dashboard/profile-card/mentee_card.html' %}
+                        {% if user.mentor != None %}
+                            {% include 'dashboard/profile-card/mentee_card.html' with IMPORTANT_ID=user.mentor.id %}
+                        {% else %}
+                            {% include 'dashboard/profile-card/mentee_card.html' with IMPORTANT_ID=user.mentee.id %}
+                        {% endif %}
                     </div>
                     {% endfor %}
             </div>
