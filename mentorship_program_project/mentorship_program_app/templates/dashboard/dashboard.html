@@ -109,7 +109,8 @@ Dashboard
                         {% if user.mentor != None %}
                             <script>console.log('| ---- ---- ---- |')</script>
                             <script>console.log('User is apparently a mentor')</script>
-                            <script>console.log('{{ THE_BIG_LIST}}')</script>
+                            <script>console.log('{{ THE_BIG_LIST }}')</script>
+                            <script>console.log('{{ TEST_THINGS }}')</script>
                             {% for item in TEST_THINGS %}
                                 <script>console.log('{{ item }}')</script>
                                 {% for thing in item %}
