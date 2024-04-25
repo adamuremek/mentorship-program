@@ -68,7 +68,8 @@ def dashboard(req):
     if session_user.is_super_admin():
         return admin_dashboard(req)
     
-    requester_accounts = None   
+    requester_accounts = None  
+    requests = None 
     if opposite_role == "Mentor":
         requests = MentorshipRequest.objects.all().filter(mentor_id = OuterRef('pk'),mentee_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
