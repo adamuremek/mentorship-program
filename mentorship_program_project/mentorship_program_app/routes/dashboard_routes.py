@@ -67,10 +67,16 @@ def dashboard(req):
 
     if session_user.is_super_admin():
         return admin_dashboard(req)
-        
+    
+    requester_account = None    
+    test_id = None
     if opposite_role == "Mentor":
         requests = MentorshipRequest.objects.all().filter(mentor_id = OuterRef('pk'),mentee_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
+
+        mentee_account = session_user.objects.get(account_id=session_user.id)
+        test_id = mentee_account.id
+        requester_account = MentorshipRequest.objects.filter(requester=mentee_account.id)
 
         card_data = User.objects.annotate(
             num_mentees=Count('mentor___mentee_set', distinct=True)
@@ -83,7 +89,7 @@ def dashboard(req):
         ).annotate(
                 is_requested_by_session=Subquery(requests_count)
                 ).filter(
-            has_maxed_mentees=False,
+                has_maxed_mentees=False,
               bln_active = True,  # Exclude mentors who have maxed out their mentee slots
         ).filter(
             str_role='Mentor',
@@ -105,11 +111,15 @@ def dashboard(req):
         session_user.has_mentor = session_user.mentee.mentor != None
         session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
 
-    if opposite_role == "Mentee":
 
+    if opposite_role == "Mentee":
         #sub query to count the number of requests for setting
         requests = MentorshipRequest.objects.all().filter(mentee_id = OuterRef('pk'),mentor_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
+        
+        mentor_account = session_user.objects.get(account_id=session_user.id)
+        test_id = mentor_account.id
+        requester_account = MentorshipRequest.objects.filter(requester=mentor_account.id)
 
         card_data = User.objects.filter(
             str_role='Mentee',
@@ -175,7 +185,10 @@ def dashboard(req):
             "users_with_profile": users_with_profile,
             "interests"        : list(interests_with_role_count),
             "session_user"     : session_user,
-            "role"             : role
+            "role"             : role,
+            # "requester"        : requester_account,
+            # "test_id"          : test_id,
+            "THE_BIG_BOOLEAN"  : requester_account == test_id
     }
     render = template.render(context, req)
     return HttpResponse(render)
