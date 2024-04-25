@@ -73,7 +73,7 @@ def dashboard(req):
         requests = MentorshipRequest.objects.all().filter(mentor_id = OuterRef('pk'),mentee_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
 
-        mentee_account = session_user.objects.get(account_id=session_user.id)
+        mentee_account = User.objects.get(account_id=session_user.id)
         requester_accounts = MentorshipRequest.objects.filter(requester=mentee_account.id)
         # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=mentee_account.id)]
 
@@ -116,7 +116,7 @@ def dashboard(req):
         requests = MentorshipRequest.objects.all().filter(mentee_id = OuterRef('pk'),mentor_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
         
-        mentor_account = session_user.objects.get(account_id=session_user.id)
+        mentor_account = User.objects.get(account_id=session_user.id)
         requester_accounts = MentorshipRequest.objects.filter(requester=mentor_account.id)
         # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=mentor_account.id)]
 
