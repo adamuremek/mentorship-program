@@ -110,13 +110,14 @@ Dashboard
                             <script>console.log('User is apparently a mentor')</script>
                             <script>console.log('{{THE_BIG_LIST}}')</script>
                             <script>console.log('{{user}}')</script>
-                            <script>console.log('{{session_user}}')</script>
+                            <script>console.log('{{user.mentor}}')</script>
+                            <script>console.log('{{user.mentor.id}}')</script>
+                            <script>console.log('{{user.id}}')</script>
                             {% include 'dashboard/profile-card/mentee_card.html' with IMPORTANT_ID=user.mentor.id %}
                         {% else %}
                             <script>console.log('User is apparently a mentee')</script>
                             <script>console.log('{{THE_BIG_LIST}}')</script>
                             <script>console.log('{{user}}')</script>
-                            <script>console.log('{{session_user}}')</script>
                             {% include 'dashboard/profile-card/mentee_card.html' with IMPORTANT_ID=user.mentee.id %}
                         {% endif %}
                     </div>
