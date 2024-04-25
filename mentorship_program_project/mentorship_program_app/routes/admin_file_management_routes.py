@@ -172,6 +172,9 @@ def process_file(req: HttpRequest):
         return HttpResponse('Invalid request', status=400)
     
 def available_mentees(req: HttpRequest):
+    user = User.from_session(req.session)
+    if not user.is_super_admin():
+        return bad_request_400("permission denied!")
     '''
     Loads the page for the admin to upload a file to add/remove mentees who are eligible
 
