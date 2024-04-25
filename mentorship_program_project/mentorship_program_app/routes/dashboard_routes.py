@@ -191,7 +191,7 @@ def dashboard(req):
             "role"             : role,
             # "requester"        : requester_account,
             # "test_id"          : test_id
-            # "THE_BIG_LIST"     : requester_accounts
+            "THE_BIG_LIST"     : requester_accounts
     }
     render = template.render(context, req)
     return HttpResponse(render)
