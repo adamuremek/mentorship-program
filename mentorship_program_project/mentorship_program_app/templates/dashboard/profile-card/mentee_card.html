@@ -60,7 +60,7 @@
 
 			<div class="card-line-divider-2"></div>
 
-			<p class="card-interests-header">Interests | bruh{%if THE_BIG_BOOLEAN%}!{%endif%}</p>
+			<p class="card-interests-header">Interests | {{IMPORTANT_ID}}</p>
 
 			<div class="card-interests">
 				{% for interest in user.interests.all %}
@@ -94,7 +94,7 @@
                   Request Mentee
                {% endif %}
               {% endif %}
-		   {% elif THE_BIG_BOOLEAN and session_user != user %} <!-- This is some bullshit bro. -->
+		   {% elif IMPORTANT_ID in THE_BIG_LIST %} <!-- This is some bullshit bro. -->
 		   	Decline Request
            {% else %}
             Cancel Request
