@@ -68,13 +68,13 @@ def dashboard(req):
     if session_user.is_super_admin():
         return admin_dashboard(req)
     
-    requester_accounts = None    
+    # requester_accounts = None    
     if opposite_role == "Mentor":
         requests = MentorshipRequest.objects.all().filter(mentor_id = OuterRef('pk'),mentee_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
 
-        mentee_account = session_user.objects.get(account_id=session_user.id)
-        requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=mentee_account.id)]
+        # mentee_account = session_user.objects.get(account_id=session_user.id)
+        # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=mentee_account.id)]
 
         card_data = User.objects.annotate(
             num_mentees=Count('mentor___mentee_set', distinct=True)
@@ -115,8 +115,8 @@ def dashboard(req):
         requests = MentorshipRequest.objects.all().filter(mentee_id = OuterRef('pk'),mentor_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
         
-        mentor_account = session_user.objects.get(account_id=session_user.id)
-        requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=mentor_account.id)]
+        # mentor_account = session_user.objects.get(account_id=session_user.id)
+        # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=mentor_account.id)]
 
         card_data = User.objects.filter(
             str_role='Mentee',
@@ -185,7 +185,7 @@ def dashboard(req):
             "role"             : role,
             # "requester"        : requester_account,
             # "test_id"          : test_id
-            "THE_BIG_LIST"     : requester_accounts
+            # "THE_BIG_LIST"     : requester_accounts
     }
     render = template.render(context, req)
     return HttpResponse(render)
