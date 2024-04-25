@@ -111,8 +111,7 @@ Dashboard
                             <script>console.log('User is apparently a mentor')</script>
                             <script>console.log('{{ THE_BIG_LIST }}')</script>
                             <script>console.log('{{ TEST_THINGS }}')</script>
-                            <script>console.log('{{ TEST_COUNT }}')</script>
-                            {% for item in TEST_THINGS %}
+                            {% for item in OTHER_SHIT %}
                                 <script>console.log('{{ item }}')</script>
                                 {% for thing in item %}
                                     <script>console.log('   {{ thing }}')</script>
