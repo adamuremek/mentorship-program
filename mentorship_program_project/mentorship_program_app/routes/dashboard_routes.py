@@ -67,7 +67,7 @@ def dashboard(req):
 
     if session_user.is_super_admin():
         return admin_dashboard(req)
-    
+        
     if opposite_role == "Mentor":
         requests = MentorshipRequest.objects.all().filter(mentor_id = OuterRef('pk'),mentee_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
@@ -83,7 +83,7 @@ def dashboard(req):
         ).annotate(
                 is_requested_by_session=Subquery(requests_count)
                 ).filter(
-                has_maxed_mentees=False,
+            has_maxed_mentees=False,
               bln_active = True,  # Exclude mentors who have maxed out their mentee slots
         ).filter(
             str_role='Mentor',
@@ -105,8 +105,8 @@ def dashboard(req):
         session_user.has_mentor = session_user.mentee.mentor != None
         session_user.has_maxed_requests_as_mentee = session_user.mentee.has_maxed_request_count()
 
-
     if opposite_role == "Mentee":
+
         #sub query to count the number of requests for setting
         requests = MentorshipRequest.objects.all().filter(mentee_id = OuterRef('pk'),mentor_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
@@ -170,12 +170,12 @@ def dashboard(req):
     #cache the result of this query so we are not using it in the rendered view
     context = {
                                 # Making sure that there are enough users to display
-            "recommended_users" : recommended_users[0:4] if len(recommended_users) >= 4 else recommended_users[0:len(recommended_users)], 
-            "all_users"         : users,
+            "recommended_users": recommended_users[0:4] if len(recommended_users) >= 4 else recommended_users[0:len(recommended_users)], 
+            "all_users"        : users,
             "users_with_profile": users_with_profile,
-            "interests"         : list(interests_with_role_count),
-            "session_user"      : session_user,
-            "role"              : role,
+            "interests"        : list(interests_with_role_count),
+            "session_user"     : session_user,
+            "role"             : role
     }
     render = template.render(context, req)
     return HttpResponse(render)
