@@ -44,13 +44,15 @@
 <script src = '{% static "js/mentor_verify.js" %}'></script>
 
 <script>
-    var input = document.getElementById("frm-login");
-    input.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            document.getElementById("li-btn").click();
-        }
-    });
-    
+    if(document.getElementById('li-btn'))
+    {
+        var input = document.getElementById("frm-login");
+        input.addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById("li-btn").click();
+            }
+        });
+    }
 </script>
 {% endblock %}
