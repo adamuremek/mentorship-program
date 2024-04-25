@@ -14,7 +14,10 @@
         </div>
         <div class="column-right">
             <div class="portal">
-                <form id="frm-login" action="/landing-post/" method="POST">
+
+                <!--  then we go here-->
+                <!-- this may need to go to a different route. Probably validate?  i see the loop ok --> 
+                <div id="frm-login">
                     {% csrf_token %}
                     <div class="prompt-login">
                         <div class="circle-logo-container">
@@ -28,20 +31,21 @@
                         <p>We have sent a verifiation code to your email address.</p>
                         <p>Please enter the verification code below:</p>
                         <input id="passcode" name="passcode" placeholder="Verification Code">
-								<p id="frm-warning-message" class="error-message"></p>
+
+                        <p id="frm-warning-message" class="error-message">{{warning}}</p>
+               
                     </div>
                     <!-- DONT CHANGE THIS ID. CRUCIAL FOR JAVASCRIPT EXECUTION -->
                     <!-- FUTHERMORE, DONT CHANGE ANY ID WITHOUT THOROUGHLY CHECKING FOR OTHER CRITICAL OCCURANCES -->
-                    <button type="button" class="login-buttons" id="mfa-btn">Verify</button>
-                    <p id="su-p"><span id="su-span">Resend passcode:</span> <span class="text-btn" tabindex="0"><a class="text-btn" id="su-link" href="/mentor/2fa">click here</a></span></p>
-                </form>
+                    <button class="login-buttons" id="mfa-btn" onclick="submitMfa();">Verify</button>
+                    <p id="su-p"><span id="su-span">Resend passcode:</span> <span class="text-btn" tabindex="0"><a class="text-btn" id="su-link">click here</a></span></p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <script src = '{% static "js/backend_requests.js" %}'></script>
-<script src = '{% static "js/mentor_verify.js" %}'></script>
 
 <script>
     if(document.getElementById('li-btn'))
@@ -54,5 +58,34 @@
             }
         });
     }
+
+    async function verifyCodeReq(code){
+        let verifyPayload = {code:code};
+        const req = new Request("{% url 'passcode_validation' %}",{
+                                method:"POST",
+                                body: JSON.stringify(verifyPayload),
+                                headers: {
+                                        "Content-type": "application/json; charset=UTF-8",
+                                        'X-CSRFToken': csrftoken
+                                    },
+                                mode: 'same-origin'
+        });
+        
+        let response = await fetch(req);
+        return response;
+    }
+
+    async function submitMfa() {
+        console.log("AHHHH request sent!!!")
+        let response = await verifyCodeReq(document.getElementById("passcode").value);
+        if (response.status == 401) {
+            let server_response_json = await response.json();
+            let txtWarning = document.getElementById("frm-warning-message")
+            txtWarning.innerText = server_response_json.warning;
+        } else if (response.status == 200) {
+            let server_response_json = await response.json();
+            window.location.replace(server_response_json.new_web_location);
+        }
+    };
 </script>
 {% endblock %}

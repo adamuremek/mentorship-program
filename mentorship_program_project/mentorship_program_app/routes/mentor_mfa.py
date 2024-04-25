@@ -60,22 +60,31 @@ def mentor_otp_request(request : HttpRequest):
 
 
 def mentor_otp_validate(request: HttpRequest):
-
+    print("valid route")
     str_otp_secret_key = request.session['str_otp_secret_key']
     str_otp_valid_date = request.session['str_otp_valid_date']
 
-    passcode_data = json.loads(request.body.decode("utf-8"))
+    data = json.loads(request.body.decode('utf-8'))
+    passcode = data.get("code")
+    
 
-    passcode = passcode_data["password"] if "password" in passcode_data else None
 
+    print(f"secret: {str_otp_secret_key}")
+    print(f"passcode: {passcode}")
+    
     list_verification = validate_otp_information(str_otp_secret_key, str_otp_valid_date, passcode)
 
     if list_verification[0]:
         #Send them back to the login route to complete the process
         request.session['mfa_validated'] = True
-        return redirect('/valid')
+        print('valid')
+        
+        #HERE
+        response = HttpResponse(json.dumps({"new_web_location": "/valid"}))
+        response.status_code = 200
+        return response
     else:
-        response = HttpResponse(json.dumps({"warning":"Passcode was incorrect, please try again."}))
+        response = HttpResponse(json.dumps({"warning":"Wrong Verification Code"}))
         response.status_code = 401
         return response
 
@@ -89,7 +98,7 @@ def validate_otp_information(str_otp_secret_key, str_otp_valid_date, str_otp):
 
         if str_valid_until > datetime.now():
             cls_otp = pyotp.TOTP(str_otp_secret_key, interval= (60 * settings.PASSCODE_EXPIRATION_MINUTES))
-
+  
             if cls_otp.verify(str_otp):
 
                 bln_flag = True
@@ -97,10 +106,13 @@ def validate_otp_information(str_otp_secret_key, str_otp_valid_date, str_otp):
             else:
                 error_message = "Wrong passcode, please try again."
 
+
             if not str_valid_until > datetime.now():
                 error_message = "Passcode has expired, please try again."
+
         else:
             error_message = "Passcode has expired, please try again."
+            print(error_message)
     else: 
         error_message = "No Secret Key or valid date, please try again."
     return [bln_flag, error_message]

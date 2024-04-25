@@ -39,6 +39,7 @@ from django.http import HttpResponse, HttpRequest
 from django.template import loader
 from django.shortcuts import  redirect
 from mentorship_program_app.models import *
+from .status_codes import bad_request_400
 from .emails import *
 from ..models import *
 
@@ -107,6 +108,9 @@ def process_file(req: HttpRequest):
     -------
     - Andrew P
     '''
+    user = User.from_session(req.session)
+    if not user.is_super_admin():
+        return bad_request_400("permission denied!")
 
     template = loader.get_template('admin/available_mentees.html')
     

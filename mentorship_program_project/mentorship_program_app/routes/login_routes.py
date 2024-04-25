@@ -91,8 +91,7 @@ def login_uname_text(request):
     request.session['mfa_validated'] = False
 
     user = User.objects.get(cls_email_address=uname)
-
-    
+   
     if user.is_mentee():
         security.set_logged_in(request.session,user)
 
@@ -102,12 +101,19 @@ def login_uname_text(request):
         return redirect_response
     else:
         #redirects to the mentor one time password route
-        response = HttpResponse(json.dumps({"new_web_location":'/mentor/2fa'}))
+        
+        # i think so|  ok following
+        # follow me
+        # and we'll work thorugh what happens
+        
+        
+        #so the very first thing that happens is this
+        response = HttpResponse(json.dumps({"new_web_location":'/mentor/2fa'})) 
 
     return response
 
 def complete_login(request):
-        
+
         uname = request.session['email']
         # request.session['email'] = None
         
@@ -119,7 +125,7 @@ def complete_login(request):
         if not request.session['mfa_validated']:
             request.session['mfa_validated'] = False
             return redirect("/")
-
+        
         #disabled account
         if User.objects.get(cls_email_address=uname).bln_account_disabled:
             response = HttpResponse(json.dumps({"warning":"Your account has been disabled"}))
