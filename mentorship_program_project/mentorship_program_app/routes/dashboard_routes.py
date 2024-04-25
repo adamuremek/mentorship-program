@@ -68,18 +68,9 @@ def dashboard(req):
     if session_user.is_super_admin():
         return admin_dashboard(req)
     
-    requester_accounts = None  
-    requests = None 
     if opposite_role == "Mentor":
         requests = MentorshipRequest.objects.all().filter(mentor_id = OuterRef('pk'),mentee_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
-
-        # mentee_account = session_user.mentee
-        
-        # mentee_account = session_user.objects.get(account_id=session_user.id)
-        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentee.id)
-        # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentee.id)]
-        # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=mentee_account.id)]
 
         card_data = User.objects.annotate(
             num_mentees=Count('mentor___mentee_set', distinct=True)
@@ -119,11 +110,6 @@ def dashboard(req):
         #sub query to count the number of requests for setting
         requests = MentorshipRequest.objects.all().filter(mentee_id = OuterRef('pk'),mentor_id=session_user.id)
         requests_count = requests.annotate(c=Count("*")).values('c')
-        
-        # mentor_account = session_user.objects.get(account_id=session_user.id)
-        # mentor_account = session_user.mentor
-        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentor.id)
-        # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentor.id)]
 
         card_data = User.objects.filter(
             str_role='Mentee',
@@ -190,8 +176,6 @@ def dashboard(req):
             "interests"         : list(interests_with_role_count),
             "session_user"      : session_user,
             "role"              : role,
-            "THE_BIG_LIST"      : requester_accounts,
-            "experiment"        : requests
     }
     render = template.render(context, req)
     return HttpResponse(render)
