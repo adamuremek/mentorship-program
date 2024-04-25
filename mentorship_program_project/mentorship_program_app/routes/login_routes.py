@@ -140,6 +140,7 @@ def complete_login(request):
         user.save()
         # record logs
         SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
+        security.set_logged_in(request.session,user)
 
         response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
         return response  
