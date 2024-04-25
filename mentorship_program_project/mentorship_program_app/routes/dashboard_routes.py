@@ -76,7 +76,8 @@ def dashboard(req):
         # mentee_account = session_user.mentee
         
         # mentee_account = session_user.objects.get(account_id=session_user.id)
-        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.id)
+        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentee.id)
+        requesters = MentorshipRequest.objects.all()
         # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentee.id)]
         # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=mentee_account.id)]
 
@@ -121,7 +122,8 @@ def dashboard(req):
         
         # mentor_account = session_user.objects.get(account_id=session_user.id)
         # mentor_account = session_user.mentor
-        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.id)
+        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentor.id)
+        requesters = MentorshipRequest.objects.all()
         # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentor.id)]
 
         card_data = User.objects.filter(
@@ -191,7 +193,8 @@ def dashboard(req):
             "role"             : role,
             # "requester"        : requester_account,
             # "test_id"          : test_id
-            "THE_BIG_LIST"     : requester_accounts
+            "THE_BIG_LIST"     : requester_accounts,
+            "requesters"         : requesters
     }
     render = template.render(context, req)
     return HttpResponse(render)
