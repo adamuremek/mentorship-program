@@ -78,7 +78,7 @@ def saml_login(request):
 
 def login_uname_text(request):
     login_data = json.loads(request.body.decode("utf-8"))
-
+    
     uname    = login_data["username"] if "username" in login_data else None
     password = login_data["password"] if "password" in login_data else None
     
@@ -110,11 +110,15 @@ def complete_login(request):
         
         uname = request.session['email']
         # request.session['email'] = None
+        
+        
+        with open('file.txt', 'a') as file:
+            file.write(f"uname: {uname}")
+            file.write(f"session: {request.session}")
 
         if not request.session['mfa_validated']:
             request.session['mfa_validated'] = False
             return redirect("/")
-
 
         #disabled account
         if User.objects.get(cls_email_address=uname).bln_account_disabled:
@@ -125,11 +129,14 @@ def complete_login(request):
         if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
             response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
             response.status_code = 401
+            
+            ##
+            with open('file.txt', 'a') as file:
+                file.write(f"signed in?: {security.set_logged_in(request.session, User.objects.get(cls_email_address=uname))}")
             return response
 
     
         user = User.objects.get(cls_email_address=uname)
-
         user.str_last_login_date = timezone.now()
         
         # if the user deactivated their own account, reactivate it
