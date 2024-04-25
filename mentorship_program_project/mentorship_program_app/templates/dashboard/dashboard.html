@@ -109,6 +109,8 @@ Dashboard
                         {% if user.mentor != None %}
                             <script>console.log('User is apparently a mentor')</script>
                             <script>console.log('{{THE_BIG_LIST}}')</script>
+                            <script>console.log('{{user}}')</script>
+                            <script>console.log('{{session_user}}')</script>
                             {% include 'dashboard/profile-card/mentee_card.html' with IMPORTANT_ID=user.mentor.id %}
                         {% else %}
                             <script>console.log('User is apparently a mentee')</script>
