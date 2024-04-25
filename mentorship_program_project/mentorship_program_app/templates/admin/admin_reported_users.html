@@ -7,13 +7,20 @@ SVSU Mentoring
 {% endblock %}
 
 {% block style %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/admin_reported_users.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin_reported_users.css' %}">
 {% endblock %}
 
 {% block main_content %}
 
 <section class="hero">
-    <div class="hero-container">
+    <img class="hero-container">
+    
+        <div>
+            <a href="/dashboard" class="return-link">
+                <p style="font-size: 2vm;"><img src="{% static 'images/left-arrow.png' %}" style=" height: 1vh; width: 1vw;"> Admin  Dashboard / Reported Users</p>
+            </a>
+        </div>
+        
         <h1>Reported Users</h1>
         <div class="filter">
             <span>Filter:</span>
