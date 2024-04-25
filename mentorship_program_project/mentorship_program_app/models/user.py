@@ -12,6 +12,7 @@ from django.db.models import Q
 
 from .interest import Interest
 from .svsu_model import SVSUModelData
+from .system_logs import SystemLogs
 
 #project imports
 from utils import security
@@ -760,6 +761,12 @@ class User(SVSUModelData,Model):
         mentee_account = mentee_user_account.mentee
         mentee_account.mentor = mentor_user_account.mentor
         mentee_account.save()
+
+        # record logs
+        # record the mentee since the mentor can be gathered from it later
+        # Future implementation might need to add 
+        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
+                                  specified_user=mentee_user_account, str_details=f"With mentor: {mentor_user_acount_id}")
 
         #make sure to remove all MentorShipRequests that are in the database still, since this mentee now has a mentor
         MentorshipRequest.remove_all_from_mentee(mentee_account)
