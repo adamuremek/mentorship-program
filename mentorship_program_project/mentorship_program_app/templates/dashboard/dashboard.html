@@ -110,16 +110,13 @@ Dashboard
                             <script>console.log('| ---- ---- ---- |')</script>
                             <script>console.log('User is apparently a mentor')</script>
                             <script>console.log('{{ THE_BIG_LIST }}')</script>
-                            <script>console.log('{{ TEST_THINGS }}')</script>
-                            {% for item in OTHER_SHIT %}
+                            {% for item in THE_BIG_LIST %}
                                 <script>console.log('{{ item }}')</script>
                                 {% for thing in item %}
                                     <script>console.log('   {{ thing }}')</script>
                                 {% endfor %}
                             {% endfor %}
                                     <script>console.log('---')</script>
-                            <script>console.log('{{ user }}')</script>
-                            <script>console.log('{{ user.mentor }}')</script>
                             <script>console.log('{{ user.mentor.id }}')</script>
                             <script>console.log('{{ user.id }}')</script>
                             {% include 'dashboard/profile-card/mentee_card.html' with IMPORTANT_ID=user.mentor.id %}

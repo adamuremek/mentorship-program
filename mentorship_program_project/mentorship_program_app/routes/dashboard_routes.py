@@ -77,7 +77,7 @@ def dashboard(req):
         # mentee_account = session_user.mentee
         
         # mentee_account = session_user.objects.get(account_id=session_user.id)
-        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentee.id)
+        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.id)
         other_shit = MentorshipRequest.objects.filter(mentee_id=session_user.mentee.id)
         # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentee.id)]
         # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=mentee_account.id)]
@@ -123,7 +123,7 @@ def dashboard(req):
         
         # mentor_account = session_user.objects.get(account_id=session_user.id)
         # mentor_account = session_user.mentor
-        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentor.id)
+        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.id)
         other_shit = MentorshipRequest.objects.filter(mentor_id=session_user.mentor.id)
         # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentor.id)]
 
@@ -186,16 +186,14 @@ def dashboard(req):
     #cache the result of this query so we are not using it in the rendered view
     context = {
                                 # Making sure that there are enough users to display
-            "recommended_users": recommended_users[0:4] if len(recommended_users) >= 4 else recommended_users[0:len(recommended_users)], 
-            "all_users"        : users,
+            "recommended_users" : recommended_users[0:4] if len(recommended_users) >= 4 else recommended_users[0:len(recommended_users)], 
+            "all_users"         : users,
             "users_with_profile": users_with_profile,
-            "interests"        : list(interests_with_role_count),
-            "session_user"     : session_user,
-            "role"             : role,
-            # "requester"        : requester_account,
-            # "test_id"          : test_id
-            "THE_BIG_LIST"     : requester_accounts,
-            "OTHER_SHIT"      : other_shit,
+            "interests"         : list(interests_with_role_count),
+            "session_user"      : session_user,
+            "role"              : role,
+            "THE_BIG_LIST"      : requester_accounts,
+            "OTHER_SHIT"        : other_shit,
     }
     render = template.render(context, req)
     return HttpResponse(render)
