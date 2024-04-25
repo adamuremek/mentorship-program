@@ -124,7 +124,7 @@ def dashboard(req):
         # mentor_account = session_user.objects.get(account_id=session_user.id)
         # mentor_account = session_user.mentor
         requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentor.id)
-        test_things = [user for user in requester_accounts]
+        test_things = [user.requester for user in requester_accounts]
         # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentor.id)]
 
         card_data = User.objects.filter(
