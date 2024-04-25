@@ -108,8 +108,8 @@ def login_uname_text(request):
 
 def complete_login(request):
         
-        uname = request.session['email']
-        request.session['email'] = None
+        # uname = request.session['email']
+        # request.session['email'] = None
 
         if not request.session['mfa_validated']:
             request.session['mfa_validated'] = False
