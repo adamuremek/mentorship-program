@@ -66,20 +66,15 @@ def mentor_otp_validate(request: HttpRequest):
 
     data = json.loads(request.body.decode('utf-8'))
     passcode = data.get("code")
-    
 
-
-    print(f"secret: {str_otp_secret_key}")
-    print(f"passcode: {passcode}")
     
     list_verification = validate_otp_information(str_otp_secret_key, str_otp_valid_date, passcode)
 
     if list_verification[0]:
         #Send them back to the login route to complete the process
         request.session['mfa_validated'] = True
-        print('valid')
+    
         
-        #HERE
         response = HttpResponse(json.dumps({"new_web_location": "/valid"}))
         response.status_code = 200
         return response

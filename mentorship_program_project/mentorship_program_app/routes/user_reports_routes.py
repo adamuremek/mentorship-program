@@ -117,7 +117,7 @@ def report_user(req: HttpRequest) -> HttpResponse:
     
 
 def admin_reported_users(request):
-    user = User.from_session(req.session)
+    user = User.from_session(request.session)
     if not user.is_super_admin():
         return bad_request_400("permission denied!")
     template = loader.get_template('admin/admin_reported_users.html')
