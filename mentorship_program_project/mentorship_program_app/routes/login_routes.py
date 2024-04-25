@@ -140,8 +140,8 @@ def complete_login(request):
         SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
         
 
-        response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
-        return response  
+        redirect_url = "/dashboard"
+        return HttpResponseRedirect(redirect_url)
 
 @security.Decorators.require_login(invalid_request_401)
 def logout(request):
