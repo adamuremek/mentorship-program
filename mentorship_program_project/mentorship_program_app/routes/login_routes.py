@@ -79,7 +79,7 @@ def saml_login(request):
 def login_uname_text(request):
     login_data = json.loads(request.body.decode("utf-8"))
 
-    uname    = login_data["username"].lower() if "username" in login_data else None
+    uname    = login_data["username"] if "username" in login_data else None
     password = login_data["password"] if "password" in login_data else None
     
     if not User.check_valid_login(uname,password):
@@ -99,9 +99,6 @@ def login_uname_text(request):
         ##redirects to the dashboard
         redirect_url = "/dashboard"
         redirect_response = HttpResponseRedirect(redirect_url)
-        
-
-
         return redirect_response
     else:
         #redirects to the mentor one time password route
@@ -134,13 +131,14 @@ def complete_login(request):
         user = User.objects.get(cls_email_address=uname)
 
         user.str_last_login_date = timezone.now()
+        security.set_logged_in(request.session,user)
         # if the user deactivated their own account, reactivate it
         if not user.bln_active and not user.bln_account_disabled:
             user.bln_active = True
         user.save()
         # record logs
         SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
-        security.set_logged_in(request.session,user)
+        
 
         response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
         return response  
