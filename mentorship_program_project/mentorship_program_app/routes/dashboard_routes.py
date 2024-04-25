@@ -45,7 +45,7 @@ from ..models import *
 from django.db.models import *
 from .filters import *
 
-#@security.Decorators.require_login(bad_request_400)
+@security.Decorators.require_login(bad_request_400)
 def dashboard(req):
     """
     Function to render the user dashboard based on their role (Mentor or Mentee) and permissions.
