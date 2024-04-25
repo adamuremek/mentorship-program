@@ -107,8 +107,10 @@ Dashboard
                     {% for user in all_users %}
                     <div class="card available-card {% for interest in user.interests.all %} {{interest.strInterest}}{% endfor %}">
                         {% if user.mentor != None %}
+                            <script>console.log('User is apparently a mentor')</script>
                             {% include 'dashboard/profile-card/mentee_card.html' with IMPORTANT_ID=user.mentor.id %}
                         {% else %}
+                            <script>console.log('User is apparently a mentee')</script>
                             {% include 'dashboard/profile-card/mentee_card.html' with IMPORTANT_ID=user.mentee.id %}
                         {% endif %}
                     </div>
