@@ -113,6 +113,8 @@ Dashboard
                         {% else %}
                             <script>console.log('User is apparently a mentee')</script>
                             <script>console.log('{{THE_BIG_LIST}}')</script>
+                            <script>console.log('{{user}}')</script>
+                            <script>console.log('{{session_user}}')</script>
                             {% include 'dashboard/profile-card/mentee_card.html' with IMPORTANT_ID=user.mentee.id %}
                         {% endif %}
                     </div>
