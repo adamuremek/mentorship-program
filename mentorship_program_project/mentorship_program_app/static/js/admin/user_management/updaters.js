@@ -77,20 +77,6 @@ export function update_remove_from_organization(mentor_bar) {
   // Add decouple button to mentor bar
   update_not_show(determiners.determine_decouple_button(mentor_bar));
 
-  // Determeine if session user is super admin
-  if (determiners.determine_session_user_admin_flag()) {
-    // Session user is a super admin
-    // Remove transfer role button from mentor bar
-    update_not_show(
-      determiners.determine_transfer_role_super_admin_button(mentor_bar),
-    );
-  } else {
-    // Session user is a organization admin
-    // Remove transfer own role button from mentor bar
-    update_not_show(
-      determiners.determine_transfer_role_organization_admin_button(mentor_bar),
-    );
-  }
 }
 
 // Function updates passed organization bar to include passed mentor bar and update passed mentor bar to include a promote
@@ -110,20 +96,6 @@ export function update_add_to_organization(organization_bar, mentor_bar) {
   // Determine and update to have decouple mentor button
   update_show(determiners.determine_decouple_button(mentor_bar));
 
-  // Determeine if session user is super admin
-  if (determiners.determine_session_user_admin_flag()) {
-    // Session user is a super admin
-    // Remove transfer role button from mentor bar
-    update_show(
-      determiners.determine_transfer_role_super_admin_button(mentor_bar),
-    );
-  } else {
-    // Session user is a organization admin
-    // Remove transfer own role button from mentor bar
-    update_show(
-      determiners.determine_transfer_role_organization_admin_button(mentor_bar),
-    );
-  }
 }
 
 // Function updates passed mentor bar to be passed organization bar
@@ -352,52 +324,6 @@ export function update_mentee_bar_add(user_bar, mentor_id) {
 
   // Switch add and remove buttons
   update_buttons_toggle_on(remove_button, add_button);
-}
-
-// Updates passed organization bar user's transfer button to reflect new postitons
-export function update_organization_transfer_buttons(organitization_bar) {
-  // Determine organization admin and mentor list from organization bar
-  const organitization_admins = determiners.return_admin_list_all(
-    organitization_bar,
-  );
-  const organitization_mentors = determiners.return_mentor_list_all(
-    organitization_bar,
-  );
-
-  // Determine session user bar
-  const session_user_bar = determiners.determine_session_user_bar();
-
-  // Cycle through admin list
-  organitization_admins.forEach((organitization_admin) => {
-    // Determine transfer button for admin bar
-    let transfer_own_role_button = determiners
-      .determine_transfer_role_organization_admin_button(organitization_admin);
-
-    // Check if organitization admin has transfer own role button
-    if (transfer_own_role_button != null) {
-      // Update to not have transfer own role button
-      update_not_show(transfer_own_role_button);
-    }
-  });
-
-  //Cycle through mentor list
-  organitization_mentors.forEach((organitization_mentor) => {
-    // Determine transfer button for admin bar
-    let transfer_own_role_button = determiners
-      .determine_transfer_role_organization_admin_button(organitization_mentor);
-
-    // Check if organitization admin has transfer own role button
-    if (transfer_own_role_button != null) {
-      // Checking if mentor is session user bar
-      if (organitization_mentor == session_user_bar) {
-        // Update to not have transfer own role button
-        update_not_show(transfer_own_role_button);
-      } else {
-        // Update to have transfer own role button
-        update_show(transfer_own_role_button);
-      }
-    }
-  });
 }
 
 // Updates loading overlay to show

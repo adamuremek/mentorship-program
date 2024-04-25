@@ -548,9 +548,6 @@ function edit_organization_event(organization_bar)
             // Reset bar styles
             updaters.update_reset_choice_bar_styles();
 
-            // Update organization transfer buttons
-            updaters.update_organization_transfer_buttons(organization_bar);
-
             // Update user management message to unsaved messages
             updaters.update_message_unsaved(user_message_element);     
 
@@ -1105,9 +1102,6 @@ export function promote_mentor_organization_admin_event(user_bar)
             // Promote mentor bar from mentor list to admin list
             updaters.update_promote_organization_admin(organization_bar, user_bar);
 
-            // Update organization transfer buttons
-            updaters.update_organization_transfer_buttons(organization_bar);
-
             // Determine and pass mentor list from organziation and refresh sorting for mentor bar elements
             sorters.sort_mentor_bar_elements_alphabetically(determiners.determine_organization_mentor_list(organization_bar));
 
@@ -1200,9 +1194,6 @@ export function decouple_mentor_event(user_bar)
 
     // Remove mentor bar from organization to unaffiliated mentors
     updaters.update_remove_from_organization(user_bar);
-    
-    // Update organization transfer buttons
-    updaters.update_organization_transfer_buttons(organization_bar);
 
     // Sort all organization bar elements to
     sorters.sort_all_organization_bar_element_alphabetically();
