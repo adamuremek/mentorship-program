@@ -192,6 +192,7 @@ def dashboard(req):
             # "requester"        : requester_account,
             # "test_id"          : test_id
             "THE_BIG_LIST"     : requester_accounts,
+            "some_values"      : requester_accounts.values
     }
     render = template.render(context, req)
     return HttpResponse(render)
