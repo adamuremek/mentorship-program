@@ -76,8 +76,8 @@ def dashboard(req):
         # mentee_account = session_user.mentee
         
         # mentee_account = session_user.objects.get(account_id=session_user.id)
-        # requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentee.id)
-        requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentee.id)]
+        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentee.id)
+        # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentee.id)]
         # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=mentee_account.id)]
 
         card_data = User.objects.annotate(
@@ -121,8 +121,8 @@ def dashboard(req):
         
         # mentor_account = session_user.objects.get(account_id=session_user.id)
         # mentor_account = session_user.mentor
-        # requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentor.id)
-        requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentor.id)]
+        requester_accounts = MentorshipRequest.objects.filter(requester=session_user.mentor.id)
+        # requester_accounts = [user.requester for user in MentorshipRequest.objects.filter(requester=session_user.mentor.id)]
 
         card_data = User.objects.filter(
             str_role='Mentee',
