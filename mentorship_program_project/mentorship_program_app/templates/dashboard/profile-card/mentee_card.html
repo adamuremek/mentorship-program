@@ -60,7 +60,7 @@
 
 			<div class="card-line-divider-2"></div>
 
-			<p class="card-interests-header">Interests | bool=={{THE_BIG_BOOLEAN}}</p>
+			<p class="card-interests-header">Interests | bruh{%if THE_BIG_BOOLEAN%}!{%endif%}</p>
 
 			<div class="card-interests">
 				{% for interest in user.interests.all %}
