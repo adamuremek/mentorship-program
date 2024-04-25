@@ -131,7 +131,7 @@ def complete_login(request):
         user = User.objects.get(cls_email_address=uname)
 
         user.str_last_login_date = timezone.now()
-        security.set_logged_in(request.session,user)
+        
         # if the user deactivated their own account, reactivate it
         if not user.bln_active and not user.bln_account_disabled:
             user.bln_active = True
