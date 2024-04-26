@@ -127,12 +127,12 @@ def get_project_overall_statistics():
     return {
         "active_mentees"               : User.objects.filter(str_role='Mentee', bln_active=True).count(),
         "assigned_mentees"             : total_mentees - unassigned_mentees,
-        "unassigned_mentees"           : unassigned_mentees,
+        "unassigned_mentees"           : User.objects.filter(str_role='Mentee', bln_active=True).count() - (total_mentees - unassigned_mentees),
         "inactive_mentees"             : User.objects.filter(str_role='Mentee', bln_active=False).count(),
         
         "active_mentors"               :  User.objects.filter(str_role='Mentor', bln_active=True).count(),
         "assigned_mentors"             : assigned_mentors,
-        "unassigned_mentors"           : total_mentors - assigned_mentors,
+        "unassigned_mentors"           : User.objects.filter(str_role='Mentor', bln_active=True).count() - assigned_mentors,
         "inactive_mentors"             : inactive_mentors_count,
 
         "mentees_per_mentor"           : f"{round(total_mentees/total_mentors,2)}" if total_mentors != 0 else 'N/A',
