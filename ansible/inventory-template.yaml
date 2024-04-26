@@ -1,7 +1,9 @@
 all:
   hosts:
     server01:
+      # IP address of the server to install to
       ansible_host: 127.0.0.1
+      # User to SSH into the server as
       ansible_user: user
   children:
     database_server:

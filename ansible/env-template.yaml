@@ -1,25 +1,36 @@
+# Boolean to set the django site into debug mode
 debug: 0
+# DBMS being used. Currently only supports "postgres"
 db: "postgres"
+# Django database engine. Currently only supports "django.db.backends.postgresql"
 db_engine: "django.db.backends.postgresql"
+# Name of the database to be created
 db_name: ""
+# Desired username and password for the database
 db_user: ""
 db_password: ""
+# IP address of the database server. E.g. "192.168.1.1"
 db_host: ""
+# Port number for the database to listen on. E.g. "5432"
 db_port: ""
+# Django secret key (used for cryptographic signing). This should be a long random string.
 django_secret_key: ""
+# Django allowed hosts (space separated). E.g. "wings.svsu.edu"
 django_allowed_hosts: ""
-# starting from subdomain e.g. "wings.svsu.edu"
+# Domain of the site starting from subdomain. E.g. "wings.svsu.edu"
 domain: ""
-absolute_project_path: "/home/user/mentorship-program"
-# space separated. Must start with http:// or https://
+# Absolute path of project on the local server - replace with the path you cloned the mentorship-program repo to
+absolute_project_path: "/home/<some user>/mentorship-program"
+# Space separated. Must start with http:// or https://
 csrf_trusted_origins: ""
+# SAML settings for SVSU authentication
 saml_idp_entity_id: ""
 saml_idp_sso_url: ""
 saml_idp_slo_url: ""
 saml_idp_metadata_url: ""
 # Directory on the server where backups will be stored 
 backup_root: "/nfs/backup"
-# when to run the backup cronjob: "minute hour day(month) month day(week)"
+# String to schedule the backup cronjob: "minute hour day(month) month day(week)"
 backup_cron_string: "30 1 * * 1"
 # Directory inside the container where the media files will be stored
 media_root: "/media"
