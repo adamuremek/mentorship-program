@@ -172,6 +172,23 @@ WINGS
 	"""
 	send_mail(subject, message, from_email, [recipient])
 
+def email_for_mentor_removed_you(recipient: str):
+	if not notifications_on(recipient):
+		return
+	subject = "Mentorship Ended"
+	message =f"""
+Hello,
+
+You have been removed from your mentor's group.
+
+This may be for a number of reasons. Please visit the WINGS app to explore other potential mentorships.
+
+Thanks,
+
+WINGS
+	"""
+	send_mail(subject, message, from_email, [recipient])
+
 def your_mentor_quit(recipient: str, opposite_role: str):
 		if not notifications_on(recipient):
 			return

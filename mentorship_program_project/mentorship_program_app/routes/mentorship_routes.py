@@ -109,6 +109,16 @@ def delete_mentorship(req: HttpRequest, mentee_user_account_id : int):
     mentee.mentor_id = None
     mentee.save()
 
+    mentee_account = None
+
+    try:
+        mentee_account = User.objects.get(id=mentee_user_account_id)
+    except ObjectDoesNotExist:
+        return bad_request_400("invalid id detected!")
+    
+
+    email_for_mentor_removed_you(mentee_account.cls_email_address)
+
     session_user = User.from_session(req.session)
     SystemLogs.objects.create(str_event=SystemLogs.Event.MENTORSHIP_TERMINATED_EVENT, specified_user=session_user)
 
