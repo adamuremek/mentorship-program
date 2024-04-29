@@ -158,6 +158,5 @@ backup-job.yaml
 mentor-configmap.yaml
 mentor-secret.yaml
 mentor-deployment.yaml
-mentor-service.yaml
 
 inventory.yaml

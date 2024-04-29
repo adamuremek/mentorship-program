@@ -41,7 +41,6 @@ spec:
               name: media-volume
           ports:
             - containerPort: 80
-            - containerPort: "{{ db_port }}"
       volumes:
         - name: static-volume
           persistentVolumeClaim:
