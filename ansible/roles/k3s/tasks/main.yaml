@@ -26,6 +26,11 @@
     src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-mentor-deployment.yaml"
     dest: "/{{ absolute_project_path }}/kubernetes/mentor-deployment.yaml"
 
+- name: Create mentor service
+  template:
+    src: "/{{ absolute_project_path }}/ansible/roles/k3s/templates/template-mentor-service.yaml"
+    dest: "/{{ absolute_project_path }}/kubernetes/mentor-service.yaml"
+
 - name: Get nfs server ip
   set_fact:
     nfs_server_ip: "{{ hostvars[groups['nfs_server'][0]]['ansible_host'] }}"
