@@ -79,7 +79,7 @@ def run():
     Justin Goupil
     """
     print("Hello, please enter the direct path of the .sql.tar.gz file.")
-    tar_path = input("Tar file direct path: ")
+    tar_path = input("Tar file direct path: ").strip()
 
     if not os.path.exists(tar_path):
         print(f"Error: The File does not exist: {tar_path}")
@@ -115,13 +115,18 @@ def extract_sql_file(tar_path):
             else:
                 raise FileNotFoundError("No SQL file was found.")
                 
-    return sql_file
+    return sql_file.strip()
 
 def restore_database(sql_file):
 
     str_encoded_password = urllib.parse.quote_plus(os.environ.get("DB_PASSWORD"))
     
-    command = f'psql -f {sql_file} postgresql://{os.environ.get("DB_USER")}:{str_encoded_password}@{os.environ.get("DB_HOST")}:{os.environ.get("DB_PORT")}/{os.environ.get("DB_NAME")} '
+    command = [
+            'psql',
+            '-f',
+            f'{sql_file}',
+            f'postgresql://{os.environ.get("DB_USER")}:{str_encoded_password}@{os.environ.get("DB_HOST")}:{os.environ.get("DB_PORT")}/{os.environ.get("DB_NAME")}'
+        ]
     
     try:
 

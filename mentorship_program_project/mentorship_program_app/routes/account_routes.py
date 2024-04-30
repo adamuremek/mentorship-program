@@ -139,6 +139,7 @@ def disable_user(req:HttpRequest):
     Andrew P.
     Jordan A.
     '''
+
     post_data = json.loads(req.body.decode("utf-8"))
         
     id = post_data["id"] if "id" in post_data else None
@@ -149,10 +150,15 @@ def disable_user(req:HttpRequest):
     
     # Get the user and set their disabled field to True
     user = User.objects.get(id=id)
+
+    if not user.is_super_admin:
+        return
+
     User.disable_user(user, "User was deactivated")
     
     if(user.str_role == "Mentee"):
-        if not user.account.mentor == None:
+        mentee_account = Mentee.objects.get(account_id=user.id)
+        if not mentee_account.mentor == None:
            mentor = User.objects.get(id=Mentor.objects.get(id=user.account.mentor).account_id)
            send_to = mentor.cls_email_address
            your_mentor_quit(send_to , "Mentee")
@@ -164,4 +170,6 @@ def disable_user(req:HttpRequest):
             your_mentor_quit(email_address, "Mentor")
 
 
-    return HttpResponse(f"user {id}'s status has been changed to disabled")
+    response = HttpResponse(f"user {id}'s status has been changed to disabled")
+    response.status_code = 200
+    return response

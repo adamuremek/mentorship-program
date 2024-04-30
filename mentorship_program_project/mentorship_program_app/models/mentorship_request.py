@@ -73,8 +73,6 @@ class MentorshipRequest(SVSUModelData,Model):
             print("they have a mentor")
             return False
 
-        # record logs
-        # record the mentee since the mentor can be gathered from it later
         mentor,mentee = session_user.create_mentorship_from_user_ids(
                                                     self.mentee.id,
                                                     self.mentor.id
@@ -84,11 +82,6 @@ class MentorshipRequest(SVSUModelData,Model):
             
             return False
 
-        # record logs
-        # record the mentee since the mentor can be gathered from it later
-        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
-                                  specified_user=mentee.account)
-        
         MentorshipRequest.remove_all_from_mentee(mentee)
         print("AHH GOOD")
         return True

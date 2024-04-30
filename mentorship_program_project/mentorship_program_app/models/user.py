@@ -12,6 +12,8 @@ from django.db.models import Q
 
 from .interest import Interest
 from .svsu_model import SVSUModelData
+from .system_logs import SystemLogs
+
 #project imports
 from utils import security
 from django.utils import timezone
@@ -760,6 +762,12 @@ class User(SVSUModelData,Model):
         mentee_account.mentor = mentor_user_account.mentor
         mentee_account.save()
 
+        # record logs
+        # record the mentee since the mentor can be gathered from it later
+        # Future implementation might need to add 
+        SystemLogs.objects.create(str_event=SystemLogs.Event.APPROVE_MENTORSHIP_EVENT,
+                                  specified_user=mentee_user_account, str_details=f"With mentor: {mentor_user_acount_id}")
+
         #make sure to remove all MentorShipRequests that are in the database still, since this mentee now has a mentor
         MentorshipRequest.remove_all_from_mentee(mentee_account)
 
@@ -973,8 +981,17 @@ class User(SVSUModelData,Model):
         
     @staticmethod
     def disable_user(user:"User", reason):
+        #### DO NOT MOVE THIS IMPORT ###
+        #### It needs to be here to prevent a circular import ###
+        from .system_logs import SystemLogs
+
         user.bln_account_disabled = True
         user.save()
+        
+        if user.is_mentor():
+            SystemLogs.objects.create(str_event=SystemLogs.Event.MENTOR_DEACTIVATED_EVENT, specified_user=user)
+        elif user.is_mentee():
+            SystemLogs.objects.create(str_event=SystemLogs.Event.MENTEE_DEACTIVATED_EVENT, specified_user=user)
         
         User.make_user_inactive(user, reason)
     

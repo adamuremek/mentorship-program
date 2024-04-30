@@ -63,6 +63,11 @@ class SystemLogs(SVSUModelData,Model):
         Authors
         -------
         
+        Comment:
+        The terminology used within this program can be counter-intuitive especially
+        with inactive and deactive being used interchangeably
+        Hopefully this Event class should be definitive on exactly what each term means 
+    
         """
         LOGON_EVENT = "User logged on"
         APPROVE_MENTORSHIP_EVENT = "Create mentorship"
@@ -70,6 +75,7 @@ class SystemLogs(SVSUModelData,Model):
         MENTORSHIP_TERMINATED_EVENT = "Mentorship terminated"
         MENTEE_REGISTER_EVENT = "Mentee signed up"
         MENTOR_REGISTER_EVENT = "Mentor applied"
+        # Deactivated means the user cannot log back in with out admin
         MENTEE_DEACTIVATED_EVENT = "Mentee deactivated"
         MENTOR_DEACTIVATED_EVENT = "Mentor deactivated"
         INTERESTS_CREATED_EVENT = "Interest created"
@@ -79,6 +85,7 @@ class SystemLogs(SVSUModelData,Model):
         MENTOR_DENIED_EVENT = "Mentor denied"
         REPORT_RESOLVED_EVENT ="Report resolved"
         REPORT_CREATED_EVENT = "Report created"
+        # Inactivated means the user can log back in but the system wont process them as "active"
         MENTEE_INACTIVATED_EVENT = "Mentee inactivated"
         MENTOR_INACTIVATED_EVENT = "Mentor inactivated"
         ORGANIZATION_DELETED_EVENT = "Organization deleted"

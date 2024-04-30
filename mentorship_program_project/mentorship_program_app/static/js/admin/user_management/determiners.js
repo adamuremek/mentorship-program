@@ -205,16 +205,6 @@ export function determine_remove_button(passed_bar) {
     return passed_bar.querySelector("#remove_button");
 }
 
-// Returns transfer role super admin button from passed bar
-export function determine_transfer_role_super_admin_button(passed_bar) {
-    return passed_bar.querySelector("#transfer_role_super_admin_button");
-}
-
-// Returns transfer role organization admin button from passed bar
-export function determine_transfer_role_organization_admin_button(passed_bar) {
-    return passed_bar.querySelector("#transfer_role_organization_admin_button");
-}
-
 // Returns promote super button form passed bar
 export function determine_promote_super_button(passed_bar) {
     return passed_bar.querySelector("#super_promote_button");

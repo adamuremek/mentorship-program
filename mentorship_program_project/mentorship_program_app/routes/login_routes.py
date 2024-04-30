@@ -39,7 +39,7 @@
 """
 
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from mentorship_program_app.models import *
 from .status_codes import invalid_request_401
@@ -68,12 +68,17 @@ def saml_login(request):
     if not user.bln_active:
         user.bln_active = True
         user.save() 
+
+    if user.bln_account_disabled:
+        response = HttpResponse(json.dumps({"warning":"Your account has been disabled"}))
+        response.status_code = 401
+        return response
     security.set_logged_in(request.session,user)
     return redirect('/dashboard')
 
 def login_uname_text(request):
     login_data = json.loads(request.body.decode("utf-8"))
-
+    
     uname    = login_data["username"] if "username" in login_data else None
     password = login_data["password"] if "password" in login_data else None
     
@@ -85,42 +90,71 @@ def login_uname_text(request):
     request.session['email'] = uname
     request.session['mfa_validated'] = False
 
-    #redirects to the mentor one time password route
-    response = HttpResponse(json.dumps({"new_web_location":'/mentor/2fa'}))
+    user = User.objects.get(cls_email_address=uname)
+   
+    if user.is_mentee():
+        security.set_logged_in(request.session,user)
+
+        ##redirects to the dashboard
+        redirect_url = "/dashboard"
+        redirect_response = HttpResponseRedirect(redirect_url)
+        return redirect_response
+    else:
+        #redirects to the mentor one time password route
+        
+        # i think so|  ok following
+        # follow me
+        # and we'll work thorugh what happens
+        
+        
+        #so the very first thing that happens is this
+        response = HttpResponse(json.dumps({"new_web_location":'/mentor/2fa'})) 
+
     return response
 
 def complete_login(request):
-        
+
         uname = request.session['email']
-        request.session['email'] = None
+        # request.session['email'] = None
+        
+        
+        with open('file.txt', 'a') as file:
+            file.write(f"uname: {uname}")
+            file.write(f"session: {request.session}")
 
         if not request.session['mfa_validated']:
             request.session['mfa_validated'] = False
             return redirect("/")
-
-        #valid login
-        if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
-            response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
-            response.status_code = 401
-            return response
+        
         #disabled account
         if User.objects.get(cls_email_address=uname).bln_account_disabled:
             response = HttpResponse(json.dumps({"warning":"Your account has been disabled"}))
             response.status_code = 401
             return response
+        #valid login
+        if not security.set_logged_in(request.session,User.objects.get(cls_email_address=uname)):
+            response = HttpResponse(json.dumps({"warning":"You are currently pending approval"}))
+            response.status_code = 401
+            
+            ##
+            with open('file.txt', 'a') as file:
+                file.write(f"signed in?: {security.set_logged_in(request.session, User.objects.get(cls_email_address=uname))}")
+            return response
+
     
         user = User.objects.get(cls_email_address=uname)
-
         user.str_last_login_date = timezone.now()
+        
         # if the user deactivated their own account, reactivate it
         if not user.bln_active and not user.bln_account_disabled:
             user.bln_active = True
         user.save()
         # record logs
         SystemLogs.objects.create(str_event=SystemLogs.Event.LOGON_EVENT, specified_user=user)
+        
 
-        response = HttpResponse(json.dumps({"new_web_location":"/dashboard"}))
-        return response  
+        redirect_url = "/dashboard"
+        return HttpResponseRedirect(redirect_url)
 
 @security.Decorators.require_login(invalid_request_401)
 def logout(request):

@@ -11,7 +11,8 @@
     --clr-btn-submit-highlight: hsl(222, 27%, 35%);
     --clr-modal-backdrop: hsl(210, 2%, 16%);
 
-    --clr-input-background: rgba(255, 255, 255, 0.07);
+    /* --clr-input-background: rgba(227, 227, 227, 0.1); */
+    --clr-input-background: hsl(225, 19%, 37%);
 
     --ff-primary: 'Roboto', sans-serif;
     --ff-primary-heading: 'Montserrat', sans-serif;
@@ -395,9 +396,7 @@ form * {
     padding-bottom: 10px;
 }
 
-input,
-#email,
-#password {
+input {
     display: block;
     height: 50px;
     width: 95%;
@@ -411,7 +410,7 @@ input,
     font-size: 1rem;
     font-weight: 300;
     font-family: var(--ff-roboto);
-    color: var(--clr-font-primary);
+    color: var(--clr-font-primary) !important;
     box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset;
 }
 
@@ -463,8 +462,8 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-    -webkit-text-fill-color: var(--clr-font-primary) !important;
-    -webkit-box-shadow: 1px 1px rgba(58, 58, 58, 0.276) inset !important;
+    -webkit-text-fill-color: var(--clr-font-primary);
+    -webkit-box-shadow: 0 0 0 1000px var(--clr-input-background) inset !important;
     transition: background-color 5000s ease-in-out 0s;
 }
 
@@ -473,7 +472,7 @@ input:-moz-autofill,
 input:-moz-autofill:hover,
 input:-moz-autofill:focus,
 input:-moz-autofill:active {
-    background-color: rgba(255, 255, 255, 0.07) !important;
+    background-color: var(--clr-input-background) !important;
     font-family: var(--ff-roboto) !important;
     color: var(--clr-font-primary) !important;
 }

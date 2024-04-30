@@ -39,6 +39,7 @@ from django.http import HttpResponse, HttpRequest
 from django.template import loader
 from django.shortcuts import  redirect
 from mentorship_program_app.models import *
+from .status_codes import bad_request_400
 from .emails import *
 from ..models import *
 
@@ -107,6 +108,9 @@ def process_file(req: HttpRequest):
     -------
     - Andrew P
     '''
+    user = User.from_session(req.session)
+    if not user.is_super_admin():
+        return bad_request_400("permission denied!")
 
     template = loader.get_template('admin/available_mentees.html')
     
@@ -168,6 +172,9 @@ def process_file(req: HttpRequest):
         return HttpResponse('Invalid request', status=400)
     
 def available_mentees(req: HttpRequest):
+    user = User.from_session(req.session)
+    if not user.is_super_admin():
+        return bad_request_400("permission denied!")
     '''
     Loads the page for the admin to upload a file to add/remove mentees who are eligible
 

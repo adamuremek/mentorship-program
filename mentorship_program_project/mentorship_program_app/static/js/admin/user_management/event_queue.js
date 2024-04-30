@@ -17,11 +17,7 @@ const EVENT_TYPES = {
     EDIT_ORGANIZATION_MENTOR: 'EDIT_ORGANIZATION_MENTOR',
     EDIT_ORGANIZATION_ORGANIZATION: 'EDIT_ORGANIZATION_ORGANIZATION',
     PROMOTE_ORGANIZATION_MENTOR: 'PROMOTE_ORGANIZATION_MENTOR',
-    PROMOTE_ORGANIZATION_ORGANIZATION: 'PROMOTE_ORGANIZATION_ORGANIZATION',    
-    TRANSFER_ROLE_ORGANIZATION_FIRST: 'TRANSFER_ROLE_ORGANIZATION_FIRST',
-    TRANSFER_ROLE_ORGANIZATION_SECOND: 'TRANSFER_ROLE_ORGANIZATION_SECOND',
-    TRANSFER_ROLE_SUPER_FIRST: 'TRANSFER_ROLE_SUPER_FIRST',
-    TRANSFER_ROLE_SUPER_SECOND: 'TRANSFER_ROLE_SUPER_SECOND',
+    PROMOTE_ORGANIZATION_ORGANIZATION: 'PROMOTE_ORGANIZATION_ORGANIZATION',
     DECOUPLE_MENTOR: 'DECOUPLE_MENTOR',
     DECOUPLE_ORGANIZATION: 'DECOUPLE_ORGANIZATION',
     CREATE_ORGANIZATION: 'CREATE_ORGANIZATION',
@@ -100,6 +96,9 @@ updaters.update_all_disable_bar_style_on();
 
 // Style admin bars to remove promote to organization admin button
 updaters.update_all_organization_admin_bars();
+
+// Style session user bar to remove decouple button
+updaters.update_hide_session_user_decouple_button();
 
 // Update valid and invalid mentors
 valid_mentor_bars = determiners.return_updated_mentor_list();
@@ -289,47 +288,6 @@ async function execute_events()
 
                 break;
 
-            // Check for transfer role organization first event
-            case EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_FIRST:
-                // Last event check
-                if (!last_event_flag)
-                {
-                    // Check if next event in queue is transfer role organization second event
-                    if (event_queue.peek().type == EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_SECOND)
-                    {
-                        // Set second mentor id
-                        let mentor_id = event_queue.dequeue().data;
-    
-                        // TODO NEED TESTING BUT ABOVE WORKS FINE
-                        // Equivlent to promoting, there is only one organization admin, will be reaplaced by second mentor id
-                        // Determine id from passed string and promote mentor to organization admin
-                        execution_queue.push(attempt_promote_mentor_to_organization_admin(determiners.determine_id_from_string(mentor_id)));
-                        
-                    }
-                }
-
-                break;
-
-            // Check for transfer role super first event
-            case EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST:
-                // Last event check
-                if (!last_event_flag)
-                {
-                    // Check if next event in queue is transfer role super second event
-                    if (event_queue.peek().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_SECOND)
-                    {
-                        // Set second mentor id
-                        let mentor_id = event_queue.dequeue().data;
-
-                        // Equivlent to promoting, there is only one organization admin, will be reaplaced by second mentor id
-                        // Determine id from passed string and promote mentor to organization admin
-                        execution_queue.push(attempt_promote_mentor_to_organization_admin(determiners.determine_id_from_string(mentor_id)));
-
-                    }
-                }
-
-                break;
-
             // Check for decouple mentor event
             case EVENT_TYPES.DECOUPLE_MENTOR:
                 // Last event check
@@ -469,12 +427,6 @@ export function check_cancel_event()
             cancel_edit_organization_event();
 
         }
-        // Check if transfer role is in progress and last event is a transfer role super first event
-        else if (transfer_role_flag && event_queue.peek_end().type == EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST)
-        {
-            cancel_transfer_role_event();
-
-        }
     }
 }
 
@@ -538,44 +490,6 @@ function cancel_edit_organization_event()
 
 }
 
-// Function remvoes the last queue in the event queue, then resets the transfer role flag, then update buttons
-function cancel_transfer_role_event()
-{
-    // Determine prev user bar
-    const mentor_bar = determiners.return_mentor_bar_from_id(event_queue.peek_end().data);
-
-    // Remove promote organzation event
-    event_queue.cancel();
-
-    // Reset transfer role flag
-    transfer_role_flag = 0;
-    
-    // Reset bar styles
-    updaters.update_reset_choice_bar_styles();
-
-    // Determine and reset transfer role button button style
-    updaters.update_off_button_style( determiners.determine_transfer_role_super_admin_button(mentor_bar));
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -584,16 +498,20 @@ function cancel_transfer_role_event()
 // Takes pased organziation bar will cancel in progress event creation, checks if mentor bar is not undefined, the last event was a edit organization mentor event,
 // and mentor bar is valid to be added to current organization bar. If valid will remove mentor from prev organization if included in one, add mentor to current 
 // organization bar, update bar and button elements, then create a edit organization organization event and reset edit organization flag. Else will do nothing.
+// Updates to include unsaved changes message.
 function edit_organization_event(organization_bar)
 {
     // Create storage for prev organziation bar
     let prev_organization_bar;
 
-    // Determine organization id from hidden value in passed organization bar
-    const organization_id = determiners.determine_organization_id(organization_bar);
-
     // Store last event
     const prev_event = event_queue.peek_end();
+
+    // Determine message element
+    const user_message_element = determiners.determine_user_management_message();
+
+    // Determine organization id from hidden value in passed organization bar
+    const organization_id = determiners.determine_organization_id(organization_bar);
 
     // Find mentor bar from user id
     const mentor_bar = determiners.return_mentor_bar_from_id(prev_event.data);
@@ -630,8 +548,8 @@ function edit_organization_event(organization_bar)
             // Reset bar styles
             updaters.update_reset_choice_bar_styles();
 
-            // Update organization transfer buttons
-            updaters.update_organization_transfer_buttons(organization_bar);
+            // Update user management message to unsaved messages
+            updaters.update_message_unsaved(user_message_element);     
 
             // Create and store promote organzation organization event in queue
             event_queue.enqueue(EVENT_TYPES.EDIT_ORGANIZATION_ORGANIZATION, organization_id);
@@ -646,11 +564,15 @@ function edit_organization_event(organization_bar)
 // Function takes in user bar element, will cancel in progress event creation, attempts to create mentorship between a mentee and 
 // mentor. Checks if the last event was a add mentor mentee event and the mentee bar is not undefined, If so will update mentee bar
 // to add mentor data from it, update mentor bar to add mentee data from it, update button and bar styles to be updated and off, will 
-// create add mentor mentor event with current user id, then reset add flag. Else will do nothing.
+// create add mentor mentor event with current user id, then reset add flag. Else will do nothing. Updates to include unsaved changes
+// message.
 function add_mentor_event(user_bar)
 {
     // Store last event
     const prev_event = event_queue.peek_end();
+
+    // Determine message element
+    const user_message_element = determiners.determine_user_management_message();
 
     // Determine user id of clicked mentor
     const user_id = determiners.determine_user_id(user_bar);
@@ -676,6 +598,9 @@ function add_mentor_event(user_bar)
         // Reset bar styles
         updaters.update_reset_choice_bar_styles();
 
+        // Update user management message to unsaved messages
+        updaters.update_message_unsaved(user_message_element); 
+
         // Create and store add mentor mentee event in queue
         event_queue.enqueue(EVENT_TYPES.ADD_MENTOR_MENTOR, user_id);
 
@@ -689,11 +614,15 @@ function add_mentor_event(user_bar)
 // Function takes in user bar element, will cancel in progress event creation, attempts to remove mentorship between a mentee and 
 // mentor. Checks if the last event was a remove mentor mentee event and the mentee is list as having a mentorship with mentor, If so will 
 // will update mentee bar to remove mentor data from it, update mentor bar to remove mentee data from it, update button and bar styles 
-// to be updated and off, will create remove mentor mentor event with current user id, then reset remove flag. Else will do nothing.
+// to be updated and off, will create remove mentor mentor event with current user id, then reset remove flag. Else will do nothing. 
+// Updates to include unsaved changes message.
 function remove_mentor_event(user_bar)
 {
     // Store last event
     const prev_event = event_queue.peek_end();
+
+    // Determine message element
+    const user_message_element = determiners.determine_user_management_message();
 
     // Determine user id of clicked mentor
     const user_id = determiners.determine_user_id(user_bar);
@@ -725,119 +654,15 @@ function remove_mentor_event(user_bar)
         // Reset bar styles
         updaters.update_reset_choice_bar_styles();
 
+        // Update user management message to unsaved messages
+        updaters.update_message_unsaved(user_message_element); 
+
         // Create and store remove mentor mentor event in queue
         event_queue.enqueue(EVENT_TYPES.REMOVE_MENTOR_MENTOR, user_id);
 
         // Reset remove event flag
         remove_mentor_flag = 0;
 
-    }
-
-}
-
-// Function takes in user bar element, will cancel in progress event creation, attempts to transfer roles between 2 mentor. 
-// Checks if the last event was a transfer role super first event and the organization for both mentors is the same, 
-// and one is an organization admin and the other is a mentor within the organization. If so will demote the current organization
-// admin and then promote either current or prev user based on which is not the organization admin, update button and bar styles 
-// to be updated and off, then will remove prev event and add current mentor id as first event data then add the prev event id as second 
-// event data if current user is organziation admin, else will create second event with current mentor id, then reset transfer flag. 
-// Else will do nothing.
-function transfer_role_event(user_bar)
-{
-    // Create storage for currrent and prev mentor ids
-    let current_id, prev_id;
-
-    // Initlize current user org flag to false 
-    let current_user_org_admin_flag = false;
-
-    // Store last event
-    let prev_event = event_queue.peek_end();
-
-    // Create stroage for temp user bar
-    const prev_user_bar = determiners.return_mentor_bar_from_id(prev_event.data);
-
-    // Determine transfer role button from mentor bar
-    const transfer_role_button = determiners.determine_transfer_role_super_admin_button(prev_user_bar);
-
-    // Determine prev user bar to determine parent organization bar element
-    const prev_organitization_bar = determiners.determine_parent_organization_bar_element(prev_user_bar);
-
-    // Determine organization bar from user bar
-    const organization_bar = determiners.determine_parent_organization_bar_element(user_bar);
-
-    // Determine if last event is an transfer role event and if mentors are within the same organization
-    if (prev_event.type == EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST & prev_organitization_bar == organization_bar)
-    {
-        // Determine if prev user bar is organization admin and current user bar is not organization admin or if prev user bar is not organization admin and current user bar is organization admin
-        if (determiners.determine_if_bars_valid_transfer(organization_bar, prev_user_bar, user_bar)) 
-        {
-            // Set current user mentor id 
-            current_id = determiners.determine_id(user_bar);
-
-            // Determine if current user bar is a organization admin
-            if (determiners.determine_if_bar_organization_admin(organization_bar, user_bar))
-            {
-                // Set current user org flag to true
-                current_user_org_admin_flag = true;
-
-            }
-
-            // Remove mentor bars from admin list to mentor list
-            updaters.update_demote_organization_admin(organization_bar);
-
-            // Check if current user is the organization admin
-            if (current_user_org_admin_flag)
-            {
-                // Current user is organization admin
-                // Prmote prev mentor to organization admin 
-                updaters.update_promote_organization_admin(organization_bar, prev_user_bar);
-
-            }
-            else 
-            {
-                // Current user is not organization admin
-                // Prmote current mentor to organization admin
-                updaters.update_promote_organization_admin(organization_bar, user_bar);
-
-            }
-
-            // Pass button and reset button to be off
-            updaters.update_off_button_style(transfer_role_button);
-
-            // Determine and pass mentor list mentor list and refresh sorting for mentor bar elements
-            sorters.sort_mentor_bar_elements_alphabetically(determiners.determine_organization_mentor_list(organization_bar));
-
-            // Reset bar styles
-            updaters.update_reset_choice_bar_styles();
-
-            // Update organization transfer buttons
-            updaters.update_organization_transfer_buttons(organization_bar);
-
-            // Check if current user is the organization admin
-            if (current_user_org_admin_flag)
-            {
-                // Current user is organization admin
-                // Setting prev mentor id while removing prev event in queue
-                prev_id = event_queue.dequeue().data;
-
-                // Create and store transfer role event in queue 
-                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST, current_id);
-                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_SUPER_SECOND, prev_id);
-
-            }
-            else 
-            {
-                // Current user is not organization admin                
-                // Determine mentor id, then create and store transfer role events in queue
-                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_SUPER_SECOND, current_id);
-
-
-            }
-
-            // Reset transfer role flag
-            transfer_role_flag = 0;
-
-        }
     }
 
 }
@@ -861,7 +686,7 @@ export async function save_event()
         execution_flag = 1;
 
         // Determine user mangement message element
-        const user_management_message = determiners.determine_user_management_message();
+        const user_message_element = determiners.determine_user_management_message();
 
         // Set loading overlay to show 
         updaters.update_loading();
@@ -890,11 +715,8 @@ export async function save_event()
         // Check if valid execution
         if (valid_flag)
         {
-            // Update user management message with successful message
-            user_management_message.innerHTML = "Save Successful";
-
-            // Update user management to be visable
-            updaters.update_show(user_management_message);
+            // Updates message element to successful save message 
+            updaters.update_message_text(user_message_element, "Save Successful");
 
             // Refresh page
             location.reload();
@@ -906,11 +728,8 @@ export async function save_event()
             // Store current event in queue
             const current_event = event_queue.dequeue();
 
-            // Update user management message with unsucessful message
-            user_management_message.innerHTML = "Error: type = " + current_event.type + ", data = " + current_event.data;
-
-            // Update user management to be visable
-            updaters.update_show(user_management_message);
+            // Updates message element to error message
+            updaters.update_message_text(user_message_element, "Error: type = " + current_event.type + ", data = " + current_event.data);
 
             // Remove queue elements
             remove_queue_elements();
@@ -927,48 +746,35 @@ export async function save_event()
 }
 
 // Function will remove and user mangement message being displayed if queue is empty, else will update message to display a cancel
-// message, remove all queue elements, then refresh the page to reset elements if not empty.
+// message, remove all queue elements, then refresh the page to reset elements if not empty. Updates to include unsaved changes message.
 export function cancel_event()
 {
     // Determine user mangemenet message element
-    const user_management_message = determiners.determine_user_management_message();
+    const user_message_element = determiners.determine_user_management_message();
 
-    // Check if event queue is empty
-    if (event_queue.isEmpty())
-    {
-        // Queue is empty
-        // Update user management to be hidden
-        updaters.update_not_show(user_management_message);
+    // Update user management message to canceled message
+    updaters.update_message_text(user_message_element, "Canceled queue of events");
 
-    }
-    else
-    {
-        // Queue is not empty
-        // Update user mangement message to show canceled events
-        user_management_message.innerHTML = "Canceled queue of events";
+    // Cancel queue
+    remove_queue_elements();
 
-        // Update user management to be visable
-        updaters.update_show(user_management_message);
-
-        // Cancel queue
-        remove_queue_elements();
-
-        // Refresh page
-        location.reload();
-
-    }
+    // Refresh page
+    location.reload();
 }
 
-export function mentee_clicked_event(mentee_bar)
-{
-    // Check if account is not disabled
-    if (!determiners.determine_disabled_value(mentee_bar))
-    {
-        alert("mentee clicked");
+// Can remove method not used, hook for later mentee interaction if needed
+// export function mentee_clicked_event(mentee_bar)
+// {
+//     // Check if account is not disabled
+//     if (!determiners.determine_disabled_value(mentee_bar))
+//     {
+//         alert("mentee clicked");
 
-    }
-}
+//     }
+// }
 
+// Function will take in user bar, cancel in progress event creation. Deteremine user id from user bar, check if user id is null, then if not will
+// pass user id to method to open profile page.
 export function view_event(user_bar)
 {
     // Determeine user account value
@@ -986,6 +792,7 @@ export function view_event(user_bar)
     }
 }
 
+// Function will take in user bar, cancel in progress event creation. Then update mentee bars to only include mentees of mentor bar passed.
 export function view_mentee_event(user_bar)
 {
     // Check and cancel last event if needed
@@ -1118,7 +925,7 @@ export function remove_mentor_mentee_event(user_bar)
 }
 
 // Function takes in user_bar, checks it is not disabled, updates bar styling to be be disabled, updates valid mentor list,
-// then creates disable event with current user id.
+// then creates disable event with current user id. Update to include unsaved changes message.
 export function disable_event(user_bar)
 {
     // Check if account is not disabled
@@ -1126,6 +933,9 @@ export function disable_event(user_bar)
     {
         // Create storage for mentee id, mentor bar, and selected mentee bars
         let mentee_id, mentor_bar, selected_mentee_bars;
+
+        // Determine message element
+        const user_message_element = determiners.determine_user_management_message();
 
         // Determine user id from hidden value in passed user bar
         const user_id = determiners.determine_user_id(user_bar);
@@ -1186,6 +996,9 @@ export function disable_event(user_bar)
         // Update valid mentor list
         valid_mentor_bars = determiners.return_updated_mentor_list();
 
+        // Update user management message to unsaved messages
+        updaters.update_message_unsaved(user_message_element); 
+
         // Create and store deactivate event in queue
         event_queue.enqueue(EVENT_TYPES.DISABLE, user_id);
 
@@ -1193,12 +1006,15 @@ export function disable_event(user_bar)
 }
 
 // Function takes in user_bar, checks it is disabled, updates bar styling to be be reabled, updates valid mentor list,
-// then creates reable event with current user id.
+// then creates reable event with current user id. Updates to include unsaved changes message.
 export function reable_event(user_bar)
 {   
     // Check if account is disabled
     if (determiners.determine_disabled_value(user_bar))
     {
+        // Determine message element
+        const user_message_element = determiners.determine_user_management_message();
+
         // Check and cancel last event if needed
         check_cancel_event();
 
@@ -1207,6 +1023,9 @@ export function reable_event(user_bar)
 
         // Update valid mentor list
         valid_mentor_bars = determiners.return_updated_mentor_list();
+
+        // Update user management message to unsaved messages
+        updaters.update_message_unsaved(user_message_element); 
 
         // Determine user if then create and store deactivate event in queue
         event_queue.enqueue(EVENT_TYPES.REABLE, determiners.determine_user_id(user_bar));
@@ -1247,16 +1066,6 @@ export function mentor_clicked_event(user_bar)
                 }
             }
         }
-        // Else check if transfer flag is on
-        else if (transfer_role_flag)
-        {
-            // Check if prev event user and current mentor ids are different and transfer role is active
-            if (prev_event.data != determiners.determine_id(user_bar) & transfer_role_flag)
-            {
-                transfer_role_event(user_bar);
-
-            }
-        }
 
         // Update valid mentors
         valid_mentor_bars = determiners.return_updated_mentor_list();
@@ -1266,12 +1075,15 @@ export function mentor_clicked_event(user_bar)
 
 // Function takes in user bar element, will cancel in progress event creation, attempts to promote mentor to organization adminn and add promote organization admin event,
 // Checks if user bar's organziation bar is valid, if so will demote current organization admin, promote passed user bar organization, update button styling, sort bar mentor elements,
-// within organization, then create an promote mentor to organization admin event, else will do nothing.
+// within organization, then create an promote mentor to organization admin event, else will do nothing. Updates to show unsaved changes message.
 export function promote_mentor_organization_admin_event(user_bar)
 {
     // Check if account is not disabled
     if (!determiners.determine_disabled_value(user_bar))
     {
+        // Determine message element
+        const user_message_element = determiners.determine_user_management_message();
+
         // Determine user id from hidden value in passed user bar
         const user_id = determiners.determine_id(user_bar);
 
@@ -1290,11 +1102,11 @@ export function promote_mentor_organization_admin_event(user_bar)
             // Promote mentor bar from mentor list to admin list
             updaters.update_promote_organization_admin(organization_bar, user_bar);
 
-            // Update organization transfer buttons
-            updaters.update_organization_transfer_buttons(organization_bar);
-
             // Determine and pass mentor list from organziation and refresh sorting for mentor bar elements
             sorters.sort_mentor_bar_elements_alphabetically(determiners.determine_organization_mentor_list(organization_bar));
+
+            // Update user management message to unsaved messages
+            updaters.update_message_unsaved(user_message_element); 
 
             // Create and store promote organization mentor event in queue
             event_queue.enqueue(EVENT_TYPES.PROMOTE_ORGANIZATION_MENTOR, user_id);
@@ -1360,147 +1172,14 @@ export function edit_organization_mentor_event(user_bar)
     }
 }
 
-// Function takes in user bar element, will cancel in progress event creation, then attempts to transfer roles between the user bar and session user bar and add an transfer role event to queue. 
-// Checks if the users are valid for transfer by checking if within the same organization, one is a organization admin and the other a organization mentor, if so will 
-// demote organization admin, then promote the user bar to organziation admin, update button styling, sort oraganization mentors, then add transfer role event to queue. 
-// Else will do nothing.
-export function transfer_role_organization_admin_mentor_event(user_bar)
-{
-    // Check if account is not disabled
-    if (!determiners.determine_disabled_value(user_bar))
-    {
-        // Determine organization bar from user bar
-        const organization_bar = determiners.determine_parent_organization_bar_element(user_bar);
-
-        // Determine session user bar
-        const session_user_bar = determiners.determine_session_user_bar();
-
-        // Check and cancel last event if needed
-        check_cancel_event();
-
-        // Check for user bar to be within organization bar
-        if (organization_bar != null)
-        {
-            // Determine session user organization and check if it is the same as the user organization bar, the users are valid for transfer, 
-            // and the session user is organization admin for user bar's organization
-            if (organization_bar == determiners.determine_parent_organization_bar_element(session_user_bar) && 
-                determiners.determine_if_bars_valid_transfer(organization_bar, user_bar, session_user_bar) &&
-                determiners.determine_if_bar_organization_admin(organization_bar, session_user_bar))
-            {
-                // Demote organzation admin 
-                updaters.update_demote_organization_admin(organization_bar);
-
-                // Promote user bar to session
-                updaters.update_promote_organization_admin(organization_bar, user_bar);
-
-                // Determine and pass mentor list from organziation to refresh sorting for mentor bar elements
-                sorters.sort_mentor_bar_elements_alphabetically(determiners.determine_organization_mentor_list(organization_bar));
-                    
-                // Update organization transfer buttons
-                updaters.update_organization_transfer_buttons(organization_bar);
-
-                // Determine session user id and user id from session user bar, then create and store transfer role organzation style event in queue
-                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_FIRST, determiners.determine_id(session_user_bar));
-                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_ORGANIZATION_SECOND, determiners.determine_id(user_bar));
-
-            }
-        }
-    }
-}
-
-// Function takes in a user bar element, will cancel in progress event creation, attempts to toggle event and button for transfering roles between user with organization. Checks if account is 
-// disabled or event is toggled, if disabled then wont process anything, else if toggled then will turn off button styling and remove event in queue else 
-// will turn on transfer role flag, button and valid bar styling, then add a transfer role event. 
-export function transfer_role_super_admin_mentor_event(user_bar)
-{
-    // Check if account is not disabled
-    if (!determiners.determine_disabled_value(user_bar))
-    {
-        // Create storage for mentor and admin list
-        let valid_organization_mentors;
-
-        // Initlize toggle flag to 0
-        let toggle_flag = 0;
-
-        // Create storage for current organization bar
-        let organization_bar;
-
-        // Determine user id from hidden value in passed user bar
-        const user_id = determiners.determine_id(user_bar);
-
-        // Determine transfer role button
-        const transfer_role_button = determiners.determine_transfer_role_super_admin_button(user_bar);
-
-        // Check if queue is not empty
-        if (!event_queue.isEmpty())
-        {
-            // Check if same button was already pressed before
-            toggle_flag = determiners.deteremine_if_event_toggle(event_queue.peek_end(), EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST, user_id);
-
-        }
-
-        // Check and cancel last event if needed
-        check_cancel_event();
-
-        // Check if button was toggled
-        if (!toggle_flag)
-        {
-            // Last event was different, cont. exeuction normally 
-            // Determine current organization
-            organization_bar = determiners.determine_parent_organization_bar_element(user_bar);
-            
-            // Check there is a current organization bar
-            if (organization_bar != null)
-            {
-                // Set transfer role flag on
-                transfer_role_flag = 1;
-
-                // Pass button and style button to be on
-                updaters.update_on_button_style(transfer_role_button);
-
-                // Determine if mentor bar is organization admin
-                if (determiners.determine_if_bar_organization_admin(organization_bar, user_bar))
-                {
-                    // Mentor bar is an organization admin
-                    // Determine all mentors in mentor list
-                    valid_organization_mentors = determiners.return_mentor_list_all(organization_bar);
-
-                }
-                else
-                {  
-                    // Mentor bar is not a orgnaization admin
-                    // Determine all organization admin in organization admin list
-                    valid_organization_mentors = determiners.return_admin_list_all(organization_bar);
-
-                }
-
-                // Determine and pass mentor list from organziation to refresh sorting for mentor bar elements
-                sorters.sort_mentor_bar_elements_alphabetically(determiners.determine_organization_mentor_list(organization_bar));
-                
-                // Style valid mentor bars
-                updaters.update_valid_choice_bar_styles(valid_organization_mentors);
-
-                // Create and store transfer role event in queue
-                event_queue.enqueue(EVENT_TYPES.TRANSFER_ROLE_SUPER_FIRST, user_id);
-
-            }
-        }
-        else
-        {
-            // Last event was the same cancel without attempting to create event
-            // Pass button and reset button to be off 
-            updaters.update_off_button_style(transfer_role_button);
-
-            // Remove event from queue
-            event_queue.dequeue();
-
-        }
-
-    }
-}
-
+// Function takes in user bar element, cancel any in progress events. Then will remove mentor bar element from organziation bar element and adds 
+// it to the unaffilated mentors section. Will then update mentor buttons to reflect new postion, resort elements alphabietically, then add a decouple 
+// event to event queue. Updates to show unsaved changes message.
 export function decouple_mentor_event(user_bar)
 {
+    // Determine message element
+    const user_message_element = determiners.determine_user_management_message();
+
     // Determine user id from hidden value in passed user bar
     const user_id = determiners.determine_id(user_bar);
 
@@ -1515,12 +1194,12 @@ export function decouple_mentor_event(user_bar)
 
     // Remove mentor bar from organization to unaffiliated mentors
     updaters.update_remove_from_organization(user_bar);
-    
-    // Update organization transfer buttons
-    updaters.update_organization_transfer_buttons(organization_bar);
 
     // Sort all organization bar elements to
     sorters.sort_all_organization_bar_element_alphabetically();
+
+    // Update user management message to unsaved messages
+    updaters.update_message_unsaved(user_message_element); 
 
     // Create and store decouple organization event in queue
     event_queue.enqueue(EVENT_TYPES.DECOUPLE_MENTOR, user_id);
@@ -1543,14 +1222,15 @@ export function organization_clicked_event(organization_bar)
 
 // Function attempts to crate an organization element and add an create organization event to queue. Checks if name is unique,
 // if so will pass name, id, remove organization event, and clicked organizaion event to create new organization and adds new event to queue
-// else updates add new organization message bar to include error message.
+// else updates add new organization message bar to include error message. Updates to show unsaved changes message.
 export function create_orgnization_event()
 {
     // Determine organization counter element
     const organization_counter = determiners.determine_organization_counter();
 
-    // Determine error message element
-    const message_bar_element = determiners.determine_add_new_organization_message_bar();
+    // Determine message elements
+    const modal_message_element = determiners.determine_add_new_organization_message_bar();
+    const user_message_element = determiners.determine_user_management_message();
 
     // Determine organization name element
     const new_organization_name_element = determiners.determine_add_new_organization_name();
@@ -1563,11 +1243,8 @@ export function create_orgnization_event()
     if (new_organization_name == "")
     {
         // Name is empty
-        // Update message to empty string
-        message_bar_element.innerHTML = "";
-
-        // Show message is not already
-        updaters.update_not_show(message_bar_element);
+        // Update add new organization modal to be empty and hide
+        updaters.update_hide_message(modal_message_element);
 
     }
     // Check if there already an organization with that name
@@ -1587,11 +1264,14 @@ export function create_orgnization_event()
         // Sort all organiation bars
         sorters.sort_all_organization_bar_element_alphabetically();
 
-        // Update message to creation valid
-        message_bar_element.innerHTML = new_organization_name + " creation is valid";
+        // Update add new organization modal message valid creation message
+        updaters.update_message_text(modal_message_element, new_organization_name + " creation is valid");
 
-        // Show message if created
-        updaters.update_show(message_bar_element);
+        // Update user management message to unsaved messages
+        updaters.update_message_unsaved(user_message_element);
+
+        // Update add new organization modal to hidden
+        hide_add_organization_modal_event();
 
         // Create and store add organzation organization event in queue
         event_queue.enqueue(EVENT_TYPES.CREATE_ORGANIZATION, new_organization_name);
@@ -1600,11 +1280,8 @@ export function create_orgnization_event()
     else
     {
         // Name is not unique
-        // Update message to state non-unique error
-        message_bar_element.innerHTML = "Error: " + new_organization_name +" is non-unique";
-
-        // Show message is hidden
-        updaters.update_show(message_bar_element);
+        // Update add new organization modal message invalid creation message 
+        updaters.update_message_text(modal_message_element, "Error: " + new_organization_name +" is non-unique");
 
     }
 
@@ -1612,7 +1289,7 @@ export function create_orgnization_event()
 
 // Function takes organization bar, will cancel in progress event creation, attempts to remove an organization element and add an remove organization event to queue. Checks 
 // if an organization is empty, if so then removes the organization and adds event else updates message bar to user to remove mentors 
-// included in organization.
+// included in organization. Updates to show unsaved changes message.
 export function remove_organization_event(organization_bar)
 {
     // Determine organzation id value from hidden value in passed organzation bar
@@ -1622,7 +1299,7 @@ export function remove_organization_event(organization_bar)
     const organization_name = determiners.determine_organization_name_value(organization_bar);
 
     // Determine user management message element
-    const message_bar_element = determiners.determine_user_management_message();
+    const user_message_element = determiners.determine_user_management_message();
 
     // Check and cancel last event if needed
     check_cancel_event();
@@ -1633,11 +1310,8 @@ export function remove_organization_event(organization_bar)
         // Updating organization bar to be removed
         updaters.update_remove_organization(organization_bar);
 
-        // Update user management message to be empty
-        message_bar_element.innerHTML = "";
-
-        // Update user management message to hidden
-        updaters.update_not_show(message_bar_element);
+        // Update user management message to unsaved messages
+        updaters.update_message_unsaved(user_message_element); 
 
         // Create and store remove organzation organization event in queue
         event_queue.enqueue(EVENT_TYPES.REMOVE_ORGANIZATION, organization_id);
@@ -1645,11 +1319,30 @@ export function remove_organization_event(organization_bar)
     }
     else
     {
-        // Update user management message to state remove error
-        message_bar_element.innerHTML = "Error: " + organization_name + " is not empty";
-
-        // Update user management message to show
-        updaters.update_show(message_bar_element);
+        // Update add new organization modal message with error message
+        updaters.update_message_text(user_message_element, "Error: " + organization_name + " is not empty");
 
     }
+}
+
+// Function determines and opens add new organization modal. 
+export function show_add_organization_modal_event()
+{
+    // Determine add new organization modal
+    const add_new_organization_modal = determiners.determine_add_new_organization_modal();
+
+    // Update modal to show
+    add_new_organization_modal.showModal();
+
+}
+
+// Function determines and hides add new organization modal.
+export function hide_add_organization_modal_event()
+{
+    // Determine add new organization modal
+    const add_new_organization_modal = determiners.determine_add_new_organization_modal();
+
+    // Update modal to be hidden
+    add_new_organization_modal.close();
+
 }

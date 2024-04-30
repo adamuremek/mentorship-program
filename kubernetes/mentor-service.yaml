@@ -7,6 +7,7 @@ spec:
   selector:
     app: mentorship_program
   ports:
-    - protocol: TCP
+    - name: web
+      protocol: TCP
       port: 80
       targetPort: 80
